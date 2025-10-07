@@ -5,6 +5,78 @@ var gst_debug_category_get_name;
 var gst_debug_message_get;
 var pipelines = [];
 
+var functions = {};
+
+
+function type_to_frida(t)
+{
+  switch (t) {
+    case "p":
+      return "pointer";
+    case "b":
+      return "bool";
+    case "c":
+      return "char";
+    case "s":
+      return "int16";
+    case "i":
+      return "int32";
+    case "l":
+      return "int64";
+    case "f":
+      return "float";
+    case "d":
+      return "double";
+    case "S":
+      return "pointer";
+    case "V":
+      return "void";
+    default:
+      console.error(`Unsupported type ${t}`);
+      return null;
+  }
+}
+
+function call(symbol, signature, ...args)
+{
+  var nf;
+
+  console.error(`calling ${symbol} (${signature}) and args ${args}`);
+  /* Find the symbol if not cached */
+  if (symbol in functions) {
+    nf = functions["symbol"];
+  } else {
+    Process.enumerateModules().some(m => {
+      var s = m.findExportByName(symbol);
+      if (!s) return false;
+
+      /* TODO handle return value */
+      var sig = [];
+      for (var st of signature) {
+        /* TODO If a callback is found, skip it */
+        sig.push(type_to_frida(st));
+      }
+      nf = new NativeFunction(s, "void", sig);
+      functions["symbol"] = nf;
+      return true;
+    });
+  }
+  /* Now transform the args */
+  var tx_args = [];
+  var idx = 0;
+  for (var st of signature) {
+    if (st == "S") {
+      tx_args.push(Memory.allocUtf8String(args[idx]));
+    } else {
+      tx_args.push(args[idx]);
+    }
+    idx++;
+  }
+
+  /* Call the function */
+  return nf(...tx_args);
+}
+
 const gst_debug_add_log_function_cb = new NativeCallback(
     (cat, level, file, func, line, obj, msg, ptr) => {
         send({
@@ -154,6 +226,7 @@ function findRunningPipelines()
 
 console.log ("Running script");
 rpc.exports = {
+  'call': call,
   'enumeratePipelines': enumeratePipelines,
 };
 

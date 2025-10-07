@@ -18,6 +18,8 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 import frida
 
+from router import GIRouter
+
 logger = logging.getLogger("gstaudit")
 
 logger_levels = {
@@ -28,6 +30,7 @@ logger_levels = {
     "debug": logging.DEBUG,
 }
 
+# Example on how to serialize data from json to model to API
 class GstDebug(BaseModel):
     category: str
     level: int
@@ -38,14 +41,53 @@ class GstDebug(BaseModel):
     msg: str
 
 
+# Settings example
 class Settings(BaseSettings):
     pid: int
 
+
+def call_symbol(method, **kwargs):
+    def get_signature():
+        s = ""
+        # TODO handle return value
+        if method.is_method():
+            s += "p"
+        for a in method.get_arguments(): 
+            tag = a.get_type().get_tag_as_string()
+            if tag in ["gboolean"]:
+                s += "b"
+            elif tag in ["gint8", "guint8"]:
+                s += "c"
+            elif tag in ["gint16", "guint16"]:
+                s += "s"
+            elif tag in ["gint32", "guint32"]:
+                s += "i"
+            elif tag in ["gint64", "guint64"]:
+                s += "l"
+            elif tag in ["utf8"]:
+                s += "S"
+            elif tag in ["gfloat"]:
+                s += "f"
+            elif tag in ["gdoable"]:
+                s += "d"
+            elif tag in ["void"]:
+                s += "V"
+            else:
+                s += "p"
+        return s
+
+    # Call the symbol from the JS exports
+    s = get_signature()
+    print(f"Calling {method.get_symbol()} with signature {s} and args {kwargs}")
+    return script.exports_sync.call(method.get_symbol(), s, *kwargs.values())
+    
+
 settings = Settings()
 app = FastAPI()
+app.include_router(GIRouter('Gst', call_symbol))
+
 messages: list[GstDebug] = []
 new_message_event = asyncio.Event()
-session = frida.attach(settings.pid)
 
 def configure_logger(log_cat):
     stream_handle = colorlog.StreamHandler()
@@ -101,8 +143,10 @@ async def logs():
 
 
 configure_logger("debug");
+
+session = frida.attach(settings.pid)
 with open('gstaudit.js', 'r') as f:
     script = session.create_script(f.read())
     script.on('message', on_message)
-    script.set_log_handler(on_log)
+    #script.set_log_handler(on_log)
     script.load()
