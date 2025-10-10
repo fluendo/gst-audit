@@ -16,6 +16,6 @@ interact with your live pipeline.
 * [x] SSE (Server Sent Event) for notifying events (like bus messages) to the client
 * [x] HTTP REST API for manipulating the pipeline
 * [x] Attach to a running program
-* [ ] Execute code natively, like property changes, etc
-* [ ] Generate the REST API dynamically through GIR
+* [x] Execute code natively, like property changes, etc
+* [x] Generate the REST API dynamically through GIR
 * [ ] Generate the JS API to wrap the REST API through GIR
