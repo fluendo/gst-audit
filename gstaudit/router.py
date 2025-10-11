@@ -13,6 +13,8 @@ StructInfo, \
 FunctionInfo, \
 CallbackInfo
 
+from gstaudit.types import Pointer 
+
 class GIRouter(APIRouter):
     def __init__(self, namespace, call, **kwargs):
         self.namespace = namespace
@@ -64,7 +66,7 @@ class GIRouter(APIRouter):
         params.append(Parameter("_req", Parameter.POSITIONAL_OR_KEYWORD, annotation=Request))
         # Add self
         if method.is_method():
-            params.append(Parameter("self", Parameter.POSITIONAL_OR_KEYWORD, annotation=int))
+            params.append(Parameter("self", Parameter.POSITIONAL_OR_KEYWORD, annotation=Pointer))
         skip = []
         for a in method.get_arguments():
             at = a.get_type()
@@ -131,7 +133,7 @@ class GIRouter(APIRouter):
         elif tag in ["void"]:
             return None 
         else:
-            return int
+            return Pointer
 
     def _type_to_json(self, t):
         tag = t.get_tag_as_string()

@@ -18,8 +18,8 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 import frida
 
-from router import GIRouter
-from decorators import sse_handler
+from gstaudit.router import GIRouter
+from gstaudit.decorators import sse_handler
 
 script = None
 
