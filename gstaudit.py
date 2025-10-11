@@ -112,5 +112,6 @@ async def callbacks():
         callbacks_event.clear()
 
 @app.get("/Application/pipelines/")
-def pipeline_list():
-    return script.exports_sync.enumerate_pipelines()
+def pipeline_list() -> list[int]:
+    # TODO use a new pydantic type for pointers
+    return [int(i, 16) for i in script.exports_sync.enumerate_pipelines()]

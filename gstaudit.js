@@ -180,20 +180,6 @@ function enumeratePipelines()
     return pipelines;
 }
 
-function changeState()
-{
-    console.log("Changing state");
-    Process.enumerateModules().some(m => {
-        /* Example of the set state */
-        symb = m.findExportByName('gst_element_set_state');
-        if (symb == null)
-            return false;
-        f = new NativeFunction(symb, 'int', ['pointer','int']);
-        f(pipeline_ptr, 3);
-        return true;
-    });
-}
-
 function findGTypeClass(address)
 {
     console.debug(`Looking for a GTypeClass pointing to ${address}`);
@@ -202,7 +188,7 @@ function findGTypeClass(address)
         const results = Memory.scanSync(range.base, range.size, address.toMatchPattern());
         for (let i = 0; i < results.length; i++) {
             const r = results[i];
-            console.debug(`GTypeClass found at at ${r.address} with size ${r.size}`);
+            console.debug(`GTypeClass found at ${r.address} with size ${r.size}`);
             let gtcp = r.address;
             gtypeclasses.push(gtcp);
         }
@@ -263,16 +249,17 @@ function findRunningPipelines()
         let gtypes = findGType(pm);
         gtypes.forEach(gtype => {
             findGTypeClass(gtype).forEach(gtypeclass => {
+                console.debug(`Looking for a pipeline at ${gtypeclass}`);
                 /* Check that we have a valid name to validate it */
                 try {
                     let namep = gtypeclass.add(0x20).readPointer();
-                    let name = Memory.readCString(namep);
+                    let name = namep.readCString();
                     if (name) {
                         console.info(`Pipeline found with name ${name}`);
                         pipelines.push(gtypeclass);
                     }
                 } catch (error) {
-
+                  console.debug(`Pipeline not found at ${gtypeclass} [${error}]`);
                 }
             });
         });
