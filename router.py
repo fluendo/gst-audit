@@ -170,6 +170,7 @@ class GIRouter(APIRouter):
         ret = {}
         ret["arguments"] = []
         ret["is_method"] = is_method
+        ret["returns"] =  self._type_to_json(cb.get_return_type())
         if is_method:
             # Prepend self
             ra = {

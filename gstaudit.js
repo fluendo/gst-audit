@@ -91,10 +91,12 @@ function call(symbol, type, ...args)
       var s = m.findExportByName(symbol);
       if (!s) return false;
 
-      /* TODO handle return value */
+      /* Return value */
+      var rsig = type["returns"];
+      /* Arguments */
       var sig = callable_signature(type);
       console.log(`Signature is [${sig}]`);
-      nf = new NativeFunction(s, "void", sig);
+      nf = new NativeFunction(s, rsig, sig);
       functions["symbol"] = nf;
       return true;
     });
@@ -128,10 +130,6 @@ function call(symbol, type, ...args)
           "data": {"id": cb_id, "data": data}
         });
       }, "void", cb_sig);
-      /* FIXME given that we can not access the cb argument definitions
-       * we need to bind it. Frida does the same, but we don't care about the
-       * properties Frida sets
-       */
       callbacks.set(cb_id.toString(), cb);
       tx_args.push(cb);
     } else if (a["is_destroy"]) {
