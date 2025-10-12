@@ -51,7 +51,7 @@ class GIRouter(APIRouter):
         api += f"/{method.get_name()}"
 
         # Handle the return value
-        ret = self._tag_to_rest(method.get_return_type().get_tag_as_string())
+        ret = self._type_to_rest(method.get_return_type())
         # If we do return something
         if ret:
             rparams = {"return": ret }
@@ -92,11 +92,11 @@ class GIRouter(APIRouter):
                 if not rparams:
                     rparams = {}
                     st = status.HTTP_200_OK
-                rparams[a.get_name()] = self._tag_to_rest(at.get_tag_as_string())
+                rparams[a.get_name()] = self._type_to_rest(at)
                 if a.get_direction() == Direction.OUT:
                     continue
 
-            annotation = self._tag_to_rest(at.get_tag_as_string())
+            annotation = self._type_to_rest(at)
             if a.may_be_null():
                 annotation = Optional[annotation]
                 # FIXME we can not set a default value, because in python, a parameter
@@ -121,8 +121,11 @@ class GIRouter(APIRouter):
         # Register
         self.add_api_route(api, ep, status_code=st)
 
-    def _tag_to_rest(self, tag):
-        if tag in ["gboolean"]:
+    def _type_to_rest(self, t):
+        tag = t.get_tag_as_string()
+        if tag == "interface" and isinstance(t.get_interface(), EnumInfo):
+            return "int"
+        elif tag in ["gboolean"]:
             return bool 
         elif tag in ["gint32", "gint64", "guint32", "guint64"]:
             return int
@@ -139,7 +142,9 @@ class GIRouter(APIRouter):
         tag = t.get_tag_as_string()
         if tag == "interface" and isinstance(t.get_interface(), CallbackInfo):
             return "callback"
-        if tag in ["gboolean"]:
+        elif tag == "interface" and isinstance(t.get_interface(), EnumInfo):
+            return "int32"
+        elif tag in ["gboolean"]:
             return "bool"
         elif tag in ["gint8"]:
             return "int8"

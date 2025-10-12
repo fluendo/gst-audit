@@ -69,7 +69,7 @@ function callable_signature(type)
       sig.push("pointer")
     } else if (a["type"] == "string") {
       sig.push("pointer")
-    } else if (a["direction"] in [1, 2]) {
+    } else if ([1, 2].includes(a["direction"])) {
       sig.push("pointer")
     } else {
       sig.push(a["type"]);
@@ -107,6 +107,7 @@ function call(symbol, type, ...args)
   for (var a of type["arguments"]) {
     if (a["type"] == "string") {
       tx_args.push(Memory.allocUtf8String(args[idx]));
+      idx++;
     } else if (a["type"] == "callback" && !a["is_destroy"]) {
       /* For callbacks, create a new NativeCallback */
       var cb_id = callbacks.size;
@@ -136,7 +137,7 @@ function call(symbol, type, ...args)
       tx_args.push(NULL);
     } else if (a["is_closure"]) {
       tx_args.push(NULL);
-    } else if (a["direction"] in [1, 2]) {
+    } else if ([1, 2].includes(a["direction"])) {
       /* For an output only argument, create the memory to store it */
       console.log(`Output arg ${a["name"]} allocated`);
       tx_args.push(Memory.alloc(base_type_to_size(a["type"])));
@@ -145,6 +146,9 @@ function call(symbol, type, ...args)
       /* continue otherwise */
     } else if (a["skipped"]) {
       tx_args.push(NULL);
+    } else if (a["type"] == "pointer") {
+      tx_args.push(ptr(args[idx]));
+      idx++;
     } else {
       tx_args.push(args[idx]);
       idx++;
@@ -165,7 +169,7 @@ function call(symbol, type, ...args)
         if (value === tx_args[idx])
           ret[a["name"]] = key;
       }
-    } else if (a["direction"] & 1) {
+    } else if ([1, 2].includes(a["direction"])) {
       ret[a["name"]] = base_type_read(a["type"], tx_args[idx]);
     }
     idx++;
