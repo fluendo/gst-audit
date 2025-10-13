@@ -1,5 +1,6 @@
 from inspect import Parameter, Signature
 from typing import Optional
+from enum import IntEnum
 
 from gi.module import repository as repo
 from fastapi import Request, APIRouter, status
@@ -35,7 +36,8 @@ class GIRouter(APIRouter):
                 self._generate_methods(i.get_methods(), i.get_name())
             elif isinstance(i, FunctionInfo):
                 self._generate_method(i)
-                continue
+            elif isinstance(i, EnumInfo):
+                self._generate_methods(i.get_methods(), i.get_name())
 
     def _generate_methods(self, methods, obj):
         for m in methods:
@@ -124,7 +126,8 @@ class GIRouter(APIRouter):
     def _type_to_rest(self, t):
         tag = t.get_tag_as_string()
         if tag == "interface" and isinstance(t.get_interface(), EnumInfo):
-            return "int"
+            # FIXME we should cache this
+            return IntEnum(t.get_interface().get_name(), {v.get_name(): v.get_value() for v in t.get_interface().get_values()})
         elif tag in ["gboolean"]:
             return bool 
         elif tag in ["gint32", "gint64", "guint32", "guint64"]:
