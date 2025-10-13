@@ -5,6 +5,9 @@
 `Gst-Audit` uses [frida](https://frida.re) to attach to your program and then exposes the GStreamer API as
 a REST API through [fastapi](https://fastapi.tiangolo.com/)
 
+### Swagger
+As any other `fastapi` application you will find the swagger at [http://127.0.0.1:8000/docs]()
+
 ### REST API
 Gst-Audit provides a REST API to interact with your running pipeline that matches introspection
 information provided by the GObject's introspection system. The following features are supported:
@@ -16,6 +19,13 @@ information provided by the GObject's introspection system. The following featur
 * [ ] Callbacks are handled as an HTTP callback
 * [ ] GError handling to return different HTTP response
 
+## Running
+To launch `Gst-Audit` just do:
+```bash
+> PID=[PID] fastapi dev gstaudit/main.py
+```
+using the PID of the process you want to audit
+
 ## Example
 First, you need to launch your pipeline, for example:
 
@@ -26,7 +36,7 @@ First, you need to launch your pipeline, for example:
 Then, get the `PID` of it and finally launch `Gst-Audit` passing the `PID` by doing:
 
 ```bash
-`PID=[PID] fastapi dev gstaudit/main.py`
+> PID=[PID] fastapi dev gstaudit/main.py
 ```
 
 Finally, interact with the REST API, for example to pause it do:
