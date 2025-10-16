@@ -31,19 +31,19 @@ class GIRouter(APIRouter):
             if isinstance(i, ConstantInfo):
                 continue
             elif isinstance(i, StructInfo):
-                self._generate_methods(i.get_methods(), i.get_name())
+                self._generate_methods(i.get_methods(), i.get_name(), [i.get_type_name()])
             elif isinstance(i, ObjectInfo):
-                self._generate_methods(i.get_methods(), i.get_name())
+                self._generate_methods(i.get_methods(), i.get_name(), [i.get_type_name()])
             elif isinstance(i, FunctionInfo):
                 self._generate_method(i)
             elif isinstance(i, EnumInfo):
-                self._generate_methods(i.get_methods(), i.get_name())
+                self._generate_methods(i.get_methods(), i.get_name(), [i.get_type_name()])
 
-    def _generate_methods(self, methods, obj):
+    def _generate_methods(self, methods, obj, tags=None):
         for m in methods:
-            self._generate_method(m, obj)
+            self._generate_method(m, obj=obj, tags=tags)
 
-    def _generate_method(self, method, obj=None):
+    def _generate_method(self, method, obj=None, tags=None):
         # Generate the path
         api = ""
         if obj:
@@ -121,7 +121,7 @@ class GIRouter(APIRouter):
         ep.__annotations__ = {v.name: v.annotation for v in s.parameters.values()} | {"return": rmodel}
         ep.__defaults__ = (None, method, self._method_to_json(method))
         # Register
-        self.add_api_route(api, ep, status_code=st)
+        self.add_api_route(api, ep, status_code=st, tags=tags)
 
     def _type_to_rest(self, t):
         tag = t.get_tag_as_string()
