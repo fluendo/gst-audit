@@ -1,10 +1,12 @@
 import argparse
 import json
 
+import connexion
 import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
 from apispec import APISpec
+
 
 class GIRest():
     pointer_schema = {
@@ -56,7 +58,8 @@ class GIRest():
             "get": {
                 "summary": "",
                 "description": "",
-                "tags": [f"{bi.get_namespace()}{bi.get_name()}" if bi else ""],
+                "operationId": f"{bim.get_namespace()}_{bi.get_name() if bi else ''}_{bim.get_name()}",
+                "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
                 "parameters": params,
                 "responses": {"200": {"description": "Success"}},
             }
@@ -104,9 +107,9 @@ class GIRest():
     def _generate_struct(self, bi):
         if GIRepository.struct_info_is_gtype_struct(bi):
             return
-        # Structs with private fields can not be serialized
-        # Structs with a constructor can not be serialized
-        # Get free_function
+        # TODO Structs with private fields can not be serialized
+        # TODO Structs with a constructor can not be serialized
+        # TODO Get free_function
 
     def generate(self):
         # Generate the types
@@ -117,7 +120,37 @@ class GIRest():
                 self._generate_object(info)
             elif info_type == GIRepository.InfoType.STRUCT:
                 self._generate_struct(info)
+            elif info_type == GIRepository.InfoType.FUNCTION:
+                self._generate_function(info)
         return self.spec
+
+
+class FridaResolver(connexion.resolver.Resolver):
+    def __init__(self, girest: GIRest, pid: int):
+        self.girest = girest
+        self.pid = pid
+        # TODO connect to the corresponding process
+        super().__init__()
+ 
+    def create_frida_handler(self):
+        def frida_resolver_handler(_method=None, *args, **kwargs):
+            return {"ok": _method}
+
+        return frida_resolver_handler
+
+    def resolve_function_from_operation_id(self, operation_id):
+        ret = self.create_frida_handler()
+        # TODO use the method to generate the property json of the definition of the method
+        ret.__defaults__ = ("foo",)
+        return ret
+
+
+class DummyResolver(connexion.resolver.Resolver):
+    def resolve_function_from_operation_id(self, operation_id):
+        def dummy_resolver_handler(*args, **kwargs):
+            return {"received": kwargs}
+
+        return dummy_resolver_handler
 
 
 def run():
@@ -135,4 +168,3 @@ def run():
 # FIXME remove this once launched through poetry
 if __name__ == "__main__":
     run()
-

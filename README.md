@@ -69,12 +69,12 @@ main();
 ## Why XXX is not used?
 ### PyGObject
 PyGObject is not used to know the introspection information of the desired namespace because it "hides" information, like
-the functions to free a `struct` or the `unref` methods. Those are managed internally by the bindings.
+the functions to free a `struct` or the `unref` methods. Those are managed internally by the PyGObject code making it impossible to generate proper bindings. We use `GIRepository` through `PyGObject` tho.
 
 ### FastAPI
 FastAPI is a great tool but it lacks a proper inheritance support of object types in the schema. Also, you can not easily
 add schema metadata (required for the automatic TypeScript bindings) in fields, only on endpoints. There are workardounds
-for the previous statement but it requires generating Pydantic models and extend them. Too much of a burden.
+for the previous statement but it requires generating Pydantic models and extend them. Too much of a burden. We use `apispec` directly to generate a valid `openapi` schema.
 
 ## References
 * [OpenAPI to TypeScript](https://heyapi.dev/openapi-ts/output)
