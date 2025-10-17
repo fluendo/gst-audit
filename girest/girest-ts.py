@@ -48,6 +48,11 @@ def main():
         action="store_true",
         help="Output OpenAPI schema JSON instead of TypeScript"
     )
+    parser.add_argument(
+        "--base-url",
+        help="Base URL for REST API calls (e.g., 'http://localhost:8000'). If not provided, methods will return Promise types without implementation.",
+        default=None
+    )
     
     args = parser.parse_args()
     
@@ -62,7 +67,7 @@ def main():
             output = json.dumps(openapi_schema, indent=2)
         else:
             # Generate TypeScript bindings
-            ts_gen = TypeScriptGenerator(openapi_schema)
+            ts_gen = TypeScriptGenerator(openapi_schema, base_url=args.base_url)
             output = ts_gen.generate()
         
         # Write to file or stdout

@@ -11,12 +11,13 @@ from typing import Dict, List, Set, Optional, Any
 class TypeScriptGenerator:
     """Generates TypeScript bindings from OpenAPI schema."""
     
-    def __init__(self, openapi_schema: Dict[str, Any]):
+    def __init__(self, openapi_schema: Dict[str, Any], base_url: Optional[str] = None):
         """
         Initialize the generator with an OpenAPI schema.
         
         Args:
             openapi_schema: The OpenAPI schema dictionary from GIRest
+            base_url: Optional base URL for REST API calls (e.g., 'http://localhost:8000')
         """
         self.schema = openapi_schema
         self.components = openapi_schema.get("components", {})
@@ -24,9 +25,20 @@ class TypeScriptGenerator:
         self.paths = openapi_schema.get("paths", {})
         self.generated_types: Set[str] = set()
         self.class_methods: Dict[str, List[Dict]] = {}  # class_name -> [methods]
+        self.base_url = base_url
+        self.enum_schemas: Set[str] = set()  # Track which schemas are enums
+        
+        # Identify enum schemas first
+        self._identify_enum_schemas()
         
         # Parse operations and organize by tag (class)
         self._parse_operations()
+    
+    def _identify_enum_schemas(self):
+        """Identify which schemas are enums."""
+        for schema_name, schema_def in self.schemas.items():
+            if "enum" in schema_def and schema_def.get("type") == "string":
+                self.enum_schemas.add(schema_name)
     
     def _parse_operations(self):
         """Parse all operations and organize them by tag (class name)."""
@@ -132,11 +144,30 @@ class TypeScriptGenerator:
         """
         lines = []
         
-        # Handle enums - generate as type alias with string literals
+        # Handle enums
         if "enum" in schema and schema.get("type") == "string":
             enum_values = schema["enum"]
-            literals = " | ".join([f'"{v}"' for v in enum_values])
-            return f"export type {name} = {literals};"
+            
+            # Check if this enum has methods (will be generated as namespace later)
+            has_methods = name in self.class_methods
+            
+            if has_methods:
+                # For enums with methods, generate as namespace with const values
+                # Methods will be added later in _generate_class
+                lines.append(f"export namespace {name} {{")
+                for value in enum_values:
+                    # Convert enum value to uppercase constant name
+                    const_name = value.upper().replace("-", "_").replace(".", "_")
+                    lines.append(f"  export const {const_name}: '{value}' = '{value}';")
+                lines.append("}")
+                # Also generate a type alias for the enum values
+                literals = " | ".join([f'"{v}"' for v in enum_values])
+                lines.append(f"export type {name}Value = {literals};")
+                return "\n".join(lines)
+            else:
+                # Generate as simple type alias for enums without methods
+                literals = " | ".join([f'"{v}"' for v in enum_values])
+                return f"export type {name} = {literals};"
         
         # Handle allOf (inheritance)
         if "allOf" in schema:
@@ -185,18 +216,20 @@ class TypeScriptGenerator:
         
         return "\n".join(lines)
     
-    def _generate_class_method(self, method_info: Dict[str, Any]) -> str:
+    def _generate_class_method(self, method_info: Dict[str, Any], class_name: str) -> str:
         """
         Generate a TypeScript class method from an operation.
         
         Args:
             method_info: Dictionary containing operation information
+            class_name: The class name for this method
             
         Returns:
             TypeScript method definition
         """
         operation = method_info["operation"]
         path = method_info["path"]
+        http_method = method_info["http_method"]
         
         # Extract method name from path (last segment)
         method_name = path.split("/")[-1].replace("{", "").replace("}", "")
@@ -204,22 +237,34 @@ class TypeScriptGenerator:
         # Build parameter list
         params = operation.get("parameters", [])
         method_params = []
+        query_params = []
+        path_params = []
+        has_self_param = False
         
         for param in params:
             param_name = param.get("name", "")
             param_schema = param.get("schema", {})
             param_required = param.get("required", False)
+            param_in = param.get("in", "query")
             
-            # Skip 'self' parameter as it's implicit in methods
+            # Handle 'self' parameter specially
             if param_name == "self":
+                has_self_param = True
+                path_params.append((param_name, param_schema))
                 continue
             
             param_type = self._openapi_type_to_ts(param_schema)
             optional_marker = "" if param_required else "?"
             method_params.append(f"{param_name}{optional_marker}: {param_type}")
+            
+            if param_in == "path":
+                path_params.append((param_name, param_schema))
+            elif param_in == "query":
+                query_params.append((param_name, param_schema, param_required))
         
         # Determine return type from responses
         return_type = "void"
+        response_has_return = False
         responses = operation.get("responses", {})
         
         if "200" in responses:
@@ -232,6 +277,7 @@ class TypeScriptGenerator:
                 props = schema.get("properties", {})
                 if "return" in props:
                     return_type = self._openapi_type_to_ts(props["return"])
+                    response_has_return = True
                 elif props:
                     # Return the entire response object
                     return_type = self._openapi_type_to_ts(schema)
@@ -239,7 +285,55 @@ class TypeScriptGenerator:
                     return_type = "void"
         
         params_str = ", ".join(method_params)
-        return f"  {method_name}({params_str}): Promise<{return_type}>;"
+        
+        # Generate method implementation if base_url is provided
+        if self.base_url:
+            lines = []
+            
+            # Check if this is an enum namespace (static methods)
+            is_enum = class_name in self.enum_schemas
+            static_modifier = "static " if is_enum else ""
+            
+            lines.append(f"  {static_modifier}async {method_name}({params_str}): Promise<{return_type}> {{")
+            
+            # Build the URL
+            url_path = path
+            # Replace path parameters
+            for param_name, param_schema in path_params:
+                if param_name == "self":
+                    url_path = url_path.replace("{self}", "${this.ptr}")
+                else:
+                    url_path = url_path.replace(f"{{{param_name}}}", f"${{{param_name}}}")
+            
+            lines.append(f"    const url = new URL(`{url_path}`, '{self.base_url}');")
+            
+            # Add query parameters
+            if query_params:
+                for param_name, param_schema, required in query_params:
+                    if required:
+                        lines.append(f"    url.searchParams.append('{param_name}', String({param_name}));")
+                    else:
+                        lines.append(f"    if ({param_name} !== undefined) url.searchParams.append('{param_name}', String({param_name}));")
+            
+            # Make the fetch call
+            lines.append(f"    const response = await fetch(url.toString());")
+            lines.append(f"    if (!response.ok) throw new Error(`HTTP error! status: ${{response.status}}`);")
+            
+            if return_type != "void":
+                lines.append(f"    const data = await response.json();")
+                if response_has_return:
+                    lines.append(f"    return data.return;")
+                else:
+                    lines.append(f"    return data;")
+            
+            lines.append(f"  }}")
+            return "\n".join(lines)
+        else:
+            # Generate abstract method signature without implementation
+            is_enum = class_name in self.enum_schemas
+            static_modifier = "static " if is_enum else ""
+            return f"  {static_modifier}{method_name}({params_str}): Promise<{return_type}>;"
+    
     
     def _generate_class(self, class_name: str) -> str:
         """
@@ -252,6 +346,23 @@ class TypeScriptGenerator:
             TypeScript class definition
         """
         lines = []
+        
+        # Check if this is an enum with methods
+        is_enum = class_name in self.enum_schemas
+        
+        if is_enum:
+            # Enums with methods are already generated as namespaces in _generate_interface
+            # We need to extend the namespace with methods
+            lines.append(f"export namespace {class_name} {{")
+            
+            # Add methods as static methods in the namespace
+            if class_name in self.class_methods:
+                for method_info in self.class_methods[class_name]:
+                    method_def = self._generate_class_method(method_info, class_name)
+                    lines.append(method_def)
+            
+            lines.append("}")
+            return "\n".join(lines)
         
         # Check if there's a corresponding schema for this class
         schema = self.schemas.get(class_name)
@@ -286,7 +397,7 @@ class TypeScriptGenerator:
         # Add methods
         if class_name in self.class_methods:
             for method_info in self.class_methods[class_name]:
-                method_def = self._generate_class_method(method_info)
+                method_def = self._generate_class_method(method_info, class_name)
                 lines.append(method_def)
         
         lines.append("}")
@@ -313,16 +424,42 @@ class TypeScriptGenerator:
         output.append(" */")
         output.append("")
         
-        # Generate interfaces for all schemas
+        # Generate interfaces for all schemas (includes enum namespaces)
         for schema_name, schema_def in self.schemas.items():
             interface_def = self._generate_interface(schema_name, schema_def)
+            
+            # If this is an enum with methods, append the methods to the namespace
+            if schema_name in self.enum_schemas and schema_name in self.class_methods:
+                # The namespace was already started, now add methods
+                lines = interface_def.split("\n")
+                # Find where the first closing brace is (end of namespace)
+                namespace_end_idx = -1
+                for i, line in enumerate(lines):
+                    if line.strip() == "}":
+                        namespace_end_idx = i
+                        break
+                
+                if namespace_end_idx >= 0:
+                    # Insert methods before the closing brace
+                    methods_lines = []
+                    for method_info in self.class_methods[schema_name]:
+                        method_def = self._generate_class_method(method_info, schema_name)
+                        methods_lines.extend(method_def.split("\n"))
+                    
+                    # Rebuild the output
+                    output_lines = lines[:namespace_end_idx]  # Everything before closing brace
+                    output_lines.extend(methods_lines)  # Add methods
+                    output_lines.extend(lines[namespace_end_idx:])  # Add closing brace and rest
+                    interface_def = "\n".join(output_lines)
+            
             output.append(interface_def)
             output.append("")
         
-        # Generate classes for schemas that have methods
+        # Generate classes for schemas that have methods (but not enums, they're already done)
         for class_name in self.class_methods.keys():
-            class_def = self._generate_class(class_name)
-            output.append(class_def)
-            output.append("")
+            if class_name not in self.enum_schemas:
+                class_def = self._generate_class(class_name)
+                output.append(class_def)
+                output.append("")
         
         return "\n".join(output)

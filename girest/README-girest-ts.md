@@ -6,23 +6,34 @@ TypeScript bindings generator for GIRest schemas.
 
 `girest-ts` is a command-line tool that generates TypeScript type definitions from GObject introspection data. It uses the GIRepository library to introspect GObject-based libraries and generates TypeScript interfaces and classes with proper inheritance and method signatures.
 
+The tool can generate either:
+1. **Type definitions only** - TypeScript interfaces and method signatures (default)
+2. **Full implementations** - Complete TypeScript code with REST API calls (with `--base-url`)
+
 ## Features
 
 - **Automatic TypeScript generation**: Converts GObject introspection data to TypeScript
 - **Inheritance support**: Properly handles `allOf` schemas and generates TypeScript interfaces with `extends`
 - **Class methods**: Methods are organized by their tag (class name) and generated as class methods
+- **Enum support**: Enumerations with methods are generated as namespaces with const values and static methods
+- **REST API implementation**: When `--base-url` is provided, generates complete method implementations with fetch calls
 - **Type safety**: All parameters and return types are properly typed
-- **Enum support**: Enumerations are generated as string literal unions
 - **Schema output**: Can also output the OpenAPI schema in JSON format
 
 ## Usage
 
 ### Basic Usage
 
-Generate TypeScript bindings for a namespace:
+Generate TypeScript type definitions for a namespace:
 
 ```bash
 python3 girest-ts.py <namespace> <version>
+```
+
+Generate with REST API implementation:
+
+```bash
+python3 girest-ts.py <namespace> <version> --base-url http://localhost:8000
 ```
 
 ### Examples
@@ -33,10 +44,10 @@ Generate TypeScript bindings for GLib 2.0:
 python3 girest-ts.py GLib 2.0 > glib.d.ts
 ```
 
-Generate TypeScript bindings and save to a file:
+Generate TypeScript bindings for GStreamer with REST API implementation:
 
 ```bash
-python3 girest-ts.py GLib 2.0 -o glib.d.ts
+python3 girest-ts.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
 ```
 
 Generate the OpenAPI schema instead of TypeScript:
@@ -48,7 +59,7 @@ python3 girest-ts.py GLib 2.0 --schema-only > glib-schema.json
 ### Command-line Options
 
 ```
-usage: girest-ts.py [-h] [-o OUTPUT] [--schema-only] namespace version
+usage: girest-ts.py [-h] [-o OUTPUT] [--schema-only] [--base-url BASE_URL] namespace version
 
 positional arguments:
   namespace             GObject namespace (e.g., 'Gst', 'GLib', 'Gtk')
@@ -59,6 +70,8 @@ options:
   -o OUTPUT, --output OUTPUT
                         Output file path (default: stdout)
   --schema-only         Output OpenAPI schema JSON instead of TypeScript
+  --base-url BASE_URL   Base URL for REST API calls (e.g., 'http://localhost:8000').
+                        If not provided, methods will return Promise types without implementation.
 ```
 
 ## Generated TypeScript
@@ -70,7 +83,7 @@ The tool generates TypeScript definitions with the following structure:
 For each schema in the OpenAPI specification, a TypeScript interface is generated:
 
 ```typescript
-export interface GLibDateTime {
+export interface GstDateTime {
   ptr: Pointer;
 }
 ```
@@ -79,27 +92,80 @@ Interfaces with inheritance use `extends`:
 
 ```typescript
 export interface GstElement extends GstObject {
-  // Additional properties
 }
 ```
 
-### Classes
+### Classes (without --base-url)
 
-For schemas that have associated methods (identified by tags in the OpenAPI operations), a class is generated:
+For schemas that have associated methods (identified by tags in the OpenAPI operations), a class is generated with method signatures:
 
 ```typescript
-export class GLibUnicodeScript {
-  from_iso15924(iso15924: number): Promise<GLibUnicodeScript>;
-  to_iso15924(script: GLibUnicodeScript): Promise<number>;
+export class GstElement {
+  add_pad(pad: GstPad): Promise<boolean>;
+  set_state(state: GstState): Promise<GstStateChangeReturn>;
+  abort_state(): Promise<void>;
+}
+```
+
+### Classes (with --base-url)
+
+When `--base-url` is provided, methods include complete implementations with REST API calls:
+
+```typescript
+export class GstElement {
+  async add_pad(pad: GstPad): Promise<boolean> {
+    const url = new URL(`/Gst/Element/${this.ptr}/add_pad`, 'http://localhost:8000');
+    url.searchParams.append('pad', String(pad));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  
+  async abort_state(): Promise<void> {
+    const url = new URL(`/Gst/Element/${this.ptr}/abort_state`, 'http://localhost:8000');
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 ```
 
 ### Enums
 
-Enumerations are generated as string literal unions:
+Enumerations without methods are generated as type aliases:
 
 ```typescript
-export interface GLibDateMonth {
+export type GstState = "void_pending" | "null" | "ready" | "paused" | "playing";
+```
+
+Enumerations with methods are generated as namespaces with const values and static methods:
+
+```typescript
+export namespace GstStateChange {
+  export const NULL_TO_READY: 'null_to_ready' = 'null_to_ready';
+  export const READY_TO_PAUSED: 'ready_to_paused' = 'ready_to_paused';
+  // ... more values
+  
+  static get_name(transition: GstStateChange): Promise<string>;
+}
+export type GstStateChangeValue = "null_to_ready" | "ready_to_paused" | ...;
+```
+
+With `--base-url`, enum methods include implementations:
+
+```typescript
+export namespace GstStateChange {
+  export const NULL_TO_READY: 'null_to_ready' = 'null_to_ready';
+  // ... more values
+  
+  static async get_name(transition: GstStateChange): Promise<string> {
+    const url = new URL(`/Gst/StateChange/get_name`, 'http://localhost:8000');
+    url.searchParams.append('transition', String(transition));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 ```
 
@@ -127,38 +193,48 @@ python3 girest-ts.py <namespace> <version>
    - Methods are generated for each class based on their tags
    - Inheritance is handled using `allOf` schemas
    - Types are converted from OpenAPI to TypeScript
-
-## Limitations
-
-- Currently generates type definitions only (no runtime implementation)
-- Methods return `Promise` types but don't include actual implementation
-- Complex callback types may need manual refinement
-- Some advanced OpenAPI features may not be fully supported
+   - When `--base-url` is provided, method implementations with fetch calls are generated
 
 ## Examples
 
-### Example Output
+### Example 1: Type Definitions Only
 
-For GLib 2.0, the tool generates:
+```bash
+python3 girest-ts.py Gst 1.0 -o gst.d.ts
+```
+
+Generates type-safe definitions that can be used for IDE autocomplete and type checking, but without implementations.
+
+### Example 2: Full Implementation
+
+```bash
+python3 girest-ts.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
+```
+
+Generates a complete TypeScript module with working REST API calls. Use this in your client application:
 
 ```typescript
-/**
- * GLib REST API
- * Version: 2.0
- * Auto-generated by girest-ts
- */
+import { GstElement, GstState } from './gst';
 
-export interface Pointer {
-}
+const element = new GstElement();
+element.ptr = "0x12345678"; // Set from server response
 
-export interface GLibDateTime {
-  ptr: Pointer;
-}
+// Call methods with full implementation
+await element.set_state(GstState.PLAYING);
+await element.abort_state();
+```
 
-export class GLibUnicodeScript {
-  from_iso15924(iso15924: number): Promise<GLibUnicodeScript>;
-  to_iso15924(script: GLibUnicodeScript): Promise<number>;
-}
+### Example 3: Using Enums
+
+```typescript
+import { GstStateChange } from './gst';
+
+// Use enum constants
+const transition = GstStateChange.NULL_TO_READY;
+
+// Call static enum methods
+const name = await GstStateChange.get_name(transition);
+console.log(name); // "null_to_ready"
 ```
 
 ## See Also

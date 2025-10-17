@@ -100,7 +100,13 @@ export interface GstCaps {
 
 export type GstPadLinkReturn = "ok" | "wrong_hierarchy" | "was_linked" | "wrong_direction" | "noformat" | "nosched" | "refused";
 
-export type GstPadMode = "none" | "push" | "pull";
+export namespace GstPadMode {
+  export const NONE: 'none' = 'none';
+  export const PUSH: 'push' = 'push';
+  export const PULL: 'pull' = 'pull';
+  static get_name(mode: GstPadMode): Promise<string>;
+}
+export type GstPadModeValue = "none" | "push" | "pull";
 
 export type GstPadProbeType = "invalid" | "idle" | "block" | "buffer" | "buffer_list" | "event_downstream" | "event_upstream" | "event_flush" | "query_downstream" | "query_upstream" | "push" | "pull" | "blocking" | "data_downstream" | "data_upstream" | "data_both" | "block_downstream" | "block_upstream" | "event_both" | "query_both" | "all_both" | "scheduling";
 
@@ -118,14 +124,60 @@ export interface GstEvent {
   ptr: Pointer;
 }
 
-export type GstEventType = "unknown" | "flush_start" | "flush_stop" | "stream_start" | "caps" | "segment" | "stream_collection" | "tag" | "buffersize" | "sink_message" | "stream_group_done" | "eos" | "toc" | "protection" | "segment_done" | "gap" | "instant_rate_change" | "qos" | "seek" | "navigation" | "latency" | "step" | "reconfigure" | "toc_select" | "select_streams" | "instant_rate_sync_time" | "custom_upstream" | "custom_downstream" | "custom_downstream_oob" | "custom_downstream_sticky" | "custom_both" | "custom_both_oob";
+export namespace GstEventType {
+  export const UNKNOWN: 'unknown' = 'unknown';
+  export const FLUSH_START: 'flush_start' = 'flush_start';
+  export const FLUSH_STOP: 'flush_stop' = 'flush_stop';
+  export const STREAM_START: 'stream_start' = 'stream_start';
+  export const CAPS: 'caps' = 'caps';
+  export const SEGMENT: 'segment' = 'segment';
+  export const STREAM_COLLECTION: 'stream_collection' = 'stream_collection';
+  export const TAG: 'tag' = 'tag';
+  export const BUFFERSIZE: 'buffersize' = 'buffersize';
+  export const SINK_MESSAGE: 'sink_message' = 'sink_message';
+  export const STREAM_GROUP_DONE: 'stream_group_done' = 'stream_group_done';
+  export const EOS: 'eos' = 'eos';
+  export const TOC: 'toc' = 'toc';
+  export const PROTECTION: 'protection' = 'protection';
+  export const SEGMENT_DONE: 'segment_done' = 'segment_done';
+  export const GAP: 'gap' = 'gap';
+  export const INSTANT_RATE_CHANGE: 'instant_rate_change' = 'instant_rate_change';
+  export const QOS: 'qos' = 'qos';
+  export const SEEK: 'seek' = 'seek';
+  export const NAVIGATION: 'navigation' = 'navigation';
+  export const LATENCY: 'latency' = 'latency';
+  export const STEP: 'step' = 'step';
+  export const RECONFIGURE: 'reconfigure' = 'reconfigure';
+  export const TOC_SELECT: 'toc_select' = 'toc_select';
+  export const SELECT_STREAMS: 'select_streams' = 'select_streams';
+  export const INSTANT_RATE_SYNC_TIME: 'instant_rate_sync_time' = 'instant_rate_sync_time';
+  export const CUSTOM_UPSTREAM: 'custom_upstream' = 'custom_upstream';
+  export const CUSTOM_DOWNSTREAM: 'custom_downstream' = 'custom_downstream';
+  export const CUSTOM_DOWNSTREAM_OOB: 'custom_downstream_oob' = 'custom_downstream_oob';
+  export const CUSTOM_DOWNSTREAM_STICKY: 'custom_downstream_sticky' = 'custom_downstream_sticky';
+  export const CUSTOM_BOTH: 'custom_both' = 'custom_both';
+  export const CUSTOM_BOTH_OOB: 'custom_both_oob' = 'custom_both_oob';
+  static get_flags(type: GstEventType): Promise<GstEventTypeFlags>;
+  static get_name(type: GstEventType): Promise<string>;
+  static to_quark(type: GstEventType): Promise<number>;
+  static to_sticky_ordering(type: GstEventType): Promise<number>;
+}
+export type GstEventTypeValue = "unknown" | "flush_start" | "flush_stop" | "stream_start" | "caps" | "segment" | "stream_collection" | "tag" | "buffersize" | "sink_message" | "stream_group_done" | "eos" | "toc" | "protection" | "segment_done" | "gap" | "instant_rate_change" | "qos" | "seek" | "navigation" | "latency" | "step" | "reconfigure" | "toc_select" | "select_streams" | "instant_rate_sync_time" | "custom_upstream" | "custom_downstream" | "custom_downstream_oob" | "custom_downstream_sticky" | "custom_both" | "custom_both_oob";
 
 export type GstEventTypeFlags = "upstream" | "downstream" | "serialized" | "sticky" | "sticky_multi";
 
 export interface GstStream extends GstObject {
 }
 
-export type GstStreamType = "unknown" | "audio" | "video" | "container" | "text";
+export namespace GstStreamType {
+  export const UNKNOWN: 'unknown' = 'unknown';
+  export const AUDIO: 'audio' = 'audio';
+  export const VIDEO: 'video' = 'video';
+  export const CONTAINER: 'container' = 'container';
+  export const TEXT: 'text' = 'text';
+  static get_name(stype: GstStreamType): Promise<string>;
+}
+export type GstStreamTypeValue = "unknown" | "audio" | "video" | "container" | "text";
 
 export type GstStreamFlags = "none" | "sparse" | "select" | "unselect";
 
@@ -145,13 +197,40 @@ export interface GstQuery {
   ptr: Pointer;
 }
 
-export type GstFormat = "undefined" | "default" | "bytes" | "time" | "buffers" | "percent";
+export namespace GstFormat {
+  export const UNDEFINED: 'undefined' = 'undefined';
+  export const DEFAULT: 'default' = 'default';
+  export const BYTES: 'bytes' = 'bytes';
+  export const TIME: 'time' = 'time';
+  export const BUFFERS: 'buffers' = 'buffers';
+  export const PERCENT: 'percent' = 'percent';
+  static get_by_nick(nick: string): Promise<GstFormat>;
+  static get_details(format: GstFormat): Promise<GstFormatDefinition>;
+  static get_name(format: GstFormat): Promise<string>;
+  static iterate_definitions(): Promise<GstIterator>;
+  static register(nick: string, description: string): Promise<GstFormat>;
+  static to_quark(format: GstFormat): Promise<number>;
+}
+export type GstFormatValue = "undefined" | "default" | "bytes" | "time" | "buffers" | "percent";
 
 export interface GstFormatDefinition {
   ptr: Pointer;
 }
 
-export type GstStateChange = "null_to_ready" | "ready_to_paused" | "paused_to_playing" | "playing_to_paused" | "paused_to_ready" | "ready_to_null" | "null_to_null" | "ready_to_ready" | "paused_to_paused" | "playing_to_playing";
+export namespace GstStateChange {
+  export const NULL_TO_READY: 'null_to_ready' = 'null_to_ready';
+  export const READY_TO_PAUSED: 'ready_to_paused' = 'ready_to_paused';
+  export const PAUSED_TO_PLAYING: 'paused_to_playing' = 'paused_to_playing';
+  export const PLAYING_TO_PAUSED: 'playing_to_paused' = 'playing_to_paused';
+  export const PAUSED_TO_READY: 'paused_to_ready' = 'paused_to_ready';
+  export const READY_TO_NULL: 'ready_to_null' = 'ready_to_null';
+  export const NULL_TO_NULL: 'null_to_null' = 'null_to_null';
+  export const READY_TO_READY: 'ready_to_ready' = 'ready_to_ready';
+  export const PAUSED_TO_PAUSED: 'paused_to_paused' = 'paused_to_paused';
+  export const PLAYING_TO_PLAYING: 'playing_to_playing' = 'playing_to_playing';
+  static get_name(transition: GstStateChange): Promise<string>;
+}
+export type GstStateChangeValue = "null_to_ready" | "ready_to_paused" | "paused_to_playing" | "playing_to_paused" | "paused_to_ready" | "ready_to_null" | "null_to_null" | "ready_to_ready" | "paused_to_paused" | "playing_to_playing";
 
 export interface GstBus extends GstObject {
 }
@@ -168,7 +247,53 @@ export interface GLibPollFD {
   ptr: Pointer;
 }
 
-export type GstMessageType = "unknown" | "eos" | "error" | "warning" | "info" | "tag" | "buffering" | "state_changed" | "state_dirty" | "step_done" | "clock_provide" | "clock_lost" | "new_clock" | "structure_change" | "stream_status" | "application" | "element" | "segment_start" | "segment_done" | "duration_changed" | "latency" | "async_start" | "async_done" | "request_state" | "step_start" | "qos" | "progress" | "toc" | "reset_time" | "stream_start" | "need_context" | "have_context" | "extended" | "device_added" | "device_removed" | "property_notify" | "stream_collection" | "streams_selected" | "redirect" | "device_changed" | "instant_rate_request" | "any";
+export namespace GstMessageType {
+  export const UNKNOWN: 'unknown' = 'unknown';
+  export const EOS: 'eos' = 'eos';
+  export const ERROR: 'error' = 'error';
+  export const WARNING: 'warning' = 'warning';
+  export const INFO: 'info' = 'info';
+  export const TAG: 'tag' = 'tag';
+  export const BUFFERING: 'buffering' = 'buffering';
+  export const STATE_CHANGED: 'state_changed' = 'state_changed';
+  export const STATE_DIRTY: 'state_dirty' = 'state_dirty';
+  export const STEP_DONE: 'step_done' = 'step_done';
+  export const CLOCK_PROVIDE: 'clock_provide' = 'clock_provide';
+  export const CLOCK_LOST: 'clock_lost' = 'clock_lost';
+  export const NEW_CLOCK: 'new_clock' = 'new_clock';
+  export const STRUCTURE_CHANGE: 'structure_change' = 'structure_change';
+  export const STREAM_STATUS: 'stream_status' = 'stream_status';
+  export const APPLICATION: 'application' = 'application';
+  export const ELEMENT: 'element' = 'element';
+  export const SEGMENT_START: 'segment_start' = 'segment_start';
+  export const SEGMENT_DONE: 'segment_done' = 'segment_done';
+  export const DURATION_CHANGED: 'duration_changed' = 'duration_changed';
+  export const LATENCY: 'latency' = 'latency';
+  export const ASYNC_START: 'async_start' = 'async_start';
+  export const ASYNC_DONE: 'async_done' = 'async_done';
+  export const REQUEST_STATE: 'request_state' = 'request_state';
+  export const STEP_START: 'step_start' = 'step_start';
+  export const QOS: 'qos' = 'qos';
+  export const PROGRESS: 'progress' = 'progress';
+  export const TOC: 'toc' = 'toc';
+  export const RESET_TIME: 'reset_time' = 'reset_time';
+  export const STREAM_START: 'stream_start' = 'stream_start';
+  export const NEED_CONTEXT: 'need_context' = 'need_context';
+  export const HAVE_CONTEXT: 'have_context' = 'have_context';
+  export const EXTENDED: 'extended' = 'extended';
+  export const DEVICE_ADDED: 'device_added' = 'device_added';
+  export const DEVICE_REMOVED: 'device_removed' = 'device_removed';
+  export const PROPERTY_NOTIFY: 'property_notify' = 'property_notify';
+  export const STREAM_COLLECTION: 'stream_collection' = 'stream_collection';
+  export const STREAMS_SELECTED: 'streams_selected' = 'streams_selected';
+  export const REDIRECT: 'redirect' = 'redirect';
+  export const DEVICE_CHANGED: 'device_changed' = 'device_changed';
+  export const INSTANT_RATE_REQUEST: 'instant_rate_request' = 'instant_rate_request';
+  export const ANY: 'any' = 'any';
+  static get_name(type: GstMessageType): Promise<string>;
+  static to_quark(type: GstMessageType): Promise<number>;
+}
+export type GstMessageTypeValue = "unknown" | "eos" | "error" | "warning" | "info" | "tag" | "buffering" | "state_changed" | "state_dirty" | "step_done" | "clock_provide" | "clock_lost" | "new_clock" | "structure_change" | "stream_status" | "application" | "element" | "segment_start" | "segment_done" | "duration_changed" | "latency" | "async_start" | "async_done" | "request_state" | "step_start" | "qos" | "progress" | "toc" | "reset_time" | "stream_start" | "need_context" | "have_context" | "extended" | "device_added" | "device_removed" | "property_notify" | "stream_collection" | "streams_selected" | "redirect" | "device_changed" | "instant_rate_request" | "any";
 
 export type GstBusSyncReply = "drop" | "pass" | "async";
 
@@ -266,7 +391,25 @@ export interface GstControlBindingPrivate {
 export interface GstControlSource extends GstObject {
 }
 
-export type GstCoreError = "failed" | "too_lazy" | "not_implemented" | "state_change" | "pad" | "thread" | "negotiation" | "event" | "seek" | "caps" | "tag" | "missing_plugin" | "clock" | "disabled" | "num_errors";
+export namespace GstCoreError {
+  export const FAILED: 'failed' = 'failed';
+  export const TOO_LAZY: 'too_lazy' = 'too_lazy';
+  export const NOT_IMPLEMENTED: 'not_implemented' = 'not_implemented';
+  export const STATE_CHANGE: 'state_change' = 'state_change';
+  export const PAD: 'pad' = 'pad';
+  export const THREAD: 'thread' = 'thread';
+  export const NEGOTIATION: 'negotiation' = 'negotiation';
+  export const EVENT: 'event' = 'event';
+  export const SEEK: 'seek' = 'seek';
+  export const CAPS: 'caps' = 'caps';
+  export const TAG: 'tag' = 'tag';
+  export const MISSING_PLUGIN: 'missing_plugin' = 'missing_plugin';
+  export const CLOCK: 'clock' = 'clock';
+  export const DISABLED: 'disabled' = 'disabled';
+  export const NUM_ERRORS: 'num_errors' = 'num_errors';
+  static quark(): Promise<number>;
+}
+export type GstCoreErrorValue = "failed" | "too_lazy" | "not_implemented" | "state_change" | "pad" | "thread" | "negotiation" | "event" | "seek" | "caps" | "tag" | "missing_plugin" | "clock" | "disabled" | "num_errors";
 
 export interface GstCustomMeta {
   ptr: Pointer;
@@ -286,7 +429,20 @@ export type GstDebugColorMode = "off" | "on" | "unix";
 
 export type GstDebugGraphDetails = "media_type" | "caps_details" | "non_default_params" | "states" | "full_params" | "all" | "verbose";
 
-export type GstDebugLevel = "none" | "error" | "warning" | "fixme" | "info" | "debug" | "log" | "trace" | "memdump" | "count";
+export namespace GstDebugLevel {
+  export const NONE: 'none' = 'none';
+  export const ERROR: 'error' = 'error';
+  export const WARNING: 'warning' = 'warning';
+  export const FIXME: 'fixme' = 'fixme';
+  export const INFO: 'info' = 'info';
+  export const DEBUG: 'debug' = 'debug';
+  export const LOG: 'log' = 'log';
+  export const TRACE: 'trace' = 'trace';
+  export const MEMDUMP: 'memdump' = 'memdump';
+  export const COUNT: 'count' = 'count';
+  static get_name(level: GstDebugLevel): Promise<string>;
+}
+export type GstDebugLevelValue = "none" | "error" | "warning" | "fixme" | "info" | "debug" | "log" | "trace" | "memdump" | "count";
 
 export interface GstDebugMessage {
   ptr: Pointer;
@@ -359,7 +515,17 @@ export type GstIteratorItem = "skip" | "pass" | "end";
 
 export type GstIteratorResult = "done" | "ok" | "resync" | "error";
 
-export type GstLibraryError = "failed" | "too_lazy" | "init" | "shutdown" | "settings" | "encode" | "num_errors";
+export namespace GstLibraryError {
+  export const FAILED: 'failed' = 'failed';
+  export const TOO_LAZY: 'too_lazy' = 'too_lazy';
+  export const INIT: 'init' = 'init';
+  export const SHUTDOWN: 'shutdown' = 'shutdown';
+  export const SETTINGS: 'settings' = 'settings';
+  export const ENCODE: 'encode' = 'encode';
+  export const NUM_ERRORS: 'num_errors' = 'num_errors';
+  static quark(): Promise<number>;
+}
+export type GstLibraryErrorValue = "failed" | "too_lazy" | "init" | "shutdown" | "settings" | "encode" | "num_errors";
 
 export type GstLockFlags = "read" | "write" | "exclusive" | "last";
 
@@ -429,7 +595,18 @@ export interface GstParseContext {
   ptr: Pointer;
 }
 
-export type GstParseError = "syntax" | "no_such_element" | "no_such_property" | "link" | "could_not_set_property" | "empty_bin" | "empty" | "delayed_link";
+export namespace GstParseError {
+  export const SYNTAX: 'syntax' = 'syntax';
+  export const NO_SUCH_ELEMENT: 'no_such_element' = 'no_such_element';
+  export const NO_SUCH_PROPERTY: 'no_such_property' = 'no_such_property';
+  export const LINK: 'link' = 'link';
+  export const COULD_NOT_SET_PROPERTY: 'could_not_set_property' = 'could_not_set_property';
+  export const EMPTY_BIN: 'empty_bin' = 'empty_bin';
+  export const EMPTY: 'empty' = 'empty';
+  export const DELAYED_LINK: 'delayed_link' = 'delayed_link';
+  static quark(): Promise<number>;
+}
+export type GstParseErrorValue = "syntax" | "no_such_element" | "no_such_property" | "link" | "could_not_set_property" | "empty_bin" | "empty" | "delayed_link";
 
 export type GstParseFlags = "none" | "fatal_errors" | "no_single_element_bins" | "place_in_bin";
 
@@ -448,7 +625,13 @@ export interface GstPluginDesc {
   ptr: Pointer;
 }
 
-export type GstPluginError = "module" | "dependencies" | "name_mismatch";
+export namespace GstPluginError {
+  export const MODULE: 'module' = 'module';
+  export const DEPENDENCIES: 'dependencies' = 'dependencies';
+  export const NAME_MISMATCH: 'name_mismatch' = 'name_mismatch';
+  static quark(): Promise<number>;
+}
+export type GstPluginErrorValue = "module" | "dependencies" | "name_mismatch";
 
 export type GstPluginFlags = "cached" | "blacklisted";
 
@@ -478,7 +661,33 @@ export interface GstProxyPadPrivate {
 
 export type GstQOSType = "overflow" | "underflow" | "throttle";
 
-export type GstQueryType = "unknown" | "position" | "duration" | "latency" | "jitter" | "rate" | "seeking" | "segment" | "convert" | "formats" | "buffering" | "custom" | "uri" | "allocation" | "scheduling" | "accept_caps" | "caps" | "drain" | "context" | "bitrate" | "selectable";
+export namespace GstQueryType {
+  export const UNKNOWN: 'unknown' = 'unknown';
+  export const POSITION: 'position' = 'position';
+  export const DURATION: 'duration' = 'duration';
+  export const LATENCY: 'latency' = 'latency';
+  export const JITTER: 'jitter' = 'jitter';
+  export const RATE: 'rate' = 'rate';
+  export const SEEKING: 'seeking' = 'seeking';
+  export const SEGMENT: 'segment' = 'segment';
+  export const CONVERT: 'convert' = 'convert';
+  export const FORMATS: 'formats' = 'formats';
+  export const BUFFERING: 'buffering' = 'buffering';
+  export const CUSTOM: 'custom' = 'custom';
+  export const URI: 'uri' = 'uri';
+  export const ALLOCATION: 'allocation' = 'allocation';
+  export const SCHEDULING: 'scheduling' = 'scheduling';
+  export const ACCEPT_CAPS: 'accept_caps' = 'accept_caps';
+  export const CAPS: 'caps' = 'caps';
+  export const DRAIN: 'drain' = 'drain';
+  export const CONTEXT: 'context' = 'context';
+  export const BITRATE: 'bitrate' = 'bitrate';
+  export const SELECTABLE: 'selectable' = 'selectable';
+  static get_flags(type: GstQueryType): Promise<GstQueryTypeFlags>;
+  static get_name(type: GstQueryType): Promise<string>;
+  static to_quark(type: GstQueryType): Promise<number>;
+}
+export type GstQueryTypeValue = "unknown" | "position" | "duration" | "latency" | "jitter" | "rate" | "seeking" | "segment" | "convert" | "formats" | "buffering" | "custom" | "uri" | "allocation" | "scheduling" | "accept_caps" | "caps" | "drain" | "context" | "bitrate" | "selectable";
 
 export type GstQueryTypeFlags = "upstream" | "downstream" | "serialized";
 
@@ -493,7 +702,26 @@ export interface GstRegistryPrivate {
   ptr: Pointer;
 }
 
-export type GstResourceError = "failed" | "too_lazy" | "not_found" | "busy" | "open_read" | "open_write" | "open_read_write" | "close" | "read" | "write" | "seek" | "sync" | "settings" | "no_space_left" | "not_authorized" | "num_errors";
+export namespace GstResourceError {
+  export const FAILED: 'failed' = 'failed';
+  export const TOO_LAZY: 'too_lazy' = 'too_lazy';
+  export const NOT_FOUND: 'not_found' = 'not_found';
+  export const BUSY: 'busy' = 'busy';
+  export const OPEN_READ: 'open_read' = 'open_read';
+  export const OPEN_WRITE: 'open_write' = 'open_write';
+  export const OPEN_READ_WRITE: 'open_read_write' = 'open_read_write';
+  export const CLOSE: 'close' = 'close';
+  export const READ: 'read' = 'read';
+  export const WRITE: 'write' = 'write';
+  export const SEEK: 'seek' = 'seek';
+  export const SYNC: 'sync' = 'sync';
+  export const SETTINGS: 'settings' = 'settings';
+  export const NO_SPACE_LEFT: 'no_space_left' = 'no_space_left';
+  export const NOT_AUTHORIZED: 'not_authorized' = 'not_authorized';
+  export const NUM_ERRORS: 'num_errors' = 'num_errors';
+  static quark(): Promise<number>;
+}
+export type GstResourceErrorValue = "failed" | "too_lazy" | "not_found" | "busy" | "open_read" | "open_write" | "open_read_write" | "close" | "read" | "write" | "seek" | "sync" | "settings" | "no_space_left" | "not_authorized" | "num_errors";
 
 export interface GstSample {
   ptr: Pointer;
@@ -534,7 +762,24 @@ export interface GstStreamCollectionPrivate {
   ptr: Pointer;
 }
 
-export type GstStreamError = "failed" | "too_lazy" | "not_implemented" | "type_not_found" | "wrong_type" | "codec_not_found" | "decode" | "encode" | "demux" | "mux" | "format" | "decrypt" | "decrypt_nokey" | "num_errors";
+export namespace GstStreamError {
+  export const FAILED: 'failed' = 'failed';
+  export const TOO_LAZY: 'too_lazy' = 'too_lazy';
+  export const NOT_IMPLEMENTED: 'not_implemented' = 'not_implemented';
+  export const TYPE_NOT_FOUND: 'type_not_found' = 'type_not_found';
+  export const WRONG_TYPE: 'wrong_type' = 'wrong_type';
+  export const CODEC_NOT_FOUND: 'codec_not_found' = 'codec_not_found';
+  export const DECODE: 'decode' = 'decode';
+  export const ENCODE: 'encode' = 'encode';
+  export const DEMUX: 'demux' = 'demux';
+  export const MUX: 'mux' = 'mux';
+  export const FORMAT: 'format' = 'format';
+  export const DECRYPT: 'decrypt' = 'decrypt';
+  export const DECRYPT_NOKEY: 'decrypt_nokey' = 'decrypt_nokey';
+  export const NUM_ERRORS: 'num_errors' = 'num_errors';
+  static quark(): Promise<number>;
+}
+export type GstStreamErrorValue = "failed" | "too_lazy" | "not_implemented" | "type_not_found" | "wrong_type" | "codec_not_found" | "decode" | "encode" | "demux" | "mux" | "format" | "decrypt" | "decrypt_nokey" | "num_errors";
 
 export interface GstStreamPrivate {
   ptr: Pointer;
@@ -580,7 +825,17 @@ export interface GstTocEntry {
   ptr: Pointer;
 }
 
-export type GstTocEntryType = "angle" | "version" | "edition" | "invalid" | "title" | "track" | "chapter";
+export namespace GstTocEntryType {
+  export const ANGLE: 'angle' = 'angle';
+  export const VERSION: 'version' = 'version';
+  export const EDITION: 'edition' = 'edition';
+  export const INVALID: 'invalid' = 'invalid';
+  export const TITLE: 'title' = 'title';
+  export const TRACK: 'track' = 'track';
+  export const CHAPTER: 'chapter' = 'chapter';
+  static get_nick(type: GstTocEntryType): Promise<string>;
+}
+export type GstTocEntryTypeValue = "angle" | "version" | "edition" | "invalid" | "title" | "track" | "chapter";
 
 export type GstTocLoopType = "none" | "forward" | "reverse" | "ping_pong";
 
@@ -612,7 +867,14 @@ export interface GstTypeFindFactory extends GstPluginFeature {
 
 export type GstTypeFindProbability = "none" | "minimum" | "possible" | "likely" | "nearly_certain" | "maximum";
 
-export type GstURIError = "unsupported_protocol" | "bad_uri" | "bad_state" | "bad_reference";
+export namespace GstURIError {
+  export const UNSUPPORTED_PROTOCOL: 'unsupported_protocol' = 'unsupported_protocol';
+  export const BAD_URI: 'bad_uri' = 'bad_uri';
+  export const BAD_STATE: 'bad_state' = 'bad_state';
+  export const BAD_REFERENCE: 'bad_reference' = 'bad_reference';
+  static quark(): Promise<number>;
+}
+export type GstURIErrorValue = "unsupported_protocol" | "bad_uri" | "bad_state" | "bad_reference";
 
 export interface GstUri {
   ptr: Pointer;
@@ -949,24 +1211,6 @@ export class GstPadTemplate {
   set_documentation_caps(caps: GstCaps): Promise<void>;
 }
 
-export class GstPadMode {
-
-  get_name(mode: GstPadMode): Promise<string>;
-}
-
-export class GstEventType {
-
-  get_flags(type: GstEventType): Promise<GstEventTypeFlags>;
-  get_name(type: GstEventType): Promise<string>;
-  to_quark(type: GstEventType): Promise<number>;
-  to_sticky_ordering(type: GstEventType): Promise<number>;
-}
-
-export class GstStreamType {
-
-  get_name(stype: GstStreamType): Promise<string>;
-}
-
 export class GstStream {
 
   new(stream_id?: string, caps?: GstCaps, type: GstStreamType, flags: GstStreamFlags): Promise<GstStream>;
@@ -979,21 +1223,6 @@ export class GstStream {
   set_stream_flags(flags: GstStreamFlags): Promise<void>;
   set_stream_type(stream_type: GstStreamType): Promise<void>;
   set_tags(tags?: GstTagList): Promise<void>;
-}
-
-export class GstFormat {
-
-  get_by_nick(nick: string): Promise<GstFormat>;
-  get_details(format: GstFormat): Promise<GstFormatDefinition>;
-  get_name(format: GstFormat): Promise<string>;
-  iterate_definitions(): Promise<GstIterator>;
-  register(nick: string, description: string): Promise<GstFormat>;
-  to_quark(format: GstFormat): Promise<number>;
-}
-
-export class GstStateChange {
-
-  get_name(transition: GstStateChange): Promise<string>;
 }
 
 export class GstBus {
@@ -1020,12 +1249,6 @@ export class GstBus {
   sync_signal_handler(message: GstMessage): Promise<GstBusSyncReply>;
   timed_pop(timeout: number): Promise<GstMessage>;
   timed_pop_filtered(timeout: number, types: GstMessageType): Promise<GstMessage>;
-}
-
-export class GstMessageType {
-
-  get_name(type: GstMessageType): Promise<string>;
-  to_quark(type: GstMessageType): Promise<number>;
 }
 
 export class GstClock {
@@ -1154,16 +1377,6 @@ export class GstControlSource {
   control_source_get_value_array(timestamp: number, interval: number, n_values: number, values: Pointer): Promise<boolean>;
 }
 
-export class GstCoreError {
-
-  quark(): Promise<number>;
-}
-
-export class GstDebugLevel {
-
-  get_name(level: GstDebugLevel): Promise<string>;
-}
-
 export class GstDevice {
 
   create_element(name?: string): Promise<GstElement>;
@@ -1255,16 +1468,6 @@ export class GstGhostPad {
   set_target(newtarget?: GstPad): Promise<boolean>;
 }
 
-export class GstLibraryError {
-
-  quark(): Promise<number>;
-}
-
-export class GstParseError {
-
-  quark(): Promise<number>;
-}
-
 export class GstPipeline {
 
   new(name?: string): Promise<GstElement>;
@@ -1280,18 +1483,6 @@ export class GstPipeline {
   set_delay(delay: number): Promise<void>;
   set_latency(latency: number): Promise<void>;
   use_clock(clock?: GstClock): Promise<void>;
-}
-
-export class GstPluginError {
-
-  quark(): Promise<number>;
-}
-
-export class GstQueryType {
-
-  get_flags(type: GstQueryType): Promise<GstQueryTypeFlags>;
-  get_name(type: GstQueryType): Promise<string>;
-  to_quark(type: GstQueryType): Promise<number>;
 }
 
 export class GstRegistry {
@@ -1315,11 +1506,6 @@ export class GstRegistry {
   remove_feature(feature: GstPluginFeature): Promise<void>;
   remove_plugin(plugin: GstPlugin): Promise<void>;
   scan_path(path: Pointer): Promise<boolean>;
-}
-
-export class GstResourceError {
-
-  quark(): Promise<number>;
 }
 
 export class GstTaskPool {
@@ -1348,11 +1534,6 @@ export class GstStreamCollection {
   get_upstream_id(): Promise<string>;
 }
 
-export class GstStreamError {
-
-  quark(): Promise<number>;
-}
-
 export class GstSystemClock {
 
   obtain(): Promise<GstClock>;
@@ -1377,11 +1558,6 @@ export class GstTask {
   stop(): Promise<boolean>;
 }
 
-export class GstTocEntryType {
-
-  get_nick(type: GstTocEntryType): Promise<string>;
-}
-
 export class GstTracer {
 
   register(plugin?: GstPlugin, name: string, type: Pointer): Promise<boolean>;
@@ -1400,11 +1576,6 @@ export class GstTypeFindFactory {
   get_caps(): Promise<GstCaps>;
   get_extensions(): Promise<Pointer>;
   has_function(): Promise<boolean>;
-}
-
-export class GstURIError {
-
-  quark(): Promise<number>;
 }
 
 export class GstValueArray {
