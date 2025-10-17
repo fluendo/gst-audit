@@ -56,14 +56,16 @@ class GIRest():
                     return {"type": "integer"}
         
         # Map GIRepository type tags to OpenAPI types
+        # Note: OpenAPI 3.0 doesn't have specific formats for 8/16-bit integers
+        # or unsigned integers, so we use the closest representations
         type_map = {
             "gboolean": {"type": "boolean"},
-            "gint8": {"type": "integer", "format": "int32"},
-            "guint8": {"type": "integer", "format": "int32"},
-            "gint16": {"type": "integer", "format": "int32"},
-            "guint16": {"type": "integer", "format": "int32"},
+            "gint8": {"type": "integer"},
+            "guint8": {"type": "integer"},
+            "gint16": {"type": "integer"},
+            "guint16": {"type": "integer"},
             "gint32": {"type": "integer", "format": "int32"},
-            "guint32": {"type": "integer", "format": "int32"},
+            "guint32": {"type": "integer"},
             "gint64": {"type": "integer", "format": "int64"},
             "guint64": {"type": "integer", "format": "int64"},
             "utf8": {"type": "string"},
@@ -84,8 +86,6 @@ class GIRest():
         
         # Handle the parameters
         params = []
-        request_body_props = {}
-        request_body_required = []
         response_props = {}
         
         # Add self parameter for methods
@@ -156,7 +156,7 @@ class GIRest():
             if arg_direction == GIRepository.Direction.INOUT:
                 response_props[arg_name] = schema
             
-            # Add to request body as query parameter
+            # Add as query parameter
             param_schema = schema.copy()
             may_be_null = GIRepository.arg_info_may_be_null(arg)
             
