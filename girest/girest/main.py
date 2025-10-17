@@ -35,6 +35,45 @@ class GIRest():
         self.repo = GIRepository.Repository()
         self.repo.require(ns, ns_version, 0)
 
+    def _type_to_schema(self, t):
+        """Convert GIRepository type to OpenAPI schema"""
+        tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(t))
+        
+        # Check if it's an interface type
+        if tag == "interface":
+            interface = GIRepository.type_info_get_interface(t)
+            if interface:
+                info_type = interface.get_type()
+                if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                    # Return integer for enums
+                    return {"type": "integer"}
+                elif info_type == GIRepository.InfoType.OBJECT or info_type == GIRepository.InfoType.STRUCT:
+                    # Return reference to the object schema
+                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                    return {"$ref": f"#/components/schemas/{full_name}"}
+                elif info_type == GIRepository.InfoType.CALLBACK:
+                    # Callbacks are represented as integers (callback IDs)
+                    return {"type": "integer"}
+        
+        # Map GIRepository type tags to OpenAPI types
+        type_map = {
+            "gboolean": {"type": "boolean"},
+            "gint8": {"type": "integer", "format": "int32"},
+            "guint8": {"type": "integer", "format": "int32"},
+            "gint16": {"type": "integer", "format": "int32"},
+            "guint16": {"type": "integer", "format": "int32"},
+            "gint32": {"type": "integer", "format": "int32"},
+            "guint32": {"type": "integer", "format": "int32"},
+            "gint64": {"type": "integer", "format": "int64"},
+            "guint64": {"type": "integer", "format": "int64"},
+            "utf8": {"type": "string"},
+            "gfloat": {"type": "number", "format": "float"},
+            "gdouble": {"type": "number", "format": "double"},
+            "void": None
+        }
+        
+        return type_map.get(tag, {"$ref": "#/components/schemas/Pointer"})
+
     def _generate_function(self, bim, bi=None):
         api = f"/{bim.get_namespace()}"
         if bi:
@@ -42,9 +81,14 @@ class GIRest():
         if GIRepository.function_info_get_flags(bim) & 1:
             api += "/{self}"
         api += f"/{bim.get_name()}"
-        # Handle the return value
+        
         # Handle the parameters
         params = []
+        request_body_props = {}
+        request_body_required = []
+        response_props = {}
+        
+        # Add self parameter for methods
         if GIRepository.function_info_get_flags(bim) & 1:
             params.append({
                "name": "self",
@@ -53,6 +97,100 @@ class GIRest():
                "schema": {"$ref": f"#/components/schemas/{bi.get_namespace()}{bi.get_name()}"},
                "description": ""
             })
+        
+        # Get number of arguments
+        n_args = GIRepository.callable_info_get_n_args(bim)
+        
+        # First pass: identify which arguments should be skipped
+        skip_indices = set()
+        for i in range(n_args):
+            arg = GIRepository.callable_info_get_arg(bim, i)
+            arg_type = GIRepository.arg_info_get_type(arg)
+            tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
+            
+            # Check if this is a callback
+            if tag == "interface":
+                interface = GIRepository.type_info_get_interface(arg_type)
+                if interface and interface.get_type() == GIRepository.InfoType.CALLBACK:
+                    # Mark closure and destroy arguments to be skipped
+                    closure_idx = GIRepository.arg_info_get_closure(arg)
+                    if closure_idx >= 0:
+                        skip_indices.add(closure_idx)
+                    destroy_idx = GIRepository.arg_info_get_destroy(arg)
+                    if destroy_idx >= 0:
+                        skip_indices.add(destroy_idx)
+        
+        # Second pass: process all arguments
+        for i in range(n_args):
+            arg = GIRepository.callable_info_get_arg(bim, i)
+            arg_type = GIRepository.arg_info_get_type(arg)
+            arg_name = arg.get_name()
+            arg_direction = GIRepository.arg_info_get_direction(arg)
+            
+            # Skip arguments that are marked as skipped
+            if i in skip_indices:
+                continue
+            
+            # Check if this is a callback
+            tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
+            if tag == "interface":
+                interface = GIRepository.type_info_get_interface(arg_type)
+                if interface and interface.get_type() == GIRepository.InfoType.CALLBACK:
+                    # Add callback ID to response
+                    response_props[arg_name] = {"type": "integer", "description": "Callback ID"}
+                    continue
+            
+            # Handle output parameters - they go in the response
+            if arg_direction == GIRepository.Direction.OUT:
+                schema = self._type_to_schema(arg_type)
+                if schema:
+                    response_props[arg_name] = schema
+                continue
+            
+            # Handle input and inout parameters
+            schema = self._type_to_schema(arg_type)
+            if not schema:
+                continue
+                
+            # INOUT parameters go in both request and response
+            if arg_direction == GIRepository.Direction.INOUT:
+                response_props[arg_name] = schema
+            
+            # Add to request body as query parameter
+            param_schema = schema.copy()
+            may_be_null = GIRepository.arg_info_may_be_null(arg)
+            
+            params.append({
+                "name": arg_name,
+                "in": "query",
+                "required": not may_be_null,
+                "schema": param_schema,
+                "description": ""
+            })
+        
+        # Handle the return value
+        return_type = GIRepository.callable_info_get_return_type(bim)
+        return_schema = self._type_to_schema(return_type)
+        if return_schema:
+            response_props["return"] = return_schema
+        
+        # Build response schema
+        responses = {}
+        if response_props:
+            responses["200"] = {
+                "description": "Success",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": response_props
+                        }
+                    }
+                }
+            }
+        else:
+            responses["204"] = {"description": "No Content"}
+        
         # Add paths, components, etc. programmatically
         self.spec.path(path=api, operations={
             "get": {
@@ -61,7 +199,7 @@ class GIRest():
                 "operationId": f"{bim.get_namespace()}_{bi.get_name() if bi else ''}_{bim.get_name()}",
                 "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
                 "parameters": params,
-                "responses": {"200": {"description": "Success"}},
+                "responses": responses,
             }
         })
 
