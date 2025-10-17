@@ -45,11 +45,25 @@ class GIRest():
             if interface:
                 info_type = interface.get_type()
                 if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                    # Generate the enum schema if not already generated
+                    self._generate_enum(interface)
                     # Return reference to the enum schema
                     full_name = f"{interface.get_namespace()}{interface.get_name()}"
                     return {"$ref": f"#/components/schemas/{full_name}"}
-                elif info_type == GIRepository.InfoType.OBJECT or info_type == GIRepository.InfoType.STRUCT:
+                elif info_type == GIRepository.InfoType.OBJECT:
+                    # Generate the object schema if not already generated
+                    self._generate_object(interface)
                     # Return reference to the object schema
+                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                    return {"$ref": f"#/components/schemas/{full_name}"}
+                elif info_type == GIRepository.InfoType.STRUCT:
+                    # Check if this is a GType struct - these are not exposed in the schema
+                    if GIRepository.struct_info_is_gtype_struct(interface):
+                        # GType structs are treated as opaque pointers
+                        return {"$ref": "#/components/schemas/Pointer"}
+                    # Generate the struct schema if not already generated
+                    self._generate_struct(interface)
+                    # Return reference to the struct schema
                     full_name = f"{interface.get_namespace()}{interface.get_name()}"
                     return {"$ref": f"#/components/schemas/{full_name}"}
                 elif info_type == GIRepository.InfoType.CALLBACK:
@@ -214,6 +228,10 @@ class GIRest():
         full_name = f"{bi.get_namespace()}{bi.get_name()}"
         if full_name in self.schemas:
             return
+        
+        # Mark as generated early to prevent circular dependencies
+        self.schemas[full_name] = True
+        
         # Generate the type for every parent
         parent = GIRepository.object_info_get_parent(bi)
         if parent:
@@ -245,8 +263,6 @@ class GIRest():
         for i in range(0, GIRepository.object_info_get_n_methods(bi)):
             bim = GIRepository.object_info_get_method(bi, i)
             self._generate_function(bim, bi)
-        # Mark it as generated
-        self.schemas[full_name] = True
 
     def _generate_struct(self, bi):
         if GIRepository.struct_info_is_gtype_struct(bi):
@@ -254,12 +270,35 @@ class GIRest():
         # TODO Structs with private fields can not be serialized
         # TODO Structs with a constructor can not be serialized
         # TODO Get free_function
+        
+        # For now, generate a basic schema for structs as opaque pointer types
+        # This prevents dangling references when structs are used as parameters
+        full_name = f"{bi.get_namespace()}{bi.get_name()}"
+        if full_name in self.schemas:
+            return
+        
+        self.spec.components.schema(
+            full_name,
+            {
+                "type": "object",
+                "properties": {
+                    "ptr": {"$ref": "#/components/schemas/Pointer"},
+                },
+                "required": ["ptr"]
+            }
+        )
+        
+        # Mark as generated
+        self.schemas[full_name] = True
 
     def _generate_enum(self, bi):
         """Generate OpenAPI schema for an enum"""
         full_name = f"{bi.get_namespace()}{bi.get_name()}"
         if full_name in self.schemas:
             return
+        
+        # Mark as generated early to prevent circular dependencies
+        self.schemas[full_name] = True
         
         # Get all enum values
         n_values = GIRepository.enum_info_get_n_values(bi)
@@ -284,9 +323,6 @@ class GIRest():
         for i in range(0, GIRepository.enum_info_get_n_methods(bi)):
             bim = GIRepository.enum_info_get_method(bi, i)
             self._generate_function(bim, bi)
-        
-        # Mark as generated
-        self.schemas[full_name] = True
 
     def generate(self):
         # Generate the types
