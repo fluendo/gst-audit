@@ -70,7 +70,7 @@ Managed via Poetry (`pyproject.toml`):
 
 ### Running the Application
 ```bash
-PID=[process_id] fastapi dev gstaudit/main.py
+PID=[PID] fastapi dev gstaudit/main.py
 ```
 
 ### Adding New Routes
@@ -102,7 +102,7 @@ logger.error("Error message")
 
 ## Important Notes
 
-- **PyGObject not used**: Direct GIRepository access is required to expose internal functions (e.g., `unref`, struct free functions)
+- **PyGObject not used**: Direct GIRepository access is required to expose internal functions (e.g., `unref`, functions to free structs)
 - **Custom OpenAPI schema**: FastAPI's automatic schema generation has limitations; custom `apispec` usage may be needed
 - **Frida session lifecycle**: Managed in the FastAPI lifespan context manager
 - **Thread safety**: Be cautious with shared state (e.g., `callbacks_data`)
