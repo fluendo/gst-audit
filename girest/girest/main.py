@@ -35,6 +35,53 @@ class GIRest():
         self.repo = GIRepository.Repository()
         self.repo.require(ns, ns_version, 0)
 
+    def _type_to_schema(self, t):
+        """Convert GIRepository type to OpenAPI schema"""
+        tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(t))
+        
+        # Check if it's an interface type
+        if tag == "interface":
+            interface = GIRepository.type_info_get_interface(t)
+            if interface:
+                info_type = interface.get_type()
+                if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                    # Return reference to the enum schema
+                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                    return {"$ref": f"#/components/schemas/{full_name}"}
+                elif info_type == GIRepository.InfoType.OBJECT or info_type == GIRepository.InfoType.STRUCT:
+                    # Return reference to the object schema
+                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                    return {"$ref": f"#/components/schemas/{full_name}"}
+                elif info_type == GIRepository.InfoType.CALLBACK:
+                    # Callbacks are represented as integers (callback IDs)
+                    return {"type": "integer"}
+        
+        # Map GIRepository type tags to OpenAPI types
+        # Note: OpenAPI 3.0 doesn't distinguish between signed and unsigned integers
+        # at the schema level - both use 'integer' type. Format specifications (int32, int64)
+        # indicate precision but not signedness. For consistency, we:
+        # - Omit format for 8/16-bit integers (no standard OpenAPI format exists)
+        # - Use format: int32 for gint32 (most common)
+        # - Omit format for guint32 (to avoid implying signedness)
+        # - Use format: int64 for both gint64/guint64 (indicates 64-bit precision)
+        type_map = {
+            "gboolean": {"type": "boolean"},
+            "gint8": {"type": "integer"},
+            "guint8": {"type": "integer"},
+            "gint16": {"type": "integer"},
+            "guint16": {"type": "integer"},
+            "gint32": {"type": "integer", "format": "int32"},
+            "guint32": {"type": "integer"},
+            "gint64": {"type": "integer", "format": "int64"},
+            "guint64": {"type": "integer", "format": "int64"},
+            "utf8": {"type": "string"},
+            "gfloat": {"type": "number", "format": "float"},
+            "gdouble": {"type": "number", "format": "double"},
+            "void": None
+        }
+        
+        return type_map.get(tag, {"$ref": "#/components/schemas/Pointer"})
+
     def _generate_function(self, bim, bi=None):
         api = f"/{bim.get_namespace()}"
         if bi:
@@ -42,9 +89,12 @@ class GIRest():
         if GIRepository.function_info_get_flags(bim) & 1:
             api += "/{self}"
         api += f"/{bim.get_name()}"
-        # Handle the return value
+        
         # Handle the parameters
         params = []
+        response_props = {}
+        
+        # Add self parameter for methods
         if GIRepository.function_info_get_flags(bim) & 1:
             params.append({
                "name": "self",
@@ -53,6 +103,100 @@ class GIRest():
                "schema": {"$ref": f"#/components/schemas/{bi.get_namespace()}{bi.get_name()}"},
                "description": ""
             })
+        
+        # Get number of arguments
+        n_args = GIRepository.callable_info_get_n_args(bim)
+        
+        # First pass: identify which arguments should be skipped
+        skip_indices = set()
+        for i in range(n_args):
+            arg = GIRepository.callable_info_get_arg(bim, i)
+            arg_type = GIRepository.arg_info_get_type(arg)
+            tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
+            
+            # Check if this is a callback
+            if tag == "interface":
+                interface = GIRepository.type_info_get_interface(arg_type)
+                if interface and interface.get_type() == GIRepository.InfoType.CALLBACK:
+                    # Mark closure and destroy arguments to be skipped
+                    closure_idx = GIRepository.arg_info_get_closure(arg)
+                    if closure_idx >= 0:
+                        skip_indices.add(closure_idx)
+                    destroy_idx = GIRepository.arg_info_get_destroy(arg)
+                    if destroy_idx >= 0:
+                        skip_indices.add(destroy_idx)
+        
+        # Second pass: process all arguments
+        for i in range(n_args):
+            arg = GIRepository.callable_info_get_arg(bim, i)
+            arg_type = GIRepository.arg_info_get_type(arg)
+            arg_name = arg.get_name()
+            arg_direction = GIRepository.arg_info_get_direction(arg)
+            
+            # Skip arguments that are marked as skipped
+            if i in skip_indices:
+                continue
+            
+            # Check if this is a callback
+            tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
+            if tag == "interface":
+                interface = GIRepository.type_info_get_interface(arg_type)
+                if interface and interface.get_type() == GIRepository.InfoType.CALLBACK:
+                    # Add callback ID to response
+                    response_props[arg_name] = {"type": "integer", "description": "Callback ID"}
+                    continue
+            
+            # Handle output parameters - they go in the response
+            if arg_direction == GIRepository.Direction.OUT:
+                schema = self._type_to_schema(arg_type)
+                if schema:
+                    response_props[arg_name] = schema
+                continue
+            
+            # Handle input and inout parameters
+            schema = self._type_to_schema(arg_type)
+            if not schema:
+                continue
+                
+            # INOUT parameters go in both request and response
+            if arg_direction == GIRepository.Direction.INOUT:
+                response_props[arg_name] = schema
+            
+            # Add as query parameter
+            param_schema = schema.copy()
+            may_be_null = GIRepository.arg_info_may_be_null(arg)
+            
+            params.append({
+                "name": arg_name,
+                "in": "query",
+                "required": not may_be_null,
+                "schema": param_schema,
+                "description": ""
+            })
+        
+        # Handle the return value
+        return_type = GIRepository.callable_info_get_return_type(bim)
+        return_schema = self._type_to_schema(return_type)
+        if return_schema:
+            response_props["return"] = return_schema
+        
+        # Build response schema
+        responses = {}
+        if response_props:
+            responses["200"] = {
+                "description": "Success",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": response_props
+                        }
+                    }
+                }
+            }
+        else:
+            responses["204"] = {"description": "No Content"}
+        
         # Add paths, components, etc. programmatically
         self.spec.path(path=api, operations={
             "get": {
@@ -61,7 +205,7 @@ class GIRest():
                 "operationId": f"{bim.get_namespace()}_{bi.get_name() if bi else ''}_{bim.get_name()}",
                 "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
                 "parameters": params,
-                "responses": {"200": {"description": "Success"}},
+                "responses": responses,
             }
         })
 
@@ -111,6 +255,39 @@ class GIRest():
         # TODO Structs with a constructor can not be serialized
         # TODO Get free_function
 
+    def _generate_enum(self, bi):
+        """Generate OpenAPI schema for an enum"""
+        full_name = f"{bi.get_namespace()}{bi.get_name()}"
+        if full_name in self.schemas:
+            return
+        
+        # Get all enum values
+        n_values = GIRepository.enum_info_get_n_values(bi)
+        enum_values = []
+        for i in range(n_values):
+            value_info = GIRepository.enum_info_get_value(bi, i)
+            enum_values.append(value_info.get_name())
+        
+        # Create enum schema with string values
+        # OpenAPI will accept string values, but we'll need to convert them
+        # to integers when calling Frida
+        self.spec.components.schema(
+            full_name,
+            {
+                "type": "string",
+                "enum": enum_values,
+                "description": f"Enum values for {bi.get_name()}"
+            }
+        )
+        
+        # Generate endpoints for enum methods
+        for i in range(0, GIRepository.enum_info_get_n_methods(bi)):
+            bim = GIRepository.enum_info_get_method(bi, i)
+            self._generate_function(bim, bi)
+        
+        # Mark as generated
+        self.schemas[full_name] = True
+
     def generate(self):
         # Generate the types
         for i in range(0, self.repo.get_n_infos(self.ns)):
@@ -120,6 +297,10 @@ class GIRest():
                 self._generate_object(info)
             elif info_type == GIRepository.InfoType.STRUCT:
                 self._generate_struct(info)
+            elif info_type == GIRepository.InfoType.ENUM:
+                self._generate_enum(info)
+            elif info_type == GIRepository.InfoType.FLAGS:
+                self._generate_enum(info)
             elif info_type == GIRepository.InfoType.FUNCTION:
                 self._generate_function(info)
         return self.spec
@@ -164,9 +345,27 @@ class FridaResolver(connexion.resolver.Resolver):
         self.pid = pid
         self.script = None
         self.session = None
+        # Build enum value mappings for converting string names to integers
+        self.enum_mappings = {}
+        self._build_enum_mappings()
         # Connect to the corresponding process
         self._connect_frida()
         super().__init__()
+ 
+    def _build_enum_mappings(self):
+        """Build mappings from enum string names to integer values"""
+        for i in range(0, self.girest.repo.get_n_infos(self.girest.ns)):
+            info = self.girest.repo.get_info(self.girest.ns, i)
+            info_type = info.get_type()
+            if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                full_name = f"{info.get_namespace()}{info.get_name()}"
+                mapping = {}
+                n_values = GIRepository.enum_info_get_n_values(info)
+                for j in range(n_values):
+                    value_info = GIRepository.enum_info_get_value(info, j)
+                    mapping[value_info.get_name()] = GIRepository.value_info_get_value(value_info)
+                self.enum_mappings[full_name] = mapping
+
  
     def _connect_frida(self):
         """Connect to the target process using Frida"""
@@ -337,10 +536,43 @@ class FridaResolver(connexion.resolver.Resolver):
         return None
 
     def create_frida_handler(self):
-        """Create handler that calls Frida with the method JSON"""
-        def frida_resolver_handler(_symbol=None, _type=None, *args, **kwargs):
+        """Create handler that calls Frida with the method JSON, converting enum strings to integers"""
+        def frida_resolver_handler(_method=None, _type=None, *args, **kwargs):
+            # Get the symbol from the method info
+            symbol = GIRepository.function_info_get_symbol(_method)
+            
+            # Convert enum string values to integers before calling Frida
+            converted_kwargs = {}
+            n_args = GIRepository.callable_info_get_n_args(_method)
+            
+            for i in range(n_args):
+                arg = GIRepository.callable_info_get_arg(_method, i)
+                arg_name = arg.get_name()
+                
+                if arg_name in kwargs:
+                    arg_type = GIRepository.arg_info_get_type(arg)
+                    tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
+                    
+                    # Check if this is an enum type
+                    if tag == "interface":
+                        interface = GIRepository.type_info_get_interface(arg_type)
+                        if interface and (interface.get_type() == GIRepository.InfoType.ENUM or 
+                                         interface.get_type() == GIRepository.InfoType.FLAGS):
+                            # Convert string enum name to integer value
+                            full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                            enum_mapping = self.enum_mappings.get(full_name, {})
+                            value = kwargs[arg_name]
+                            if isinstance(value, str) and value in enum_mapping:
+                                converted_kwargs[arg_name] = enum_mapping[value]
+                            else:
+                                converted_kwargs[arg_name] = value
+                        else:
+                            converted_kwargs[arg_name] = kwargs[arg_name]
+                    else:
+                        converted_kwargs[arg_name] = kwargs[arg_name]
+            
             # Call the Frida script with the symbol and method JSON
-            result = self.script.exports_sync.call(_symbol, _type, *kwargs.values())
+            result = self.script.exports_sync.call(symbol, _type, *converted_kwargs.values())
             return result
 
         return frida_resolver_handler
@@ -353,15 +585,12 @@ class FridaResolver(connexion.resolver.Resolver):
             # Endpoints are generated by introspection, so this should never happen
             raise RuntimeError(f"Function not found for operation_id: {operation_id}")
         
-        # Get the symbol name for the function
-        symbol = GIRepository.function_info_get_symbol(method_info)
-        
         # Generate the JSON representation
         method_json = self._method_to_json(method_info)
         
-        # Create and return the handler
+        # Create and return the handler with method_info and method_json as defaults
         ret = self.create_frida_handler()
-        ret.__defaults__ = (symbol, method_json)
+        ret.__defaults__ = (method_info, method_json)
         return ret
 
 
