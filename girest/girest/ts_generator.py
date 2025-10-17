@@ -132,6 +132,12 @@ class TypeScriptGenerator:
         """
         lines = []
         
+        # Handle enums - generate as type alias with string literals
+        if "enum" in schema and schema.get("type") == "string":
+            enum_values = schema["enum"]
+            literals = " | ".join([f'"{v}"' for v in enum_values])
+            return f"export type {name} = {literals};"
+        
         # Handle allOf (inheritance)
         if "allOf" in schema:
             all_of = schema["allOf"]

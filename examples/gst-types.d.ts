@@ -27,8 +27,7 @@ export interface GObjectValue {
   ptr: Pointer;
 }
 
-export interface GObjectBindingFlags {
-}
+export type GObjectBindingFlags = "default" | "bidirectional" | "sync_create" | "invert_boolean";
 
 export interface GObjectBinding extends GObjectObject {
 }
@@ -53,8 +52,7 @@ export interface GstMemory {
   ptr: Pointer;
 }
 
-export interface GstAllocatorFlags {
-}
+export type GstAllocatorFlags = "custom_alloc" | "no_copy" | "last";
 
 export interface GstAllocatorPrivate {
   ptr: Pointer;
@@ -67,30 +65,25 @@ export interface GstAtomicQueue {
 export interface GstElement extends GstObject {
 }
 
-export interface GstURIType {
-}
+export type GstURIType = "unknown" | "sink" | "src";
 
 export interface GstPlugin extends GstObject {
 }
 
-export interface GstPluginDependencyFlags {
-}
+export type GstPluginDependencyFlags = "none" | "recurse" | "paths_are_default_only" | "file_name_is_suffix" | "file_name_is_prefix" | "paths_are_relative_to_exe";
 
 export interface GstStructure {
   ptr: Pointer;
 }
 
-export interface GstStateChangeReturn {
-}
+export type GstStateChangeReturn = "failure" | "success" | "async" | "no_preroll";
 
-export interface GstState {
-}
+export type GstState = "void_pending" | "null" | "ready" | "paused" | "playing";
 
 export interface GstPad extends GstObject {
 }
 
-export interface GstPadDirection {
-}
+export type GstPadDirection = "unknown" | "src" | "sink";
 
 export interface GstStaticPadTemplate {
   ptr: Pointer;
@@ -99,28 +92,23 @@ export interface GstStaticPadTemplate {
 export interface GstPadTemplate extends GstObject {
 }
 
-export interface GstPadPresence {
-}
+export type GstPadPresence = "always" | "sometimes" | "request";
 
 export interface GstCaps {
   ptr: Pointer;
 }
 
-export interface GstPadLinkReturn {
-}
+export type GstPadLinkReturn = "ok" | "wrong_hierarchy" | "was_linked" | "wrong_direction" | "noformat" | "nosched" | "refused";
 
-export interface GstPadMode {
-}
+export type GstPadMode = "none" | "push" | "pull";
 
-export interface GstPadProbeType {
-}
+export type GstPadProbeType = "invalid" | "idle" | "block" | "buffer" | "buffer_list" | "event_downstream" | "event_upstream" | "event_flush" | "query_downstream" | "query_upstream" | "push" | "pull" | "blocking" | "data_downstream" | "data_upstream" | "data_both" | "block_downstream" | "block_upstream" | "event_both" | "query_both" | "all_both" | "scheduling";
 
 export interface GstBuffer {
   ptr: Pointer;
 }
 
-export interface GstFlowReturn {
-}
+export type GstFlowReturn = "custom_success_2" | "custom_success_1" | "custom_success" | "ok" | "not_linked" | "flushing" | "eos" | "not_negotiated" | "error" | "not_supported" | "custom_error" | "custom_error_1" | "custom_error_2";
 
 export interface GstBufferList {
   ptr: Pointer;
@@ -130,48 +118,40 @@ export interface GstEvent {
   ptr: Pointer;
 }
 
-export interface GstEventType {
-}
+export type GstEventType = "unknown" | "flush_start" | "flush_stop" | "stream_start" | "caps" | "segment" | "stream_collection" | "tag" | "buffersize" | "sink_message" | "stream_group_done" | "eos" | "toc" | "protection" | "segment_done" | "gap" | "instant_rate_change" | "qos" | "seek" | "navigation" | "latency" | "step" | "reconfigure" | "toc_select" | "select_streams" | "instant_rate_sync_time" | "custom_upstream" | "custom_downstream" | "custom_downstream_oob" | "custom_downstream_sticky" | "custom_both" | "custom_both_oob";
 
-export interface GstEventTypeFlags {
-}
+export type GstEventTypeFlags = "upstream" | "downstream" | "serialized" | "sticky" | "sticky_multi";
 
 export interface GstStream extends GstObject {
 }
 
-export interface GstStreamType {
-}
+export type GstStreamType = "unknown" | "audio" | "video" | "container" | "text";
 
-export interface GstStreamFlags {
-}
+export type GstStreamFlags = "none" | "sparse" | "select" | "unselect";
 
 export interface GstTagList {
   ptr: Pointer;
 }
 
-export interface GstTaskState {
-}
+export type GstTaskState = "started" | "stopped" | "paused";
 
 export interface GstIterator {
   ptr: Pointer;
 }
 
-export interface GstPadLinkCheck {
-}
+export type GstPadLinkCheck = "nothing" | "hierarchy" | "template_caps" | "caps" | "no_reconfigure" | "default";
 
 export interface GstQuery {
   ptr: Pointer;
 }
 
-export interface GstFormat {
-}
+export type GstFormat = "undefined" | "default" | "bytes" | "time" | "buffers" | "percent";
 
 export interface GstFormatDefinition {
   ptr: Pointer;
 }
 
-export interface GstStateChange {
-}
+export type GstStateChange = "null_to_ready" | "ready_to_paused" | "paused_to_playing" | "playing_to_paused" | "paused_to_ready" | "ready_to_null" | "null_to_null" | "ready_to_ready" | "paused_to_paused" | "playing_to_playing";
 
 export interface GstBus extends GstObject {
 }
@@ -188,17 +168,14 @@ export interface GLibPollFD {
   ptr: Pointer;
 }
 
-export interface GstMessageType {
-}
+export type GstMessageType = "unknown" | "eos" | "error" | "warning" | "info" | "tag" | "buffering" | "state_changed" | "state_dirty" | "step_done" | "clock_provide" | "clock_lost" | "new_clock" | "structure_change" | "stream_status" | "application" | "element" | "segment_start" | "segment_done" | "duration_changed" | "latency" | "async_start" | "async_done" | "request_state" | "step_start" | "qos" | "progress" | "toc" | "reset_time" | "stream_start" | "need_context" | "have_context" | "extended" | "device_added" | "device_removed" | "property_notify" | "stream_collection" | "streams_selected" | "redirect" | "device_changed" | "instant_rate_request" | "any";
 
-export interface GstBusSyncReply {
-}
+export type GstBusSyncReply = "drop" | "pass" | "async";
 
 export interface GstClock extends GstObject {
 }
 
-export interface GstClockReturn {
-}
+export type GstClockReturn = "ok" | "early" | "unscheduled" | "busy" | "badtime" | "error" | "unsupported" | "done";
 
 export interface GstContext {
   ptr: Pointer;
@@ -210,23 +187,18 @@ export interface GstPluginFeature extends GstObject {
 export interface GstElementFactory extends GstPluginFeature {
 }
 
-export interface GstRank {
-}
+export type GstRank = "none" | "marginal" | "secondary" | "primary";
 
-export interface GstSeekFlags {
-}
+export type GstSeekFlags = "none" | "flush" | "accurate" | "key_unit" | "segment" | "trickmode" | "skip" | "snap_before" | "snap_after" | "snap_nearest" | "trickmode_key_units" | "trickmode_no_audio" | "trickmode_forward_predicted" | "instant_rate_change";
 
-export interface GstSeekType {
-}
+export type GstSeekType = "none" | "set" | "end";
 
 export interface GstBin extends GstElement {
 }
 
-export interface GstElementFlags {
-}
+export type GstElementFlags = "locked_state" | "sink" | "source" | "provide_clock" | "require_clock" | "indexable" | "last";
 
-export interface GstBinFlags {
-}
+export type GstBinFlags = "no_resync" | "streams_aware" | "last";
 
 export interface GstBinPrivate {
   ptr: Pointer;
@@ -236,11 +208,9 @@ export interface GstBitmask {
   ptr: Pointer;
 }
 
-export interface GstBufferCopyFlags {
-}
+export type GstBufferCopyFlags = "none" | "flags" | "timestamps" | "meta" | "memory" | "merge" | "deep";
 
-export interface GstBufferFlags {
-}
+export type GstBufferFlags = "live" | "decode_only" | "discont" | "resync" | "corrupted" | "marker" | "header" | "gap" | "droppable" | "delta_unit" | "tag_memory" | "sync_after" | "non_droppable" | "last";
 
 export interface GstBufferPool extends GstObject {
 }
@@ -249,18 +219,15 @@ export interface GstBufferPoolAcquireParams {
   ptr: Pointer;
 }
 
-export interface GstBufferPoolAcquireFlags {
-}
+export type GstBufferPoolAcquireFlags = "none" | "key_unit" | "dontwait" | "discont" | "last";
 
 export interface GstBufferPoolPrivate {
   ptr: Pointer;
 }
 
-export interface GstBufferingMode {
-}
+export type GstBufferingMode = "stream" | "download" | "timeshift" | "live";
 
-export interface GstBusFlags {
-}
+export type GstBusFlags = "flushing" | "flag_last";
 
 export interface GstBusPrivate {
   ptr: Pointer;
@@ -274,28 +241,23 @@ export interface GstCapsFeatures {
   ptr: Pointer;
 }
 
-export interface GstCapsFlags {
-}
+export type GstCapsFlags = "any";
 
-export interface GstCapsIntersectMode {
-}
+export type GstCapsIntersectMode = "zig_zag" | "first";
 
 export interface GstClockEntry {
   ptr: Pointer;
 }
 
-export interface GstClockEntryType {
-}
+export type GstClockEntryType = "single" | "periodic";
 
-export interface GstClockFlags {
-}
+export type GstClockFlags = "can_do_single_sync" | "can_do_single_async" | "can_do_periodic_sync" | "can_do_periodic_async" | "can_set_resolution" | "can_set_master" | "needs_startup_sync" | "last";
 
 export interface GstClockPrivate {
   ptr: Pointer;
 }
 
-export interface GstClockType {
-}
+export type GstClockType = "realtime" | "monotonic" | "other" | "tai";
 
 export interface GstControlBindingPrivate {
   ptr: Pointer;
@@ -304,8 +266,7 @@ export interface GstControlBindingPrivate {
 export interface GstControlSource extends GstObject {
 }
 
-export interface GstCoreError {
-}
+export type GstCoreError = "failed" | "too_lazy" | "not_implemented" | "state_change" | "pad" | "thread" | "negotiation" | "event" | "seek" | "caps" | "tag" | "missing_plugin" | "clock" | "disabled" | "num_errors";
 
 export interface GstCustomMeta {
   ptr: Pointer;
@@ -319,17 +280,13 @@ export interface GstDebugCategory {
   ptr: Pointer;
 }
 
-export interface GstDebugColorFlags {
-}
+export type GstDebugColorFlags = "fg_black" | "fg_red" | "fg_green" | "fg_yellow" | "fg_blue" | "fg_magenta" | "fg_cyan" | "fg_white" | "bg_black" | "bg_red" | "bg_green" | "bg_yellow" | "bg_blue" | "bg_magenta" | "bg_cyan" | "bg_white" | "bold" | "underline";
 
-export interface GstDebugColorMode {
-}
+export type GstDebugColorMode = "off" | "on" | "unix";
 
-export interface GstDebugGraphDetails {
-}
+export type GstDebugGraphDetails = "media_type" | "caps_details" | "non_default_params" | "states" | "full_params" | "all" | "verbose";
 
-export interface GstDebugLevel {
-}
+export type GstDebugLevel = "none" | "error" | "warning" | "fixme" | "info" | "debug" | "log" | "trace" | "memdump" | "count";
 
 export interface GstDebugMessage {
   ptr: Pointer;
@@ -378,8 +335,7 @@ export interface GstFractionRange {
   ptr: Pointer;
 }
 
-export interface GstGapFlags {
-}
+export type GstGapFlags = "data";
 
 export interface GstProxyPad extends GstPad {
 }
@@ -399,34 +355,27 @@ export interface GstIntRange {
   ptr: Pointer;
 }
 
-export interface GstIteratorItem {
-}
+export type GstIteratorItem = "skip" | "pass" | "end";
 
-export interface GstIteratorResult {
-}
+export type GstIteratorResult = "done" | "ok" | "resync" | "error";
 
-export interface GstLibraryError {
-}
+export type GstLibraryError = "failed" | "too_lazy" | "init" | "shutdown" | "settings" | "encode" | "num_errors";
 
-export interface GstLockFlags {
-}
+export type GstLockFlags = "read" | "write" | "exclusive" | "last";
 
-export interface GstMapFlags {
-}
+export type GstMapFlags = "read" | "write" | "flag_last";
 
 export interface GstMapInfo {
   ptr: Pointer;
 }
 
-export interface GstMemoryFlags {
-}
+export type GstMemoryFlags = "readonly" | "no_share" | "zero_prefixed" | "zero_padded" | "physically_contiguous" | "not_mappable" | "last";
 
 export interface GstMeta {
   ptr: Pointer;
 }
 
-export interface GstMetaFlags {
-}
+export type GstMetaFlags = "none" | "readonly" | "pooled" | "locked" | "last";
 
 export interface GstMetaInfo {
   ptr: Pointer;
@@ -440,14 +389,11 @@ export interface GstMiniObject {
   ptr: Pointer;
 }
 
-export interface GstMiniObjectFlags {
-}
+export type GstMiniObjectFlags = "lockable" | "lock_readonly" | "may_be_leaked" | "last";
 
-export interface GstObjectFlags {
-}
+export type GstObjectFlags = "may_be_leaked" | "constructed" | "last";
 
-export interface GstPadFlags {
-}
+export type GstPadFlags = "blocked" | "flushing" | "eos" | "blocking" | "need_parent" | "need_reconfigure" | "pending_events" | "fixed_caps" | "proxy_caps" | "proxy_allocation" | "proxy_scheduling" | "accept_intersect" | "accept_template" | "last";
 
 export interface GstPadPrivate {
   ptr: Pointer;
@@ -457,11 +403,9 @@ export interface GstPadProbeInfo {
   ptr: Pointer;
 }
 
-export interface GstPadProbeReturn {
-}
+export type GstPadProbeReturn = "drop" | "ok" | "remove" | "pass" | "handled";
 
-export interface GstPadTemplateFlags {
-}
+export type GstPadTemplateFlags = "last";
 
 export interface GstParamArray extends GObjectParamSpec {
 }
@@ -485,34 +429,28 @@ export interface GstParseContext {
   ptr: Pointer;
 }
 
-export interface GstParseError {
-}
+export type GstParseError = "syntax" | "no_such_element" | "no_such_property" | "link" | "could_not_set_property" | "empty_bin" | "empty" | "delayed_link";
 
-export interface GstParseFlags {
-}
+export type GstParseFlags = "none" | "fatal_errors" | "no_single_element_bins" | "place_in_bin";
 
 export interface GstPipeline extends GstBin {
 }
 
-export interface GstPipelineFlags {
-}
+export type GstPipelineFlags = "fixed_clock" | "last";
 
 export interface GstPipelinePrivate {
   ptr: Pointer;
 }
 
-export interface GstPluginAPIFlags {
-}
+export type GstPluginAPIFlags = "members";
 
 export interface GstPluginDesc {
   ptr: Pointer;
 }
 
-export interface GstPluginError {
-}
+export type GstPluginError = "module" | "dependencies" | "name_mismatch";
 
-export interface GstPluginFlags {
-}
+export type GstPluginFlags = "cached" | "blacklisted";
 
 export interface GstPoll {
   ptr: Pointer;
@@ -522,15 +460,13 @@ export interface GstPollFD {
   ptr: Pointer;
 }
 
-export interface GstProgressType {
-}
+export type GstProgressType = "start" | "continue" | "complete" | "canceled" | "error";
 
 export interface GstPromise {
   ptr: Pointer;
 }
 
-export interface GstPromiseResult {
-}
+export type GstPromiseResult = "pending" | "interrupted" | "replied" | "expired";
 
 export interface GstProtectionMeta {
   ptr: Pointer;
@@ -540,14 +476,11 @@ export interface GstProxyPadPrivate {
   ptr: Pointer;
 }
 
-export interface GstQOSType {
-}
+export type GstQOSType = "overflow" | "underflow" | "throttle";
 
-export interface GstQueryType {
-}
+export type GstQueryType = "unknown" | "position" | "duration" | "latency" | "jitter" | "rate" | "seeking" | "segment" | "convert" | "formats" | "buffering" | "custom" | "uri" | "allocation" | "scheduling" | "accept_caps" | "caps" | "drain" | "context" | "bitrate" | "selectable";
 
-export interface GstQueryTypeFlags {
-}
+export type GstQueryTypeFlags = "upstream" | "downstream" | "serialized";
 
 export interface GstReferenceTimestampMeta {
   ptr: Pointer;
@@ -560,28 +493,23 @@ export interface GstRegistryPrivate {
   ptr: Pointer;
 }
 
-export interface GstResourceError {
-}
+export type GstResourceError = "failed" | "too_lazy" | "not_found" | "busy" | "open_read" | "open_write" | "open_read_write" | "close" | "read" | "write" | "seek" | "sync" | "settings" | "no_space_left" | "not_authorized" | "num_errors";
 
 export interface GstSample {
   ptr: Pointer;
 }
 
-export interface GstSchedulingFlags {
-}
+export type GstSchedulingFlags = "seekable" | "sequential" | "bandwidth_limited";
 
-export interface GstSearchMode {
-}
+export type GstSearchMode = "exact" | "before" | "after";
 
 export interface GstSegment {
   ptr: Pointer;
 }
 
-export interface GstSegmentFlags {
-}
+export type GstSegmentFlags = "none" | "reset" | "trickmode" | "skip" | "segment" | "trickmode_key_units" | "trickmode_forward_predicted" | "trickmode_no_audio";
 
-export interface GstSerializeFlags {
-}
+export type GstSerializeFlags = "none" | "backward_compat" | "strict";
 
 export interface GstTaskPool extends GstObject {
 }
@@ -593,8 +521,7 @@ export interface GstSharedTaskPoolPrivate {
   ptr: Pointer;
 }
 
-export interface GstStackTraceFlags {
-}
+export type GstStackTraceFlags = "none" | "full";
 
 export interface GstStaticCaps {
   ptr: Pointer;
@@ -607,18 +534,15 @@ export interface GstStreamCollectionPrivate {
   ptr: Pointer;
 }
 
-export interface GstStreamError {
-}
+export type GstStreamError = "failed" | "too_lazy" | "not_implemented" | "type_not_found" | "wrong_type" | "codec_not_found" | "decode" | "encode" | "demux" | "mux" | "format" | "decrypt" | "decrypt_nokey" | "num_errors";
 
 export interface GstStreamPrivate {
   ptr: Pointer;
 }
 
-export interface GstStreamStatusType {
-}
+export type GstStreamStatusType = "create" | "enter" | "leave" | "destroy" | "start" | "pause" | "stop";
 
-export interface GstStructureChangeType {
-}
+export type GstStructureChangeType = "link" | "unlink";
 
 export interface GstSystemClock extends GstClock {
 }
@@ -627,14 +551,11 @@ export interface GstSystemClockPrivate {
   ptr: Pointer;
 }
 
-export interface GstTagFlag {
-}
+export type GstTagFlag = "undefined" | "meta" | "encoded" | "decoded" | "count";
 
-export interface GstTagMergeMode {
-}
+export type GstTagMergeMode = "undefined" | "replace_all" | "replace" | "append" | "prepend" | "keep" | "keep_all" | "count";
 
-export interface GstTagScope {
-}
+export type GstTagScope = "stream" | "global";
 
 export interface GstTask extends GstObject {
 }
@@ -659,14 +580,11 @@ export interface GstTocEntry {
   ptr: Pointer;
 }
 
-export interface GstTocEntryType {
-}
+export type GstTocEntryType = "angle" | "version" | "edition" | "invalid" | "title" | "track" | "chapter";
 
-export interface GstTocLoopType {
-}
+export type GstTocLoopType = "none" | "forward" | "reverse" | "ping_pong";
 
-export interface GstTocScope {
-}
+export type GstTocScope = "global" | "current";
 
 export interface GstTracer extends GstObject {
 }
@@ -681,11 +599,9 @@ export interface GstTracerPrivate {
 export interface GstTracerRecord extends GstObject {
 }
 
-export interface GstTracerValueFlags {
-}
+export type GstTracerValueFlags = "none" | "optional" | "aggregated";
 
-export interface GstTracerValueScope {
-}
+export type GstTracerValueScope = "process" | "thread" | "element" | "pad";
 
 export interface GstTypeFind {
   ptr: Pointer;
@@ -694,11 +610,9 @@ export interface GstTypeFind {
 export interface GstTypeFindFactory extends GstPluginFeature {
 }
 
-export interface GstTypeFindProbability {
-}
+export type GstTypeFindProbability = "none" | "minimum" | "possible" | "likely" | "nearly_certain" | "maximum";
 
-export interface GstURIError {
-}
+export type GstURIError = "unsupported_protocol" | "bad_uri" | "bad_state" | "bad_reference";
 
 export interface GstUri {
   ptr: Pointer;
@@ -716,8 +630,7 @@ export interface GstValueTable {
   ptr: Pointer;
 }
 
-export interface GObjectParamFlags {
-}
+export type GObjectParamFlags = "readable" | "writable" | "readwrite" | "construct" | "construct_only" | "lax_validation" | "static_name" | "private" | "static_nick" | "static_blurb" | "explicit_notify" | "deprecated";
 
 export interface GObjectValueArray {
   ptr: Pointer;
