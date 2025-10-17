@@ -61,18 +61,25 @@ function base_type_read(t, p)
   }
 }
 
+function type_signature(type)
+{
+    if (type == "callback") {
+      return "pointer";
+    } else if (type == "string") {
+      return "pointer";
+    } else {
+     return type;
+    }
+}
+
 function callable_signature(type)
 {
   var sig = [];
   for (var a of type["arguments"]) {
-    if (a["type"] == "callback") {
-      sig.push("pointer")
-    } else if (a["type"] == "string") {
-      sig.push("pointer")
-    } else if ([1, 2].includes(a["direction"])) {
+    if ([1, 2].includes(a["direction"])) {
       sig.push("pointer")
     } else {
-      sig.push(a["type"]);
+      sig.push(type_signature(a["type"]));
     }
   }
   return sig
@@ -92,10 +99,10 @@ function call(symbol, type, ...args)
       if (!s) return false;
 
       /* Return value */
-      var rsig = type["returns"];
+      var rsig = type_signature(type["returns"]);
       /* Arguments */
       var sig = callable_signature(type);
-      console.log(`Signature is [${sig}]`);
+      console.log(`Signature is [${sig}] => ${rsig}`);
       nf = new NativeFunction(s, rsig, sig);
       functions["symbol"] = nf;
       return true;
@@ -159,7 +166,7 @@ function call(symbol, type, ...args)
   var ret = {};
   console.log(`About to call ${symbol} with args ${tx_args}`);
   var nfr = nf(...tx_args);
-  ret["return"] = nfr;
+  ret["return"] = base_type_read(type["returns"], nfr);
   /* Return the return value plus the output arguments */
   idx = 0;
   for (var a of type["arguments"]) {
