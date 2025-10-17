@@ -216,7 +216,7 @@ class GIRest():
             "get": {
                 "summary": "",
                 "description": "",
-                "operationId": f"{bim.get_namespace()}_{bi.get_name() if bi else ''}_{bim.get_name()}",
+                "operationId": f"{bim.get_namespace()}-{bi.get_name() if bi else ''}-{bim.get_name()}",
                 "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
                 "parameters": params,
                 "responses": responses,

@@ -117,21 +117,21 @@ class FridaResolver(connexion.resolver.Resolver):
         
         # Map GIRepository type tags to JSON type strings
         type_map = {
-            "boolean": "bool",
-            "int8": "int8",
-            "uint8": "uint8",
-            "int16": "int16",
-            "uint16": "uint16",
-            "int32": "int32",
-            "uint32": "uint32",
-            "int64": "int64",
-            "uint64": "uint64",
+            "gboolean": "bool",
+            "gint8": "int8",
+            "guint8": "uint8",
+            "gint16": "int16",
+            "guint16": "uint16",
+            "gint32": "int32",
+            "guint32": "uint32",
+            "gint64": "int64",
+            "guint64": "uint64",
             "utf8": "string",
-            "float": "float",
-            "double": "double",
+            "gfloat": "float",
+            "gdouble": "double",
             "void": "void"
         }
-        
+
         return type_map.get(tag, "pointer")
     
     def _arg_to_json(self, arg):
@@ -210,7 +210,7 @@ class FridaResolver(connexion.resolver.Resolver):
         # operation_id format: {namespace}_{object_name}_{method_name}
         # or {namespace}__{function_name} for standalone functions
         
-        parts = operation_id.split('_')
+        parts = operation_id.split('-')
         if len(parts) < 2:
             return None
         
@@ -226,13 +226,31 @@ class FridaResolver(connexion.resolver.Resolver):
                 # Standalone function: namespace__function_name
                 if len(parts) == 3 and parts[1] == '' and info.get_name() == parts[2]:
                     return info
-            elif info_type in [GIRepository.InfoType.OBJECT, GIRepository.InfoType.STRUCT]:
+            elif info_type == GIRepository.InfoType.OBJECT:
                 # Method: namespace_objectname_methodname
                 if len(parts) == 3 and info.get_name() == parts[1]:
                     # Search for the method
-                    n_methods = GIRepository.object_info_get_n_methods(info) if info_type == GIRepository.InfoType.OBJECT else GIRepository.struct_info_get_n_methods(info)
+                    n_methods = GIRepository.object_info_get_n_methods(info)
                     for j in range(n_methods):
-                        method = GIRepository.object_info_get_method(info, j) if info_type == GIRepository.InfoType.OBJECT else GIRepository.struct_info_get_method(info, j)
+                        method = GIRepository.object_info_get_method(info, j)
+                        if method.get_name() == parts[2]:
+                            return method
+            elif info_type == GIRepository.InfoType.STRUCT:
+                # Method: namespace_objectname_methodname
+                if len(parts) == 3 and info.get_name() == parts[1]:
+                    # Search for the method
+                    n_methods = GIRepository.struct_info_get_n_methods(info)
+                    for j in range(n_methods):
+                        method = GIRepository.struct_info_get_method(info, j)
+                        if method.get_name() == parts[2]:
+                            return method
+            elif info_type in [GIRepository.InfoType.ENUM, GIRepository.InfoType.FLAGS]:
+                # Method: namespace_objectname_methodname
+                if len(parts) == 3 and info.get_name() == parts[1]:
+                    # Search for the method
+                    n_methods = GIRepository.enum_info_get_n_methods(info)
+                    for j in range(n_methods):
+                        method = GIRepository.enum_info_get_method(info, j)
                         if method.get_name() == parts[2]:
                             return method
         
