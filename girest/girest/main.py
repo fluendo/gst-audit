@@ -1,7 +1,6 @@
 import argparse
 import json
 
-import connexion
 import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
