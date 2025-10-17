@@ -168,15 +168,19 @@ class FridaResolver(connexion.resolver.Resolver):
     
     def _type_to_json(self, t):
         """Convert GIRepository type to JSON type string"""
-        tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(t))
-        interface = GIRepository.type_info_get_interface(t)
+        # Get the type tag
+        tag_enum = GIRepository.type_info_get_tag(t)
+        tag = GIRepository.type_tag_to_string(tag_enum)
         
-        if tag == "interface" and interface:
-            info_type = GIRepository.base_info_get_type(interface)
-            if info_type == GIRepository.InfoType.CALLBACK:
-                return "callback"
-            elif info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
-                return "int32"
+        # Check if it's an interface type
+        if tag == "interface":
+            interface = GIRepository.type_info_get_interface(t)
+            if interface:
+                info_type = interface.get_type()
+                if info_type == GIRepository.InfoType.CALLBACK:
+                    return "callback"
+                elif info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                    return "int32"
         
         # Map GIRepository type tags to JSON type strings
         type_map = {
@@ -201,7 +205,7 @@ class FridaResolver(connexion.resolver.Resolver):
         """Convert argument info to JSON representation"""
         arg_type = GIRepository.arg_info_get_type(arg)
         ret = {
-            "name": GIRepository.base_info_get_name(arg),
+            "name": arg.get_name(),
             "skipped": False,
             "closure": GIRepository.arg_info_get_closure(arg),
             "is_closure": False,
@@ -287,21 +291,21 @@ class FridaResolver(connexion.resolver.Resolver):
         n_infos = self.girest.repo.get_n_infos(namespace)
         for i in range(n_infos):
             info = self.girest.repo.get_info(namespace, i)
-            info_type = GIRepository.base_info_get_type(info)
+            info_type = info.get_type()
             
             if info_type == GIRepository.InfoType.FUNCTION:
                 # Standalone function: namespace__function_name
-                if len(parts) == 3 and parts[1] == '' and GIRepository.base_info_get_name(info) == parts[2]:
+                if len(parts) == 3 and parts[1] == '' and info.get_name() == parts[2]:
                     self.function_cache[operation_id] = info
                     return info
             elif info_type in [GIRepository.InfoType.OBJECT, GIRepository.InfoType.STRUCT]:
                 # Method: namespace_objectname_methodname
-                if len(parts) == 3 and GIRepository.base_info_get_name(info) == parts[1]:
+                if len(parts) == 3 and info.get_name() == parts[1]:
                     # Search for the method
                     n_methods = GIRepository.object_info_get_n_methods(info) if info_type == GIRepository.InfoType.OBJECT else GIRepository.struct_info_get_n_methods(info)
                     for j in range(n_methods):
                         method = GIRepository.object_info_get_method(info, j) if info_type == GIRepository.InfoType.OBJECT else GIRepository.struct_info_get_method(info, j)
-                        if GIRepository.base_info_get_name(method) == parts[2]:
+                        if method.get_name() == parts[2]:
                             self.function_cache[operation_id] = method
                             return method
         
