@@ -129,19 +129,212 @@ class FridaResolver(connexion.resolver.Resolver):
     def __init__(self, girest: GIRest, pid: int):
         self.girest = girest
         self.pid = pid
-        # TODO connect to the corresponding process
+        self.script = None
+        self.session = None
+        # Store a cache of operation_id to function info mappings
+        self.function_cache = {}
+        # Connect to the corresponding process
+        self._connect_frida()
         super().__init__()
  
-    def create_frida_handler(self):
-        def frida_resolver_handler(_method=None, *args, **kwargs):
-            return {"ok": _method}
+    def _connect_frida(self):
+        """Connect to the target process using Frida"""
+        import frida
+        import os
+        
+        # Attach to the process
+        self.session = frida.attach(self.pid)
+        
+        # Load the JavaScript file (same as in gstaudit/main.py)
+        # We need to find the gstaudit.js file
+        script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'gstaudit.js')
+        with open(script_path, 'r') as f:
+            self.script = self.session.create_script(f.read())
+        
+        # Set up message handler
+        self.script.on('message', self._on_message)
+        
+        # Load and initialize the script
+        self.script.load()
+        self.script.exports_sync.init()
+    
+    def _on_message(self, message, data):
+        """Handle messages from the Frida script"""
+        # For now, just log the messages
+        if message["type"] != "send":
+            return
+        # TODO: handle callbacks like in gstaudit/main.py if needed
+        print(f"Message from Frida: {message}")
+    
+    def _type_to_json(self, t):
+        """Convert GIRepository type to JSON type string"""
+        tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(t))
+        interface = GIRepository.type_info_get_interface(t)
+        
+        if tag == "interface" and interface:
+            info_type = GIRepository.base_info_get_type(interface)
+            if info_type == GIRepository.InfoType.CALLBACK:
+                return "callback"
+            elif info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                return "int32"
+        
+        # Map GIRepository type tags to JSON type strings
+        type_map = {
+            "boolean": "bool",
+            "int8": "int8",
+            "uint8": "uint8",
+            "int16": "int16",
+            "uint16": "uint16",
+            "int32": "int32",
+            "uint32": "uint32",
+            "int64": "int64",
+            "uint64": "uint64",
+            "utf8": "string",
+            "float": "float",
+            "double": "double",
+            "void": "void"
+        }
+        
+        return type_map.get(tag, "pointer")
+    
+    def _arg_to_json(self, arg):
+        """Convert argument info to JSON representation"""
+        arg_type = GIRepository.arg_info_get_type(arg)
+        ret = {
+            "name": GIRepository.base_info_get_name(arg),
+            "skipped": False,
+            "closure": GIRepository.arg_info_get_closure(arg),
+            "is_closure": False,
+            "destroy": GIRepository.arg_info_get_destroy(arg),
+            "is_destroy": False,
+            "direction": GIRepository.arg_info_get_direction(arg),
+            "type": self._type_to_json(arg_type),
+            "subtype": None
+        }
+        
+        # Handle callbacks
+        if ret["type"] == "callback":
+            interface = GIRepository.type_info_get_interface(arg_type)
+            ret["subtype"] = self._callable_to_json(interface)
+        
+        return ret
+    
+    def _callable_to_json(self, cb, is_method=False):
+        """Convert callable info to JSON representation"""
+        ret = {
+            "arguments": [],
+            "is_method": is_method,
+            "returns": self._type_to_json(GIRepository.callable_info_get_return_type(cb))
+        }
+        
+        if is_method:
+            # Prepend self argument
+            ra = {
+                "name": "this",
+                "skipped": False,
+                "closure": -1,
+                "is_closure": False,
+                "destroy": -1,
+                "is_destroy": False,
+                "direction": GIRepository.Direction.IN,
+                "type": "pointer",
+                "subtype": None
+            }
+            ret["arguments"].append(ra)
+        
+        # Add all arguments
+        n_args = GIRepository.callable_info_get_n_args(cb)
+        for i in range(n_args):
+            arg = GIRepository.callable_info_get_arg(cb, i)
+            ra = self._arg_to_json(arg)
+            ret["arguments"].append(ra)
+        
+        # Mark skipped arguments
+        for r in ret["arguments"]:
+            if r["closure"] >= 0:
+                ret["arguments"][r["closure"]]["skipped"] = True
+                ret["arguments"][r["closure"]]["is_closure"] = True
+            if r["destroy"] >= 0:
+                ret["arguments"][r["destroy"]]["skipped"] = True
+                ret["arguments"][r["destroy"]]["is_destroy"] = True
+            if r["direction"] == GIRepository.Direction.OUT:
+                r["skipped"] = True
+        
+        return ret
+    
+    def _method_to_json(self, method):
+        """Generate complete method JSON representation"""
+        flags = GIRepository.function_info_get_flags(method)
+        is_method = bool(flags & GIRepository.FunctionInfoFlags.IS_METHOD)
+        return self._callable_to_json(method, is_method=is_method)
+    
+    def _find_function_info(self, operation_id):
+        """Find function info from operation_id"""
+        # operation_id format: {namespace}_{object_name}_{method_name}
+        # or {namespace}__{function_name} for standalone functions
+        
+        # Check cache first
+        if operation_id in self.function_cache:
+            return self.function_cache[operation_id]
+        
+        parts = operation_id.split('_')
+        if len(parts) < 2:
+            return None
+        
+        namespace = parts[0]
+        
+        # Search through the repository
+        n_infos = self.girest.repo.get_n_infos(namespace)
+        for i in range(n_infos):
+            info = self.girest.repo.get_info(namespace, i)
+            info_type = GIRepository.base_info_get_type(info)
+            
+            if info_type == GIRepository.InfoType.FUNCTION:
+                # Standalone function: namespace__function_name
+                if len(parts) == 3 and parts[1] == '' and GIRepository.base_info_get_name(info) == parts[2]:
+                    self.function_cache[operation_id] = info
+                    return info
+            elif info_type in [GIRepository.InfoType.OBJECT, GIRepository.InfoType.STRUCT]:
+                # Method: namespace_objectname_methodname
+                if len(parts) == 3 and GIRepository.base_info_get_name(info) == parts[1]:
+                    # Search for the method
+                    n_methods = GIRepository.object_info_get_n_methods(info) if info_type == GIRepository.InfoType.OBJECT else GIRepository.struct_info_get_n_methods(info)
+                    for j in range(n_methods):
+                        method = GIRepository.object_info_get_method(info, j) if info_type == GIRepository.InfoType.OBJECT else GIRepository.struct_info_get_method(info, j)
+                        if GIRepository.base_info_get_name(method) == parts[2]:
+                            self.function_cache[operation_id] = method
+                            return method
+        
+        return None
+
+    def create_frida_handler(self, method_info, method_json):
+        """Create handler that calls Frida with the method JSON"""
+        def frida_resolver_handler(*args, **kwargs):
+            # Get the symbol name for the function
+            symbol = GIRepository.function_info_get_symbol(method_info)
+            
+            # Call the Frida script with the method JSON and arguments
+            result = self.script.exports_sync.call(symbol, method_json, *kwargs.values())
+            return result
 
         return frida_resolver_handler
 
     def resolve_function_from_operation_id(self, operation_id):
-        ret = self.create_frida_handler()
-        # TODO use the method to generate the property json of the definition of the method
-        ret.__defaults__ = ("foo",)
+        """Resolve function from operation_id and return handler"""
+        # Find the function info
+        method_info = self._find_function_info(operation_id)
+        if not method_info:
+            # Return a dummy handler if not found
+            def not_found_handler(*args, **kwargs):
+                return {"error": f"Function not found for operation_id: {operation_id}"}
+            return not_found_handler
+        
+        # Generate the JSON representation
+        method_json = self._method_to_json(method_info)
+        
+        # Create and return the handler
+        ret = self.create_frida_handler(method_info, method_json)
+        ret.__defaults__ = (method_info, method_json)
         return ret
 
 
