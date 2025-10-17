@@ -3,6 +3,11 @@ import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
 
+# Import for type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from main import GIRest
+
 
 class FridaResolver(connexion.resolver.Resolver):
     """
@@ -38,7 +43,7 @@ class FridaResolver(connexion.resolver.Resolver):
         "returns": "int32"
     }
     """
-    def __init__(self, girest, pid: int):
+    def __init__(self, girest: "GIRest", pid: int):
         self.girest = girest
         self.pid = pid
         self.script = None
