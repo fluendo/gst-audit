@@ -27,6 +27,7 @@ class TypeScriptGenerator:
         self.class_methods: Dict[str, List[Dict]] = {}  # class_name -> [methods]
         self.base_url = base_url
         self.enum_schemas: Set[str] = set()  # Track which schemas are enums
+        self.class_constructors: Dict[str, List[Dict]] = {}  # class_name -> [constructor methods]
         
         # Identify enum schemas first
         self._identify_enum_schemas()
@@ -51,15 +52,27 @@ class TypeScriptGenerator:
                 if tags:
                     # Use the first tag as the class name
                     class_name = tags[0]
-                    if class_name not in self.class_methods:
-                        self.class_methods[class_name] = []
                     
-                    self.class_methods[class_name].append({
+                    method_info = {
                         "path": path,
                         "http_method": method,
                         "operation": operation,
                         "operation_id": operation.get("operationId", "")
-                    })
+                    }
+                    
+                    # Check if this is a constructor method
+                    is_constructor = operation.get("x-gi-constructor", False)
+                    
+                    if is_constructor:
+                        # Add to constructors
+                        if class_name not in self.class_constructors:
+                            self.class_constructors[class_name] = []
+                        self.class_constructors[class_name].append(method_info)
+                    else:
+                        # Add to regular methods
+                        if class_name not in self.class_methods:
+                            self.class_methods[class_name] = []
+                        self.class_methods[class_name].append(method_info)
     
     def _openapi_type_to_ts(self, schema: Dict[str, Any], nullable: bool = False) -> str:
         """
@@ -215,6 +228,165 @@ class TypeScriptGenerator:
         lines.append("}")
         
         return "\n".join(lines)
+    
+    def _generate_constructor(self, method_info: Dict[str, Any], class_name: str) -> str:
+        """
+        Generate a TypeScript constructor from a constructor method.
+        
+        Args:
+            method_info: Dictionary containing operation information
+            class_name: The class name for this constructor
+            
+        Returns:
+            TypeScript constructor definition
+        """
+        operation = method_info["operation"]
+        path = method_info["path"]
+        
+        # Build parameter list
+        params = operation.get("parameters", [])
+        constructor_params = []
+        query_params = []
+        path_params = []
+        
+        for param in params:
+            param_name = param.get("name", "")
+            param_schema = param.get("schema", {})
+            param_required = param.get("required", False)
+            param_in = param.get("in", "query")
+            
+            # Skip 'self' parameter in constructors
+            if param_name == "self":
+                continue
+            
+            param_type = self._openapi_type_to_ts(param_schema)
+            optional_marker = "" if param_required else "?"
+            constructor_params.append(f"{param_name}{optional_marker}: {param_type}")
+            
+            if param_in == "path":
+                path_params.append((param_name, param_schema))
+            elif param_in == "query":
+                query_params.append((param_name, param_schema, param_required))
+        
+        # Determine return type - constructors return an instance of the class
+        return_type = class_name
+        
+        params_str = ", ".join(constructor_params)
+        
+        # Generate constructor implementation if base_url is provided
+        if self.base_url:
+            lines = []
+            lines.append(f"  constructor({params_str}) {{")
+            
+            # Build the URL
+            url_path = path
+            # Replace path parameters
+            for param_name, param_schema in path_params:
+                url_path = url_path.replace(f"{{{param_name}}}", f"${{{param_name}}}")
+            
+            lines.append(f"    const url = new URL(`{url_path}`, '{self.base_url}');")
+            
+            # Add query parameters
+            if query_params:
+                for param_name, param_schema, required in query_params:
+                    if required:
+                        lines.append(f"    url.searchParams.append('{param_name}', String({param_name}));")
+                    else:
+                        lines.append(f"    if ({param_name} !== undefined) url.searchParams.append('{param_name}', String({param_name}));")
+            
+            # Make the fetch call
+            lines.append(f"    const response = await fetch(url.toString());")
+            lines.append(f"    if (!response.ok) throw new Error(`HTTP error! status: ${{response.status}}`);")
+            lines.append(f"    const data = await response.json();")
+            lines.append(f"    // Initialize object from returned data")
+            lines.append(f"    Object.assign(this, data.return || data);")
+            lines.append(f"  }}")
+            return "\n".join(lines)
+        else:
+            # Generate abstract constructor signature without implementation
+            # Note: TypeScript doesn't support async constructors, so we'll use a static factory method
+            return None  # Will be handled as static factory method
+    
+    def _generate_static_factory(self, method_info: Dict[str, Any], class_name: str) -> str:
+        """
+        Generate a static factory method for constructor methods.
+        
+        Args:
+            method_info: Dictionary containing operation information
+            class_name: The class name for this method
+            
+        Returns:
+            TypeScript static factory method definition
+        """
+        operation = method_info["operation"]
+        path = method_info["path"]
+        
+        # Extract method name from path (last segment)
+        method_name = path.split("/")[-1].replace("{", "").replace("}", "")
+        
+        # Build parameter list
+        params = operation.get("parameters", [])
+        method_params = []
+        query_params = []
+        path_params = []
+        
+        for param in params:
+            param_name = param.get("name", "")
+            param_schema = param.get("schema", {})
+            param_required = param.get("required", False)
+            param_in = param.get("in", "query")
+            
+            # Skip 'self' parameter
+            if param_name == "self":
+                continue
+            
+            param_type = self._openapi_type_to_ts(param_schema)
+            optional_marker = "" if param_required else "?"
+            method_params.append(f"{param_name}{optional_marker}: {param_type}")
+            
+            if param_in == "path":
+                path_params.append((param_name, param_schema))
+            elif param_in == "query":
+                query_params.append((param_name, param_schema, param_required))
+        
+        # Constructors return an instance of the class
+        return_type = class_name
+        
+        params_str = ", ".join(method_params)
+        
+        # Generate method implementation if base_url is provided
+        if self.base_url:
+            lines = []
+            lines.append(f"  static async {method_name}({params_str}): Promise<{return_type}> {{")
+            
+            # Build the URL
+            url_path = path
+            # Replace path parameters
+            for param_name, param_schema in path_params:
+                url_path = url_path.replace(f"{{{param_name}}}", f"${{{param_name}}}")
+            
+            lines.append(f"    const url = new URL(`{url_path}`, '{self.base_url}');")
+            
+            # Add query parameters
+            if query_params:
+                for param_name, param_schema, required in query_params:
+                    if required:
+                        lines.append(f"    url.searchParams.append('{param_name}', String({param_name}));")
+                    else:
+                        lines.append(f"    if ({param_name} !== undefined) url.searchParams.append('{param_name}', String({param_name}));")
+            
+            # Make the fetch call
+            lines.append(f"    const response = await fetch(url.toString());")
+            lines.append(f"    if (!response.ok) throw new Error(`HTTP error! status: ${{response.status}}`);")
+            lines.append(f"    const data = await response.json();")
+            lines.append(f"    const instance = new {class_name}();")
+            lines.append(f"    Object.assign(instance, data.return || data);")
+            lines.append(f"    return instance;")
+            lines.append(f"  }}")
+            return "\n".join(lines)
+        else:
+            # Generate abstract method signature without implementation
+            return f"  static {method_name}({params_str}): Promise<{return_type}>;"
     
     def _generate_class_method(self, method_info: Dict[str, Any], class_name: str) -> str:
         """
@@ -393,6 +565,14 @@ class TypeScriptGenerator:
             lines.append("")
         else:
             lines.append(f"export class {class_name} {{")
+        
+        # Add constructor factory methods (static methods)
+        if class_name in self.class_constructors:
+            for method_info in self.class_constructors[class_name]:
+                factory_def = self._generate_static_factory(method_info, class_name)
+                lines.append(factory_def)
+            if self.class_constructors[class_name]:  # Add spacing if we added constructors
+                lines.append("")
         
         # Add methods
         if class_name in self.class_methods:

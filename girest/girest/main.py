@@ -210,16 +210,27 @@ class GIRest():
         else:
             responses["204"] = {"description": "No Content"}
         
+        # Check if this is a constructor method
+        flags = GIRepository.function_info_get_flags(bim)
+        is_constructor = bool(flags & GIRepository.FunctionInfoFlags.IS_CONSTRUCTOR)
+        
+        # Build operation definition
+        operation = {
+            "summary": "",
+            "description": "",
+            "operationId": f"{bim.get_namespace()}-{bi.get_name() if bi else ''}-{bim.get_name()}",
+            "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
+            "parameters": params,
+            "responses": responses,
+        }
+        
+        # Add vendor extension for constructor methods
+        if is_constructor:
+            operation["x-gi-constructor"] = True
+        
         # Add paths, components, etc. programmatically
         self.spec.path(path=api, operations={
-            "get": {
-                "summary": "",
-                "description": "",
-                "operationId": f"{bim.get_namespace()}-{bi.get_name() if bi else ''}-{bim.get_name()}",
-                "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
-                "parameters": params,
-                "responses": responses,
-            }
+            "get": operation
         })
 
     def _generate_object(self, bi):

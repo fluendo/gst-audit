@@ -901,7 +901,8 @@ export interface GObjectValueArray {
 export class GObjectObject {
   ptr!: Pointer;
 
-  newv(object_type: Pointer, n_parameters: number, parameters: Pointer): Promise<GObjectObject>;
+  static newv(object_type: Pointer, n_parameters: number, parameters: Pointer): Promise<GObjectObject>;
+
   compat_control(what: number): Promise<number>;
   interface_find_property(g_iface: GObjectTypeInterface, property_name: string): Promise<GObjectParamSpec>;
   interface_install_property(g_iface: GObjectTypeInterface, pspec: GObjectParamSpec): Promise<void>;
@@ -1112,11 +1113,24 @@ export class GstPlugin {
   set_cache_data(cache_data: GstStructure): Promise<void>;
 }
 
+export class GstPadTemplate {
+
+  static new(name_template: string, direction: GstPadDirection, presence: GstPadPresence, caps: GstCaps): Promise<GstPadTemplate>;
+  static new_from_static_pad_template_with_gtype(pad_template: GstStaticPadTemplate, pad_type: Pointer): Promise<GstPadTemplate>;
+  static new_with_gtype(name_template: string, direction: GstPadDirection, presence: GstPadPresence, caps: GstCaps, pad_type: Pointer): Promise<GstPadTemplate>;
+
+  get_caps(): Promise<GstCaps>;
+  get_documentation_caps(): Promise<GstCaps>;
+  pad_created(pad: GstPad): Promise<void>;
+  set_documentation_caps(caps: GstCaps): Promise<void>;
+}
+
 export class GstPad {
 
-  new(name?: string, direction: GstPadDirection): Promise<GstPad>;
-  new_from_static_template(templ: GstStaticPadTemplate, name: string): Promise<GstPad>;
-  new_from_template(templ: GstPadTemplate, name?: string): Promise<GstPad>;
+  static new(name?: string, direction: GstPadDirection): Promise<GstPad>;
+  static new_from_static_template(templ: GstStaticPadTemplate, name: string): Promise<GstPad>;
+  static new_from_template(templ: GstPadTemplate, name?: string): Promise<GstPad>;
+
   link_get_name(ret: GstPadLinkReturn): Promise<string>;
   activate_mode(mode: GstPadMode, active: boolean): Promise<boolean>;
   add_probe(mask: GstPadProbeType): Promise<number>;
@@ -1200,20 +1214,10 @@ export class GstPad {
   use_fixed_caps(): Promise<void>;
 }
 
-export class GstPadTemplate {
-
-  new(name_template: string, direction: GstPadDirection, presence: GstPadPresence, caps: GstCaps): Promise<GstPadTemplate>;
-  new_from_static_pad_template_with_gtype(pad_template: GstStaticPadTemplate, pad_type: Pointer): Promise<GstPadTemplate>;
-  new_with_gtype(name_template: string, direction: GstPadDirection, presence: GstPadPresence, caps: GstCaps, pad_type: Pointer): Promise<GstPadTemplate>;
-  get_caps(): Promise<GstCaps>;
-  get_documentation_caps(): Promise<GstCaps>;
-  pad_created(pad: GstPad): Promise<void>;
-  set_documentation_caps(caps: GstCaps): Promise<void>;
-}
-
 export class GstStream {
 
-  new(stream_id?: string, caps?: GstCaps, type: GstStreamType, flags: GstStreamFlags): Promise<GstStream>;
+  static new(stream_id?: string, caps?: GstCaps, type: GstStreamType, flags: GstStreamFlags): Promise<GstStream>;
+
   get_caps(): Promise<GstCaps>;
   get_stream_flags(): Promise<GstStreamFlags>;
   get_stream_id(): Promise<string>;
@@ -1227,7 +1231,8 @@ export class GstStream {
 
 export class GstBus {
 
-  new(): Promise<GstBus>;
+  static new(): Promise<GstBus>;
+
   add_signal_watch(): Promise<void>;
   add_signal_watch_full(priority: number): Promise<void>;
   add_watch(priority: number): Promise<number>;
@@ -1328,7 +1333,8 @@ export class GstElementFactory {
 
 export class GstBin {
 
-  new(name?: string): Promise<GstElement>;
+  static new(name?: string): Promise<GstBin>;
+
   add(element: GstElement): Promise<boolean>;
   find_unlinked_pad(direction: GstPadDirection): Promise<GstPad>;
   get_by_interface(iface: Pointer): Promise<GstElement>;
@@ -1350,7 +1356,8 @@ export class GstBin {
 
 export class GstBufferPool {
 
-  new(): Promise<GstBufferPool>;
+  static new(): Promise<GstBufferPool>;
+
   config_add_option(config: GstStructure, option: string): Promise<void>;
   config_get_allocator(config: GstStructure): Promise<boolean>;
   config_get_option(config: GstStructure, index: number): Promise<string>;
@@ -1391,7 +1398,8 @@ export class GstDevice {
 
 export class GstDeviceMonitor {
 
-  new(): Promise<GstDeviceMonitor>;
+  static new(): Promise<GstDeviceMonitor>;
+
   add_filter(classes?: string, caps?: GstCaps): Promise<number>;
   get_bus(): Promise<GstBus>;
   get_devices(): Promise<Pointer>;
@@ -1457,10 +1465,11 @@ export class GstProxyPad {
 
 export class GstGhostPad {
 
-  new(name?: string, target: GstPad): Promise<GstPad>;
-  new_from_template(name?: string, target: GstPad, templ: GstPadTemplate): Promise<GstPad>;
-  new_no_target(name?: string, dir: GstPadDirection): Promise<GstPad>;
-  new_no_target_from_template(name?: string, templ: GstPadTemplate): Promise<GstPad>;
+  static new(name?: string, target: GstPad): Promise<GstGhostPad>;
+  static new_from_template(name?: string, target: GstPad, templ: GstPadTemplate): Promise<GstGhostPad>;
+  static new_no_target(name?: string, dir: GstPadDirection): Promise<GstGhostPad>;
+  static new_no_target_from_template(name?: string, templ: GstPadTemplate): Promise<GstGhostPad>;
+
   activate_mode_default(pad: GstPad, parent?: GstObject, mode: GstPadMode, active: boolean): Promise<boolean>;
   internal_activate_mode_default(pad: GstPad, parent?: GstObject, mode: GstPadMode, active: boolean): Promise<boolean>;
   construct(): Promise<boolean>;
@@ -1470,7 +1479,8 @@ export class GstGhostPad {
 
 export class GstPipeline {
 
-  new(name?: string): Promise<GstElement>;
+  static new(name?: string): Promise<GstPipeline>;
+
   auto_clock(): Promise<void>;
   get_auto_flush_bus(): Promise<boolean>;
   get_bus(): Promise<GstBus>;
@@ -1510,7 +1520,8 @@ export class GstRegistry {
 
 export class GstTaskPool {
 
-  new(): Promise<GstTaskPool>;
+  static new(): Promise<GstTaskPool>;
+
   cleanup(): Promise<void>;
   dispose_handle(): Promise<void>;
   join(): Promise<void>;
@@ -1520,14 +1531,16 @@ export class GstTaskPool {
 
 export class GstSharedTaskPool {
 
-  new(): Promise<GstTaskPool>;
+  static new(): Promise<GstSharedTaskPool>;
+
   get_max_threads(): Promise<number>;
   set_max_threads(max_threads: number): Promise<void>;
 }
 
 export class GstStreamCollection {
 
-  new(upstream_id?: string): Promise<GstStreamCollection>;
+  static new(upstream_id?: string): Promise<GstStreamCollection>;
+
   add_stream(stream: GstStream): Promise<boolean>;
   get_size(): Promise<number>;
   get_stream(index: number): Promise<GstStream>;
@@ -1542,7 +1555,8 @@ export class GstSystemClock {
 
 export class GstTask {
 
-  new(): Promise<GstTask>;
+  static new(): Promise<GstTask>;
+
   cleanup_all(): Promise<void>;
   get_pool(): Promise<GstTaskPool>;
   get_state(): Promise<GstTaskState>;

@@ -15,6 +15,7 @@ The tool can generate either:
 - **Automatic TypeScript generation**: Converts GObject introspection data to TypeScript
 - **Inheritance support**: Properly handles `allOf` schemas and generates TypeScript interfaces with `extends`
 - **Class methods**: Methods are organized by their tag (class name) and generated as class methods
+- **Constructor support**: Constructor methods (marked with `IS_CONSTRUCTOR` flag) are generated as static factory methods
 - **Enum support**: Enumerations with methods are generated as namespaces with const values and static methods
 - **REST API implementation**: When `--base-url` is provided, generates complete method implementations with fetch calls
 - **Type safety**: All parameters and return types are properly typed
@@ -107,23 +108,51 @@ export class GstElement {
 }
 ```
 
+### Constructor Methods
+
+Constructor methods (marked with the `IS_CONSTRUCTOR` flag in GObject Introspection) are generated as static factory methods:
+
+```typescript
+export class GstBus {
+  static new(): Promise<GstBus>;
+  
+  add_signal_watch(): Promise<void>;
+  // ... other methods
+}
+
+export class GstGhostPad {
+  static new(name?: string, target: GstPad): Promise<GstGhostPad>;
+  static new_from_template(name?: string, target: GstPad, templ: GstPadTemplate): Promise<GstGhostPad>;
+  
+  // ... other methods
+}
+```
+
+Usage:
+```typescript
+// Create a new instance using the static factory method
+const bus = await GstBus.new();
+await bus.add_signal_watch();
+```
+
 ### Classes (with --base-url)
 
 When `--base-url` is provided, methods include complete implementations with REST API calls:
 
 ```typescript
-export class GstElement {
-  async add_pad(pad: GstPad): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/add_pad`, 'http://localhost:8000');
-    url.searchParams.append('pad', String(pad));
+export class GstBus {
+  static async new(): Promise<GstBus> {
+    const url = new URL(`/Gst/Bus/new`, 'http://localhost:8000');
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
-    return data.return;
+    const instance = new GstBus();
+    Object.assign(instance, data.return || data);
+    return instance;
   }
-  
-  async abort_state(): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/abort_state`, 'http://localhost:8000');
+
+  async add_signal_watch(): Promise<void> {
+    const url = new URL(`/Gst/Bus/${this.ptr}/add_signal_watch`, 'http://localhost:8000');
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -214,8 +243,13 @@ python3 girest-ts.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
 Generates a complete TypeScript module with working REST API calls. Use this in your client application:
 
 ```typescript
-import { GstElement, GstState } from './gst';
+import { GstBus, GstElement, GstState } from './gst';
 
+// Create a new instance using constructor
+const bus = await GstBus.new();
+await bus.add_signal_watch();
+
+// Or use an existing element
 const element = new GstElement();
 element.ptr = "0x12345678"; // Set from server response
 
@@ -224,7 +258,20 @@ await element.set_state(GstState.PLAYING);
 await element.abort_state();
 ```
 
-### Example 3: Using Enums
+### Example 3: Using Constructors
+
+```typescript
+import { GstGhostPad, GstPad } from './gst';
+
+// Create instances using static factory methods
+const pad = await GstPad.new('sink', GstPadDirection.SINK);
+const ghostPad = await GstGhostPad.new('ghost', pad);
+
+// Use the created instances
+await ghostPad.set_active(true);
+```
+
+### Example 4: Using Enums
 
 ```typescript
 import { GstStateChange } from './gst';
