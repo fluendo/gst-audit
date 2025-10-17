@@ -45,8 +45,9 @@ class GIRest():
             if interface:
                 info_type = interface.get_type()
                 if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
-                    # Return integer for enums
-                    return {"type": "integer"}
+                    # Return reference to the enum schema
+                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                    return {"$ref": f"#/components/schemas/{full_name}"}
                 elif info_type == GIRepository.InfoType.OBJECT or info_type == GIRepository.InfoType.STRUCT:
                     # Return reference to the object schema
                     full_name = f"{interface.get_namespace()}{interface.get_name()}"
@@ -254,6 +255,34 @@ class GIRest():
         # TODO Structs with a constructor can not be serialized
         # TODO Get free_function
 
+    def _generate_enum(self, bi):
+        """Generate OpenAPI schema for an enum"""
+        full_name = f"{bi.get_namespace()}{bi.get_name()}"
+        if full_name in self.schemas:
+            return
+        
+        # Get all enum values
+        n_values = GIRepository.enum_info_get_n_values(bi)
+        enum_values = []
+        for i in range(n_values):
+            value_info = GIRepository.enum_info_get_value(bi, i)
+            enum_values.append(value_info.get_name())
+        
+        # Create enum schema with string values
+        # OpenAPI will accept string values, but we'll need to convert them
+        # to integers when calling Frida
+        self.spec.components.schema(
+            full_name,
+            {
+                "type": "string",
+                "enum": enum_values,
+                "description": f"Enum values for {bi.get_name()}"
+            }
+        )
+        
+        # Mark as generated
+        self.schemas[full_name] = True
+
     def generate(self):
         # Generate the types
         for i in range(0, self.repo.get_n_infos(self.ns)):
@@ -263,6 +292,10 @@ class GIRest():
                 self._generate_object(info)
             elif info_type == GIRepository.InfoType.STRUCT:
                 self._generate_struct(info)
+            elif info_type == GIRepository.InfoType.ENUM:
+                self._generate_enum(info)
+            elif info_type == GIRepository.InfoType.FLAGS:
+                self._generate_enum(info)
             elif info_type == GIRepository.InfoType.FUNCTION:
                 self._generate_function(info)
         return self.spec
@@ -307,9 +340,27 @@ class FridaResolver(connexion.resolver.Resolver):
         self.pid = pid
         self.script = None
         self.session = None
+        # Build enum value mappings for converting string names to integers
+        self.enum_mappings = {}
+        self._build_enum_mappings()
         # Connect to the corresponding process
         self._connect_frida()
         super().__init__()
+ 
+    def _build_enum_mappings(self):
+        """Build mappings from enum string names to integer values"""
+        for i in range(0, self.girest.repo.get_n_infos(self.girest.ns)):
+            info = self.girest.repo.get_info(self.girest.ns, i)
+            info_type = info.get_type()
+            if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                full_name = f"{info.get_namespace()}{info.get_name()}"
+                mapping = {}
+                n_values = GIRepository.enum_info_get_n_values(info)
+                for j in range(n_values):
+                    value_info = GIRepository.enum_info_get_value(info, j)
+                    mapping[value_info.get_name()] = GIRepository.value_info_get_value(value_info)
+                self.enum_mappings[full_name] = mapping
+
  
     def _connect_frida(self):
         """Connect to the target process using Frida"""
@@ -479,11 +530,41 @@ class FridaResolver(connexion.resolver.Resolver):
         
         return None
 
-    def create_frida_handler(self):
-        """Create handler that calls Frida with the method JSON"""
+    def create_frida_handler(self, method_info):
+        """Create handler that calls Frida with the method JSON, converting enum strings to integers"""
         def frida_resolver_handler(_symbol=None, _type=None, *args, **kwargs):
+            # Convert enum string values to integers before calling Frida
+            converted_kwargs = {}
+            n_args = GIRepository.callable_info_get_n_args(method_info)
+            
+            for i in range(n_args):
+                arg = GIRepository.callable_info_get_arg(method_info, i)
+                arg_name = arg.get_name()
+                
+                if arg_name in kwargs:
+                    arg_type = GIRepository.arg_info_get_type(arg)
+                    tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
+                    
+                    # Check if this is an enum type
+                    if tag == "interface":
+                        interface = GIRepository.type_info_get_interface(arg_type)
+                        if interface and (interface.get_type() == GIRepository.InfoType.ENUM or 
+                                         interface.get_type() == GIRepository.InfoType.FLAGS):
+                            # Convert string enum name to integer value
+                            full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                            enum_mapping = self.enum_mappings.get(full_name, {})
+                            value = kwargs[arg_name]
+                            if isinstance(value, str) and value in enum_mapping:
+                                converted_kwargs[arg_name] = enum_mapping[value]
+                            else:
+                                converted_kwargs[arg_name] = value
+                        else:
+                            converted_kwargs[arg_name] = kwargs[arg_name]
+                    else:
+                        converted_kwargs[arg_name] = kwargs[arg_name]
+            
             # Call the Frida script with the symbol and method JSON
-            result = self.script.exports_sync.call(_symbol, _type, *kwargs.values())
+            result = self.script.exports_sync.call(_symbol, _type, *converted_kwargs.values())
             return result
 
         return frida_resolver_handler
@@ -502,8 +583,8 @@ class FridaResolver(connexion.resolver.Resolver):
         # Generate the JSON representation
         method_json = self._method_to_json(method_info)
         
-        # Create and return the handler
-        ret = self.create_frida_handler()
+        # Create and return the handler with method_info for enum conversion
+        ret = self.create_frida_handler(method_info)
         ret.__defaults__ = (symbol, method_json)
         return ret
 
