@@ -56,8 +56,13 @@ class GIRest():
                     return {"type": "integer"}
         
         # Map GIRepository type tags to OpenAPI types
-        # Note: OpenAPI 3.0 doesn't have specific formats for 8/16-bit integers
-        # or unsigned integers, so we use the closest representations
+        # Note: OpenAPI 3.0 doesn't distinguish between signed and unsigned integers
+        # at the schema level - both use 'integer' type. Format specifications (int32, int64)
+        # indicate precision but not signedness. For consistency, we:
+        # - Omit format for 8/16-bit integers (no standard OpenAPI format exists)
+        # - Use format: int32 for gint32 (most common)
+        # - Omit format for guint32 (to avoid implying signedness)
+        # - Use format: int64 for both gint64/guint64 (indicates 64-bit precision)
         type_map = {
             "gboolean": {"type": "boolean"},
             "gint8": {"type": "integer"},
