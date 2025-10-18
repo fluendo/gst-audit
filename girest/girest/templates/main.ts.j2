@@ -12,28 +12,6 @@ const objectRegistry = new FinalizationRegistry((ptr: string) => {
     .catch(err => console.error('Failed to unref object:', ptr, err));
 });
 
-// Base class for all GObject-based classes
-class GObjectBase {
-  ptr!: string;
-  
-  constructor(ptr?: string) {
-    if (ptr) {
-      this.ptr = ptr;
-      objectRegistry.register(this, ptr);
-    }
-  }
-  
-  // Manual cleanup method
-  unref(): Promise<void> {
-    if (!this.ptr) return Promise.resolve();
-    objectRegistry.unregister(this);
-    return fetch('{{ base_url }}/GObject/Object/' + this.ptr + '/unref')
-      .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      });
-  }
-}
-
 {% endif %}
 {% for interface in interfaces %}
 {{ interface }}

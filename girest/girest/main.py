@@ -181,26 +181,23 @@ class GIRest():
             
             # Get transfer ownership information
             transfer = GIRepository.arg_info_get_ownership_transfer(arg)
-            transfer_str = "nothing"
             if transfer == GIRepository.Transfer.NOTHING:
                 transfer_str = "none"
             elif transfer == GIRepository.Transfer.CONTAINER:
                 transfer_str = "container"
             elif transfer == GIRepository.Transfer.EVERYTHING:
                 transfer_str = "full"
+            else:
+                transfer_str = "none"
             
-            param_dict = {
+            params.append({
                 "name": arg_name,
                 "in": "query",
                 "required": not may_be_null,
                 "schema": param_schema,
-                "description": ""
-            }
-            
-            # Add vendor extension for transfer ownership
-            param_dict["x-gi-transfer"] = transfer_str
-            
-            params.append(param_dict)
+                "description": "",
+                "x-gi-transfer": transfer_str
+            })
         
         # Handle the return value
         return_type = GIRepository.callable_info_get_return_type(bim)
@@ -237,11 +234,8 @@ class GIRest():
             "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
             "parameters": params,
             "responses": responses,
+            "x-gi-constructor": is_constructor
         }
-        
-        # Add vendor extension for constructor methods
-        if is_constructor:
-            operation["x-gi-constructor"] = True
         
         # Add paths, components, etc. programmatically
         self.spec.path(path=api, operations={
