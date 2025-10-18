@@ -18,6 +18,7 @@ The tool can generate either:
 - **Constructor support**: Constructor methods (marked with `IS_CONSTRUCTOR` flag) are generated as static factory methods
 - **Automatic memory management**: When `--base-url` is provided, GObject-derived classes use FinalizationRegistry for automatic cleanup via `g_object_unref`
 - **Manual cleanup**: All GObject-based classes have an `unref()` method for explicit cleanup
+- **Transfer ownership handling**: Automatically manages reference counting for parameters with full transfer ownership
 - **Enum support**: Enumerations with methods are generated as namespaces with const values and static methods
 - **REST API implementation**: When `--base-url` is provided, generates complete method implementations with fetch calls
 - **Template-based generation**: Uses Jinja2 templates for cleaner and more maintainable code generation
@@ -269,6 +270,50 @@ cd /path/to/gst-audit/girest
 python3 girest-ts.py <namespace> <version>
 ```
 
+## OpenAPI Schema Enhancements
+
+The tool adds vendor extensions to the OpenAPI schema to preserve GObject Introspection semantics:
+
+**Constructor Identification** - `x-gi-constructor: true` marks constructor methods, allowing generators to create appropriate static factory methods.
+
+**Transfer Ownership** - `x-gi-transfer` on parameters indicates ownership transfer:
+- `none` - Caller retains ownership (default)
+- `container` - Transfer container ownership, not contents  
+- `full` - Full ownership transfer to callee
+
+When `--base-url` is provided and a parameter has `full` transfer with a GObject type, the generated code:
+1. Increments the ref count before the call (`g_object_ref`)
+2. On failure, decrements the ref count to maintain correct refcounting
+3. On success, ownership transfers and the object is not unreferenced
+
+Example with full transfer:
+```typescript
+async register(name: string, allocator: GstAllocator): Promise<void> {
+  // Increment ref for full transfer parameter
+  if (allocator && typeof allocator === 'object' && 'ptr' in allocator) {
+    await fetch('http://localhost:8000/GObject/Object/' + allocator.ptr + '/ref').catch(() => {});
+  }
+  
+  try {
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      // Unref on failure
+      if (allocator && typeof allocator === 'object' && 'ptr' in allocator) {
+        await fetch('http://localhost:8000/GObject/Object/' + allocator.ptr + '/unref').catch(() => {});
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    // On success, ownership transferred - no unref needed
+  } catch (error) {
+    // Unref on error
+    if (allocator && typeof allocator === 'object' && 'ptr' in allocator) {
+      await fetch('http://localhost:8000/GObject/Object/' + allocator.ptr + '/unref').catch(() => {});
+    }
+    throw error;
+  }
+}
+```
+
 ## How It Works
 
 1. **Schema Generation**: Uses the `GIRest` class from `main.py` to generate an OpenAPI schema from GObject introspection data
@@ -281,6 +326,7 @@ python3 girest-ts.py <namespace> <version>
    - When `--base-url` is provided, method implementations with fetch calls are generated
    - GObject-derived types extend `GObjectBase` for automatic memory management via FinalizationRegistry
    - The `g_object_unref` endpoint is called automatically when objects are garbage collected or manually via `unref()`
+   - Parameter transfer ownership is respected with automatic ref counting
 
 ## Examples
 

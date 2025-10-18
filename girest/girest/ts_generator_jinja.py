@@ -243,6 +243,7 @@ class TypeScriptGenerator:
             param_schema = param.get("schema", {})
             param_required = param.get("required", False)
             param_in = param.get("in", "query")
+            param_transfer = param.get("x-gi-transfer", "none")
             
             if param_name == "self":
                 has_self_param = True
@@ -253,12 +254,22 @@ class TypeScriptGenerator:
             optional_marker = "" if param_required else "?"
             method_params.append(f"{param_name}{optional_marker}: {param_type}")
             
+            # Check if this parameter is a GObject type (needs ref counting)
+            is_gobject_param = False
+            if "$ref" in param_schema:
+                ref_path = param_schema["$ref"]
+                if ref_path.startswith("#/components/schemas/"):
+                    type_name = ref_path.split("/")[-1]
+                    is_gobject_param = type_name in self.gobject_types
+            
             if param_in == "path":
                 path_params.append((param_name, param_schema))
             elif param_in == "query":
                 query_params.append({
                     "name": param_name,
-                    "required": param_required
+                    "required": param_required,
+                    "transfer": param_transfer,
+                    "is_gobject": is_gobject_param
                 })
         
         # Determine return type

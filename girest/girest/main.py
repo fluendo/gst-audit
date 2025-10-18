@@ -179,13 +179,28 @@ class GIRest():
             param_schema = schema.copy()
             may_be_null = GIRepository.arg_info_may_be_null(arg)
             
-            params.append({
+            # Get transfer ownership information
+            transfer = GIRepository.arg_info_get_ownership_transfer(arg)
+            transfer_str = "nothing"
+            if transfer == GIRepository.Transfer.NOTHING:
+                transfer_str = "none"
+            elif transfer == GIRepository.Transfer.CONTAINER:
+                transfer_str = "container"
+            elif transfer == GIRepository.Transfer.EVERYTHING:
+                transfer_str = "full"
+            
+            param_dict = {
                 "name": arg_name,
                 "in": "query",
                 "required": not may_be_null,
                 "schema": param_schema,
                 "description": ""
-            })
+            }
+            
+            # Add vendor extension for transfer ownership
+            param_dict["x-gi-transfer"] = transfer_str
+            
+            params.append(param_dict)
         
         # Handle the return value
         return_type = GIRepository.callable_info_get_return_type(bim)
