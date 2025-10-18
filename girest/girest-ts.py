@@ -22,7 +22,7 @@ from apispec import APISpec
 
 # Import GIRest and TypeScriptGenerator
 from main import GIRest
-from ts_generator import TypeScriptGenerator
+from ts_generator_jinja import TypeScriptGenerator
 
 
 def main():
@@ -66,7 +66,7 @@ def main():
             # Output the schema as JSON
             output = json.dumps(openapi_schema, indent=2)
         else:
-            # Generate TypeScript bindings
+            # Generate TypeScript bindings using Jinja2-based generator
             ts_gen = TypeScriptGenerator(openapi_schema, base_url=args.base_url)
             output = ts_gen.generate()
         

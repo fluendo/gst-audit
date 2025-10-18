@@ -16,8 +16,11 @@ The tool can generate either:
 - **Inheritance support**: Properly handles `allOf` schemas and generates TypeScript interfaces with `extends`
 - **Class methods**: Methods are organized by their tag (class name) and generated as class methods
 - **Constructor support**: Constructor methods (marked with `IS_CONSTRUCTOR` flag) are generated as static factory methods
+- **Automatic memory management**: When `--base-url` is provided, GObject-derived classes use FinalizationRegistry for automatic cleanup via `g_object_unref`
+- **Manual cleanup**: All GObject-based classes have an `unref()` method for explicit cleanup
 - **Enum support**: Enumerations with methods are generated as namespaces with const values and static methods
 - **REST API implementation**: When `--base-url` is provided, generates complete method implementations with fetch calls
+- **Template-based generation**: Uses Jinja2 templates for cleaner and more maintainable code generation
 - **Type safety**: All parameters and return types are properly typed
 - **Schema output**: Can also output the OpenAPI schema in JSON format
 
@@ -137,10 +140,41 @@ await bus.add_signal_watch();
 
 ### Classes (with --base-url)
 
-When `--base-url` is provided, methods include complete implementations with REST API calls:
+When `--base-url` is provided, methods include complete implementations with REST API calls. Additionally, GObject-derived classes automatically extend `GObjectBase` which provides:
+
+1. **Automatic cleanup** via FinalizationRegistry - objects are automatically unreferenced when garbage collected
+2. **Manual cleanup** via the `unref()` method for explicit resource management
 
 ```typescript
-export class GstBus {
+// FinalizationRegistry for automatic cleanup of GObject instances
+const objectRegistry = new FinalizationRegistry((ptr: string) => {
+  fetch('http://localhost:8000/GObject/Object/' + ptr + '/unref')
+    .catch(err => console.error('Failed to unref object:', ptr, err));
+});
+
+// Base class for all GObject-based classes
+class GObjectBase {
+  ptr!: string;
+  
+  constructor(ptr?: string) {
+    if (ptr) {
+      this.ptr = ptr;
+      objectRegistry.register(this, ptr);
+    }
+  }
+  
+  // Manual cleanup method
+  unref(): Promise<void> {
+    if (!this.ptr) return Promise.resolve();
+    objectRegistry.unregister(this);
+    return fetch('http://localhost:8000/GObject/Object/' + this.ptr + '/unref')
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      });
+  }
+}
+
+export class GstBus extends GObjectBase {
   static async new(): Promise<GstBus> {
     const url = new URL(`/Gst/Bus/new`, 'http://localhost:8000');
     const response = await fetch(url.toString());
@@ -155,6 +189,27 @@ export class GstBus {
     const url = new URL(`/Gst/Bus/${this.ptr}/add_signal_watch`, 'http://localhost:8000');
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+}
+```
+
+Usage with automatic cleanup:
+```typescript
+async function processWithAutoCleanup() {
+  const bus = await GstBus.new();
+  await bus.add_signal_watch();
+  // bus will be automatically unreferenced when garbage collected
+}
+```
+
+Usage with manual cleanup:
+```typescript
+async function processWithManualCleanup() {
+  const bus = await GstBus.new();
+  try {
+    await bus.add_signal_watch();
+  } finally {
+    await bus.unref();  // Explicit cleanup
   }
 }
 ```
@@ -203,6 +258,7 @@ export namespace GstStateChange {
 - Python 3.10+
 - PyGObject with GIRepository 2.0
 - apispec
+- jinja2
 
 ## Installation
 
@@ -216,13 +272,15 @@ python3 girest-ts.py <namespace> <version>
 ## How It Works
 
 1. **Schema Generation**: Uses the `GIRest` class from `main.py` to generate an OpenAPI schema from GObject introspection data
-2. **TypeScript Generation**: The `TypeScriptGenerator` class parses the OpenAPI schema and generates TypeScript definitions:
+2. **TypeScript Generation**: The `TypeScriptGenerator` class (using Jinja2 templates) parses the OpenAPI schema and generates TypeScript definitions:
    - Schemas become interfaces
    - Operations are grouped by tags (class names)
    - Methods are generated for each class based on their tags
    - Inheritance is handled using `allOf` schemas
    - Types are converted from OpenAPI to TypeScript
    - When `--base-url` is provided, method implementations with fetch calls are generated
+   - GObject-derived types extend `GObjectBase` for automatic memory management via FinalizationRegistry
+   - The `g_object_unref` endpoint is called automatically when objects are garbage collected or manually via `unref()`
 
 ## Examples
 

@@ -1,0 +1,50 @@
+{# Method template #}
+{% if is_static %}
+  static {% if with_impl %}async {% endif %}{{ name }}({{ params }}): Promise<{{ return_type }}> {% if with_impl %}{
+    const url = new URL(`{{ path }}`, '{{ base_url }}');
+{% for param in query_params %}
+{% if param.required %}
+    url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+{% else %}
+    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+{% endif %}
+{% endfor %}
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+{% if return_type != 'void' %}
+    const data = await response.json();
+{% if is_constructor %}
+    const instance = new {{ class_name }}();
+    Object.assign(instance, data.return || data);
+    return instance;
+{% elif has_return %}
+    return data.return;
+{% else %}
+    return data;
+{% endif %}
+{% endif %}
+  }{% else %};{% endif %}
+
+{% else %}
+  {% if with_impl %}async {% endif %}{{ name }}({{ params }}): Promise<{{ return_type }}> {% if with_impl %}{
+    const url = new URL(`{{ path }}`, '{{ base_url }}');
+{% for param in query_params %}
+{% if param.required %}
+    url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+{% else %}
+    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+{% endif %}
+{% endfor %}
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+{% if return_type != 'void' %}
+    const data = await response.json();
+{% if has_return %}
+    return data.return;
+{% else %}
+    return data;
+{% endif %}
+{% endif %}
+  }{% else %};{% endif %}
+
+{% endif %}
