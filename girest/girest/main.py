@@ -1,6 +1,3 @@
-import argparse
-import json
-
 import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
@@ -368,21 +365,3 @@ class GIRest():
         return self.spec
 
 
-
-
-
-def run():
-    # Parse the args
-    ns = "Gst"
-    ns_version = "1.0"
-
-    girest = GIRest(ns, ns_version)
-    spec = girest.generate()
-    # Export to dict (for JSON/YAML serialization)
-    openapi_schema = spec.to_dict()
-    print(json.dumps(openapi_schema, indent=2))
-
-
-# FIXME remove this once launched through poetry
-if __name__ == "__main__":
-    run()
