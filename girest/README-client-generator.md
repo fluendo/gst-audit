@@ -6,10 +6,6 @@ TypeScript bindings generator for GIRest schemas.
 
 `girest-client-generator` is a command-line tool that generates TypeScript type definitions from GObject introspection data. It uses the GIRepository library to introspect GObject-based libraries and generates TypeScript interfaces and classes with proper inheritance and method signatures.
 
-The tool can generate either:
-1. **Type definitions only** - TypeScript interfaces and method signatures (default)
-2. **Full implementations** - Complete TypeScript code with REST API calls (with `--base-url`)
-
 ## Features
 
 - **Automatic TypeScript generation**: Converts GObject introspection data to TypeScript
@@ -23,7 +19,6 @@ The tool can generate either:
 - **REST API implementation**: When `--base-url` is provided, generates complete method implementations with fetch calls
 - **Template-based generation**: Uses Jinja2 templates for cleaner and more maintainable code generation
 - **Type safety**: All parameters and return types are properly typed
-- **Schema output**: Can also output the OpenAPI schema in JSON format
 
 ## Usage
 
@@ -49,16 +44,10 @@ Generate TypeScript client bindings for GStreamer:
 python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
 ```
 
-Generate the OpenAPI schema instead of TypeScript:
-
-```bash
-python3 girest-client-generator.py GLib 2.0 --base-url http://localhost:8000 --schema-only > glib-schema.json
-```
-
 ### Command-line Options
 
 ```
-usage: girest-client-generator.py [-h] [-o OUTPUT] --base-url BASE_URL [--schema-only] namespace version
+usage: girest-client-generator.py [-h] [-o OUTPUT] --base-url BASE_URL namespace version
 
 positional arguments:
   namespace             GObject namespace (e.g., 'Gst', 'GLib', 'Gtk')
@@ -69,8 +58,17 @@ options:
   -o OUTPUT, --output OUTPUT
                         Output file path (default: stdout)
   --base-url BASE_URL   Base URL for REST API calls (e.g., 'http://localhost:8000') [required]
-  --schema-only         Output OpenAPI schema JSON instead of TypeScript
 ```
+
+### Dumping OpenAPI Schema
+
+To dump the OpenAPI schema in JSON format, use the `girest-dump-schema` tool:
+
+```bash
+python3 girest-dump-schema.py GLib 2.0 -o glib-schema.json
+```
+
+See the main README for more information about the `girest-dump-schema` tool.
 
 ## Generated TypeScript
 

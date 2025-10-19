@@ -76,6 +76,15 @@ FastAPI is a great tool but it lacks a proper inheritance support of object type
 add schema metadata (required for the automatic TypeScript bindings) in fields, only on endpoints. There are workardounds
 for the previous statement but it requires generating Pydantic models and extend them. Too much of a burden. We use `apispec` directly to generate a valid `openapi` schema.
 
+## Schema Dumper
+
+The `girest-dump-schema` tool generates OpenAPI schema in JSON format from GObject introspection data.
+
+```bash
+cd girest
+python3 girest-dump-schema.py Gst 1.0 -o gst-schema.json
+```
+
 ## TypeScript Client Generator
 
 The `girest-client-generator` tool generates TypeScript client bindings from the GIRest schema. This allows you to have type-safe TypeScript code when working with the REST API. The tool requires a base URL for the REST API.

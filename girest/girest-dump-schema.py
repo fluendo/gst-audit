@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """
-girest-client-generator - TypeScript client generator for GIRest schemas.
+girest-dump-schema - OpenAPI schema dumper for GIRest.
 
-This tool generates TypeScript client bindings from GObject introspection data,
-creating proper class hierarchies with methods organized by their tags.
+This tool generates OpenAPI schema in JSON format from GObject introspection data.
 """
 import argparse
 import json
@@ -15,20 +14,13 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 girest_dir = os.path.join(current_dir, 'girest')
 sys.path.insert(0, girest_dir)
 
-import gi
-gi.require_version("GIRepository", "2.0")
-from gi.repository import GIRepository
-from apispec import APISpec
-
-# Import GIRest and TypeScriptGenerator
 from main import GIRest
-from generator import TypeScriptGenerator
 
 
 def main():
-    """Main entry point for girest-ts tool."""
+    """Main entry point for girest-dump-schema tool."""
     parser = argparse.ArgumentParser(
-        description="Generate TypeScript bindings from GObject introspection data"
+        description="Generate OpenAPI schema from GObject introspection data"
     )
     parser.add_argument(
         "namespace",
@@ -43,11 +35,6 @@ def main():
         help="Output file path (default: stdout)",
         default=None
     )
-    parser.add_argument(
-        "--base-url",
-        required=True,
-        help="Base URL for REST API calls (e.g., 'http://localhost:8000')"
-    )
     
     args = parser.parse_args()
     
@@ -57,15 +44,14 @@ def main():
         spec = girest.generate()
         openapi_schema = spec.to_dict()
         
-        # Generate TypeScript bindings using Jinja2-based generator
-        ts_gen = TypeScriptGenerator(openapi_schema, base_url=args.base_url)
-        output = ts_gen.generate()
+        # Output the schema as JSON
+        output = json.dumps(openapi_schema, indent=2)
         
         # Write to file or stdout
         if args.output:
             with open(args.output, 'w') as f:
                 f.write(output)
-            print(f"Successfully generated bindings to {args.output}", file=sys.stderr)
+            print(f"Successfully generated schema to {args.output}", file=sys.stderr)
         else:
             print(output)
     
