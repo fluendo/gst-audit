@@ -40,8 +40,9 @@ class GIRest():
         self.sse_events: deque = deque(maxlen=sse_buffer_size)
         self.sse_event = asyncio.Event()
         # Counter for assigning unique IDs to events
+        # Lock protects both the counter and the deque during event push
         self._event_counter = 0
-        self._event_counter_lock = threading.Lock()
+        self._buffer_lock = threading.Lock()
 
     def _type_to_schema(self, t):
         """Convert GIRepository type to OpenAPI schema"""
@@ -385,19 +386,21 @@ class GIRest():
         Args:
             event_data: Dictionary containing event data to be sent to SSE clients
         """
-        # Assign a unique sequential ID to the event
-        with self._event_counter_lock:
+        # Assign a unique sequential ID and append to buffer atomically
+        # Lock protects both operations to ensure consistency
+        with self._buffer_lock:
             event_id = self._event_counter
             self._event_counter += 1
+            
+            # Wrap the event data with an ID
+            event_wrapper = {
+                "_sse_id": event_id,
+                "data": event_data
+            }
+            
+            self.sse_events.append(event_wrapper)
         
-        # Wrap the event data with an ID
-        event_wrapper = {
-            "_sse_id": event_id,
-            "data": event_data
-        }
-        
-        self.sse_events.append(event_wrapper)
-        # Set the event to notify waiting clients
+        # Set the event to notify waiting clients (outside lock)
         self.sse_event.set()
     
     async def sse_event_generator(self):
@@ -418,14 +421,9 @@ class GIRest():
         while True:
             has_new_events = False
             
-            # Take a snapshot to avoid mutation during iteration
-            # This is necessary because the deque can be modified by push_sse_event
-            # from other threads while we're iterating
-            try:
+            # Take an atomic snapshot to avoid mutation during iteration
+            with self._buffer_lock:
                 snapshot = list(self.sse_events)
-            except RuntimeError:
-                # In the rare case of mutation during list(), try again
-                continue
             
             # Iterate over the snapshot
             for event_wrapper in snapshot:
