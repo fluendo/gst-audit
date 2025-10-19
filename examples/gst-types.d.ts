@@ -2285,7 +2285,7 @@ export interface GObjectValueArray {
 
 
 
-export class GObjectObject {
+export class GObjectObject implements GObjectObject {
 
 
   ptr!: Pointer;
@@ -2459,7 +2459,7 @@ export class GObjectObject {
 
 
 
-export class GObjectParamSpec {
+export class GObjectParamSpec implements GObjectParamSpec {
 
 
   ptr!: Pointer;
@@ -2541,7 +2541,7 @@ export class GObjectParamSpec {
 
 
 
-export class GObjectBinding {
+export class GObjectBinding implements GObjectBinding {
 
 
 
@@ -2603,7 +2603,7 @@ export class GObjectBinding {
 
 
 
-export class GstObject {
+export class GstObject implements GstObject {
 
 
 
@@ -2779,7 +2779,7 @@ export class GstObject {
 
 
 
-export class GstControlBinding {
+export class GstControlBinding implements GstControlBinding {
 
 
 
@@ -2823,7 +2823,7 @@ export class GstControlBinding {
 
 
 
-export class GstAllocator {
+export class GstAllocator implements GstAllocator {
 
 
 
@@ -2867,7 +2867,7 @@ export class GstAllocator {
 
 
 
-export class GstElement {
+export class GstElement implements GstElement {
 
 
 
@@ -3313,7 +3313,7 @@ export class GstElement {
 
 
 
-export class GstPlugin {
+export class GstPlugin implements GstPlugin {
 
 
 
@@ -3483,7 +3483,7 @@ export class GstPlugin {
 
 
 
-export class GstPadTemplate {
+export class GstPadTemplate implements GstPadTemplate {
 
 
 
@@ -3541,7 +3541,7 @@ export class GstPadTemplate {
 
 
 
-export class GstPad {
+export class GstPad implements GstPad {
 
 
 
@@ -4061,7 +4061,7 @@ export class GstPad {
 
 
 
-export class GstStream {
+export class GstStream implements GstStream {
 
 
 
@@ -4137,7 +4137,7 @@ export class GstStream {
 
 
 
-export class GstBus {
+export class GstBus implements GstBus {
 
 
 
@@ -4285,7 +4285,7 @@ export class GstBus {
 
 
 
-export class GstClock {
+export class GstClock implements GstClock {
 
 
 
@@ -4491,7 +4491,7 @@ export class GstClock {
 
 
 
-export class GstPluginFeature {
+export class GstPluginFeature implements GstPluginFeature {
 
 
 
@@ -4565,7 +4565,7 @@ export class GstPluginFeature {
 
 
 
-export class GstElementFactory {
+export class GstElementFactory implements GstElementFactory {
 
 
 
@@ -4705,7 +4705,7 @@ export class GstElementFactory {
 
 
 
-export class GstBin {
+export class GstBin implements GstBin {
 
 
 
@@ -4829,7 +4829,7 @@ export class GstBin {
 
 
 
-export class GstBufferPool {
+export class GstBufferPool implements GstBufferPool {
 
 
 
@@ -4959,7 +4959,7 @@ export class GstBufferPool {
 
 
 
-export class GstControlSource {
+export class GstControlSource implements GstControlSource {
 
 
 
@@ -4985,7 +4985,7 @@ export class GstControlSource {
 
 
 
-export class GstDevice {
+export class GstDevice implements GstDevice {
 
 
 
@@ -5047,7 +5047,7 @@ export class GstDevice {
 
 
 
-export class GstDeviceMonitor {
+export class GstDeviceMonitor implements GstDeviceMonitor {
 
 
 
@@ -5123,7 +5123,7 @@ export class GstDeviceMonitor {
 
 
 
-export class GstDeviceProvider {
+export class GstDeviceProvider implements GstDeviceProvider {
 
 
 
@@ -5227,7 +5227,7 @@ export class GstDeviceProvider {
 
 
 
-export class GstDeviceProviderFactory {
+export class GstDeviceProviderFactory implements GstDeviceProviderFactory {
 
 
 
@@ -5295,7 +5295,7 @@ export class GstDeviceProviderFactory {
 
 
 
-export class GstDynamicTypeFactory {
+export class GstDynamicTypeFactory implements GstDynamicTypeFactory {
 
 
 
@@ -5315,7 +5315,7 @@ export class GstDynamicTypeFactory {
 
 
 
-export class GstFlagSet {
+export class GstFlagSet implements GstFlagSet {
 
 
   ptr!: Pointer;
@@ -5337,7 +5337,7 @@ export class GstFlagSet {
 
 
 
-export class GstProxyPad {
+export class GstProxyPad implements GstProxyPad {
 
 
 
@@ -5381,7 +5381,7 @@ export class GstProxyPad {
 
 
 
-export class GstGhostPad {
+export class GstGhostPad implements GstGhostPad {
 
 
 
@@ -5451,7 +5451,7 @@ export class GstGhostPad {
 
 
 
-export class GstPipeline {
+export class GstPipeline implements GstPipeline {
 
 
 
@@ -5545,7 +5545,7 @@ export class GstPipeline {
 
 
 
-export class GstRegistry {
+export class GstRegistry implements GstRegistry {
 
 
 
@@ -5673,7 +5673,7 @@ export class GstRegistry {
 
 
 
-export class GstTaskPool {
+export class GstTaskPool implements GstTaskPool {
 
 
 
@@ -5725,7 +5725,7 @@ export class GstTaskPool {
 
 
 
-export class GstSharedTaskPool {
+export class GstSharedTaskPool implements GstSharedTaskPool {
 
 
 
@@ -5759,7 +5759,7 @@ export class GstSharedTaskPool {
 
 
 
-export class GstStreamCollection {
+export class GstStreamCollection implements GstStreamCollection {
 
 
 
@@ -5805,7 +5805,7 @@ export class GstStreamCollection {
 
 
 
-export class GstSystemClock {
+export class GstSystemClock implements GstSystemClock {
 
 
 
@@ -5831,7 +5831,7 @@ export class GstSystemClock {
 
 
 
-export class GstTask {
+export class GstTask implements GstTask {
 
 
 
@@ -5931,7 +5931,7 @@ export class GstTask {
 
 
 
-export class GstTracer {
+export class GstTracer implements GstTracer {
 
 
 
@@ -5951,7 +5951,7 @@ export class GstTracer {
 
 
 
-export class GstTracerFactory {
+export class GstTracerFactory implements GstTracerFactory {
 
 
 
@@ -5977,7 +5977,7 @@ export class GstTracerFactory {
 
 
 
-export class GstTypeFindFactory {
+export class GstTypeFindFactory implements GstTypeFindFactory {
 
 
 
@@ -6021,7 +6021,7 @@ export class GstTypeFindFactory {
 
 
 
-export class GstValueArray {
+export class GstValueArray implements GstValueArray {
 
 
   ptr!: Pointer;
@@ -6073,7 +6073,7 @@ export class GstValueArray {
 
 
 
-export class GstValueList {
+export class GstValueList implements GstValueList {
 
 
   ptr!: Pointer;

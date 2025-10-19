@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-girest-ts - TypeScript bindings generator for GIRest schemas.
+girest-client-generator - TypeScript client generator for GIRest schemas.
 
-This tool generates TypeScript bindings from GObject introspection data,
+This tool generates TypeScript client bindings from GObject introspection data,
 creating proper class hierarchies with methods organized by their tags.
 """
 import argparse
@@ -22,7 +22,7 @@ from apispec import APISpec
 
 # Import GIRest and TypeScriptGenerator
 from main import GIRest
-from ts_generator_jinja import TypeScriptGenerator
+from generator import TypeScriptGenerator
 
 
 def main():

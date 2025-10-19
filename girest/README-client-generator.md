@@ -1,10 +1,10 @@
-# girest-ts
+# girest-client-generator
 
 TypeScript bindings generator for GIRest schemas.
 
 ## Overview
 
-`girest-ts` is a command-line tool that generates TypeScript type definitions from GObject introspection data. It uses the GIRepository library to introspect GObject-based libraries and generates TypeScript interfaces and classes with proper inheritance and method signatures.
+`girest-client-generator` is a command-line tool that generates TypeScript type definitions from GObject introspection data. It uses the GIRepository library to introspect GObject-based libraries and generates TypeScript interfaces and classes with proper inheritance and method signatures.
 
 The tool can generate either:
 1. **Type definitions only** - TypeScript interfaces and method signatures (default)
@@ -32,13 +32,13 @@ The tool can generate either:
 Generate TypeScript type definitions for a namespace:
 
 ```bash
-python3 girest-ts.py <namespace> <version>
+python3 girest-client-generator.py <namespace> <version>
 ```
 
 Generate with REST API implementation:
 
 ```bash
-python3 girest-ts.py <namespace> <version> --base-url http://localhost:8000
+python3 girest-client-generator.py <namespace> <version> --base-url http://localhost:8000
 ```
 
 ### Examples
@@ -46,25 +46,25 @@ python3 girest-ts.py <namespace> <version> --base-url http://localhost:8000
 Generate TypeScript bindings for GLib 2.0:
 
 ```bash
-python3 girest-ts.py GLib 2.0 > glib.d.ts
+python3 girest-client-generator.py GLib 2.0 > glib.d.ts
 ```
 
 Generate TypeScript bindings for GStreamer with REST API implementation:
 
 ```bash
-python3 girest-ts.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
+python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
 ```
 
 Generate the OpenAPI schema instead of TypeScript:
 
 ```bash
-python3 girest-ts.py GLib 2.0 --schema-only > glib-schema.json
+python3 girest-client-generator.py GLib 2.0 --schema-only > glib-schema.json
 ```
 
 ### Command-line Options
 
 ```
-usage: girest-ts.py [-h] [-o OUTPUT] [--schema-only] [--base-url BASE_URL] namespace version
+usage: girest-client-generator.py [-h] [-o OUTPUT] [--schema-only] [--base-url BASE_URL] namespace version
 
 positional arguments:
   namespace             GObject namespace (e.g., 'Gst', 'GLib', 'Gtk')
@@ -267,7 +267,7 @@ No installation required. Just run the script directly:
 
 ```bash
 cd /path/to/gst-audit/girest
-python3 girest-ts.py <namespace> <version>
+python3 girest-client-generator.py <namespace> <version>
 ```
 
 ## OpenAPI Schema Enhancements
@@ -333,7 +333,7 @@ async register(name: string, allocator: GstAllocator): Promise<void> {
 ### Example 1: Type Definitions Only
 
 ```bash
-python3 girest-ts.py Gst 1.0 -o gst.d.ts
+python3 girest-client-generator.py Gst 1.0 -o gst.d.ts
 ```
 
 Generates type-safe definitions that can be used for IDE autocomplete and type checking, but without implementations.
@@ -341,7 +341,7 @@ Generates type-safe definitions that can be used for IDE autocomplete and type c
 ### Example 2: Full Implementation
 
 ```bash
-python3 girest-ts.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
+python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
 ```
 
 Generates a complete TypeScript module with working REST API calls. Use this in your client application:

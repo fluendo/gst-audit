@@ -324,12 +324,14 @@ class TypeScriptGenerator:
         is_enum = class_name in self.enum_schemas
         schema = self.schemas.get(class_name, {})
         extends_gobject = class_name in self.gobject_types
+        has_interface = class_name in self.schemas and not is_enum
         
         data = {
             "name": class_name,
             "is_enum": is_enum,
             "base_url": self.base_url,
             "extends_gobject": extends_gobject,
+            "has_interface": has_interface,
             "properties": [],
             "constructors": [],
             "methods": []
