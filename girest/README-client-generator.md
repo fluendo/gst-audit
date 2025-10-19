@@ -29,27 +29,21 @@ The tool can generate either:
 
 ### Basic Usage
 
-Generate TypeScript type definitions for a namespace:
+Generate TypeScript client bindings for a namespace (requires --base-url):
 
 ```bash
-python3 girest-client-generator.py <namespace> <version>
-```
-
-Generate with REST API implementation:
-
-```bash
-python3 girest-client-generator.py <namespace> <version> --base-url http://localhost:8000
+python3 girest-client-generator.py <namespace> <version> --base-url <url>
 ```
 
 ### Examples
 
-Generate TypeScript bindings for GLib 2.0:
+Generate TypeScript client bindings for GLib 2.0:
 
 ```bash
-python3 girest-client-generator.py GLib 2.0 > glib.d.ts
+python3 girest-client-generator.py GLib 2.0 --base-url http://localhost:8000 > glib.ts
 ```
 
-Generate TypeScript bindings for GStreamer with REST API implementation:
+Generate TypeScript client bindings for GStreamer:
 
 ```bash
 python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
@@ -58,13 +52,13 @@ python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o g
 Generate the OpenAPI schema instead of TypeScript:
 
 ```bash
-python3 girest-client-generator.py GLib 2.0 --schema-only > glib-schema.json
+python3 girest-client-generator.py GLib 2.0 --base-url http://localhost:8000 --schema-only > glib-schema.json
 ```
 
 ### Command-line Options
 
 ```
-usage: girest-client-generator.py [-h] [-o OUTPUT] [--schema-only] [--base-url BASE_URL] namespace version
+usage: girest-client-generator.py [-h] [-o OUTPUT] --base-url BASE_URL [--schema-only] namespace version
 
 positional arguments:
   namespace             GObject namespace (e.g., 'Gst', 'GLib', 'Gtk')
@@ -74,9 +68,8 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         Output file path (default: stdout)
+  --base-url BASE_URL   Base URL for REST API calls (e.g., 'http://localhost:8000') [required]
   --schema-only         Output OpenAPI schema JSON instead of TypeScript
-  --base-url BASE_URL   Base URL for REST API calls (e.g., 'http://localhost:8000').
-                        If not provided, methods will return Promise types without implementation.
 ```
 
 ## Generated TypeScript
@@ -273,6 +266,14 @@ python3 girest-client-generator.py <namespace> <version>
 ## OpenAPI Schema Enhancements
 
 The tool adds vendor extensions to the OpenAPI schema to preserve GObject Introspection semantics:
+
+**Type Classification** - `x-gi-type` on schemas identifies the GObject type:
+- `object` - GObject-derived class types
+- `enum` - Enumeration types
+- `flags` - Flag types (bitfield enumerations)
+- `struct` - Structure types
+
+This allows generators to intelligently decide whether to generate interfaces, classes, or type aliases based on the actual type semantics.
 
 **Constructor Identification** - `x-gi-constructor: true` marks constructor methods, allowing generators to create appropriate static factory methods.
 

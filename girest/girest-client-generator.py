@@ -44,14 +44,14 @@ def main():
         default=None
     )
     parser.add_argument(
+        "--base-url",
+        required=True,
+        help="Base URL for REST API calls (e.g., 'http://localhost:8000')"
+    )
+    parser.add_argument(
         "--schema-only",
         action="store_true",
         help="Output OpenAPI schema JSON instead of TypeScript"
-    )
-    parser.add_argument(
-        "--base-url",
-        help="Base URL for REST API calls (e.g., 'http://localhost:8000'). If not provided, methods will return Promise types without implementation.",
-        default=None
     )
     
     args = parser.parse_args()

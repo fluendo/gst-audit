@@ -1,6 +1,6 @@
 {# Method template #}
 {% if is_static %}
-  static {% if with_impl %}async {% endif %}{{ name }}({{ params }}): Promise<{{ return_type }}> {% if with_impl %}{
+  static async {{ name }}({{ params }}): Promise<{{ return_type }}> {
 {% set has_full_transfer = query_params | selectattr('transfer', 'equalto', 'full') | selectattr('is_gobject', 'equalto', true) | list | length > 0 %}
 {% if has_full_transfer %}
     // Increment ref for parameters with full transfer ownership
@@ -91,9 +91,9 @@
 {% endif %}
 {% endif %}
 {% endif %}
-  }{% else %};{% endif %}
+  }
 {% else %}
-  {% if with_impl %}async {% endif %}{{ name }}({{ params }}): Promise<{{ return_type }}> {% if with_impl %}{
+  async {{ name }}({{ params }}): Promise<{{ return_type }}> {
 {% set has_full_transfer = query_params | selectattr('transfer', 'equalto', 'full') | selectattr('is_gobject', 'equalto', true) | list | length > 0 %}
 {% if has_full_transfer %}
     // Increment ref for parameters with full transfer ownership
@@ -176,5 +176,5 @@
 {% endif %}
 {% endif %}
 {% endif %}
-  }{% else %};{% endif %}
+  }
 {% endif %}

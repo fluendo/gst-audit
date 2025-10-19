@@ -12,13 +12,13 @@ from jinja2 import Environment, FileSystemLoader, Template
 class TypeScriptGenerator:
     """Generates TypeScript bindings from OpenAPI schema using Jinja2 templates."""
     
-    def __init__(self, openapi_schema: Dict[str, Any], base_url: Optional[str] = None):
+    def __init__(self, openapi_schema: Dict[str, Any], base_url: str):
         """
         Initialize the generator with an OpenAPI schema.
         
         Args:
             openapi_schema: The OpenAPI schema dictionary from GIRest
-            base_url: Optional base URL for REST API calls (e.g., 'http://localhost:8000')
+            base_url: Base URL for REST API calls (e.g., 'http://localhost:8000')
         """
         self.schema = openapi_schema
         self.components = openapi_schema.get("components", {})
@@ -310,8 +310,8 @@ class TypeScriptGenerator:
             "params": ", ".join(method_params),
             "return_type": return_type,
             "is_static": is_constructor or is_enum,
-            "with_impl": self.base_url is not None,
-            "base_url": self.base_url or "",
+            "with_impl": True,
+            "base_url": self.base_url,
             "path": url_path,
             "query_params": query_params,
             "is_constructor": is_constructor,

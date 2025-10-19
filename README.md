@@ -78,11 +78,11 @@ for the previous statement but it requires generating Pydantic models and extend
 
 ## TypeScript Client Generator
 
-The `girest-client-generator` tool can generate TypeScript client bindings from the GIRest schema. This allows you to have type-safe TypeScript code when working with the REST API.
+The `girest-client-generator` tool generates TypeScript client bindings from the GIRest schema. This allows you to have type-safe TypeScript code when working with the REST API. The tool requires a base URL for the REST API.
 
 ```bash
 cd girest
-python3 girest-client-generator.py Gst 1.0 -o gst.d.ts
+python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
 ```
 
 See [girest/README-client-generator.md](girest/README-client-generator.md) for more details.
