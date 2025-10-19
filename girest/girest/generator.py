@@ -393,26 +393,21 @@ class TypeScriptGenerator:
         title = self.schema.get("info", {}).get("title", "API")
         version = self.schema.get("info", {}).get("version", "1.0")
         
-        # Generate interfaces
+        # Generate type aliases (only for enums)
         interface_template = self.jinja_env.get_template('interface.ts.j2')
         interfaces = []
         
         for schema_name, schema_def in self.schemas.items():
-            # Check if this schema has a corresponding class
-            has_class = schema_name in self.class_methods
             gi_type = schema_def.get("x-gi-type", "")
             
-            # Skip interface generation for objects that have classes
-            # We only need interfaces for:
-            # 1. Enums (always generate type aliases)
-            # 2. Structs without methods (pure data structures)
-            # 3. Special types like Pointer
-            if gi_type == "object" and has_class:
-                # Skip - class will be generated instead
+            # Only generate type definitions for enums and flags
+            # Skip all struct, object, and other types - they will have classes or aren't needed
+            # Real GObject interfaces will be added when we parse them
+            if gi_type not in ["enum", "flags"]:
                 continue
             
             interface_data = self._prepare_interface_data(schema_name, schema_def)
-            interface_code = interface_template.render(interface_data)
+            interface_code = interface_template.render(interface_data).rstrip()
             
             # If this is an enum with methods, append the methods
             if schema_name in self.enum_schemas and schema_name in self.class_methods:
@@ -420,7 +415,7 @@ class TypeScriptGenerator:
                 methods = []
                 for method_info in self.class_methods[schema_name]:
                     method_data = self._prepare_method_data(method_info, schema_name)
-                    methods.append(method_template.render(method_data))
+                    methods.append(method_template.render(method_data).rstrip())
                 
                 # Insert methods into the namespace
                 lines = interface_code.split("\n")

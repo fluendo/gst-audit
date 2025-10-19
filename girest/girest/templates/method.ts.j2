@@ -92,7 +92,6 @@
 {% endif %}
 {% endif %}
   }{% else %};{% endif %}
-
 {% else %}
   {% if with_impl %}async {% endif %}{{ name }}({{ params }}): Promise<{{ return_type }}> {% if with_impl %}{
 {% set has_full_transfer = query_params | selectattr('transfer', 'equalto', 'full') | selectattr('is_gobject', 'equalto', true) | list | length > 0 %}
@@ -171,12 +170,11 @@
 {% if return_type != 'void' %}
     const data = await response.json();
 {% if has_return %}
-    return data.return;
+      return data.return;
 {% else %}
-    return data;
+      return data;
 {% endif %}
 {% endif %}
 {% endif %}
   }{% else %};{% endif %}
-
 {% endif %}
