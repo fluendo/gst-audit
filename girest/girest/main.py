@@ -390,25 +390,37 @@ class GIRest():
         Async generator that yields SSE events from the buffer.
         
         Yields events from the current position in the buffer and then waits
-        for new events to be pushed.
+        for new events to be pushed. Each generator instance tracks its own
+        position independently.
+        
+        Note: If the buffer rotates (oldest events are discarded) while a client
+        is connected, the client may miss events. This is acceptable for the
+        use case as it prevents unbounded memory growth.
         """
-        idx = 0
+        # Track which events we've sent using their identity
+        sent_events = set()
+        
         while True:
-            # Get current length to avoid race conditions
-            current_len = len(self.sse_events)
+            # Get snapshot of current events
+            current_events = list(self.sse_events)
+            has_new_events = False
             
             # Yield any events we haven't sent yet
-            for i in range(idx, current_len):
-                # Use try-except in case the deque was rotated and item is no longer there
-                try:
-                    yield self.sse_events[i]
-                except IndexError:
-                    # Item was rotated out, reset idx to 0 and restart
-                    idx = 0
-                    break
-            else:
-                # If we successfully yielded all items, update idx
-                idx = current_len
+            for event in current_events:
+                event_id = id(event)
+                if event_id not in sent_events:
+                    sent_events.add(event_id)
+                    has_new_events = True
+                    yield event
+            
+            # Clean up sent_events to avoid unbounded growth
+            # Keep only IDs of events still in the buffer
+            current_event_ids = {id(e) for e in self.sse_events}
+            sent_events &= current_event_ids
+            
+            # If we yielded events, check again for more before waiting
+            if has_new_events:
+                continue
             
             # Wait for new events
             await self.sse_event.wait()
