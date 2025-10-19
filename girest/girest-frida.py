@@ -9,6 +9,10 @@ import argparse
 import connexion
 import sys
 import os
+import json
+import asyncio
+import threading
+from flask import Response
 
 # Add the girest module to the path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -17,6 +21,48 @@ sys.path.insert(0, girest_dir)
 
 from main import GIRest
 from resolvers import FridaResolver
+
+
+def create_sse_endpoint(girest: GIRest):
+    """Create SSE endpoint that streams events from the GIRest buffer."""
+    def sse_callbacks():
+        """SSE endpoint for callback events."""
+        def event_generator():
+            # Create a new event loop for this thread if needed
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            
+            # Get the async generator
+            async_gen = girest.sse_event_generator()
+            
+            # Convert async generator to sync
+            while True:
+                try:
+                    # Run the async iterator in the loop
+                    event = loop.run_until_complete(async_gen.__anext__())
+                    # Format as SSE
+                    message = f'data: {json.dumps(event)}\n\n'
+                    yield message
+                except StopAsyncIteration:
+                    break
+                except Exception as e:
+                    print(f"Error in SSE generator: {e}")
+                    break
+        
+        return Response(
+            event_generator(),
+            mimetype='text/event-stream',
+            headers={
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'X-Accel-Buffering': 'no'
+            }
+        )
+    
+    return sse_callbacks
 
 
 def main():
@@ -44,12 +90,18 @@ def main():
         default=9000,
         help="Port to run the server on (default: 9000)"
     )
+    parser.add_argument(
+        "--sse-buffer-size",
+        type=int,
+        default=100,
+        help="Size of the SSE event ring buffer (default: 100)"
+    )
     
     args = parser.parse_args()
     
     try:
-        # Generate the OpenAPI schema
-        girest = GIRest(args.namespace, args.version)
+        # Generate the OpenAPI schema with specified buffer size
+        girest = GIRest(args.namespace, args.version, sse_buffer_size=args.sse_buffer_size)
         spec = girest.generate()
         
         # Create the connexion app
@@ -61,6 +113,16 @@ def main():
         
         # Add the API without naming it
         app.add_api(specd, resolver=resolver)
+        
+        # Register the SSE endpoint using Flask
+        flask_app = app.app
+        sse_endpoint = create_sse_endpoint(girest)
+        flask_app.add_url_rule(
+            f'/{args.namespace}/callbacks',
+            'sse_callbacks',
+            sse_endpoint,
+            methods=['GET']
+        )
         
         # Run the server
         app.run(port=args.port)

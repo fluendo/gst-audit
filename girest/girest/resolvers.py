@@ -93,11 +93,14 @@ class FridaResolver(connexion.resolver.Resolver):
     
     def _on_message(self, message, data):
         """Handle messages from the Frida script"""
-        # For now, just log the messages
         if message["type"] != "send":
             return
-        # TODO: handle callbacks like in gstaudit/main.py if needed
-        print(f"Message from Frida: {message}")
+        # Handle callbacks by pushing them to the SSE buffer
+        if message.get("payload", {}).get("kind") == "callback":
+            self.girest.push_sse_event(message["payload"]["data"])
+        else:
+            # For now, just log other messages
+            print(f"Message from Frida: {message}")
     
     def _type_to_json(self, t):
         """Convert GIRepository type to JSON type string"""

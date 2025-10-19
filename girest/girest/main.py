@@ -2,6 +2,9 @@ import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
 from apispec import APISpec
+import asyncio
+from collections import deque
+from typing import Optional
 
 
 class GIRest():
@@ -12,7 +15,7 @@ class GIRest():
         ],
     }
 
-    def __init__(self, ns, ns_version):
+    def __init__(self, ns, ns_version, sse_buffer_size: int = 100):
         self.ns = ns
         self.ns_version = ns_version
         # To keep track of schemas already registered
@@ -30,6 +33,11 @@ class GIRest():
         # Load the corresponding Gir file
         self.repo = GIRepository.Repository()
         self.repo.require(ns, ns_version, 0)
+        
+        # SSE event buffer (ring buffer using deque with maxlen)
+        self.sse_buffer_size = sse_buffer_size
+        self.sse_events: deque = deque(maxlen=sse_buffer_size)
+        self.sse_event = asyncio.Event()
 
     def _type_to_schema(self, t):
         """Convert GIRepository type to OpenAPI schema"""
@@ -363,5 +371,47 @@ class GIRest():
             elif info_type == GIRepository.InfoType.FUNCTION:
                 self._generate_function(info)
         return self.spec
+    
+    def push_sse_event(self, event_data: dict):
+        """
+        Push an event to the SSE buffer. This is thread-safe and non-blocking.
+        
+        If the buffer is full, the oldest event will be discarded to make room.
+        
+        Args:
+            event_data: Dictionary containing event data to be sent to SSE clients
+        """
+        self.sse_events.append(event_data)
+        # Set the event to notify waiting clients
+        self.sse_event.set()
+    
+    async def sse_event_generator(self):
+        """
+        Async generator that yields SSE events from the buffer.
+        
+        Yields events from the current position in the buffer and then waits
+        for new events to be pushed.
+        """
+        idx = 0
+        while True:
+            # Get current length to avoid race conditions
+            current_len = len(self.sse_events)
+            
+            # Yield any events we haven't sent yet
+            for i in range(idx, current_len):
+                # Use try-except in case the deque was rotated and item is no longer there
+                try:
+                    yield self.sse_events[i]
+                except IndexError:
+                    # Item was rotated out, reset idx to 0 and restart
+                    idx = 0
+                    break
+            else:
+                # If we successfully yielded all items, update idx
+                idx = current_len
+            
+            # Wait for new events
+            await self.sse_event.wait()
+            self.sse_event.clear()
 
 
