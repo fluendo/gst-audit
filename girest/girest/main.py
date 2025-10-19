@@ -3,6 +3,7 @@ gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
 from apispec import APISpec
 import asyncio
+import threading
 from collections import deque
 from typing import Optional
 
@@ -38,6 +39,9 @@ class GIRest():
         self.sse_buffer_size = sse_buffer_size
         self.sse_events: deque = deque(maxlen=sse_buffer_size)
         self.sse_event = asyncio.Event()
+        # Counter for assigning unique IDs to events
+        self._event_counter = 0
+        self._event_counter_lock = threading.Lock()
 
     def _type_to_schema(self, t):
         """Convert GIRepository type to OpenAPI schema"""
@@ -381,7 +385,18 @@ class GIRest():
         Args:
             event_data: Dictionary containing event data to be sent to SSE clients
         """
-        self.sse_events.append(event_data)
+        # Assign a unique sequential ID to the event
+        with self._event_counter_lock:
+            event_id = self._event_counter
+            self._event_counter += 1
+        
+        # Wrap the event data with an ID
+        event_wrapper = {
+            "_sse_id": event_id,
+            "data": event_data
+        }
+        
+        self.sse_events.append(event_wrapper)
         # Set the event to notify waiting clients
         self.sse_event.set()
     
@@ -391,32 +406,35 @@ class GIRest():
         
         Yields events from the current position in the buffer and then waits
         for new events to be pushed. Each generator instance tracks its own
-        position independently.
+        position independently using sequential event IDs.
         
         Note: If the buffer rotates (oldest events are discarded) while a client
         is connected, the client may miss events. This is acceptable for the
         use case as it prevents unbounded memory growth.
         """
-        # Track which events we've sent using their identity
-        sent_events = set()
+        # Track the last event ID we've sent
+        last_sent_id = -1
         
         while True:
-            # Get snapshot of current events
-            current_events = list(self.sse_events)
             has_new_events = False
             
-            # Yield any events we haven't sent yet
-            for event in current_events:
-                event_id = id(event)
-                if event_id not in sent_events:
-                    sent_events.add(event_id)
-                    has_new_events = True
-                    yield event
+            # Take a snapshot to avoid mutation during iteration
+            # This is necessary because the deque can be modified by push_sse_event
+            # from other threads while we're iterating
+            try:
+                snapshot = list(self.sse_events)
+            except RuntimeError:
+                # In the rare case of mutation during list(), try again
+                continue
             
-            # Clean up sent_events to avoid unbounded growth
-            # Keep only IDs of events still in the buffer
-            current_event_ids = {id(e) for e in self.sse_events}
-            sent_events &= current_event_ids
+            # Iterate over the snapshot
+            for event_wrapper in snapshot:
+                event_id = event_wrapper["_sse_id"]
+                if event_id > last_sent_id:
+                    last_sent_id = event_id
+                    has_new_events = True
+                    # Yield only the data, not the wrapper
+                    yield event_wrapper["data"]
             
             # If we yielded events, check again for more before waiting
             if has_new_events:
