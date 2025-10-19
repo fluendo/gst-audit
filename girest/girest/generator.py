@@ -372,14 +372,14 @@ class TypeScriptGenerator:
                 method_template = self.jinja_env.get_template('method.ts.j2')
                 for constructor_info in self.class_constructors[class_name]:
                     constructor_data = self._prepare_method_data(constructor_info, class_name, is_constructor=True)
-                    data["constructors"].append(method_template.render(constructor_data))
+                    data["constructors"].append(method_template.render(constructor_data).rstrip())
             
             # Add methods
             if class_name in self.class_methods:
                 method_template = self.jinja_env.get_template('method.ts.j2')
                 for method_info in self.class_methods[class_name]:
                     method_data = self._prepare_method_data(method_info, class_name)
-                    data["methods"].append(method_template.render(method_data))
+                    data["methods"].append(method_template.render(method_data).rstrip())
         
         return data
     
@@ -398,6 +398,19 @@ class TypeScriptGenerator:
         interfaces = []
         
         for schema_name, schema_def in self.schemas.items():
+            # Check if this schema has a corresponding class
+            has_class = schema_name in self.class_methods
+            gi_type = schema_def.get("x-gi-type", "")
+            
+            # Skip interface generation for objects that have classes
+            # We only need interfaces for:
+            # 1. Enums (always generate type aliases)
+            # 2. Structs without methods (pure data structures)
+            # 3. Special types like Pointer
+            if gi_type == "object" and has_class:
+                # Skip - class will be generated instead
+                continue
+            
             interface_data = self._prepare_interface_data(schema_name, schema_def)
             interface_code = interface_template.render(interface_data)
             

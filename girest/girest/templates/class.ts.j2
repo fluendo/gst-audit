@@ -1,13 +1,13 @@
 {# Class template #}
-{% if is_enum %}
+{%- if is_enum %}
 export namespace {{ name }} {
-{% for method in methods %}
+{%- for method in methods %}
 {{ method }}
-{% endfor %}
+{%- endfor %}
 }
-{% else %}
-export class {{ name }}{% if base_url and extends_gobject and name != 'GObjectObject' %} extends GObjectObject{% elif has_interface %} implements {{ name }}{% endif %} {
-{% if name == 'GObjectObject' and base_url %}
+{%- else %}
+export class {{ name }}{% if base_url and extends_gobject and name != 'GObjectObject' %} extends GObjectObject{% endif %} {
+{%- if name == 'GObjectObject' and base_url %}
   ptr!: string;
   
   constructor(ptr?: string) {
@@ -26,21 +26,18 @@ export class {{ name }}{% if base_url and extends_gobject and name != 'GObjectOb
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
   }
-
-{% elif not base_url or not extends_gobject %}
-{% for prop in properties %}
+{%- else %}
+{%- for prop in properties %}
   {{ prop.name }}{{ prop.assertion }}: {{ prop.type }};
-{% endfor %}
+{%- endfor %}
+{%- endif %}
+{%- if properties and (constructors or methods) %}
 
-{% endif %}
-{% for constructor in constructors %}
-{{ constructor }}
-{% endfor %}
-{% if constructors and methods %}
+{%- endif %}
+{{ constructors | join('\n\n') }}
+{%- if constructors and methods %}
 
-{% endif %}
-{% for method in methods %}
-{{ method }}
-{% endfor %}
+{%- endif %}
+{{ methods | join('\n\n') }}
 }
-{% endif %}
+{%- endif %}

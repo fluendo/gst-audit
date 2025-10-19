@@ -264,7 +264,8 @@ class GIRest():
                         {
                             "type": "object",
                         }
-                    ]
+                    ],
+                    "x-gi-type": "object"
                 }
            )
         else:
@@ -275,7 +276,8 @@ class GIRest():
                     "properties": {
                         "ptr": {"$ref": "#/components/schemas/Pointer"},
                     },
-                    "required": ["ptr"]
+                    "required": ["ptr"],
+                    "x-gi-type": "object"
                 }
             )
         # Now the member functions
@@ -303,7 +305,8 @@ class GIRest():
                 "properties": {
                     "ptr": {"$ref": "#/components/schemas/Pointer"},
                 },
-                "required": ["ptr"]
+                "required": ["ptr"],
+                "x-gi-type": "struct"
             }
         )
         
@@ -329,12 +332,16 @@ class GIRest():
         # Create enum schema with string values
         # OpenAPI will accept string values, but we'll need to convert them
         # to integers when calling Frida
+        info_type = bi.get_type()
+        gi_type = "enum" if info_type == GIRepository.InfoType.ENUM else "flags"
+        
         self.spec.components.schema(
             full_name,
             {
                 "type": "string",
                 "enum": enum_values,
-                "description": f"Enum values for {bi.get_name()}"
+                "description": f"Enum values for {bi.get_name()}",
+                "x-gi-type": gi_type
             }
         )
         
