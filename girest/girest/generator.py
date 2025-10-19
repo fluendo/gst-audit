@@ -34,8 +34,8 @@ class TypeScriptGenerator:
         template_dir = os.path.join(os.path.dirname(__file__), 'templates')
         self.jinja_env = Environment(
             loader=FileSystemLoader(template_dir),
-            trim_blocks=False,
-            lstrip_blocks=False
+            trim_blocks=True,
+            lstrip_blocks=True
         )
         
         # Identify enum schemas and GObject types

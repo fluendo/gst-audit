@@ -9,11 +9,11 @@ const objectRegistry = new FinalizationRegistry((ptr: string) => {
   fetch('{{ base_url }}/GObject/Object/' + ptr + '/unref')
     .catch(err => console.error('Failed to unref object:', ptr, err));
 });
-{%- if interfaces %}
+{% if interfaces %}
 
 {{ interfaces | join('\n') }}
-{%- endif %}
-{%- if classes %}
+{% endif %}
+{% if classes %}
 
 {{ classes | join('\n') }}
-{%- endif %}
+{% endif %}
