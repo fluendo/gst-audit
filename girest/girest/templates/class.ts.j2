@@ -1,0 +1,43 @@
+{# Class template #}
+{% if is_enum %}
+export namespace {{ name }} {
+{% for method in methods %}
+{{ method }}
+{% endfor %}
+}
+{% else %}
+export class {{ name }}{% if base_url and extends_gobject and name != 'GObjectObject' %} extends GObjectObject{% endif %} {
+{% if name == 'GObjectObject' and base_url %}
+  ptr!: string;
+  
+  constructor(ptr?: string) {
+    if (ptr) {
+      this.ptr = ptr;
+      objectRegistry.register(this, ptr);
+    }
+  }
+  
+  // Manual cleanup method
+  unref(): Promise<void> {
+    if (!this.ptr) return Promise.resolve();
+    objectRegistry.unregister(this);
+    return fetch('{{ base_url }}/GObject/Object/' + this.ptr + '/unref')
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      });
+  }
+{% else %}
+{% for prop in properties %}
+  {{ prop.name }}{{ prop.assertion }}: {{ prop.type }};
+{% endfor %}
+{% endif %}
+{% if properties and (constructors or methods) %}
+
+{% endif %}
+{{ constructors | join('\n') }}
+{% if constructors and methods %}
+
+{% endif %}
+{{ methods | join('\n') }}
+}
+{% endif %}

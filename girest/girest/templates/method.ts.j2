@@ -1,0 +1,180 @@
+{# Method template #}
+{% if is_static %}
+  static async {{ name }}({{ params }}): Promise<{{ return_type }}> {
+{% set has_full_transfer = query_params | selectattr('transfer', 'equalto', 'full') | selectattr('is_gobject', 'equalto', true) | list | length > 0 %}
+{% if has_full_transfer %}
+    // Increment ref for parameters with full transfer ownership
+{% for param in query_params %}
+{% if param.transfer == 'full' and param.is_gobject %}
+{% if param.required %}
+    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
+    }
+{% else %}
+    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
+    }
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+    const url = new URL(`{{ path }}`, '{{ base_url }}');
+{% for param in query_params %}
+{% if param.required %}
+    url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+{% else %}
+    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+{% endif %}
+{% endfor %}
+{% if has_full_transfer %}
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+{% for param in query_params %}
+{% if param.transfer == 'full' and param.is_gobject %}
+{% if param.required %}
+        if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+          await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+        }
+{% else %}
+        if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+          await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+        }
+{% endif %}
+{% endif %}
+{% endfor %}
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+{% if return_type != 'void' %}
+      const data = await response.json();
+{% if is_constructor %}
+      const instance = new {{ class_name }}();
+      Object.assign(instance, data.return || data);
+      return instance;
+{% elif has_return %}
+      return data.return;
+{% else %}
+      return data;
+{% endif %}
+{% endif %}
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+{% for param in query_params %}
+{% if param.transfer == 'full' and param.is_gobject %}
+{% if param.required %}
+      if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+        await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+      }
+{% else %}
+      if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+        await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+      }
+{% endif %}
+{% endif %}
+{% endfor %}
+      throw error;
+    }
+{% else %}
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+{% if return_type != 'void' %}
+    const data = await response.json();
+{% if is_constructor %}
+    const instance = new {{ class_name }}();
+    Object.assign(instance, data.return || data);
+    return instance;
+{% elif has_return %}
+    return data.return;
+{% else %}
+    return data;
+{% endif %}
+{% endif %}
+{% endif %}
+  }
+{% else %}
+  async {{ name }}({{ params }}): Promise<{{ return_type }}> {
+{% set has_full_transfer = query_params | selectattr('transfer', 'equalto', 'full') | selectattr('is_gobject', 'equalto', true) | list | length > 0 %}
+{% if has_full_transfer %}
+    // Increment ref for parameters with full transfer ownership
+{% for param in query_params %}
+{% if param.transfer == 'full' and param.is_gobject %}
+{% if param.required %}
+    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
+    }
+{% else %}
+    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
+    }
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+    const url = new URL(`{{ path }}`, '{{ base_url }}');
+{% for param in query_params %}
+{% if param.required %}
+    url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+{% else %}
+    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+{% endif %}
+{% endfor %}
+{% if has_full_transfer %}
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+{% for param in query_params %}
+{% if param.transfer == 'full' and param.is_gobject %}
+{% if param.required %}
+        if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+          await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+        }
+{% else %}
+        if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+          await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+        }
+{% endif %}
+{% endif %}
+{% endfor %}
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+{% if return_type != 'void' %}
+      const data = await response.json();
+{% if has_return %}
+      return data.return;
+{% else %}
+      return data;
+{% endif %}
+{% endif %}
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+{% for param in query_params %}
+{% if param.transfer == 'full' and param.is_gobject %}
+{% if param.required %}
+      if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+        await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+      }
+{% else %}
+      if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+        await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+      }
+{% endif %}
+{% endif %}
+{% endfor %}
+      throw error;
+    }
+{% else %}
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+{% if return_type != 'void' %}
+    const data = await response.json();
+{% if has_return %}
+      return data.return;
+{% else %}
+      return data;
+{% endif %}
+{% endif %}
+{% endif %}
+  }
+{% endif %}

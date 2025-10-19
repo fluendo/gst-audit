@@ -1,7 +1,6 @@
 import argparse
 import json
 
-import connexion
 import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
@@ -180,12 +179,24 @@ class GIRest():
             param_schema = schema.copy()
             may_be_null = GIRepository.arg_info_may_be_null(arg)
             
+            # Get transfer ownership information
+            transfer = GIRepository.arg_info_get_ownership_transfer(arg)
+            if transfer == GIRepository.Transfer.NOTHING:
+                transfer_str = "none"
+            elif transfer == GIRepository.Transfer.CONTAINER:
+                transfer_str = "container"
+            elif transfer == GIRepository.Transfer.EVERYTHING:
+                transfer_str = "full"
+            else:
+                transfer_str = "none"
+            
             params.append({
                 "name": arg_name,
                 "in": "query",
                 "required": not may_be_null,
                 "schema": param_schema,
-                "description": ""
+                "description": "",
+                "x-gi-transfer": transfer_str
             })
         
         # Handle the return value
@@ -211,16 +222,24 @@ class GIRest():
         else:
             responses["204"] = {"description": "No Content"}
         
+        # Check if this is a constructor method
+        flags = GIRepository.function_info_get_flags(bim)
+        is_constructor = bool(flags & GIRepository.FunctionInfoFlags.IS_CONSTRUCTOR)
+        
+        # Build operation definition
+        operation = {
+            "summary": "",
+            "description": "",
+            "operationId": f"{bim.get_namespace()}-{bi.get_name() if bi else ''}-{bim.get_name()}",
+            "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
+            "parameters": params,
+            "responses": responses,
+            "x-gi-constructor": is_constructor
+        }
+        
         # Add paths, components, etc. programmatically
         self.spec.path(path=api, operations={
-            "get": {
-                "summary": "",
-                "description": "",
-                "operationId": f"{bim.get_namespace()}-{bi.get_name() if bi else ''}-{bim.get_name()}",
-                "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
-                "parameters": params,
-                "responses": responses,
-            }
+            "get": operation
         })
 
     def _generate_object(self, bi):
@@ -245,7 +264,8 @@ class GIRest():
                         {
                             "type": "object",
                         }
-                    ]
+                    ],
+                    "x-gi-type": "object"
                 }
            )
         else:
@@ -256,7 +276,8 @@ class GIRest():
                     "properties": {
                         "ptr": {"$ref": "#/components/schemas/Pointer"},
                     },
-                    "required": ["ptr"]
+                    "required": ["ptr"],
+                    "x-gi-type": "object"
                 }
             )
         # Now the member functions
@@ -284,7 +305,8 @@ class GIRest():
                 "properties": {
                     "ptr": {"$ref": "#/components/schemas/Pointer"},
                 },
-                "required": ["ptr"]
+                "required": ["ptr"],
+                "x-gi-type": "struct"
             }
         )
         
@@ -310,12 +332,16 @@ class GIRest():
         # Create enum schema with string values
         # OpenAPI will accept string values, but we'll need to convert them
         # to integers when calling Frida
+        info_type = bi.get_type()
+        gi_type = "enum" if info_type == GIRepository.InfoType.ENUM else "flags"
+        
         self.spec.components.schema(
             full_name,
             {
                 "type": "string",
                 "enum": enum_values,
-                "description": f"Enum values for {bi.get_name()}"
+                "description": f"Enum values for {bi.get_name()}",
+                "x-gi-type": gi_type
             }
         )
         

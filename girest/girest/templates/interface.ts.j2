@@ -1,0 +1,31 @@
+{# Interface template #}
+{% if is_enum_with_methods %}
+export namespace {{ name }} {
+{% for value in enum_values %}
+  export const {{ value.const_name }}: '{{ value.value }}' = '{{ value.value }}';
+{% endfor %}
+}
+export type {{ name }}Value = {{ enum_value_union }};
+{% elif is_enum %}
+export type {{ name }} = {{ enum_value_union }};
+{% elif has_parent %}
+{% if properties %}
+export interface {{ name }} extends {{ parent }} {
+{% for prop in properties %}
+  {{ prop.name }}{{ prop.optional }}: {{ prop.type }};
+{% endfor %}
+}
+{% else %}
+export interface {{ name }} extends {{ parent }} {}
+{% endif %}
+{% else %}
+{% if properties %}
+export interface {{ name }} {
+{% for prop in properties %}
+  {{ prop.name }}{{ prop.optional }}: {{ prop.type }};
+{% endfor %}
+}
+{% else %}
+export interface {{ name }} {}
+{% endif %}
+{% endif %}
