@@ -96,9 +96,15 @@ class FridaResolver(connexion.resolver.Resolver):
         """Handle messages from the Frida script"""
         if message["type"] != "send":
             return
+        payload = message.get("payload", {})
+        kind = payload.get("kind")
+        
         # Handle callbacks by pushing them to the SSE buffer
-        if message.get("payload", {}).get("kind") == "callback":
-            self.girest.push_sse_event(message["payload"]["data"])
+        if kind == "callback":
+            self.girest.push_sse_event(payload["data"])
+        # Handle pipeline discovery messages
+        elif kind == "pipeline":
+            self.girest.add_pipeline(payload["data"])
         else:
             # For now, just log other messages
             print(f"Message from Frida: {message}")

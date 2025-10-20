@@ -189,3 +189,41 @@ async def test_gst_version_endpoint(girest_server):
         
         # Sanity check: major version should be reasonable (GStreamer 1.x or later)
         assert data["major"] >= 1, f"Unexpected major version: {data['major']}"
+
+
+@pytest.mark.asyncio
+async def test_girest_pipelines_endpoint(girest_server):
+    """
+    Test the /GIRest/pipelines endpoint which returns a list of discovered pipelines.
+    
+    This tests that the endpoint returns a list of pipeline objects discovered by Frida
+    in the running GStreamer process.
+    """
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{girest_server}/GIRest/pipelines")
+        
+        # Check the response status
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        
+        # Check the response is JSON
+        data = response.json()
+        
+        # Check that the response is a list
+        assert isinstance(data, list), "Response should be a list"
+        
+        # Since we started a pipeline with gst-launch-1.0, there should be at least one pipeline
+        assert len(data) >= 1, f"Expected at least 1 pipeline, got {len(data)}"
+        
+        # Check the structure of pipeline objects
+        for pipeline in data:
+            assert isinstance(pipeline, dict), "Each pipeline should be a dictionary"
+            assert "ptr" in pipeline, "Pipeline should contain 'ptr' field"
+            assert "name" in pipeline, "Pipeline should contain 'name' field"
+            
+            # ptr should be a string representation of a pointer
+            assert isinstance(pipeline["ptr"], str), "ptr should be a string"
+            
+            # name should be a string
+            assert isinstance(pipeline["name"], str), "name should be a string"
+            assert len(pipeline["name"]) > 0, "Pipeline name should not be empty"
+
