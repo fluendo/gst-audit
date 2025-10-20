@@ -18,7 +18,10 @@ class TypeScriptGenerator:
         "namespace", "module", "import", "export", "default", "async", "await",
         "break", "case", "catch", "continue", "debugger", "delete", "do", "else",
         "finally", "for", "if", "in", "instanceof", "new", "return", "switch",
-        "this", "throw", "try", "typeof", "void", "while", "with", "yield"
+        "this", "throw", "try", "typeof", "void", "while", "with", "yield",
+        "package", "implements", "private", "public", "protected", "static",
+        # Common variable names that might conflict
+        "data", "response", "error", "result", "value", "url"
     }
     
     def __init__(self, openapi_schema: Dict[str, Any], host: str = "localhost", port: int = 9000):
@@ -186,6 +189,9 @@ class TypeScriptGenerator:
             ref_path = schema["$ref"]
             if ref_path.startswith("#/components/schemas/"):
                 type_name = ref_path.split("/")[-1]
+                # If this is an enum with methods, use the Value suffix
+                if type_name in self.enum_schemas and type_name in self.class_methods:
+                    type_name = type_name + "Value"
                 return type_name + (" | null" if nullable else "")
         
         if "oneOf" in schema:
@@ -310,7 +316,8 @@ class TypeScriptGenerator:
         
         # Build parameter list
         params = operation.get("parameters", [])
-        method_params = []
+        required_params = []
+        optional_params = []
         query_params = []
         path_params = []
         has_self_param = False
@@ -336,7 +343,13 @@ class TypeScriptGenerator:
             
             param_type = self._openapi_type_to_ts(param_schema)
             optional_marker = "" if param_required else "?"
-            method_params.append(f"{ts_param_name}{optional_marker}: {param_type}")
+            param_str = f"{ts_param_name}{optional_marker}: {param_type}"
+            
+            # Separate required and optional parameters
+            if param_required:
+                required_params.append(param_str)
+            else:
+                optional_params.append(param_str)
             
             # Check if this parameter is a GObject type (needs ref counting)
             is_gobject_param = False
@@ -361,12 +374,15 @@ class TypeScriptGenerator:
         for callback_name, callback_ref in callbacks.items():
             callback_type = self._get_callback_type_signature(callback_ref)
             safe_callback_name = self._safe_property_name(callback_name)
-            method_params.append(f"{safe_callback_name}: {callback_type}")
+            required_params.append(f"{safe_callback_name}: {callback_type}")
             callback_params.append({
                 "name": safe_callback_name,
                 "api_name": callback_name,  # Original name for API
                 "type_ref": callback_ref
             })
+        
+        # Combine required and optional parameters (required first)
+        method_params = required_params + optional_params
         
         # Determine return type
         return_type = "void"
@@ -480,6 +496,9 @@ class TypeScriptGenerator:
                 method_template = self.jinja_env.get_template('method.ts.j2')
                 for method_info in self.class_methods[class_name]:
                     method_data = self._prepare_method_data(method_info, class_name)
+                    # Skip 'unref' method for GObjectObject as it's provided by the base class
+                    if class_name == "GObjectObject" and method_data.get("name") == "unref":
+                        continue
                     data["methods"].append(method_template.render(method_data).rstrip())
         
         return data
@@ -501,10 +520,9 @@ class TypeScriptGenerator:
         for schema_name, schema_def in self.schemas.items():
             gi_type = schema_def.get("x-gi-type", "")
             
-            # Only generate type definitions for enums and flags
-            # Skip all struct, object, and other types - they will have classes or aren't needed
-            # Real GObject interfaces will be added when we parse them
-            if gi_type not in ["enum", "flags"]:
+            # Generate type definitions for enums, flags, and structs
+            # Skip object types - they will have classes
+            if gi_type not in ["enum", "flags", "struct"]:
                 continue
             
             interface_data = self._prepare_interface_data(schema_name, schema_def)
