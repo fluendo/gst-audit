@@ -57,7 +57,7 @@ const pause = async(pipelineObj) => {
 
 async function main() {
   const pipelines = await getPipelines();
-  for (p of pipelines) {
+  for (const p of pipelines) {
       console.log(`Pausing ${p.name} at ${p.ptr}`);
       pause(p);
   }
