@@ -20,6 +20,62 @@ TypeScript bindings generator for GIRest schemas.
 - **REST API implementation**: When `--base-url` is provided, generates complete method implementations with fetch calls
 - **Template-based generation**: Uses Jinja2 templates for cleaner and more maintainable code generation
 - **Type safety**: All parameters and return types are properly typed
+- **Configurable API location**: Generated code supports runtime configuration of host and port, allowing dynamic server location changes
+
+## Configurable API Server Location
+
+The generated TypeScript bindings include a configurable API server location system. Instead of hardcoding the host and port in all API calls, the generated code uses a configuration object that can be updated at runtime.
+
+### Default Configuration
+
+The `--host` and `--port` parameters become the default configuration:
+
+```typescript
+// Generated code includes:
+let apiConfig = {
+  host: 'localhost',
+  port: 9000,
+  get baseUrl(): string {
+    return `http://${this.host}:${this.port}`;
+  }
+};
+```
+
+### Runtime Configuration
+
+The generated code exports functions to manage the API configuration:
+
+```typescript
+import { setApiConfig, getApiConfig } from './gst';
+
+// Update the server location
+setApiConfig({ host: '192.168.1.100', port: 8080 });
+
+// Get current configuration
+const config = getApiConfig();
+console.log(config.baseUrl); // 'http://192.168.1.100:8080'
+```
+
+### EventSource Auto-Reinitialization
+
+When the configuration changes, the EventSource connection for callbacks is automatically closed and reopened with the new URL, ensuring callbacks continue to work with the new server location.
+
+### Integration Example
+
+```typescript
+import { setApiConfig } from './lib/gst';
+import { updateConfig, getConfig } from './lib/config';
+
+// Sync with application config
+function updateServerConfig(host: string, port: number) {
+  updateConfig({ host, port });
+  setApiConfig({ host, port });
+}
+
+// Initialize on app startup
+const config = getConfig();
+setApiConfig({ host: config.host, port: config.port });
+```
 
 ## Usage
 
