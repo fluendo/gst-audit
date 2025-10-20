@@ -4,7 +4,7 @@
  * 
  * To use this example:
  * 1. Generate the TypeScript bindings:
- *    cd girest && python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
+ *    cd girest && python3 girest-client-generator.py Gst 1.0 --host localhost --port 9000 -o gst.ts
  * 2. Import the Gst namespace from the generated file
  * 3. Run your GStreamer application with gst-audit
  * 4. Run this TypeScript file with Node.js
@@ -60,7 +60,7 @@ async function main() {
   // await Gst.debug_add_log_function(onLog);
   
   console.log('To use callbacks with TypeScript bindings:');
-  console.log('1. Generate bindings: python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts');
+  console.log('1. Generate bindings: python3 girest-client-generator.py Gst 1.0 --host localhost --port 9000 -o gst.ts');
   console.log('2. Import: import { Gst } from "./gst";');
   console.log('3. Register: await Gst.debug_add_log_function(onLog);');
   console.log('4. Callbacks will be automatically dispatched when events arrive');

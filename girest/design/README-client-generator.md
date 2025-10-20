@@ -25,10 +25,10 @@ TypeScript bindings generator for GIRest schemas.
 
 ### Basic Usage
 
-Generate TypeScript client bindings for a namespace (requires --base-url):
+Generate TypeScript client bindings for a namespace:
 
 ```bash
-python3 girest-client-generator.py <namespace> <version> --base-url <url>
+python3 girest-client-generator.py <namespace> <version> [--host HOST] [--port PORT]
 ```
 
 ### Examples
@@ -36,19 +36,19 @@ python3 girest-client-generator.py <namespace> <version> --base-url <url>
 Generate TypeScript client bindings for GLib 2.0:
 
 ```bash
-python3 girest-client-generator.py GLib 2.0 --base-url http://localhost:8000 > glib.ts
+python3 girest-client-generator.py GLib 2.0 --host localhost --port 9000 > glib.ts
 ```
 
 Generate TypeScript client bindings for GStreamer:
 
 ```bash
-python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
+python3 girest-client-generator.py Gst 1.0 --host localhost --port 9000 -o gst.ts
 ```
 
 ### Command-line Options
 
 ```
-usage: girest-client-generator.py [-h] [-o OUTPUT] --base-url BASE_URL namespace version
+usage: girest-client-generator.py [-h] [-o OUTPUT] [--host HOST] [--port PORT] namespace version
 
 positional arguments:
   namespace             GObject namespace (e.g., 'Gst', 'GLib', 'Gtk')
@@ -58,7 +58,8 @@ options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         Output file path (default: stdout)
-  --base-url BASE_URL   Base URL for REST API calls (e.g., 'http://localhost:8000') [required]
+  --host HOST           Host for REST API calls (default: localhost)
+  --port PORT           Port for REST API calls (default: 9000)
 ```
 
 ### Dumping OpenAPI Schema
@@ -341,7 +342,7 @@ Generates type-safe definitions that can be used for IDE autocomplete and type c
 ### Example 2: Full Implementation
 
 ```bash
-python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
+python3 girest-client-generator.py Gst 1.0 --host localhost --port 9000 -o gst.ts
 ```
 
 Generates a complete TypeScript module with working REST API calls. Use this in your client application:
