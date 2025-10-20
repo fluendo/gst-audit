@@ -525,6 +525,10 @@ class TypeScriptGenerator:
             if gi_type not in ["enum", "flags", "struct"]:
                 continue
             
+            # Skip structs with methods - they will be generated as classes
+            if gi_type == "struct" and schema_name in self.class_methods:
+                continue
+            
             interface_data = self._prepare_interface_data(schema_name, schema_def)
             interface_code = interface_template.render(interface_data).rstrip()
             

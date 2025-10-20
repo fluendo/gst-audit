@@ -341,6 +341,11 @@ class GIRest():
         
         # Mark as generated
         self.schemas[full_name] = True
+        
+        # Generate endpoints for struct methods
+        for i in range(0, GIRepository.struct_info_get_n_methods(bi)):
+            bim = GIRepository.struct_info_get_method(bi, i)
+            self._generate_function(bim, bi)
 
     def _generate_callback(self, bi):
         """Generate OpenAPI schema for a callback"""
