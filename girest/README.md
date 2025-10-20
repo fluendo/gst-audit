@@ -46,19 +46,19 @@ Finally, interact with the REST API, for example to pause it do:
 
 ```js
 const getPipelines = async () => {
-  const response = await fetch("http://localhost:9000/Application/pipelines");
+  const response = await fetch("http://localhost:9000/GIRest/pipelines");
   const json = await response.json();
   return json;
 }
 
-const pause = async(obj) => {
-  const response = await fetch(`http://localhost:9000/Gst/Element/${obj}/set_state?state=3`);
+const pause = async(pipelineObj) => {
+  const response = await fetch(`http://localhost:9000/Gst/Element/${pipelineObj.ptr}/set_state?state=3`);
 }
 
 async function main() {
   const pipelines = await getPipelines();
   for (p of pipelines) {
-      console.log(`Pausing ${p}`);
+      console.log(`Pausing ${p.name} at ${p.ptr}`);
       pause(p);
   }
 }
