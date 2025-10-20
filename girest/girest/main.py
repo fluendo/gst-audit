@@ -39,7 +39,8 @@ class GIRest():
         # SSE event buffer (ring buffer using deque with maxlen)
         self.sse_buffer_size = sse_buffer_size
         self.sse_events: deque = deque(maxlen=sse_buffer_size)
-        self.sse_event = asyncio.Event()
+        self.sse_event = None  # Will be created in event loop
+        self._event_loop = None  # Reference to the event loop
         # Counter for assigning unique IDs to events
         # Lock protects both the counter and the deque during event push
         self._event_counter = 0
@@ -383,6 +384,7 @@ class GIRest():
         Push an event to the SSE buffer. This is thread-safe and non-blocking.
         
         If the buffer is full, the oldest event will be discarded to make room.
+        Can be safely called from any thread (e.g., Frida's message handler).
         
         Args:
             event_data: Dictionary containing event data to be sent to SSE clients
@@ -402,7 +404,9 @@ class GIRest():
             self.sse_events.append(event_wrapper)
         
         # Set the event to notify waiting clients (outside lock)
-        self.sse_event.set()
+        # Use call_soon_threadsafe if called from a different thread
+        if self.sse_event is not None and self._event_loop is not None:
+            self._event_loop.call_soon_threadsafe(self.sse_event.set)
     
     async def sse_event_generator(self):
         """
@@ -416,6 +420,11 @@ class GIRest():
         is connected, the client may miss events. This is acceptable for the
         use case as it prevents unbounded memory growth.
         """
+        # Initialize event loop and event on first call
+        if self.sse_event is None:
+            self._event_loop = asyncio.get_running_loop()
+            self.sse_event = asyncio.Event()
+        
         # Track the last event ID we've sent
         last_sent_id = -1
         
