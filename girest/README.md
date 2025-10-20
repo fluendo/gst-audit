@@ -25,7 +25,7 @@ GIRest is particularly useful for auditing _running_ GStreamer pipelines.
 ### Running
 To launch GIRest for GStreamer auditing, just do:
 ```bash
-> PID=[PID] python3 girest-frida.py Gst 1.0
+> python3 girest-frida.py --pid [PID] Gst 1.0
 ```
 using the PID of the process you want to audit
 
@@ -39,7 +39,7 @@ First, you need to launch your pipeline, for example:
 Then, get the `PID` of it and finally launch GIRest passing the `PID` by doing:
 
 ```bash
-> PID=[PID] python3 girest-frida.py Gst 1.0
+> python3 girest-frida.py --pid [PID] Gst 1.0
 ```
 
 Finally, interact with the REST API, for example to pause it do:
