@@ -434,12 +434,28 @@ class TypeScriptGenerator:
             "class_name": class_name
         }
     
+    def _get_direct_parent(self, class_name: str) -> Optional[str]:
+        """Get the direct parent class from the schema's allOf."""
+        schema = self.schemas.get(class_name, {})
+        if "allOf" in schema:
+            for item in schema["allOf"]:
+                if "$ref" in item:
+                    ref_path = item["$ref"]
+                    if ref_path.startswith("#/components/schemas/"):
+                        return ref_path.split("/")[-1]
+        return None
+    
     def _prepare_class_data(self, class_name: str) -> Dict[str, Any]:
         """Prepare data for class template."""
         is_enum = class_name in self.enum_schemas
         schema = self.schemas.get(class_name, {})
         extends_gobject = class_name in self.gobject_types
         has_interface = class_name in self.schemas and not is_enum
+        
+        # Get the direct parent for inheritance
+        parent_class = None
+        if extends_gobject and self.base_url:
+            parent_class = self._get_direct_parent(class_name)
         
         data = {
             "name": class_name,
@@ -448,6 +464,7 @@ class TypeScriptGenerator:
             "host": self.host,
             "port": self.port,
             "extends_gobject": extends_gobject,
+            "parent_class": parent_class,
             "has_interface": has_interface,
             "properties": [],
             "constructors": [],
@@ -562,10 +579,41 @@ class TypeScriptGenerator:
         class_template = self.jinja_env.get_template('class.ts.j2')
         classes = []
         
+        # Collect all class names that need to be generated
+        # Include classes with methods and all GObject types in the inheritance chain
+        classes_to_generate = set()
         for class_name in self.class_methods.keys():
             if class_name not in self.enum_schemas:
-                class_data = self._prepare_class_data(class_name)
-                classes.append(class_template.render(class_data))
+                classes_to_generate.add(class_name)
+                # Add all parent classes in the inheritance chain
+                parent = self._get_direct_parent(class_name)
+                while parent:
+                    if parent in self.gobject_types:
+                        classes_to_generate.add(parent)
+                    parent = self._get_direct_parent(parent)
+        
+        # Generate classes in dependency order (parents before children)
+        # We need to ensure parent classes are defined before child classes
+        generated = set()
+        
+        def generate_class_with_parents(class_name: str):
+            """Recursively generate a class and its parents."""
+            if class_name in generated:
+                return
+            
+            # First generate the parent
+            parent = self._get_direct_parent(class_name)
+            if parent and parent in classes_to_generate:
+                generate_class_with_parents(parent)
+            
+            # Then generate this class
+            class_data = self._prepare_class_data(class_name)
+            classes.append(class_template.render(class_data))
+            generated.add(class_name)
+        
+        # Generate all classes
+        for class_name in sorted(classes_to_generate):
+            generate_class_with_parents(class_name)
         
         # Generate standalone functions namespace
         standalone_namespace = ""
