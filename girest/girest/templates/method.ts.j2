@@ -13,17 +13,17 @@
 {% if param.transfer == 'full' and param.is_gobject %}
 {% if param.required %}
     if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
     }
 {% else %}
     if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
     }
 {% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}
-    const url = new URL(`{{ path }}`, '{{ base_url }}');
+    const url = new URL(`{{ path }}`, apiConfig.baseUrl);
 {% for param in query_params %}
 {% if param.required %}
     url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
@@ -40,11 +40,11 @@
 {% if param.transfer == 'full' and param.is_gobject %}
 {% if param.required %}
         if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-          await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
         }
 {% else %}
         if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-          await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
         }
 {% endif %}
 {% endif %}
@@ -77,11 +77,11 @@
 {% if param.transfer == 'full' and param.is_gobject %}
 {% if param.required %}
       if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-        await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
       }
 {% else %}
       if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-        await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
       }
 {% endif %}
 {% endif %}
@@ -122,17 +122,17 @@
 {% if param.transfer == 'full' and param.is_gobject %}
 {% if param.required %}
     if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
     }
 {% else %}
     if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
     }
 {% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}
-    const url = new URL(`{{ path }}`, '{{ base_url }}');
+    const url = new URL(`{{ path }}`, apiConfig.baseUrl);
 {% for param in query_params %}
 {% if param.required %}
     url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
@@ -149,11 +149,11 @@
 {% if param.transfer == 'full' and param.is_gobject %}
 {% if param.required %}
         if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-          await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
         }
 {% else %}
         if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-          await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
         }
 {% endif %}
 {% endif %}
@@ -182,11 +182,11 @@
 {% if param.transfer == 'full' and param.is_gobject %}
 {% if param.required %}
       if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-        await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
       }
 {% else %}
       if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-        await fetch('{{ base_url }}/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
       }
 {% endif %}
 {% endif %}

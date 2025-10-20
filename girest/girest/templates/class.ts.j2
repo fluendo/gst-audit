@@ -21,7 +21,7 @@ export class {{ name }}{% if base_url and extends_gobject and name != 'GObjectOb
   unref(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     objectRegistry.unregister(this);
-    return fetch('{{ base_url }}/GObject/Object/' + this.ptr + '/unref')
+    return fetch(apiConfig.baseUrl + '/GObject/Object/' + this.ptr + '/unref')
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
