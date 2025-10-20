@@ -7,33 +7,95 @@
 // Base types
 export type Pointer = string;
 
+// Configuration for API server location
+let apiConfig = {
+  host: 'localhost',
+  port: 9000,
+  get baseUrl(): string {
+    return `http://${this.host}:${this.port}`;
+  }
+};
+
+/**
+ * Update the API server configuration
+ * @param config New configuration with host and/or port
+ */
+export function setApiConfig(config: { host?: string; port?: number }): void {
+  if (config.host !== undefined) {
+    apiConfig.host = config.host;
+  }
+  if (config.port !== undefined) {
+    apiConfig.port = config.port;
+  }
+  // Reinitialize callback EventSource with new URL
+  if (typeof EventSource !== 'undefined' && (config.host !== undefined || config.port !== undefined)) {
+    initializeCallbackSource();
+  }
+}
+
+/**
+ * Get the current API server configuration
+ */
+export function getApiConfig(): { host: string; port: number; baseUrl: string } {
+  return {
+    host: apiConfig.host,
+    port: apiConfig.port,
+    baseUrl: apiConfig.baseUrl
+  };
+}
+
 // FinalizationRegistry for automatic cleanup of GObject instances
 const objectRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch('http://localhost:9000/GObject/Object/' + ptr + '/unref')
+  fetch(apiConfig.baseUrl + '/GObject/Object/' + ptr + '/unref')
     .catch(err => console.error('Failed to unref object:', ptr, err));
 });
 
 // Callback dispatcher for handling callbacks from the server
 const callbackDispatcher = new Map<string, Function>();
 
-// Initialize callback dispatcher with EventSource
-if (typeof EventSource !== 'undefined') {
-  const callbackSource = new EventSource('http://localhost:9000/GIRest/callbacks');
-  callbackSource.onmessage = (ev) => {
-    try {
-      const json = JSON.parse(ev.data);
-      const cb = callbackDispatcher.get(json.id.toString());
-      if (cb) {
-        cb(...Object.values(json.data));
+let callbackSource: EventSource | null = null;
+let isReinitializing = false;
+
+function initializeCallbackSource(): void {
+  // Prevent concurrent reinitialization
+  if (isReinitializing) {
+    return;
+  }
+  isReinitializing = true;
+  
+  // Close existing EventSource if it exists
+  if (callbackSource) {
+    callbackSource.close();
+    callbackSource = null;
+  }
+  
+  // Initialize callback dispatcher with EventSource
+  if (typeof EventSource !== 'undefined') {
+    callbackSource = new EventSource(apiConfig.baseUrl + '/GIRest/callbacks');
+    callbackSource.onmessage = (ev) => {
+      try {
+        const json = JSON.parse(ev.data);
+        const cb = callbackDispatcher.get(json.id.toString());
+        if (cb) {
+          cb(...Object.values(json.data));
+        }
+      } catch (error) {
+        console.error('Error processing callback:', error);
       }
-    } catch (error) {
-      console.error('Error processing callback:', error);
-    }
-  };
-  callbackSource.onerror = (error) => {
-    console.error('Callback EventSource error:', error);
-  };
+    };
+    callbackSource.onerror = (error) => {
+      console.error('Callback EventSource error:', error);
+    };
+    callbackSource.onopen = () => {
+      isReinitializing = false;
+    };
+  } else {
+    isReinitializing = false;
+  }
 }
+
+// Initialize on module load
+initializeCallbackSource();
 
 export interface GstAllocationParams {
   ptr: Pointer;
@@ -79,7 +141,7 @@ export namespace GstPadMode {
   export const PUSH: 'push' = 'push';
   export const PULL: 'pull' = 'pull';
   export async function get_name(mode: GstPadModeValue): Promise<string> {
-    const url = new URL(`/Gst/PadMode/get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PadMode/get_name`, apiConfig.baseUrl);
     url.searchParams.append('mode', String(mode));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -137,7 +199,7 @@ export namespace GstEventType {
   export const CUSTOM_BOTH: 'custom_both' = 'custom_both';
   export const CUSTOM_BOTH_OOB: 'custom_both_oob' = 'custom_both_oob';
   export async function get_flags(type_: GstEventTypeValue): Promise<GstEventTypeFlags> {
-    const url = new URL(`/Gst/EventType/get_flags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/EventType/get_flags`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -145,7 +207,7 @@ export namespace GstEventType {
     return data.return;
   }
   export async function get_name(type_: GstEventTypeValue): Promise<string> {
-    const url = new URL(`/Gst/EventType/get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/EventType/get_name`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -153,7 +215,7 @@ export namespace GstEventType {
     return data.return;
   }
   export async function to_quark(type_: GstEventTypeValue): Promise<number> {
-    const url = new URL(`/Gst/EventType/to_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/EventType/to_quark`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -161,7 +223,7 @@ export namespace GstEventType {
     return data.return;
   }
   export async function to_sticky_ordering(type_: GstEventTypeValue): Promise<number> {
-    const url = new URL(`/Gst/EventType/to_sticky_ordering`, 'http://localhost:9000');
+    const url = new URL(`/Gst/EventType/to_sticky_ordering`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -178,7 +240,7 @@ export namespace GstStreamType {
   export const CONTAINER: 'container' = 'container';
   export const TEXT: 'text' = 'text';
   export async function get_name(stype: GstStreamTypeValue): Promise<string> {
-    const url = new URL(`/Gst/StreamType/get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/StreamType/get_name`, apiConfig.baseUrl);
     url.searchParams.append('stype', String(stype));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -207,7 +269,7 @@ export namespace GstFormat {
   export const BUFFERS: 'buffers' = 'buffers';
   export const PERCENT: 'percent' = 'percent';
   export async function get_by_nick(nick: string): Promise<GstFormatValue> {
-    const url = new URL(`/Gst/Format/get_by_nick`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Format/get_by_nick`, apiConfig.baseUrl);
     url.searchParams.append('nick', String(nick));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -215,7 +277,7 @@ export namespace GstFormat {
     return data.return;
   }
   export async function get_details(format: GstFormatValue): Promise<GstFormatDefinition> {
-    const url = new URL(`/Gst/Format/get_details`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Format/get_details`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -223,7 +285,7 @@ export namespace GstFormat {
     return data.return;
   }
   export async function get_name(format: GstFormatValue): Promise<string> {
-    const url = new URL(`/Gst/Format/get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Format/get_name`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -231,14 +293,14 @@ export namespace GstFormat {
     return data.return;
   }
   export async function iterate_definitions(): Promise<GstIterator> {
-    const url = new URL(`/Gst/Format/iterate_definitions`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Format/iterate_definitions`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function register(nick: string, description: string): Promise<GstFormatValue> {
-    const url = new URL(`/Gst/Format/register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Format/register`, apiConfig.baseUrl);
     url.searchParams.append('nick', String(nick));
     url.searchParams.append('description', String(description));
     const response = await fetch(url.toString());
@@ -247,7 +309,7 @@ export namespace GstFormat {
     return data.return;
   }
   export async function to_quark(format: GstFormatValue): Promise<number> {
-    const url = new URL(`/Gst/Format/to_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Format/to_quark`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -271,7 +333,7 @@ export namespace GstStateChange {
   export const PAUSED_TO_PAUSED: 'paused_to_paused' = 'paused_to_paused';
   export const PLAYING_TO_PLAYING: 'playing_to_playing' = 'playing_to_playing';
   export async function get_name(transition: GstStateChangeValue): Promise<string> {
-    const url = new URL(`/Gst/StateChange/get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/StateChange/get_name`, apiConfig.baseUrl);
     url.searchParams.append('transition', String(transition));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -333,7 +395,7 @@ export namespace GstMessageType {
   export const INSTANT_RATE_REQUEST: 'instant_rate_request' = 'instant_rate_request';
   export const ANY: 'any' = 'any';
   export async function get_name(type_: GstMessageTypeValue): Promise<string> {
-    const url = new URL(`/Gst/MessageType/get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/MessageType/get_name`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -341,7 +403,7 @@ export namespace GstMessageType {
     return data.return;
   }
   export async function to_quark(type_: GstMessageTypeValue): Promise<number> {
-    const url = new URL(`/Gst/MessageType/to_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/MessageType/to_quark`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -414,7 +476,7 @@ export namespace GstCoreError {
   export const DISABLED: 'disabled' = 'disabled';
   export const NUM_ERRORS: 'num_errors' = 'num_errors';
   export async function quark(): Promise<number> {
-    const url = new URL(`/Gst/CoreError/quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/CoreError/quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -446,7 +508,7 @@ export namespace GstDebugLevel {
   export const MEMDUMP: 'memdump' = 'memdump';
   export const COUNT: 'count' = 'count';
   export async function get_name(level: GstDebugLevelValue): Promise<string> {
-    const url = new URL(`/Gst/DebugLevel/get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DebugLevel/get_name`, apiConfig.baseUrl);
     url.searchParams.append('level', String(level));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -482,7 +544,7 @@ export namespace GstLibraryError {
   export const ENCODE: 'encode' = 'encode';
   export const NUM_ERRORS: 'num_errors' = 'num_errors';
   export async function quark(): Promise<number> {
-    const url = new URL(`/Gst/LibraryError/quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/LibraryError/quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -538,7 +600,7 @@ export namespace GstParseError {
   export const EMPTY: 'empty' = 'empty';
   export const DELAYED_LINK: 'delayed_link' = 'delayed_link';
   export async function quark(): Promise<number> {
-    const url = new URL(`/Gst/ParseError/quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ParseError/quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -560,7 +622,7 @@ export namespace GstPluginError {
   export const DEPENDENCIES: 'dependencies' = 'dependencies';
   export const NAME_MISMATCH: 'name_mismatch' = 'name_mismatch';
   export async function quark(): Promise<number> {
-    const url = new URL(`/Gst/PluginError/quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginError/quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -610,7 +672,7 @@ export namespace GstQueryType {
   export const BITRATE: 'bitrate' = 'bitrate';
   export const SELECTABLE: 'selectable' = 'selectable';
   export async function get_flags(type_: GstQueryTypeValue): Promise<GstQueryTypeFlags> {
-    const url = new URL(`/Gst/QueryType/get_flags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/QueryType/get_flags`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -618,7 +680,7 @@ export namespace GstQueryType {
     return data.return;
   }
   export async function get_name(type_: GstQueryTypeValue): Promise<string> {
-    const url = new URL(`/Gst/QueryType/get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/QueryType/get_name`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -626,7 +688,7 @@ export namespace GstQueryType {
     return data.return;
   }
   export async function to_quark(type_: GstQueryTypeValue): Promise<number> {
-    const url = new URL(`/Gst/QueryType/to_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/QueryType/to_quark`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -660,7 +722,7 @@ export namespace GstResourceError {
   export const NOT_AUTHORIZED: 'not_authorized' = 'not_authorized';
   export const NUM_ERRORS: 'num_errors' = 'num_errors';
   export async function quark(): Promise<number> {
-    const url = new URL(`/Gst/ResourceError/quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ResourceError/quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -704,7 +766,7 @@ export namespace GstStreamError {
   export const DECRYPT_NOKEY: 'decrypt_nokey' = 'decrypt_nokey';
   export const NUM_ERRORS: 'num_errors' = 'num_errors';
   export async function quark(): Promise<number> {
-    const url = new URL(`/Gst/StreamError/quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/StreamError/quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -750,7 +812,7 @@ export namespace GstTocEntryType {
   export const TRACK: 'track' = 'track';
   export const CHAPTER: 'chapter' = 'chapter';
   export async function get_nick(type_: GstTocEntryTypeValue): Promise<string> {
-    const url = new URL(`/Gst/TocEntryType/get_nick`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TocEntryType/get_nick`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -776,7 +838,7 @@ export namespace GstURIError {
   export const BAD_STATE: 'bad_state' = 'bad_state';
   export const BAD_REFERENCE: 'bad_reference' = 'bad_reference';
   export async function quark(): Promise<number> {
-    const url = new URL(`/Gst/URIError/quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/URIError/quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -809,13 +871,13 @@ export class GObjectObject {
   unref(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     objectRegistry.unregister(this);
-    return fetch('http://localhost:9000/GObject/Object/' + this.ptr + '/unref')
+    return fetch(apiConfig.baseUrl + '/GObject/Object/' + this.ptr + '/unref')
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
   }
   static async newv(object_type: Pointer, n_parameters: number, parameters: Pointer): Promise<GObjectObject> {
-    const url = new URL(`/GObject/Object/newv`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/newv`, apiConfig.baseUrl);
     url.searchParams.append('object_type', String(object_type));
     url.searchParams.append('n_parameters', String(n_parameters));
     url.searchParams.append('parameters', String(parameters));
@@ -828,7 +890,7 @@ export class GObjectObject {
   }
 
   async compat_control(what: number): Promise<number> {
-    const url = new URL(`/GObject/Object/compat_control`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/compat_control`, apiConfig.baseUrl);
     url.searchParams.append('what', String(what));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -836,7 +898,7 @@ export class GObjectObject {
     return data.return;
   }
   async interface_find_property(g_iface: GObjectTypeInterface, property_name: string): Promise<GObjectParamSpec> {
-    const url = new URL(`/GObject/Object/interface_find_property`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/interface_find_property`, apiConfig.baseUrl);
     url.searchParams.append('g_iface', String(g_iface));
     url.searchParams.append('property_name', String(property_name));
     const response = await fetch(url.toString());
@@ -845,14 +907,14 @@ export class GObjectObject {
     return data.return;
   }
   async interface_install_property(g_iface: GObjectTypeInterface, pspec: GObjectParamSpec): Promise<void> {
-    const url = new URL(`/GObject/Object/interface_install_property`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/interface_install_property`, apiConfig.baseUrl);
     url.searchParams.append('g_iface', String(g_iface));
     url.searchParams.append('pspec', String(pspec));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async interface_list_properties(g_iface: GObjectTypeInterface): Promise<Pointer> {
-    const url = new URL(`/GObject/Object/interface_list_properties`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/interface_list_properties`, apiConfig.baseUrl);
     url.searchParams.append('g_iface', String(g_iface));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -860,7 +922,7 @@ export class GObjectObject {
     return data.return;
   }
   async bind_property(source_property: string, target: GObjectObject, target_property: string, flags: GObjectBindingFlags): Promise<GObjectBinding> {
-    const url = new URL(`/GObject/Object/${this.ptr}/bind_property`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/bind_property`, apiConfig.baseUrl);
     url.searchParams.append('source_property', String(source_property));
     url.searchParams.append('target', String(target));
     url.searchParams.append('target_property', String(target_property));
@@ -871,7 +933,7 @@ export class GObjectObject {
     return data.return;
   }
   async bind_property_full(source_property: string, target: GObjectObject, target_property: string, flags: GObjectBindingFlags, transform_to: GObjectClosure, transform_from: GObjectClosure): Promise<GObjectBinding> {
-    const url = new URL(`/GObject/Object/${this.ptr}/bind_property_full`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/bind_property_full`, apiConfig.baseUrl);
     url.searchParams.append('source_property', String(source_property));
     url.searchParams.append('target', String(target));
     url.searchParams.append('target_property', String(target_property));
@@ -884,36 +946,36 @@ export class GObjectObject {
     return data.return;
   }
   async force_floating(): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/force_floating`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/force_floating`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async freeze_notify(): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/freeze_notify`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/freeze_notify`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_data(key: string): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/get_data`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/get_data`, apiConfig.baseUrl);
     url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_property(property_name: string, value_: GObjectValue): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/get_property`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/get_property`, apiConfig.baseUrl);
     url.searchParams.append('property_name', String(property_name));
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_qdata(quark: number): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/get_qdata`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/get_qdata`, apiConfig.baseUrl);
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async getv(n_properties: number, names: Pointer, values: Pointer): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/getv`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/getv`, apiConfig.baseUrl);
     url.searchParams.append('n_properties', String(n_properties));
     url.searchParams.append('names', String(names));
     url.searchParams.append('values', String(values));
@@ -921,75 +983,75 @@ export class GObjectObject {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async is_floating(): Promise<boolean> {
-    const url = new URL(`/GObject/Object/${this.ptr}/is_floating`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/is_floating`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async notify(property_name: string): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/notify`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/notify`, apiConfig.baseUrl);
     url.searchParams.append('property_name', String(property_name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async notify_by_pspec(pspec: GObjectParamSpec): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/notify_by_pspec`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/notify_by_pspec`, apiConfig.baseUrl);
     url.searchParams.append('pspec', String(pspec));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async ref(): Promise<GObjectObject> {
-    const url = new URL(`/GObject/Object/${this.ptr}/ref`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/ref`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async ref_sink(): Promise<GObjectObject> {
-    const url = new URL(`/GObject/Object/${this.ptr}/ref_sink`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/ref_sink`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async run_dispose(): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/run_dispose`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/run_dispose`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_data(key: string): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/set_data`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/set_data`, apiConfig.baseUrl);
     url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_property(property_name: string, value_: GObjectValue): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/set_property`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/set_property`, apiConfig.baseUrl);
     url.searchParams.append('property_name', String(property_name));
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async steal_data(key: string): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/steal_data`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/steal_data`, apiConfig.baseUrl);
     url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async steal_qdata(quark: number): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/steal_qdata`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/steal_qdata`, apiConfig.baseUrl);
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async thaw_notify(): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/thaw_notify`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/thaw_notify`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async watch_closure(closure: GObjectClosure): Promise<void> {
-    const url = new URL(`/GObject/Object/${this.ptr}/watch_closure`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Object/${this.ptr}/watch_closure`, apiConfig.baseUrl);
     url.searchParams.append('closure', String(closure));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -999,7 +1061,7 @@ export class GObjectObject {
 export class GObjectParamSpec extends GObjectObject {
 
   async is_valid_name(name: string): Promise<boolean> {
-    const url = new URL(`/GObject/ParamSpec/is_valid_name`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/is_valid_name`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1007,66 +1069,66 @@ export class GObjectParamSpec extends GObjectObject {
     return data.return;
   }
   async get_blurb(): Promise<string> {
-    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_blurb`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_blurb`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_default_value(): Promise<GObjectValue> {
-    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_default_value`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_default_value`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_name(): Promise<string> {
-    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_name`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_name`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_name_quark(): Promise<number> {
-    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_name_quark`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_name_quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_nick(): Promise<string> {
-    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_nick`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_nick`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_qdata(quark: number): Promise<void> {
-    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_qdata`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_qdata`, apiConfig.baseUrl);
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_redirect_target(): Promise<GObjectParamSpec> {
-    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_redirect_target`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/${this.ptr}/get_redirect_target`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_qdata(quark: number): Promise<void> {
-    const url = new URL(`/GObject/ParamSpec/${this.ptr}/set_qdata`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/${this.ptr}/set_qdata`, apiConfig.baseUrl);
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async sink(): Promise<void> {
-    const url = new URL(`/GObject/ParamSpec/${this.ptr}/sink`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/${this.ptr}/sink`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async steal_qdata(quark: number): Promise<void> {
-    const url = new URL(`/GObject/ParamSpec/${this.ptr}/steal_qdata`, 'http://localhost:9000');
+    const url = new URL(`/GObject/ParamSpec/${this.ptr}/steal_qdata`, apiConfig.baseUrl);
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1076,56 +1138,56 @@ export class GObjectParamSpec extends GObjectObject {
 export class GObjectBinding extends GObjectObject {
 
   async dup_source(): Promise<GObjectObject> {
-    const url = new URL(`/GObject/Binding/${this.ptr}/dup_source`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Binding/${this.ptr}/dup_source`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async dup_target(): Promise<GObjectObject> {
-    const url = new URL(`/GObject/Binding/${this.ptr}/dup_target`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Binding/${this.ptr}/dup_target`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_flags(): Promise<GObjectBindingFlags> {
-    const url = new URL(`/GObject/Binding/${this.ptr}/get_flags`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Binding/${this.ptr}/get_flags`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_source(): Promise<GObjectObject> {
-    const url = new URL(`/GObject/Binding/${this.ptr}/get_source`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Binding/${this.ptr}/get_source`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_source_property(): Promise<string> {
-    const url = new URL(`/GObject/Binding/${this.ptr}/get_source_property`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Binding/${this.ptr}/get_source_property`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_target(): Promise<GObjectObject> {
-    const url = new URL(`/GObject/Binding/${this.ptr}/get_target`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Binding/${this.ptr}/get_target`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_target_property(): Promise<string> {
-    const url = new URL(`/GObject/Binding/${this.ptr}/get_target_property`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Binding/${this.ptr}/get_target_property`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async unbind(): Promise<void> {
-    const url = new URL(`/GObject/Binding/${this.ptr}/unbind`, 'http://localhost:9000');
+    const url = new URL(`/GObject/Binding/${this.ptr}/unbind`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -1134,7 +1196,7 @@ export class GObjectBinding extends GObjectObject {
 export class GstObject extends GObjectObject {
 
   async check_uniqueness(list: Pointer, name: string): Promise<boolean> {
-    const url = new URL(`/Gst/Object/check_uniqueness`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/check_uniqueness`, apiConfig.baseUrl);
     url.searchParams.append('list', String(list));
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
@@ -1143,7 +1205,7 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async default_deep_notify(object: GObjectObject, orig: GstObject, pspec: GObjectParamSpec, excluded_props?: Pointer): Promise<void> {
-    const url = new URL(`/Gst/Object/default_deep_notify`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/default_deep_notify`, apiConfig.baseUrl);
     url.searchParams.append('object', String(object));
     url.searchParams.append('orig', String(orig));
     url.searchParams.append('pspec', String(pspec));
@@ -1154,9 +1216,9 @@ export class GstObject extends GObjectObject {
   async replace(oldobj?: GstObject, newobj?: GstObject): Promise<boolean> {
     // Increment ref for parameters with full transfer ownership
     if (oldobj && typeof oldobj === 'object' && 'ptr' in oldobj) {
-      await fetch('http://localhost:9000/GObject/Object/' + oldobj.ptr + '/ref').catch(() => {});
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + oldobj.ptr + '/ref').catch(() => {});
     }
-    const url = new URL(`/Gst/Object/replace`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/replace`, apiConfig.baseUrl);
     if (oldobj !== undefined) url.searchParams.append('oldobj', String(oldobj));
     if (newobj !== undefined) url.searchParams.append('newobj', String(newobj));
     try {
@@ -1164,7 +1226,7 @@ export class GstObject extends GObjectObject {
       if (!response.ok) {
         // If the call fails, unref the objects we ref'd
         if (oldobj && typeof oldobj === 'object' && 'ptr' in oldobj) {
-          await fetch('http://localhost:9000/GObject/Object/' + oldobj.ptr + '/unref').catch(() => {});
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + oldobj.ptr + '/unref').catch(() => {});
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -1173,13 +1235,13 @@ export class GstObject extends GObjectObject {
     } catch (error) {
       // If there's an error, unref the objects we ref'd
       if (oldobj && typeof oldobj === 'object' && 'ptr' in oldobj) {
-        await fetch('http://localhost:9000/GObject/Object/' + oldobj.ptr + '/unref').catch(() => {});
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + oldobj.ptr + '/unref').catch(() => {});
       }
       throw error;
     }
   }
   async add_control_binding(binding: GstControlBinding): Promise<boolean> {
-    const url = new URL(`/Gst/Object/${this.ptr}/add_control_binding`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/add_control_binding`, apiConfig.baseUrl);
     url.searchParams.append('binding', String(binding));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1187,14 +1249,14 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async default_error(error_: Pointer, debug?: string): Promise<void> {
-    const url = new URL(`/Gst/Object/${this.ptr}/default_error`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/default_error`, apiConfig.baseUrl);
     url.searchParams.append('error', String(error_));
     if (debug !== undefined) url.searchParams.append('debug', String(debug));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_control_binding(property_name: string): Promise<GstControlBinding> {
-    const url = new URL(`/Gst/Object/${this.ptr}/get_control_binding`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/get_control_binding`, apiConfig.baseUrl);
     url.searchParams.append('property_name', String(property_name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1202,14 +1264,14 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async get_control_rate(): Promise<number> {
-    const url = new URL(`/Gst/Object/${this.ptr}/get_control_rate`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/get_control_rate`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_g_value_array(property_name: string, timestamp: number, interval: number, n_values: number, values: Pointer): Promise<boolean> {
-    const url = new URL(`/Gst/Object/${this.ptr}/get_g_value_array`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/get_g_value_array`, apiConfig.baseUrl);
     url.searchParams.append('property_name', String(property_name));
     url.searchParams.append('timestamp', String(timestamp));
     url.searchParams.append('interval', String(interval));
@@ -1221,28 +1283,28 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async get_name(): Promise<string> {
-    const url = new URL(`/Gst/Object/${this.ptr}/get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/get_name`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_parent(): Promise<GstObject> {
-    const url = new URL(`/Gst/Object/${this.ptr}/get_parent`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/get_parent`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_path_string(): Promise<string> {
-    const url = new URL(`/Gst/Object/${this.ptr}/get_path_string`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/get_path_string`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_value(property_name: string, timestamp: number): Promise<GObjectValue> {
-    const url = new URL(`/Gst/Object/${this.ptr}/get_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/get_value`, apiConfig.baseUrl);
     url.searchParams.append('property_name', String(property_name));
     url.searchParams.append('timestamp', String(timestamp));
     const response = await fetch(url.toString());
@@ -1251,14 +1313,14 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async has_active_control_bindings(): Promise<boolean> {
-    const url = new URL(`/Gst/Object/${this.ptr}/has_active_control_bindings`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/has_active_control_bindings`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async has_ancestor(ancestor: GstObject): Promise<boolean> {
-    const url = new URL(`/Gst/Object/${this.ptr}/has_ancestor`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/has_ancestor`, apiConfig.baseUrl);
     url.searchParams.append('ancestor', String(ancestor));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1266,7 +1328,7 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async has_as_ancestor(ancestor: GstObject): Promise<boolean> {
-    const url = new URL(`/Gst/Object/${this.ptr}/has_as_ancestor`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/has_as_ancestor`, apiConfig.baseUrl);
     url.searchParams.append('ancestor', String(ancestor));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1274,7 +1336,7 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async has_as_parent(parent: GstObject): Promise<boolean> {
-    const url = new URL(`/Gst/Object/${this.ptr}/has_as_parent`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/has_as_parent`, apiConfig.baseUrl);
     url.searchParams.append('parent', String(parent));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1282,14 +1344,14 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async ref(): Promise<GstObject> {
-    const url = new URL(`/Gst/Object/${this.ptr}/ref`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/ref`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async remove_control_binding(binding: GstControlBinding): Promise<boolean> {
-    const url = new URL(`/Gst/Object/${this.ptr}/remove_control_binding`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/remove_control_binding`, apiConfig.baseUrl);
     url.searchParams.append('binding', String(binding));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1297,26 +1359,26 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async set_control_binding_disabled(property_name: string, disabled: boolean): Promise<void> {
-    const url = new URL(`/Gst/Object/${this.ptr}/set_control_binding_disabled`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/set_control_binding_disabled`, apiConfig.baseUrl);
     url.searchParams.append('property_name', String(property_name));
     url.searchParams.append('disabled', String(disabled));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_control_bindings_disabled(disabled: boolean): Promise<void> {
-    const url = new URL(`/Gst/Object/${this.ptr}/set_control_bindings_disabled`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/set_control_bindings_disabled`, apiConfig.baseUrl);
     url.searchParams.append('disabled', String(disabled));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_control_rate(control_rate: number): Promise<void> {
-    const url = new URL(`/Gst/Object/${this.ptr}/set_control_rate`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/set_control_rate`, apiConfig.baseUrl);
     url.searchParams.append('control_rate', String(control_rate));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_name(name?: string): Promise<boolean> {
-    const url = new URL(`/Gst/Object/${this.ptr}/set_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/set_name`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1324,7 +1386,7 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async set_parent(parent: GstObject): Promise<boolean> {
-    const url = new URL(`/Gst/Object/${this.ptr}/set_parent`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/set_parent`, apiConfig.baseUrl);
     url.searchParams.append('parent', String(parent));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1332,14 +1394,14 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async suggest_next_sync(): Promise<number> {
-    const url = new URL(`/Gst/Object/${this.ptr}/suggest_next_sync`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/suggest_next_sync`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async sync_values(timestamp: number): Promise<boolean> {
-    const url = new URL(`/Gst/Object/${this.ptr}/sync_values`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/sync_values`, apiConfig.baseUrl);
     url.searchParams.append('timestamp', String(timestamp));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1347,12 +1409,12 @@ export class GstObject extends GObjectObject {
     return data.return;
   }
   async unparent(): Promise<void> {
-    const url = new URL(`/Gst/Object/${this.ptr}/unparent`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/unparent`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async unref(): Promise<void> {
-    const url = new URL(`/Gst/Object/${this.ptr}/unref`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Object/${this.ptr}/unref`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -1361,7 +1423,7 @@ export class GstObject extends GObjectObject {
 export class GstControlBinding extends GObjectObject {
 
   async get_g_value_array(timestamp: number, interval: number, n_values: number, values: Pointer): Promise<boolean> {
-    const url = new URL(`/Gst/ControlBinding/${this.ptr}/get_g_value_array`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ControlBinding/${this.ptr}/get_g_value_array`, apiConfig.baseUrl);
     url.searchParams.append('timestamp', String(timestamp));
     url.searchParams.append('interval', String(interval));
     url.searchParams.append('n_values', String(n_values));
@@ -1372,7 +1434,7 @@ export class GstControlBinding extends GObjectObject {
     return data.return;
   }
   async get_value(timestamp: number): Promise<GObjectValue> {
-    const url = new URL(`/Gst/ControlBinding/${this.ptr}/get_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ControlBinding/${this.ptr}/get_value`, apiConfig.baseUrl);
     url.searchParams.append('timestamp', String(timestamp));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1380,20 +1442,20 @@ export class GstControlBinding extends GObjectObject {
     return data.return;
   }
   async is_disabled(): Promise<boolean> {
-    const url = new URL(`/Gst/ControlBinding/${this.ptr}/is_disabled`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ControlBinding/${this.ptr}/is_disabled`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_disabled(disabled: boolean): Promise<void> {
-    const url = new URL(`/Gst/ControlBinding/${this.ptr}/set_disabled`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ControlBinding/${this.ptr}/set_disabled`, apiConfig.baseUrl);
     url.searchParams.append('disabled', String(disabled));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async sync_values(object: GstObject, timestamp: number, last_sync: number): Promise<boolean> {
-    const url = new URL(`/Gst/ControlBinding/${this.ptr}/sync_values`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ControlBinding/${this.ptr}/sync_values`, apiConfig.baseUrl);
     url.searchParams.append('object', String(object));
     url.searchParams.append('timestamp', String(timestamp));
     url.searchParams.append('last_sync', String(last_sync));
@@ -1407,7 +1469,7 @@ export class GstControlBinding extends GObjectObject {
 export class GstAllocator extends GObjectObject {
 
   async find(name?: string): Promise<GstAllocator> {
-    const url = new URL(`/Gst/Allocator/find`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Allocator/find`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1417,9 +1479,9 @@ export class GstAllocator extends GObjectObject {
   async register(name: string, allocator: GstAllocator): Promise<void> {
     // Increment ref for parameters with full transfer ownership
     if (allocator && typeof allocator === 'object' && 'ptr' in allocator) {
-      await fetch('http://localhost:9000/GObject/Object/' + allocator.ptr + '/ref').catch(() => {});
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + allocator.ptr + '/ref').catch(() => {});
     }
-    const url = new URL(`/Gst/Allocator/register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Allocator/register`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     url.searchParams.append('allocator', String(allocator));
     try {
@@ -1427,20 +1489,20 @@ export class GstAllocator extends GObjectObject {
       if (!response.ok) {
         // If the call fails, unref the objects we ref'd
         if (allocator && typeof allocator === 'object' && 'ptr' in allocator) {
-          await fetch('http://localhost:9000/GObject/Object/' + allocator.ptr + '/unref').catch(() => {});
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + allocator.ptr + '/unref').catch(() => {});
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (error) {
       // If there's an error, unref the objects we ref'd
       if (allocator && typeof allocator === 'object' && 'ptr' in allocator) {
-        await fetch('http://localhost:9000/GObject/Object/' + allocator.ptr + '/unref').catch(() => {});
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + allocator.ptr + '/unref').catch(() => {});
       }
       throw error;
     }
   }
   async alloc(size: number, params?: GstAllocationParams): Promise<GstMemory> {
-    const url = new URL(`/Gst/Allocator/${this.ptr}/alloc`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Allocator/${this.ptr}/alloc`, apiConfig.baseUrl);
     url.searchParams.append('size', String(size));
     if (params !== undefined) url.searchParams.append('params', String(params));
     const response = await fetch(url.toString());
@@ -1449,13 +1511,13 @@ export class GstAllocator extends GObjectObject {
     return data.return;
   }
   async free(memory: GstMemory): Promise<void> {
-    const url = new URL(`/Gst/Allocator/${this.ptr}/free`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Allocator/${this.ptr}/free`, apiConfig.baseUrl);
     url.searchParams.append('memory', String(memory));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_default(): Promise<void> {
-    const url = new URL(`/Gst/Allocator/${this.ptr}/set_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Allocator/${this.ptr}/set_default`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -1464,7 +1526,7 @@ export class GstAllocator extends GObjectObject {
 export class GstElement extends GObjectObject {
 
   async make_from_uri(type_: GstURIType, uri: string, elementname?: string): Promise<GstElement> {
-    const url = new URL(`/Gst/Element/make_from_uri`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/make_from_uri`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     url.searchParams.append('uri', String(uri));
     if (elementname !== undefined) url.searchParams.append('elementname', String(elementname));
@@ -1474,7 +1536,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async register(name: string, rank: number, type_: Pointer, plugin?: GstPlugin): Promise<boolean> {
-    const url = new URL(`/Gst/Element/register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/register`, apiConfig.baseUrl);
     if (plugin !== undefined) url.searchParams.append('plugin', String(plugin));
     url.searchParams.append('name', String(name));
     url.searchParams.append('rank', String(rank));
@@ -1485,7 +1547,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async state_change_return_get_name(state_ret: GstStateChangeReturn): Promise<string> {
-    const url = new URL(`/Gst/Element/state_change_return_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/state_change_return_get_name`, apiConfig.baseUrl);
     url.searchParams.append('state_ret', String(state_ret));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1493,7 +1555,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async state_get_name(state: GstState): Promise<string> {
-    const url = new URL(`/Gst/Element/state_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/state_get_name`, apiConfig.baseUrl);
     url.searchParams.append('state', String(state));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1501,18 +1563,18 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async type_set_skip_documentation(type_: Pointer): Promise<void> {
-    const url = new URL(`/Gst/Element/type_set_skip_documentation`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/type_set_skip_documentation`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async abort_state(): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/abort_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/abort_state`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async add_pad(pad: GstPad): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/add_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/add_pad`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1520,7 +1582,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async add_property_deep_notify_watch(include_value: boolean, property_name?: string): Promise<number> {
-    const url = new URL(`/Gst/Element/${this.ptr}/add_property_deep_notify_watch`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/add_property_deep_notify_watch`, apiConfig.baseUrl);
     if (property_name !== undefined) url.searchParams.append('property_name', String(property_name));
     url.searchParams.append('include_value', String(include_value));
     const response = await fetch(url.toString());
@@ -1529,7 +1591,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async add_property_notify_watch(include_value: boolean, property_name?: string): Promise<number> {
-    const url = new URL(`/Gst/Element/${this.ptr}/add_property_notify_watch`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/add_property_notify_watch`, apiConfig.baseUrl);
     if (property_name !== undefined) url.searchParams.append('property_name', String(property_name));
     url.searchParams.append('include_value', String(include_value));
     const response = await fetch(url.toString());
@@ -1538,7 +1600,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async call_async(func: (element: GstElement, user_data: Pointer) => void): Promise<{ func?: number }> {
-    const url = new URL(`/Gst/Element/${this.ptr}/call_async`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/call_async`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -1549,7 +1611,7 @@ export class GstElement extends GObjectObject {
     return data;
   }
   async change_state(transition: GstStateChangeValue): Promise<GstStateChangeReturn> {
-    const url = new URL(`/Gst/Element/${this.ptr}/change_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/change_state`, apiConfig.baseUrl);
     url.searchParams.append('transition', String(transition));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1557,7 +1619,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async continue_state(ret: GstStateChangeReturn): Promise<GstStateChangeReturn> {
-    const url = new URL(`/Gst/Element/${this.ptr}/continue_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/continue_state`, apiConfig.baseUrl);
     url.searchParams.append('ret', String(ret));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1565,12 +1627,12 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async create_all_pads(): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/create_all_pads`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/create_all_pads`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async decorate_stream_id(stream_id: string): Promise<string> {
-    const url = new URL(`/Gst/Element/${this.ptr}/decorate_stream_id`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/decorate_stream_id`, apiConfig.baseUrl);
     url.searchParams.append('stream_id', String(stream_id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1578,7 +1640,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async foreach_pad(func: (element: GstElement, pad: GstPad, user_data: Pointer) => boolean): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/foreach_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/foreach_pad`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -1589,7 +1651,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async foreach_sink_pad(func: (element: GstElement, pad: GstPad, user_data: Pointer) => boolean): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/foreach_sink_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/foreach_sink_pad`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -1600,7 +1662,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async foreach_src_pad(func: (element: GstElement, pad: GstPad, user_data: Pointer) => boolean): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/foreach_src_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/foreach_src_pad`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -1611,28 +1673,28 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async get_base_time(): Promise<number> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_base_time`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_base_time`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_bus(): Promise<GstBus> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_bus`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_bus`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_clock(): Promise<GstClock> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_clock`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_clock`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_compatible_pad(pad: GstPad, caps?: GstCaps): Promise<GstPad> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_compatible_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_compatible_pad`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     if (caps !== undefined) url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
@@ -1641,7 +1703,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async get_compatible_pad_template(compattempl: GstPadTemplate): Promise<GstPadTemplate> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_compatible_pad_template`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_compatible_pad_template`, apiConfig.baseUrl);
     url.searchParams.append('compattempl', String(compattempl));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1649,7 +1711,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async get_context(context_type: string): Promise<GstContext> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_context`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_context`, apiConfig.baseUrl);
     url.searchParams.append('context_type', String(context_type));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1657,7 +1719,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async get_context_unlocked(context_type: string): Promise<GstContext> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_context_unlocked`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_context_unlocked`, apiConfig.baseUrl);
     url.searchParams.append('context_type', String(context_type));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1665,35 +1727,35 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async get_contexts(): Promise<Pointer> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_contexts`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_contexts`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_current_clock_time(): Promise<number> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_current_clock_time`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_current_clock_time`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_current_running_time(): Promise<number> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_current_running_time`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_current_running_time`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_factory(): Promise<GstElementFactory> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_factory`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_factory`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_metadata(key: string): Promise<string> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_metadata`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_metadata`, apiConfig.baseUrl);
     url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1701,7 +1763,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async get_pad_template(name: string): Promise<GstPadTemplate> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_pad_template`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_pad_template`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1709,14 +1771,14 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async get_pad_template_list(): Promise<Pointer> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_pad_template_list`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_pad_template_list`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_request_pad(name: string): Promise<GstPad> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_request_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_request_pad`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1724,14 +1786,14 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async get_start_time(): Promise<number> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_start_time`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_start_time`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_state(timeout: number): Promise<GstStateChangeReturn> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_state`, apiConfig.baseUrl);
     url.searchParams.append('timeout', String(timeout));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1739,7 +1801,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async get_static_pad(name: string): Promise<GstPad> {
-    const url = new URL(`/Gst/Element/${this.ptr}/get_static_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/get_static_pad`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1747,35 +1809,35 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async is_locked_state(): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/is_locked_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/is_locked_state`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async iterate_pads(): Promise<GstIterator> {
-    const url = new URL(`/Gst/Element/${this.ptr}/iterate_pads`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/iterate_pads`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async iterate_sink_pads(): Promise<GstIterator> {
-    const url = new URL(`/Gst/Element/${this.ptr}/iterate_sink_pads`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/iterate_sink_pads`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async iterate_src_pads(): Promise<GstIterator> {
-    const url = new URL(`/Gst/Element/${this.ptr}/iterate_src_pads`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/iterate_src_pads`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async link(dest: GstElement): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/link`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/link`, apiConfig.baseUrl);
     url.searchParams.append('dest', String(dest));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1783,7 +1845,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async link_filtered(dest: GstElement, filter?: GstCaps): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/link_filtered`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/link_filtered`, apiConfig.baseUrl);
     url.searchParams.append('dest', String(dest));
     if (filter !== undefined) url.searchParams.append('filter', String(filter));
     const response = await fetch(url.toString());
@@ -1792,7 +1854,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async link_pads(dest: GstElement, srcpadname?: string, destpadname?: string): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/link_pads`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/link_pads`, apiConfig.baseUrl);
     if (srcpadname !== undefined) url.searchParams.append('srcpadname', String(srcpadname));
     url.searchParams.append('dest', String(dest));
     if (destpadname !== undefined) url.searchParams.append('destpadname', String(destpadname));
@@ -1802,7 +1864,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async link_pads_filtered(dest: GstElement, srcpadname?: string, destpadname?: string, filter?: GstCaps): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/link_pads_filtered`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/link_pads_filtered`, apiConfig.baseUrl);
     if (srcpadname !== undefined) url.searchParams.append('srcpadname', String(srcpadname));
     url.searchParams.append('dest', String(dest));
     if (destpadname !== undefined) url.searchParams.append('destpadname', String(destpadname));
@@ -1813,7 +1875,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async link_pads_full(dest: GstElement, flags: GstPadLinkCheck, srcpadname?: string, destpadname?: string): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/link_pads_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/link_pads_full`, apiConfig.baseUrl);
     if (srcpadname !== undefined) url.searchParams.append('srcpadname', String(srcpadname));
     url.searchParams.append('dest', String(dest));
     if (destpadname !== undefined) url.searchParams.append('destpadname', String(destpadname));
@@ -1824,12 +1886,12 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async lost_state(): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/lost_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/lost_state`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async message_full(type_: GstMessageTypeValue, domain: number, code: number, file: string, function_: string, line: number, text?: string, debug?: string): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/message_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/message_full`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     url.searchParams.append('domain', String(domain));
     url.searchParams.append('code', String(code));
@@ -1842,7 +1904,7 @@ export class GstElement extends GObjectObject {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async message_full_with_details(type_: GstMessageTypeValue, domain: number, code: number, file: string, function_: string, line: number, structure: GstStructure, text?: string, debug?: string): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/message_full_with_details`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/message_full_with_details`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     url.searchParams.append('domain', String(domain));
     url.searchParams.append('code', String(code));
@@ -1856,12 +1918,12 @@ export class GstElement extends GObjectObject {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async no_more_pads(): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/no_more_pads`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/no_more_pads`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async post_message(message: GstMessage): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/post_message`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/post_message`, apiConfig.baseUrl);
     url.searchParams.append('message', String(message));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1869,14 +1931,14 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async provide_clock(): Promise<GstClock> {
-    const url = new URL(`/Gst/Element/${this.ptr}/provide_clock`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/provide_clock`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async query(query: GstQuery): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/query`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/query`, apiConfig.baseUrl);
     url.searchParams.append('query', String(query));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1884,7 +1946,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async query_convert(src_format: GstFormatValue, src_val: number, dest_format: GstFormatValue): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/query_convert`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/query_convert`, apiConfig.baseUrl);
     url.searchParams.append('src_format', String(src_format));
     url.searchParams.append('src_val', String(src_val));
     url.searchParams.append('dest_format', String(dest_format));
@@ -1894,7 +1956,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async query_duration(format: GstFormatValue): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/query_duration`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/query_duration`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1902,7 +1964,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async query_position(format: GstFormatValue): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/query_position`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/query_position`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1910,13 +1972,13 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async release_request_pad(pad: GstPad): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/release_request_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/release_request_pad`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async remove_pad(pad: GstPad): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/remove_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/remove_pad`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1924,13 +1986,13 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async remove_property_notify_watch(watch_id: number): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/remove_property_notify_watch`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/remove_property_notify_watch`, apiConfig.baseUrl);
     url.searchParams.append('watch_id', String(watch_id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async request_pad(templ: GstPadTemplate, name?: string, caps?: GstCaps): Promise<GstPad> {
-    const url = new URL(`/Gst/Element/${this.ptr}/request_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/request_pad`, apiConfig.baseUrl);
     url.searchParams.append('templ', String(templ));
     if (name !== undefined) url.searchParams.append('name', String(name));
     if (caps !== undefined) url.searchParams.append('caps', String(caps));
@@ -1940,7 +2002,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async request_pad_simple(name: string): Promise<GstPad> {
-    const url = new URL(`/Gst/Element/${this.ptr}/request_pad_simple`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/request_pad_simple`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1948,7 +2010,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async seek(rate: number, format: GstFormatValue, flags: GstSeekFlags, start_type: GstSeekType, start: number, stop_type: GstSeekType, stop: number): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/seek`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/seek`, apiConfig.baseUrl);
     url.searchParams.append('rate', String(rate));
     url.searchParams.append('format', String(format));
     url.searchParams.append('flags', String(flags));
@@ -1962,7 +2024,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async seek_simple(format: GstFormatValue, seek_flags: GstSeekFlags, seek_pos: number): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/seek_simple`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/seek_simple`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     url.searchParams.append('seek_flags', String(seek_flags));
     url.searchParams.append('seek_pos', String(seek_pos));
@@ -1972,7 +2034,7 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async send_event(event: GstEvent): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/send_event`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/send_event`, apiConfig.baseUrl);
     url.searchParams.append('event', String(event));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1980,19 +2042,19 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async set_base_time(time: number): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/set_base_time`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/set_base_time`, apiConfig.baseUrl);
     url.searchParams.append('time', String(time));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_bus(bus?: GstBus): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/set_bus`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/set_bus`, apiConfig.baseUrl);
     if (bus !== undefined) url.searchParams.append('bus', String(bus));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_clock(clock?: GstClock): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/set_clock`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/set_clock`, apiConfig.baseUrl);
     if (clock !== undefined) url.searchParams.append('clock', String(clock));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2000,13 +2062,13 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async set_context(context: GstContext): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/set_context`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/set_context`, apiConfig.baseUrl);
     url.searchParams.append('context', String(context));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_locked_state(locked_state: boolean): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/set_locked_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/set_locked_state`, apiConfig.baseUrl);
     url.searchParams.append('locked_state', String(locked_state));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2014,13 +2076,13 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async set_start_time(time: number): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/set_start_time`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/set_start_time`, apiConfig.baseUrl);
     url.searchParams.append('time', String(time));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_state(state: GstState): Promise<GstStateChangeReturn> {
-    const url = new URL(`/Gst/Element/${this.ptr}/set_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/set_state`, apiConfig.baseUrl);
     url.searchParams.append('state', String(state));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2028,20 +2090,20 @@ export class GstElement extends GObjectObject {
     return data.return;
   }
   async sync_state_with_parent(): Promise<boolean> {
-    const url = new URL(`/Gst/Element/${this.ptr}/sync_state_with_parent`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/sync_state_with_parent`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async unlink(dest: GstElement): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/unlink`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/unlink`, apiConfig.baseUrl);
     url.searchParams.append('dest', String(dest));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async unlink_pads(srcpadname: string, dest: GstElement, destpadname: string): Promise<void> {
-    const url = new URL(`/Gst/Element/${this.ptr}/unlink_pads`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Element/${this.ptr}/unlink_pads`, apiConfig.baseUrl);
     url.searchParams.append('srcpadname', String(srcpadname));
     url.searchParams.append('dest', String(dest));
     url.searchParams.append('destpadname', String(destpadname));
@@ -2053,13 +2115,13 @@ export class GstElement extends GObjectObject {
 export class GstPlugin extends GObjectObject {
 
   async list_free(list: Pointer): Promise<void> {
-    const url = new URL(`/Gst/Plugin/list_free`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/list_free`, apiConfig.baseUrl);
     url.searchParams.append('list', String(list));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async load_by_name(name: string): Promise<GstPlugin> {
-    const url = new URL(`/Gst/Plugin/load_by_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/load_by_name`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2067,7 +2129,7 @@ export class GstPlugin extends GObjectObject {
     return data.return;
   }
   async load_file(filename: Pointer): Promise<GstPlugin> {
-    const url = new URL(`/Gst/Plugin/load_file`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/load_file`, apiConfig.baseUrl);
     url.searchParams.append('filename', String(filename));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2075,7 +2137,7 @@ export class GstPlugin extends GObjectObject {
     return data.return;
   }
   async register_static(major_version: number, minor_version: number, name: string, description: string, version: string, license: string, source: string, package_: string, origin: string, init_func: (plugin: GstPlugin) => boolean): Promise<boolean> {
-    const url = new URL(`/Gst/Plugin/register_static`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/register_static`, apiConfig.baseUrl);
     url.searchParams.append('major_version', String(major_version));
     url.searchParams.append('minor_version', String(minor_version));
     url.searchParams.append('name', String(name));
@@ -2095,7 +2157,7 @@ export class GstPlugin extends GObjectObject {
     return data.return;
   }
   async register_static_full(major_version: number, minor_version: number, name: string, description: string, version: string, license: string, source: string, package_: string, origin: string, init_full_func: (plugin: GstPlugin, user_data: Pointer) => boolean): Promise<boolean> {
-    const url = new URL(`/Gst/Plugin/register_static_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/register_static_full`, apiConfig.baseUrl);
     url.searchParams.append('major_version', String(major_version));
     url.searchParams.append('minor_version', String(minor_version));
     url.searchParams.append('name', String(name));
@@ -2115,7 +2177,7 @@ export class GstPlugin extends GObjectObject {
     return data.return;
   }
   async add_dependency(flags: GstPluginDependencyFlags, env_vars?: Pointer, paths?: Pointer, names?: Pointer): Promise<void> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/add_dependency`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/add_dependency`, apiConfig.baseUrl);
     if (env_vars !== undefined) url.searchParams.append('env_vars', String(env_vars));
     if (paths !== undefined) url.searchParams.append('paths', String(paths));
     if (names !== undefined) url.searchParams.append('names', String(names));
@@ -2124,7 +2186,7 @@ export class GstPlugin extends GObjectObject {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async add_dependency_simple(flags: GstPluginDependencyFlags, env_vars?: string, paths?: string, names?: string): Promise<void> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/add_dependency_simple`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/add_dependency_simple`, apiConfig.baseUrl);
     if (env_vars !== undefined) url.searchParams.append('env_vars', String(env_vars));
     if (paths !== undefined) url.searchParams.append('paths', String(paths));
     if (names !== undefined) url.searchParams.append('names', String(names));
@@ -2133,130 +2195,130 @@ export class GstPlugin extends GObjectObject {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async add_status_error(message: string): Promise<void> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/add_status_error`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/add_status_error`, apiConfig.baseUrl);
     url.searchParams.append('message', String(message));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async add_status_info(message: string): Promise<void> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/add_status_info`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/add_status_info`, apiConfig.baseUrl);
     url.searchParams.append('message', String(message));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async add_status_warning(message: string): Promise<void> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/add_status_warning`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/add_status_warning`, apiConfig.baseUrl);
     url.searchParams.append('message', String(message));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_cache_data(): Promise<GstStructure> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_cache_data`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_cache_data`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_description(): Promise<string> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_description`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_description`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_filename(): Promise<Pointer> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_filename`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_filename`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_license(): Promise<string> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_license`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_license`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_name(): Promise<string> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_name`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_origin(): Promise<string> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_origin`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_origin`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_package(): Promise<string> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_package`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_package`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_release_date_string(): Promise<string> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_release_date_string`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_release_date_string`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_source(): Promise<string> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_source`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_source`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_status_errors(): Promise<Pointer> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_status_errors`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_status_errors`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_status_infos(): Promise<Pointer> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_status_infos`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_status_infos`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_status_warnings(): Promise<Pointer> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_status_warnings`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_status_warnings`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_version(): Promise<string> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/get_version`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/get_version`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async is_loaded(): Promise<boolean> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/is_loaded`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/is_loaded`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async load(): Promise<GstPlugin> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/load`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/load`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_cache_data(cache_data: GstStructure): Promise<void> {
-    const url = new URL(`/Gst/Plugin/${this.ptr}/set_cache_data`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Plugin/${this.ptr}/set_cache_data`, apiConfig.baseUrl);
     url.searchParams.append('cache_data', String(cache_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2265,7 +2327,7 @@ export class GstPlugin extends GObjectObject {
 
 export class GstPadTemplate extends GObjectObject {
   static async new(name_template: string, direction: GstPadDirection, presence: GstPadPresence, caps: GstCaps): Promise<GstPadTemplate> {
-    const url = new URL(`/Gst/PadTemplate/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PadTemplate/new`, apiConfig.baseUrl);
     url.searchParams.append('name_template', String(name_template));
     url.searchParams.append('direction', String(direction));
     url.searchParams.append('presence', String(presence));
@@ -2278,7 +2340,7 @@ export class GstPadTemplate extends GObjectObject {
     return instance;
   }
   static async new_from_static_pad_template_with_gtype(pad_template: GstStaticPadTemplate, pad_type: Pointer): Promise<GstPadTemplate> {
-    const url = new URL(`/Gst/PadTemplate/new_from_static_pad_template_with_gtype`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PadTemplate/new_from_static_pad_template_with_gtype`, apiConfig.baseUrl);
     url.searchParams.append('pad_template', String(pad_template));
     url.searchParams.append('pad_type', String(pad_type));
     const response = await fetch(url.toString());
@@ -2289,7 +2351,7 @@ export class GstPadTemplate extends GObjectObject {
     return instance;
   }
   static async new_with_gtype(name_template: string, direction: GstPadDirection, presence: GstPadPresence, caps: GstCaps, pad_type: Pointer): Promise<GstPadTemplate> {
-    const url = new URL(`/Gst/PadTemplate/new_with_gtype`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PadTemplate/new_with_gtype`, apiConfig.baseUrl);
     url.searchParams.append('name_template', String(name_template));
     url.searchParams.append('direction', String(direction));
     url.searchParams.append('presence', String(presence));
@@ -2304,27 +2366,27 @@ export class GstPadTemplate extends GObjectObject {
   }
 
   async get_caps(): Promise<GstCaps> {
-    const url = new URL(`/Gst/PadTemplate/${this.ptr}/get_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PadTemplate/${this.ptr}/get_caps`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_documentation_caps(): Promise<GstCaps> {
-    const url = new URL(`/Gst/PadTemplate/${this.ptr}/get_documentation_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PadTemplate/${this.ptr}/get_documentation_caps`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async pad_created(pad: GstPad): Promise<void> {
-    const url = new URL(`/Gst/PadTemplate/${this.ptr}/pad_created`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PadTemplate/${this.ptr}/pad_created`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_documentation_caps(caps: GstCaps): Promise<void> {
-    const url = new URL(`/Gst/PadTemplate/${this.ptr}/set_documentation_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PadTemplate/${this.ptr}/set_documentation_caps`, apiConfig.baseUrl);
     url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2333,7 +2395,7 @@ export class GstPadTemplate extends GObjectObject {
 
 export class GstPad extends GObjectObject {
   static async new(direction: GstPadDirection, name?: string): Promise<GstPad> {
-    const url = new URL(`/Gst/Pad/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/new`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     url.searchParams.append('direction', String(direction));
     const response = await fetch(url.toString());
@@ -2344,7 +2406,7 @@ export class GstPad extends GObjectObject {
     return instance;
   }
   static async new_from_static_template(templ: GstStaticPadTemplate, name: string): Promise<GstPad> {
-    const url = new URL(`/Gst/Pad/new_from_static_template`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/new_from_static_template`, apiConfig.baseUrl);
     url.searchParams.append('templ', String(templ));
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
@@ -2355,7 +2417,7 @@ export class GstPad extends GObjectObject {
     return instance;
   }
   static async new_from_template(templ: GstPadTemplate, name?: string): Promise<GstPad> {
-    const url = new URL(`/Gst/Pad/new_from_template`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/new_from_template`, apiConfig.baseUrl);
     url.searchParams.append('templ', String(templ));
     if (name !== undefined) url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
@@ -2367,7 +2429,7 @@ export class GstPad extends GObjectObject {
   }
 
   async link_get_name(ret: GstPadLinkReturn): Promise<string> {
-    const url = new URL(`/Gst/Pad/link_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/link_get_name`, apiConfig.baseUrl);
     url.searchParams.append('ret', String(ret));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2375,7 +2437,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async activate_mode(mode: GstPadModeValue, active: boolean): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/activate_mode`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/activate_mode`, apiConfig.baseUrl);
     url.searchParams.append('mode', String(mode));
     url.searchParams.append('active', String(active));
     const response = await fetch(url.toString());
@@ -2384,7 +2446,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async add_probe(mask: GstPadProbeType, callback: (pad: GstPad, info: GstPadProbeInfo, user_data: Pointer) => GstPadProbeReturn): Promise<number> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/add_probe`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/add_probe`, apiConfig.baseUrl);
     url.searchParams.append('mask', String(mask));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2396,7 +2458,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async can_link(sinkpad: GstPad): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/can_link`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/can_link`, apiConfig.baseUrl);
     url.searchParams.append('sinkpad', String(sinkpad));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2404,7 +2466,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async chain(buffer: GstBuffer): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/chain`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/chain`, apiConfig.baseUrl);
     url.searchParams.append('buffer', String(buffer));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2412,7 +2474,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async chain_list(list: GstBufferList): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/chain_list`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/chain_list`, apiConfig.baseUrl);
     url.searchParams.append('list', String(list));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2420,14 +2482,14 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async check_reconfigure(): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/check_reconfigure`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/check_reconfigure`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async create_stream_id(parent: GstElement, stream_id?: string): Promise<string> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/create_stream_id`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/create_stream_id`, apiConfig.baseUrl);
     url.searchParams.append('parent', String(parent));
     if (stream_id !== undefined) url.searchParams.append('stream_id', String(stream_id));
     const response = await fetch(url.toString());
@@ -2436,7 +2498,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async event_default(event: GstEvent, parent?: GstObject): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/event_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/event_default`, apiConfig.baseUrl);
     if (parent !== undefined) url.searchParams.append('parent', String(parent));
     url.searchParams.append('event', String(event));
     const response = await fetch(url.toString());
@@ -2445,7 +2507,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async forward(forward: (pad: GstPad, user_data: Pointer) => boolean): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/forward`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/forward`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2456,75 +2518,75 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async get_allowed_caps(): Promise<GstCaps> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_allowed_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_allowed_caps`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_current_caps(): Promise<GstCaps> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_current_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_current_caps`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_direction(): Promise<GstPadDirection> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_direction`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_direction`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_element_private(): Promise<void> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_element_private`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_element_private`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_last_flow_return(): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_last_flow_return`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_last_flow_return`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_offset(): Promise<number> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_offset`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_offset`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_pad_template(): Promise<GstPadTemplate> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_pad_template`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_pad_template`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_pad_template_caps(): Promise<GstCaps> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_pad_template_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_pad_template_caps`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_parent_element(): Promise<GstElement> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_parent_element`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_parent_element`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_peer(): Promise<GstPad> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_peer`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_peer`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_range(offset: number, size: number): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_range`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_range`, apiConfig.baseUrl);
     url.searchParams.append('offset', String(offset));
     url.searchParams.append('size', String(size));
     const response = await fetch(url.toString());
@@ -2533,14 +2595,14 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async get_single_internal_link(): Promise<GstPad> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_single_internal_link`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_single_internal_link`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_sticky_event(event_type: GstEventTypeValue, idx: number): Promise<GstEvent> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_sticky_event`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_sticky_event`, apiConfig.baseUrl);
     url.searchParams.append('event_type', String(event_type));
     url.searchParams.append('idx', String(idx));
     const response = await fetch(url.toString());
@@ -2549,70 +2611,70 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async get_stream(): Promise<GstStream> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_stream`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_stream`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_stream_id(): Promise<string> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_stream_id`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_stream_id`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_task_state(): Promise<GstTaskState> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/get_task_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/get_task_state`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async has_current_caps(): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/has_current_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/has_current_caps`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async is_active(): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/is_active`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/is_active`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async is_blocked(): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/is_blocked`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/is_blocked`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async is_blocking(): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/is_blocking`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/is_blocking`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async is_linked(): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/is_linked`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/is_linked`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async iterate_internal_links(): Promise<GstIterator> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/iterate_internal_links`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/iterate_internal_links`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async iterate_internal_links_default(parent?: GstObject): Promise<GstIterator> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/iterate_internal_links_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/iterate_internal_links_default`, apiConfig.baseUrl);
     if (parent !== undefined) url.searchParams.append('parent', String(parent));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2620,7 +2682,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async link(sinkpad: GstPad): Promise<GstPadLinkReturn> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/link`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/link`, apiConfig.baseUrl);
     url.searchParams.append('sinkpad', String(sinkpad));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2628,7 +2690,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async link_full(sinkpad: GstPad, flags: GstPadLinkCheck): Promise<GstPadLinkReturn> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/link_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/link_full`, apiConfig.baseUrl);
     url.searchParams.append('sinkpad', String(sinkpad));
     url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
@@ -2637,7 +2699,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async link_maybe_ghosting(sink: GstPad): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/link_maybe_ghosting`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/link_maybe_ghosting`, apiConfig.baseUrl);
     url.searchParams.append('sink', String(sink));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2645,7 +2707,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async link_maybe_ghosting_full(sink: GstPad, flags: GstPadLinkCheck): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/link_maybe_ghosting_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/link_maybe_ghosting_full`, apiConfig.baseUrl);
     url.searchParams.append('sink', String(sink));
     url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
@@ -2654,26 +2716,26 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async mark_reconfigure(): Promise<void> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/mark_reconfigure`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/mark_reconfigure`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async needs_reconfigure(): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/needs_reconfigure`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/needs_reconfigure`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async pause_task(): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/pause_task`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/pause_task`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async peer_query(query: GstQuery): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query`, apiConfig.baseUrl);
     url.searchParams.append('query', String(query));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2681,7 +2743,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async peer_query_accept_caps(caps: GstCaps): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query_accept_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query_accept_caps`, apiConfig.baseUrl);
     url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2689,7 +2751,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async peer_query_caps(filter?: GstCaps): Promise<GstCaps> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query_caps`, apiConfig.baseUrl);
     if (filter !== undefined) url.searchParams.append('filter', String(filter));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2697,7 +2759,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async peer_query_convert(src_format: GstFormatValue, src_val: number, dest_format: GstFormatValue): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query_convert`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query_convert`, apiConfig.baseUrl);
     url.searchParams.append('src_format', String(src_format));
     url.searchParams.append('src_val', String(src_val));
     url.searchParams.append('dest_format', String(dest_format));
@@ -2707,7 +2769,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async peer_query_duration(format: GstFormatValue): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query_duration`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query_duration`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2715,7 +2777,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async peer_query_position(format: GstFormatValue): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query_position`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/peer_query_position`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2723,7 +2785,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async proxy_query_accept_caps(query: GstQuery): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/proxy_query_accept_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/proxy_query_accept_caps`, apiConfig.baseUrl);
     url.searchParams.append('query', String(query));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2731,7 +2793,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async proxy_query_caps(query: GstQuery): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/proxy_query_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/proxy_query_caps`, apiConfig.baseUrl);
     url.searchParams.append('query', String(query));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2739,7 +2801,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async pull_range(offset: number, size: number): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/pull_range`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/pull_range`, apiConfig.baseUrl);
     url.searchParams.append('offset', String(offset));
     url.searchParams.append('size', String(size));
     const response = await fetch(url.toString());
@@ -2748,7 +2810,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async push(buffer: GstBuffer): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/push`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/push`, apiConfig.baseUrl);
     url.searchParams.append('buffer', String(buffer));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2756,7 +2818,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async push_event(event: GstEvent): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/push_event`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/push_event`, apiConfig.baseUrl);
     url.searchParams.append('event', String(event));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2764,7 +2826,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async push_list(list: GstBufferList): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/push_list`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/push_list`, apiConfig.baseUrl);
     url.searchParams.append('list', String(list));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2772,7 +2834,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async query(query: GstQuery): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/query`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/query`, apiConfig.baseUrl);
     url.searchParams.append('query', String(query));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2780,7 +2842,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async query_accept_caps(caps: GstCaps): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/query_accept_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/query_accept_caps`, apiConfig.baseUrl);
     url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2788,7 +2850,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async query_caps(filter?: GstCaps): Promise<GstCaps> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/query_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/query_caps`, apiConfig.baseUrl);
     if (filter !== undefined) url.searchParams.append('filter', String(filter));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2796,7 +2858,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async query_convert(src_format: GstFormatValue, src_val: number, dest_format: GstFormatValue): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/query_convert`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/query_convert`, apiConfig.baseUrl);
     url.searchParams.append('src_format', String(src_format));
     url.searchParams.append('src_val', String(src_val));
     url.searchParams.append('dest_format', String(dest_format));
@@ -2806,7 +2868,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async query_default(query: GstQuery, parent?: GstObject): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/query_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/query_default`, apiConfig.baseUrl);
     if (parent !== undefined) url.searchParams.append('parent', String(parent));
     url.searchParams.append('query', String(query));
     const response = await fetch(url.toString());
@@ -2815,7 +2877,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async query_duration(format: GstFormatValue): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/query_duration`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/query_duration`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2823,7 +2885,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async query_position(format: GstFormatValue): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/query_position`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/query_position`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2831,13 +2893,13 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async remove_probe(id: number): Promise<void> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/remove_probe`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/remove_probe`, apiConfig.baseUrl);
     url.searchParams.append('id', String(id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async send_event(event: GstEvent): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/send_event`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/send_event`, apiConfig.baseUrl);
     url.searchParams.append('event', String(event));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2845,7 +2907,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async set_activate_function_full(activate: (pad: GstPad, parent: GstObject) => boolean): Promise<{ activate?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_activate_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_activate_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2856,7 +2918,7 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async set_activatemode_function_full(activatemode: (pad: GstPad, parent: GstObject, mode: GstPadModeValue, active: boolean) => boolean): Promise<{ activatemode?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_activatemode_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_activatemode_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2867,7 +2929,7 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async set_active(active: boolean): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_active`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_active`, apiConfig.baseUrl);
     url.searchParams.append('active', String(active));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2875,7 +2937,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async set_chain_function_full(chain: (pad: GstPad, parent: GstObject, buffer: GstBuffer) => GstFlowReturn): Promise<{ chain?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_chain_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_chain_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2886,7 +2948,7 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async set_chain_list_function_full(chainlist: (pad: GstPad, parent: GstObject, list: GstBufferList) => GstFlowReturn): Promise<{ chainlist?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_chain_list_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_chain_list_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2897,12 +2959,12 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async set_element_private(): Promise<void> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_element_private`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_element_private`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_event_full_function_full(event: (pad: GstPad, parent: GstObject, event: GstEvent) => GstFlowReturn): Promise<{ event?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_event_full_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_event_full_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2913,7 +2975,7 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async set_event_function_full(event: (pad: GstPad, parent: GstObject, event: GstEvent) => boolean): Promise<{ event?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_event_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_event_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2924,7 +2986,7 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async set_getrange_function_full(get: (pad: GstPad, parent: GstObject, offset: number, length: number, buffer: GstBuffer) => GstFlowReturn): Promise<{ get?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_getrange_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_getrange_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2935,7 +2997,7 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async set_iterate_internal_links_function_full(iterintlink: (pad: GstPad, parent: GstObject) => GstIterator): Promise<{ iterintlink?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_iterate_internal_links_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_iterate_internal_links_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2946,7 +3008,7 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async set_link_function_full(link: (pad: GstPad, parent: GstObject, peer: GstPad) => GstPadLinkReturn): Promise<{ link?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_link_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_link_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2957,13 +3019,13 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async set_offset(offset: number): Promise<void> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_offset`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_offset`, apiConfig.baseUrl);
     url.searchParams.append('offset', String(offset));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_query_function_full(query: (pad: GstPad, parent: GstObject, query: GstQuery) => boolean): Promise<{ query?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_query_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_query_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2974,7 +3036,7 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async set_unlink_function_full(unlink: (pad: GstPad, parent: GstObject) => void): Promise<{ unlink?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/set_unlink_function_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/set_unlink_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2985,7 +3047,7 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async start_task(func: (user_data: Pointer) => void): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/start_task`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/start_task`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2996,7 +3058,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async sticky_events_foreach(foreach_func: (pad: GstPad, event: GstEvent, user_data: Pointer) => boolean): Promise<{ foreach_func?: number }> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/sticky_events_foreach`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/sticky_events_foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -3007,14 +3069,14 @@ export class GstPad extends GObjectObject {
     return data;
   }
   async stop_task(): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/stop_task`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/stop_task`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async store_sticky_event(event: GstEvent): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/store_sticky_event`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/store_sticky_event`, apiConfig.baseUrl);
     url.searchParams.append('event', String(event));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3022,7 +3084,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async unlink(sinkpad: GstPad): Promise<boolean> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/unlink`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/unlink`, apiConfig.baseUrl);
     url.searchParams.append('sinkpad', String(sinkpad));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3030,7 +3092,7 @@ export class GstPad extends GObjectObject {
     return data.return;
   }
   async use_fixed_caps(): Promise<void> {
-    const url = new URL(`/Gst/Pad/${this.ptr}/use_fixed_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pad/${this.ptr}/use_fixed_caps`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -3038,7 +3100,7 @@ export class GstPad extends GObjectObject {
 
 export class GstStream extends GObjectObject {
   static async new(type_: GstStreamTypeValue, flags: GstStreamFlags, stream_id?: string, caps?: GstCaps): Promise<GstStream> {
-    const url = new URL(`/Gst/Stream/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Stream/new`, apiConfig.baseUrl);
     if (stream_id !== undefined) url.searchParams.append('stream_id', String(stream_id));
     if (caps !== undefined) url.searchParams.append('caps', String(caps));
     url.searchParams.append('type', String(type_));
@@ -3052,60 +3114,60 @@ export class GstStream extends GObjectObject {
   }
 
   async get_caps(): Promise<GstCaps> {
-    const url = new URL(`/Gst/Stream/${this.ptr}/get_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Stream/${this.ptr}/get_caps`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_stream_flags(): Promise<GstStreamFlags> {
-    const url = new URL(`/Gst/Stream/${this.ptr}/get_stream_flags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Stream/${this.ptr}/get_stream_flags`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_stream_id(): Promise<string> {
-    const url = new URL(`/Gst/Stream/${this.ptr}/get_stream_id`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Stream/${this.ptr}/get_stream_id`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_stream_type(): Promise<GstStreamTypeValue> {
-    const url = new URL(`/Gst/Stream/${this.ptr}/get_stream_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Stream/${this.ptr}/get_stream_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_tags(): Promise<GstTagList> {
-    const url = new URL(`/Gst/Stream/${this.ptr}/get_tags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Stream/${this.ptr}/get_tags`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_caps(caps?: GstCaps): Promise<void> {
-    const url = new URL(`/Gst/Stream/${this.ptr}/set_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Stream/${this.ptr}/set_caps`, apiConfig.baseUrl);
     if (caps !== undefined) url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_stream_flags(flags: GstStreamFlags): Promise<void> {
-    const url = new URL(`/Gst/Stream/${this.ptr}/set_stream_flags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Stream/${this.ptr}/set_stream_flags`, apiConfig.baseUrl);
     url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_stream_type(stream_type: GstStreamTypeValue): Promise<void> {
-    const url = new URL(`/Gst/Stream/${this.ptr}/set_stream_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Stream/${this.ptr}/set_stream_type`, apiConfig.baseUrl);
     url.searchParams.append('stream_type', String(stream_type));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_tags(tags?: GstTagList): Promise<void> {
-    const url = new URL(`/Gst/Stream/${this.ptr}/set_tags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Stream/${this.ptr}/set_tags`, apiConfig.baseUrl);
     if (tags !== undefined) url.searchParams.append('tags', String(tags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3114,7 +3176,7 @@ export class GstStream extends GObjectObject {
 
 export class GstBus extends GObjectObject {
   static async new(): Promise<GstBus> {
-    const url = new URL(`/Gst/Bus/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -3124,18 +3186,18 @@ export class GstBus extends GObjectObject {
   }
 
   async add_signal_watch(): Promise<void> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/add_signal_watch`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/add_signal_watch`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async add_signal_watch_full(priority: number): Promise<void> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/add_signal_watch_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/add_signal_watch_full`, apiConfig.baseUrl);
     url.searchParams.append('priority', String(priority));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async add_watch(priority: number, func: (bus: GstBus, message: GstMessage, user_data: Pointer) => boolean): Promise<number> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/add_watch`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/add_watch`, apiConfig.baseUrl);
     url.searchParams.append('priority', String(priority));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3147,7 +3209,7 @@ export class GstBus extends GObjectObject {
     return data.return;
   }
   async async_signal_func(message: GstMessage): Promise<boolean> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/async_signal_func`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/async_signal_func`, apiConfig.baseUrl);
     url.searchParams.append('message', String(message));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3155,45 +3217,45 @@ export class GstBus extends GObjectObject {
     return data.return;
   }
   async create_watch(): Promise<GLibSource> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/create_watch`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/create_watch`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async disable_sync_message_emission(): Promise<void> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/disable_sync_message_emission`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/disable_sync_message_emission`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async enable_sync_message_emission(): Promise<void> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/enable_sync_message_emission`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/enable_sync_message_emission`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_pollfd(): Promise<{ fd?: GLibPollFD }> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/get_pollfd`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/get_pollfd`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
   async have_pending(): Promise<boolean> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/have_pending`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/have_pending`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async peek(): Promise<GstMessage> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/peek`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/peek`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async poll(events: GstMessageTypeValue, timeout: number): Promise<GstMessage> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/poll`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/poll`, apiConfig.baseUrl);
     url.searchParams.append('events', String(events));
     url.searchParams.append('timeout', String(timeout));
     const response = await fetch(url.toString());
@@ -3202,14 +3264,14 @@ export class GstBus extends GObjectObject {
     return data.return;
   }
   async pop(): Promise<GstMessage> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/pop`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/pop`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async pop_filtered(types: GstMessageTypeValue): Promise<GstMessage> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/pop_filtered`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/pop_filtered`, apiConfig.baseUrl);
     url.searchParams.append('types', String(types));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3217,7 +3279,7 @@ export class GstBus extends GObjectObject {
     return data.return;
   }
   async post(message: GstMessage): Promise<boolean> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/post`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/post`, apiConfig.baseUrl);
     url.searchParams.append('message', String(message));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3225,25 +3287,25 @@ export class GstBus extends GObjectObject {
     return data.return;
   }
   async remove_signal_watch(): Promise<void> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/remove_signal_watch`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/remove_signal_watch`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async remove_watch(): Promise<boolean> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/remove_watch`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/remove_watch`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_flushing(flushing: boolean): Promise<void> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/set_flushing`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/set_flushing`, apiConfig.baseUrl);
     url.searchParams.append('flushing', String(flushing));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_sync_handler(func: (bus: GstBus, message: GstMessage, user_data: Pointer) => GstBusSyncReply): Promise<{ func?: number }> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/set_sync_handler`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/set_sync_handler`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -3254,7 +3316,7 @@ export class GstBus extends GObjectObject {
     return data;
   }
   async sync_signal_handler(message: GstMessage): Promise<GstBusSyncReply> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/sync_signal_handler`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/sync_signal_handler`, apiConfig.baseUrl);
     url.searchParams.append('message', String(message));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3262,7 +3324,7 @@ export class GstBus extends GObjectObject {
     return data.return;
   }
   async timed_pop(timeout: number): Promise<GstMessage> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/timed_pop`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/timed_pop`, apiConfig.baseUrl);
     url.searchParams.append('timeout', String(timeout));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3270,7 +3332,7 @@ export class GstBus extends GObjectObject {
     return data.return;
   }
   async timed_pop_filtered(timeout: number, types: GstMessageTypeValue): Promise<GstMessage> {
-    const url = new URL(`/Gst/Bus/${this.ptr}/timed_pop_filtered`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bus/${this.ptr}/timed_pop_filtered`, apiConfig.baseUrl);
     url.searchParams.append('timeout', String(timeout));
     url.searchParams.append('types', String(types));
     const response = await fetch(url.toString());
@@ -3283,43 +3345,43 @@ export class GstBus extends GObjectObject {
 export class GstClock extends GObjectObject {
 
   async id_compare_func(): Promise<number> {
-    const url = new URL(`/Gst/Clock/id_compare_func`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/id_compare_func`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async id_get_clock(): Promise<GstClock> {
-    const url = new URL(`/Gst/Clock/id_get_clock`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/id_get_clock`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async id_get_time(): Promise<number> {
-    const url = new URL(`/Gst/Clock/id_get_time`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/id_get_time`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async id_ref(): Promise<void> {
-    const url = new URL(`/Gst/Clock/id_ref`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/id_ref`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async id_unref(): Promise<void> {
-    const url = new URL(`/Gst/Clock/id_unref`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/id_unref`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async id_unschedule(): Promise<void> {
-    const url = new URL(`/Gst/Clock/id_unschedule`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/id_unschedule`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async id_uses_clock(clock: GstClock): Promise<boolean> {
-    const url = new URL(`/Gst/Clock/id_uses_clock`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/id_uses_clock`, apiConfig.baseUrl);
     url.searchParams.append('clock', String(clock));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3327,14 +3389,14 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async id_wait(): Promise<GstClockReturn> {
-    const url = new URL(`/Gst/Clock/id_wait`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/id_wait`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async id_wait_async(func: (clock: GstClock, time: number, id: Pointer, user_data: Pointer) => boolean): Promise<GstClockReturn> {
-    const url = new URL(`/Gst/Clock/id_wait_async`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/id_wait_async`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -3345,7 +3407,7 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async add_observation(slave: number, master: number): Promise<boolean> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/add_observation`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/add_observation`, apiConfig.baseUrl);
     url.searchParams.append('slave', String(slave));
     url.searchParams.append('master', String(master));
     const response = await fetch(url.toString());
@@ -3354,7 +3416,7 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async add_observation_unapplied(slave: number, master: number): Promise<boolean> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/add_observation_unapplied`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/add_observation_unapplied`, apiConfig.baseUrl);
     url.searchParams.append('slave', String(slave));
     url.searchParams.append('master', String(master));
     const response = await fetch(url.toString());
@@ -3363,7 +3425,7 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async adjust_unlocked(internal: number): Promise<number> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/adjust_unlocked`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/adjust_unlocked`, apiConfig.baseUrl);
     url.searchParams.append('internal', String(internal));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3371,7 +3433,7 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async adjust_with_calibration(internal_target: number, cinternal: number, cexternal: number, cnum: number, cdenom: number): Promise<number> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/adjust_with_calibration`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/adjust_with_calibration`, apiConfig.baseUrl);
     url.searchParams.append('internal_target', String(internal_target));
     url.searchParams.append('cinternal', String(cinternal));
     url.searchParams.append('cexternal', String(cexternal));
@@ -3383,69 +3445,69 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async get_calibration(): Promise<{ internal?: number; external?: number; rate_num?: number; rate_denom?: number }> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/get_calibration`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/get_calibration`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
   async get_internal_time(): Promise<number> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/get_internal_time`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/get_internal_time`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_master(): Promise<GstClock> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/get_master`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/get_master`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_resolution(): Promise<number> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/get_resolution`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/get_resolution`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_time(): Promise<number> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/get_time`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/get_time`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_timeout(): Promise<number> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/get_timeout`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/get_timeout`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async is_synced(): Promise<boolean> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/is_synced`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/is_synced`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async new_periodic_id(start_time: number, interval: number): Promise<void> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/new_periodic_id`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/new_periodic_id`, apiConfig.baseUrl);
     url.searchParams.append('start_time', String(start_time));
     url.searchParams.append('interval', String(interval));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async new_single_shot_id(time: number): Promise<void> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/new_single_shot_id`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/new_single_shot_id`, apiConfig.baseUrl);
     url.searchParams.append('time', String(time));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async periodic_id_reinit(start_time: number, interval: number): Promise<boolean> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/periodic_id_reinit`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/periodic_id_reinit`, apiConfig.baseUrl);
     url.searchParams.append('start_time', String(start_time));
     url.searchParams.append('interval', String(interval));
     const response = await fetch(url.toString());
@@ -3454,7 +3516,7 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async set_calibration(internal: number, external: number, rate_num: number, rate_denom: number): Promise<void> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/set_calibration`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/set_calibration`, apiConfig.baseUrl);
     url.searchParams.append('internal', String(internal));
     url.searchParams.append('external', String(external));
     url.searchParams.append('rate_num', String(rate_num));
@@ -3463,7 +3525,7 @@ export class GstClock extends GObjectObject {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_master(master?: GstClock): Promise<boolean> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/set_master`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/set_master`, apiConfig.baseUrl);
     if (master !== undefined) url.searchParams.append('master', String(master));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3471,7 +3533,7 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async set_resolution(resolution: number): Promise<number> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/set_resolution`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/set_resolution`, apiConfig.baseUrl);
     url.searchParams.append('resolution', String(resolution));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3479,19 +3541,19 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async set_synced(synced: boolean): Promise<void> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/set_synced`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/set_synced`, apiConfig.baseUrl);
     url.searchParams.append('synced', String(synced));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_timeout(timeout: number): Promise<void> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/set_timeout`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/set_timeout`, apiConfig.baseUrl);
     url.searchParams.append('timeout', String(timeout));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async single_shot_id_reinit(time: number): Promise<boolean> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/single_shot_id_reinit`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/single_shot_id_reinit`, apiConfig.baseUrl);
     url.searchParams.append('time', String(time));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3499,7 +3561,7 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async unadjust_unlocked(external: number): Promise<number> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/unadjust_unlocked`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/unadjust_unlocked`, apiConfig.baseUrl);
     url.searchParams.append('external', String(external));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3507,7 +3569,7 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async unadjust_with_calibration(external_target: number, cinternal: number, cexternal: number, cnum: number, cdenom: number): Promise<number> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/unadjust_with_calibration`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/unadjust_with_calibration`, apiConfig.baseUrl);
     url.searchParams.append('external_target', String(external_target));
     url.searchParams.append('cinternal', String(cinternal));
     url.searchParams.append('cexternal', String(cexternal));
@@ -3519,7 +3581,7 @@ export class GstClock extends GObjectObject {
     return data.return;
   }
   async wait_for_sync(timeout: number): Promise<boolean> {
-    const url = new URL(`/Gst/Clock/${this.ptr}/wait_for_sync`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Clock/${this.ptr}/wait_for_sync`, apiConfig.baseUrl);
     url.searchParams.append('timeout', String(timeout));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3531,7 +3593,7 @@ export class GstClock extends GObjectObject {
 export class GstPluginFeature extends GObjectObject {
 
   async list_copy(list: Pointer): Promise<Pointer> {
-    const url = new URL(`/Gst/PluginFeature/list_copy`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginFeature/list_copy`, apiConfig.baseUrl);
     url.searchParams.append('list', String(list));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3539,26 +3601,26 @@ export class GstPluginFeature extends GObjectObject {
     return data.return;
   }
   async list_debug(list: Pointer): Promise<void> {
-    const url = new URL(`/Gst/PluginFeature/list_debug`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginFeature/list_debug`, apiConfig.baseUrl);
     url.searchParams.append('list', String(list));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async list_free(list: Pointer): Promise<void> {
-    const url = new URL(`/Gst/PluginFeature/list_free`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginFeature/list_free`, apiConfig.baseUrl);
     url.searchParams.append('list', String(list));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async rank_compare_func(): Promise<number> {
-    const url = new URL(`/Gst/PluginFeature/rank_compare_func`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginFeature/rank_compare_func`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async check_version(min_major: number, min_minor: number, min_micro: number): Promise<boolean> {
-    const url = new URL(`/Gst/PluginFeature/${this.ptr}/check_version`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginFeature/${this.ptr}/check_version`, apiConfig.baseUrl);
     url.searchParams.append('min_major', String(min_major));
     url.searchParams.append('min_minor', String(min_minor));
     url.searchParams.append('min_micro', String(min_micro));
@@ -3568,35 +3630,35 @@ export class GstPluginFeature extends GObjectObject {
     return data.return;
   }
   async get_plugin(): Promise<GstPlugin> {
-    const url = new URL(`/Gst/PluginFeature/${this.ptr}/get_plugin`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginFeature/${this.ptr}/get_plugin`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_plugin_name(): Promise<string> {
-    const url = new URL(`/Gst/PluginFeature/${this.ptr}/get_plugin_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginFeature/${this.ptr}/get_plugin_name`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_rank(): Promise<number> {
-    const url = new URL(`/Gst/PluginFeature/${this.ptr}/get_rank`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginFeature/${this.ptr}/get_rank`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async load(): Promise<GstPluginFeature> {
-    const url = new URL(`/Gst/PluginFeature/${this.ptr}/load`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginFeature/${this.ptr}/load`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_rank(rank: number): Promise<void> {
-    const url = new URL(`/Gst/PluginFeature/${this.ptr}/set_rank`, 'http://localhost:9000');
+    const url = new URL(`/Gst/PluginFeature/${this.ptr}/set_rank`, apiConfig.baseUrl);
     url.searchParams.append('rank', String(rank));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3606,7 +3668,7 @@ export class GstPluginFeature extends GObjectObject {
 export class GstElementFactory extends GObjectObject {
 
   async find(name: string): Promise<GstElementFactory> {
-    const url = new URL(`/Gst/ElementFactory/find`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/find`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3614,7 +3676,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async list_filter(list: Pointer, caps: GstCaps, direction: GstPadDirection, subsetonly: boolean): Promise<Pointer> {
-    const url = new URL(`/Gst/ElementFactory/list_filter`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/list_filter`, apiConfig.baseUrl);
     url.searchParams.append('list', String(list));
     url.searchParams.append('caps', String(caps));
     url.searchParams.append('direction', String(direction));
@@ -3625,7 +3687,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async list_get_elements(type_: number, minrank: GstRank): Promise<Pointer> {
-    const url = new URL(`/Gst/ElementFactory/list_get_elements`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/list_get_elements`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     url.searchParams.append('minrank', String(minrank));
     const response = await fetch(url.toString());
@@ -3634,7 +3696,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async make(factoryname: string, name?: string): Promise<GstElement> {
-    const url = new URL(`/Gst/ElementFactory/make`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/make`, apiConfig.baseUrl);
     url.searchParams.append('factoryname', String(factoryname));
     if (name !== undefined) url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
@@ -3643,7 +3705,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async make_with_properties(factoryname: string, n: number, names?: Pointer, values?: Pointer): Promise<GstElement> {
-    const url = new URL(`/Gst/ElementFactory/make_with_properties`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/make_with_properties`, apiConfig.baseUrl);
     url.searchParams.append('factoryname', String(factoryname));
     url.searchParams.append('n', String(n));
     if (names !== undefined) url.searchParams.append('names', String(names));
@@ -3654,7 +3716,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async can_sink_all_caps(caps: GstCaps): Promise<boolean> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/can_sink_all_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/can_sink_all_caps`, apiConfig.baseUrl);
     url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3662,7 +3724,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async can_sink_any_caps(caps: GstCaps): Promise<boolean> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/can_sink_any_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/can_sink_any_caps`, apiConfig.baseUrl);
     url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3670,7 +3732,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async can_src_all_caps(caps: GstCaps): Promise<boolean> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/can_src_all_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/can_src_all_caps`, apiConfig.baseUrl);
     url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3678,7 +3740,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async can_src_any_caps(caps: GstCaps): Promise<boolean> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/can_src_any_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/can_src_any_caps`, apiConfig.baseUrl);
     url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3686,7 +3748,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async create(name?: string): Promise<GstElement> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/create`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/create`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3694,7 +3756,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async create_with_properties(n: number, names?: Pointer, values?: Pointer): Promise<GstElement> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/create_with_properties`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/create_with_properties`, apiConfig.baseUrl);
     url.searchParams.append('n', String(n));
     if (names !== undefined) url.searchParams.append('names', String(names));
     if (values !== undefined) url.searchParams.append('values', String(values));
@@ -3704,14 +3766,14 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async get_element_type(): Promise<Pointer> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_element_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_element_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_metadata(key: string): Promise<string> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_metadata`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_metadata`, apiConfig.baseUrl);
     url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3719,49 +3781,49 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async get_metadata_keys(): Promise<Pointer> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_metadata_keys`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_metadata_keys`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_num_pad_templates(): Promise<number> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_num_pad_templates`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_num_pad_templates`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_skip_documentation(): Promise<boolean> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_skip_documentation`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_skip_documentation`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_static_pad_templates(): Promise<Pointer> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_static_pad_templates`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_static_pad_templates`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_uri_protocols(): Promise<Pointer> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_uri_protocols`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_uri_protocols`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_uri_type(): Promise<GstURIType> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_uri_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/get_uri_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async has_interface(interfacename: string): Promise<boolean> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/has_interface`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/has_interface`, apiConfig.baseUrl);
     url.searchParams.append('interfacename', String(interfacename));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3769,7 +3831,7 @@ export class GstElementFactory extends GObjectObject {
     return data.return;
   }
   async list_is_type(type_: number): Promise<boolean> {
-    const url = new URL(`/Gst/ElementFactory/${this.ptr}/list_is_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ElementFactory/${this.ptr}/list_is_type`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3780,7 +3842,7 @@ export class GstElementFactory extends GObjectObject {
 
 export class GstBin extends GObjectObject {
   static async new(name?: string): Promise<GstBin> {
-    const url = new URL(`/Gst/Bin/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/new`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3791,7 +3853,7 @@ export class GstBin extends GObjectObject {
   }
 
   async add(element: GstElement): Promise<boolean> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/add`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/add`, apiConfig.baseUrl);
     url.searchParams.append('element', String(element));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3799,7 +3861,7 @@ export class GstBin extends GObjectObject {
     return data.return;
   }
   async find_unlinked_pad(direction: GstPadDirection): Promise<GstPad> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/find_unlinked_pad`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/find_unlinked_pad`, apiConfig.baseUrl);
     url.searchParams.append('direction', String(direction));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3807,7 +3869,7 @@ export class GstBin extends GObjectObject {
     return data.return;
   }
   async get_by_interface(iface: Pointer): Promise<GstElement> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/get_by_interface`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/get_by_interface`, apiConfig.baseUrl);
     url.searchParams.append('iface', String(iface));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3815,7 +3877,7 @@ export class GstBin extends GObjectObject {
     return data.return;
   }
   async get_by_name(name: string): Promise<GstElement> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/get_by_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/get_by_name`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3823,7 +3885,7 @@ export class GstBin extends GObjectObject {
     return data.return;
   }
   async get_by_name_recurse_up(name: string): Promise<GstElement> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/get_by_name_recurse_up`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/get_by_name_recurse_up`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3831,14 +3893,14 @@ export class GstBin extends GObjectObject {
     return data.return;
   }
   async get_suppressed_flags(): Promise<GstElementFlags> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/get_suppressed_flags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/get_suppressed_flags`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async iterate_all_by_element_factory_name(factory_name: string): Promise<GstIterator> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_all_by_element_factory_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_all_by_element_factory_name`, apiConfig.baseUrl);
     url.searchParams.append('factory_name', String(factory_name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3846,7 +3908,7 @@ export class GstBin extends GObjectObject {
     return data.return;
   }
   async iterate_all_by_interface(iface: Pointer): Promise<GstIterator> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_all_by_interface`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_all_by_interface`, apiConfig.baseUrl);
     url.searchParams.append('iface', String(iface));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3854,49 +3916,49 @@ export class GstBin extends GObjectObject {
     return data.return;
   }
   async iterate_elements(): Promise<GstIterator> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_elements`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_elements`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async iterate_recurse(): Promise<GstIterator> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_recurse`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_recurse`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async iterate_sinks(): Promise<GstIterator> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_sinks`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_sinks`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async iterate_sorted(): Promise<GstIterator> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_sorted`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_sorted`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async iterate_sources(): Promise<GstIterator> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_sources`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/iterate_sources`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async recalculate_latency(): Promise<boolean> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/recalculate_latency`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/recalculate_latency`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async remove(element: GstElement): Promise<boolean> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/remove`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/remove`, apiConfig.baseUrl);
     url.searchParams.append('element', String(element));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3904,13 +3966,13 @@ export class GstBin extends GObjectObject {
     return data.return;
   }
   async set_suppressed_flags(flags: GstElementFlags): Promise<void> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/set_suppressed_flags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/set_suppressed_flags`, apiConfig.baseUrl);
     url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async sync_children_states(): Promise<boolean> {
-    const url = new URL(`/Gst/Bin/${this.ptr}/sync_children_states`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Bin/${this.ptr}/sync_children_states`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -3920,7 +3982,7 @@ export class GstBin extends GObjectObject {
 
 export class GstBufferPool extends GObjectObject {
   static async new(): Promise<GstBufferPool> {
-    const url = new URL(`/Gst/BufferPool/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -3930,14 +3992,14 @@ export class GstBufferPool extends GObjectObject {
   }
 
   async config_add_option(config: GstStructure, option: string): Promise<void> {
-    const url = new URL(`/Gst/BufferPool/config_add_option`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/config_add_option`, apiConfig.baseUrl);
     url.searchParams.append('config', String(config));
     url.searchParams.append('option', String(option));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async config_get_allocator(config: GstStructure): Promise<boolean> {
-    const url = new URL(`/Gst/BufferPool/config_get_allocator`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/config_get_allocator`, apiConfig.baseUrl);
     url.searchParams.append('config', String(config));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3945,7 +4007,7 @@ export class GstBufferPool extends GObjectObject {
     return data.return;
   }
   async config_get_option(config: GstStructure, index: number): Promise<string> {
-    const url = new URL(`/Gst/BufferPool/config_get_option`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/config_get_option`, apiConfig.baseUrl);
     url.searchParams.append('config', String(config));
     url.searchParams.append('index', String(index));
     const response = await fetch(url.toString());
@@ -3954,7 +4016,7 @@ export class GstBufferPool extends GObjectObject {
     return data.return;
   }
   async config_get_params(config: GstStructure): Promise<boolean> {
-    const url = new URL(`/Gst/BufferPool/config_get_params`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/config_get_params`, apiConfig.baseUrl);
     url.searchParams.append('config', String(config));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3962,7 +4024,7 @@ export class GstBufferPool extends GObjectObject {
     return data.return;
   }
   async config_has_option(config: GstStructure, option: string): Promise<boolean> {
-    const url = new URL(`/Gst/BufferPool/config_has_option`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/config_has_option`, apiConfig.baseUrl);
     url.searchParams.append('config', String(config));
     url.searchParams.append('option', String(option));
     const response = await fetch(url.toString());
@@ -3971,7 +4033,7 @@ export class GstBufferPool extends GObjectObject {
     return data.return;
   }
   async config_n_options(config: GstStructure): Promise<number> {
-    const url = new URL(`/Gst/BufferPool/config_n_options`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/config_n_options`, apiConfig.baseUrl);
     url.searchParams.append('config', String(config));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3979,7 +4041,7 @@ export class GstBufferPool extends GObjectObject {
     return data.return;
   }
   async config_set_allocator(config: GstStructure, allocator?: GstAllocator, params?: GstAllocationParams): Promise<void> {
-    const url = new URL(`/Gst/BufferPool/config_set_allocator`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/config_set_allocator`, apiConfig.baseUrl);
     url.searchParams.append('config', String(config));
     if (allocator !== undefined) url.searchParams.append('allocator', String(allocator));
     if (params !== undefined) url.searchParams.append('params', String(params));
@@ -3987,7 +4049,7 @@ export class GstBufferPool extends GObjectObject {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async config_set_params(config: GstStructure, size: number, min_buffers: number, max_buffers: number, caps?: GstCaps): Promise<void> {
-    const url = new URL(`/Gst/BufferPool/config_set_params`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/config_set_params`, apiConfig.baseUrl);
     url.searchParams.append('config', String(config));
     if (caps !== undefined) url.searchParams.append('caps', String(caps));
     url.searchParams.append('size', String(size));
@@ -3997,7 +4059,7 @@ export class GstBufferPool extends GObjectObject {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async config_validate_params(config: GstStructure, size: number, min_buffers: number, max_buffers: number, caps?: GstCaps): Promise<boolean> {
-    const url = new URL(`/Gst/BufferPool/config_validate_params`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/config_validate_params`, apiConfig.baseUrl);
     url.searchParams.append('config', String(config));
     if (caps !== undefined) url.searchParams.append('caps', String(caps));
     url.searchParams.append('size', String(size));
@@ -4009,7 +4071,7 @@ export class GstBufferPool extends GObjectObject {
     return data.return;
   }
   async acquire_buffer(params?: GstBufferPoolAcquireParams): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/BufferPool/${this.ptr}/acquire_buffer`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/${this.ptr}/acquire_buffer`, apiConfig.baseUrl);
     if (params !== undefined) url.searchParams.append('params', String(params));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4017,21 +4079,21 @@ export class GstBufferPool extends GObjectObject {
     return data.return;
   }
   async get_config(): Promise<GstStructure> {
-    const url = new URL(`/Gst/BufferPool/${this.ptr}/get_config`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/${this.ptr}/get_config`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_options(): Promise<Pointer> {
-    const url = new URL(`/Gst/BufferPool/${this.ptr}/get_options`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/${this.ptr}/get_options`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async has_option(option: string): Promise<boolean> {
-    const url = new URL(`/Gst/BufferPool/${this.ptr}/has_option`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/${this.ptr}/has_option`, apiConfig.baseUrl);
     url.searchParams.append('option', String(option));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4039,20 +4101,20 @@ export class GstBufferPool extends GObjectObject {
     return data.return;
   }
   async is_active(): Promise<boolean> {
-    const url = new URL(`/Gst/BufferPool/${this.ptr}/is_active`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/${this.ptr}/is_active`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async release_buffer(buffer: GstBuffer): Promise<void> {
-    const url = new URL(`/Gst/BufferPool/${this.ptr}/release_buffer`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/${this.ptr}/release_buffer`, apiConfig.baseUrl);
     url.searchParams.append('buffer', String(buffer));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_active(active: boolean): Promise<boolean> {
-    const url = new URL(`/Gst/BufferPool/${this.ptr}/set_active`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/${this.ptr}/set_active`, apiConfig.baseUrl);
     url.searchParams.append('active', String(active));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4060,7 +4122,7 @@ export class GstBufferPool extends GObjectObject {
     return data.return;
   }
   async set_config(config: GstStructure): Promise<boolean> {
-    const url = new URL(`/Gst/BufferPool/${this.ptr}/set_config`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/${this.ptr}/set_config`, apiConfig.baseUrl);
     url.searchParams.append('config', String(config));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4068,7 +4130,7 @@ export class GstBufferPool extends GObjectObject {
     return data.return;
   }
   async set_flushing(flushing: boolean): Promise<void> {
-    const url = new URL(`/Gst/BufferPool/${this.ptr}/set_flushing`, 'http://localhost:9000');
+    const url = new URL(`/Gst/BufferPool/${this.ptr}/set_flushing`, apiConfig.baseUrl);
     url.searchParams.append('flushing', String(flushing));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4078,7 +4140,7 @@ export class GstBufferPool extends GObjectObject {
 export class GstControlSource extends GObjectObject {
 
   async control_source_get_value(timestamp: number): Promise<boolean> {
-    const url = new URL(`/Gst/ControlSource/${this.ptr}/control_source_get_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ControlSource/${this.ptr}/control_source_get_value`, apiConfig.baseUrl);
     url.searchParams.append('timestamp', String(timestamp));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4086,7 +4148,7 @@ export class GstControlSource extends GObjectObject {
     return data.return;
   }
   async control_source_get_value_array(timestamp: number, interval: number, n_values: number, values: Pointer): Promise<boolean> {
-    const url = new URL(`/Gst/ControlSource/${this.ptr}/control_source_get_value_array`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ControlSource/${this.ptr}/control_source_get_value_array`, apiConfig.baseUrl);
     url.searchParams.append('timestamp', String(timestamp));
     url.searchParams.append('interval', String(interval));
     url.searchParams.append('n_values', String(n_values));
@@ -4101,7 +4163,7 @@ export class GstControlSource extends GObjectObject {
 export class GstDevice extends GObjectObject {
 
   async create_element(name?: string): Promise<GstElement> {
-    const url = new URL(`/Gst/Device/${this.ptr}/create_element`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Device/${this.ptr}/create_element`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4109,35 +4171,35 @@ export class GstDevice extends GObjectObject {
     return data.return;
   }
   async get_caps(): Promise<GstCaps> {
-    const url = new URL(`/Gst/Device/${this.ptr}/get_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Device/${this.ptr}/get_caps`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_device_class(): Promise<string> {
-    const url = new URL(`/Gst/Device/${this.ptr}/get_device_class`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Device/${this.ptr}/get_device_class`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_display_name(): Promise<string> {
-    const url = new URL(`/Gst/Device/${this.ptr}/get_display_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Device/${this.ptr}/get_display_name`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_properties(): Promise<GstStructure> {
-    const url = new URL(`/Gst/Device/${this.ptr}/get_properties`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Device/${this.ptr}/get_properties`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async has_classes(classes: string): Promise<boolean> {
-    const url = new URL(`/Gst/Device/${this.ptr}/has_classes`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Device/${this.ptr}/has_classes`, apiConfig.baseUrl);
     url.searchParams.append('classes', String(classes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4145,7 +4207,7 @@ export class GstDevice extends GObjectObject {
     return data.return;
   }
   async has_classesv(classes: Pointer): Promise<boolean> {
-    const url = new URL(`/Gst/Device/${this.ptr}/has_classesv`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Device/${this.ptr}/has_classesv`, apiConfig.baseUrl);
     url.searchParams.append('classes', String(classes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4153,7 +4215,7 @@ export class GstDevice extends GObjectObject {
     return data.return;
   }
   async reconfigure_element(element: GstElement): Promise<boolean> {
-    const url = new URL(`/Gst/Device/${this.ptr}/reconfigure_element`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Device/${this.ptr}/reconfigure_element`, apiConfig.baseUrl);
     url.searchParams.append('element', String(element));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4164,7 +4226,7 @@ export class GstDevice extends GObjectObject {
 
 export class GstDeviceMonitor extends GObjectObject {
   static async new(): Promise<GstDeviceMonitor> {
-    const url = new URL(`/Gst/DeviceMonitor/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceMonitor/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -4174,7 +4236,7 @@ export class GstDeviceMonitor extends GObjectObject {
   }
 
   async add_filter(classes?: string, caps?: GstCaps): Promise<number> {
-    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/add_filter`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/add_filter`, apiConfig.baseUrl);
     if (classes !== undefined) url.searchParams.append('classes', String(classes));
     if (caps !== undefined) url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
@@ -4183,35 +4245,35 @@ export class GstDeviceMonitor extends GObjectObject {
     return data.return;
   }
   async get_bus(): Promise<GstBus> {
-    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/get_bus`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/get_bus`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_devices(): Promise<Pointer> {
-    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/get_devices`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/get_devices`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_providers(): Promise<Pointer> {
-    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/get_providers`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/get_providers`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_show_all_devices(): Promise<boolean> {
-    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/get_show_all_devices`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/get_show_all_devices`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async remove_filter(filter_id: number): Promise<boolean> {
-    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/remove_filter`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/remove_filter`, apiConfig.baseUrl);
     url.searchParams.append('filter_id', String(filter_id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4219,20 +4281,20 @@ export class GstDeviceMonitor extends GObjectObject {
     return data.return;
   }
   async set_show_all_devices(show_all: boolean): Promise<void> {
-    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/set_show_all_devices`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/set_show_all_devices`, apiConfig.baseUrl);
     url.searchParams.append('show_all', String(show_all));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async start(): Promise<boolean> {
-    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/start`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/start`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async stop(): Promise<void> {
-    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/stop`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceMonitor/${this.ptr}/stop`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -4241,7 +4303,7 @@ export class GstDeviceMonitor extends GObjectObject {
 export class GstDeviceProvider extends GObjectObject {
 
   async register(name: string, rank: number, type_: Pointer, plugin?: GstPlugin): Promise<boolean> {
-    const url = new URL(`/Gst/DeviceProvider/register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/register`, apiConfig.baseUrl);
     if (plugin !== undefined) url.searchParams.append('plugin', String(plugin));
     url.searchParams.append('name', String(name));
     url.searchParams.append('rank', String(rank));
@@ -4252,61 +4314,61 @@ export class GstDeviceProvider extends GObjectObject {
     return data.return;
   }
   async can_monitor(): Promise<boolean> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/can_monitor`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/can_monitor`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async device_add(device: GstDevice): Promise<void> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/device_add`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/device_add`, apiConfig.baseUrl);
     url.searchParams.append('device', String(device));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async device_changed(device: GstDevice, changed_device: GstDevice): Promise<void> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/device_changed`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/device_changed`, apiConfig.baseUrl);
     url.searchParams.append('device', String(device));
     url.searchParams.append('changed_device', String(changed_device));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async device_remove(device: GstDevice): Promise<void> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/device_remove`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/device_remove`, apiConfig.baseUrl);
     url.searchParams.append('device', String(device));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_bus(): Promise<GstBus> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/get_bus`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/get_bus`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_devices(): Promise<Pointer> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/get_devices`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/get_devices`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_factory(): Promise<GstDeviceProviderFactory> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/get_factory`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/get_factory`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_hidden_providers(): Promise<Pointer> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/get_hidden_providers`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/get_hidden_providers`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_metadata(key: string): Promise<string> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/get_metadata`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/get_metadata`, apiConfig.baseUrl);
     url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4314,32 +4376,32 @@ export class GstDeviceProvider extends GObjectObject {
     return data.return;
   }
   async hide_provider(name: string): Promise<void> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/hide_provider`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/hide_provider`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async is_started(): Promise<boolean> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/is_started`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/is_started`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async start(): Promise<boolean> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/start`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/start`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async stop(): Promise<void> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/stop`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/stop`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async unhide_provider(name: string): Promise<void> {
-    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/unhide_provider`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProvider/${this.ptr}/unhide_provider`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4349,7 +4411,7 @@ export class GstDeviceProvider extends GObjectObject {
 export class GstDeviceProviderFactory extends GObjectObject {
 
   async find(name: string): Promise<GstDeviceProviderFactory> {
-    const url = new URL(`/Gst/DeviceProviderFactory/find`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProviderFactory/find`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4357,7 +4419,7 @@ export class GstDeviceProviderFactory extends GObjectObject {
     return data.return;
   }
   async get_by_name(factoryname: string): Promise<GstDeviceProvider> {
-    const url = new URL(`/Gst/DeviceProviderFactory/get_by_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProviderFactory/get_by_name`, apiConfig.baseUrl);
     url.searchParams.append('factoryname', String(factoryname));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4365,7 +4427,7 @@ export class GstDeviceProviderFactory extends GObjectObject {
     return data.return;
   }
   async list_get_device_providers(minrank: GstRank): Promise<Pointer> {
-    const url = new URL(`/Gst/DeviceProviderFactory/list_get_device_providers`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProviderFactory/list_get_device_providers`, apiConfig.baseUrl);
     url.searchParams.append('minrank', String(minrank));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4373,21 +4435,21 @@ export class GstDeviceProviderFactory extends GObjectObject {
     return data.return;
   }
   async get(): Promise<GstDeviceProvider> {
-    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/get`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/get`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_device_provider_type(): Promise<Pointer> {
-    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/get_device_provider_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/get_device_provider_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_metadata(key: string): Promise<string> {
-    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/get_metadata`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/get_metadata`, apiConfig.baseUrl);
     url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4395,14 +4457,14 @@ export class GstDeviceProviderFactory extends GObjectObject {
     return data.return;
   }
   async get_metadata_keys(): Promise<Pointer> {
-    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/get_metadata_keys`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/get_metadata_keys`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async has_classes(classes?: string): Promise<boolean> {
-    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/has_classes`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/has_classes`, apiConfig.baseUrl);
     if (classes !== undefined) url.searchParams.append('classes', String(classes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4410,7 +4472,7 @@ export class GstDeviceProviderFactory extends GObjectObject {
     return data.return;
   }
   async has_classesv(classes?: Pointer): Promise<boolean> {
-    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/has_classesv`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DeviceProviderFactory/${this.ptr}/has_classesv`, apiConfig.baseUrl);
     if (classes !== undefined) url.searchParams.append('classes', String(classes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4422,7 +4484,7 @@ export class GstDeviceProviderFactory extends GObjectObject {
 export class GstDynamicTypeFactory extends GObjectObject {
 
   async load(factoryname: string): Promise<Pointer> {
-    const url = new URL(`/Gst/DynamicTypeFactory/load`, 'http://localhost:9000');
+    const url = new URL(`/Gst/DynamicTypeFactory/load`, apiConfig.baseUrl);
     url.searchParams.append('factoryname', String(factoryname));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4436,7 +4498,7 @@ export class GstFlagSet {
 
 
   async register(flags_type: Pointer): Promise<Pointer> {
-    const url = new URL(`/Gst/FlagSet/register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/FlagSet/register`, apiConfig.baseUrl);
     url.searchParams.append('flags_type', String(flags_type));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4448,7 +4510,7 @@ export class GstFlagSet {
 export class GstProxyPad extends GObjectObject {
 
   async chain_default(pad: GstPad, buffer: GstBuffer, parent?: GstObject): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/ProxyPad/chain_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ProxyPad/chain_default`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     if (parent !== undefined) url.searchParams.append('parent', String(parent));
     url.searchParams.append('buffer', String(buffer));
@@ -4458,7 +4520,7 @@ export class GstProxyPad extends GObjectObject {
     return data.return;
   }
   async chain_list_default(pad: GstPad, list: GstBufferList, parent?: GstObject): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/ProxyPad/chain_list_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ProxyPad/chain_list_default`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     if (parent !== undefined) url.searchParams.append('parent', String(parent));
     url.searchParams.append('list', String(list));
@@ -4468,7 +4530,7 @@ export class GstProxyPad extends GObjectObject {
     return data.return;
   }
   async getrange_default(pad: GstPad, parent: GstObject, offset: number, size: number): Promise<GstFlowReturn> {
-    const url = new URL(`/Gst/ProxyPad/getrange_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ProxyPad/getrange_default`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     url.searchParams.append('parent', String(parent));
     url.searchParams.append('offset', String(offset));
@@ -4479,7 +4541,7 @@ export class GstProxyPad extends GObjectObject {
     return data.return;
   }
   async iterate_internal_links_default(pad: GstPad, parent?: GstObject): Promise<GstIterator> {
-    const url = new URL(`/Gst/ProxyPad/iterate_internal_links_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ProxyPad/iterate_internal_links_default`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     if (parent !== undefined) url.searchParams.append('parent', String(parent));
     const response = await fetch(url.toString());
@@ -4488,7 +4550,7 @@ export class GstProxyPad extends GObjectObject {
     return data.return;
   }
   async get_internal(): Promise<GstProxyPad> {
-    const url = new URL(`/Gst/ProxyPad/${this.ptr}/get_internal`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ProxyPad/${this.ptr}/get_internal`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -4498,7 +4560,7 @@ export class GstProxyPad extends GObjectObject {
 
 export class GstGhostPad extends GObjectObject {
   static async new(target: GstPad, name?: string): Promise<GstGhostPad> {
-    const url = new URL(`/Gst/GhostPad/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/GhostPad/new`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     url.searchParams.append('target', String(target));
     const response = await fetch(url.toString());
@@ -4509,7 +4571,7 @@ export class GstGhostPad extends GObjectObject {
     return instance;
   }
   static async new_from_template(target: GstPad, templ: GstPadTemplate, name?: string): Promise<GstGhostPad> {
-    const url = new URL(`/Gst/GhostPad/new_from_template`, 'http://localhost:9000');
+    const url = new URL(`/Gst/GhostPad/new_from_template`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     url.searchParams.append('target', String(target));
     url.searchParams.append('templ', String(templ));
@@ -4521,7 +4583,7 @@ export class GstGhostPad extends GObjectObject {
     return instance;
   }
   static async new_no_target(dir: GstPadDirection, name?: string): Promise<GstGhostPad> {
-    const url = new URL(`/Gst/GhostPad/new_no_target`, 'http://localhost:9000');
+    const url = new URL(`/Gst/GhostPad/new_no_target`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     url.searchParams.append('dir', String(dir));
     const response = await fetch(url.toString());
@@ -4532,7 +4594,7 @@ export class GstGhostPad extends GObjectObject {
     return instance;
   }
   static async new_no_target_from_template(templ: GstPadTemplate, name?: string): Promise<GstGhostPad> {
-    const url = new URL(`/Gst/GhostPad/new_no_target_from_template`, 'http://localhost:9000');
+    const url = new URL(`/Gst/GhostPad/new_no_target_from_template`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     url.searchParams.append('templ', String(templ));
     const response = await fetch(url.toString());
@@ -4544,7 +4606,7 @@ export class GstGhostPad extends GObjectObject {
   }
 
   async activate_mode_default(pad: GstPad, mode: GstPadModeValue, active: boolean, parent?: GstObject): Promise<boolean> {
-    const url = new URL(`/Gst/GhostPad/activate_mode_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/GhostPad/activate_mode_default`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     if (parent !== undefined) url.searchParams.append('parent', String(parent));
     url.searchParams.append('mode', String(mode));
@@ -4555,7 +4617,7 @@ export class GstGhostPad extends GObjectObject {
     return data.return;
   }
   async internal_activate_mode_default(pad: GstPad, mode: GstPadModeValue, active: boolean, parent?: GstObject): Promise<boolean> {
-    const url = new URL(`/Gst/GhostPad/internal_activate_mode_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/GhostPad/internal_activate_mode_default`, apiConfig.baseUrl);
     url.searchParams.append('pad', String(pad));
     if (parent !== undefined) url.searchParams.append('parent', String(parent));
     url.searchParams.append('mode', String(mode));
@@ -4566,21 +4628,21 @@ export class GstGhostPad extends GObjectObject {
     return data.return;
   }
   async construct(): Promise<boolean> {
-    const url = new URL(`/Gst/GhostPad/${this.ptr}/construct`, 'http://localhost:9000');
+    const url = new URL(`/Gst/GhostPad/${this.ptr}/construct`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_target(): Promise<GstPad> {
-    const url = new URL(`/Gst/GhostPad/${this.ptr}/get_target`, 'http://localhost:9000');
+    const url = new URL(`/Gst/GhostPad/${this.ptr}/get_target`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_target(newtarget?: GstPad): Promise<boolean> {
-    const url = new URL(`/Gst/GhostPad/${this.ptr}/set_target`, 'http://localhost:9000');
+    const url = new URL(`/Gst/GhostPad/${this.ptr}/set_target`, apiConfig.baseUrl);
     if (newtarget !== undefined) url.searchParams.append('newtarget', String(newtarget));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4591,7 +4653,7 @@ export class GstGhostPad extends GObjectObject {
 
 export class GstPipeline extends GObjectObject {
   static async new(name?: string): Promise<GstPipeline> {
-    const url = new URL(`/Gst/Pipeline/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/new`, apiConfig.baseUrl);
     if (name !== undefined) url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4602,79 +4664,79 @@ export class GstPipeline extends GObjectObject {
   }
 
   async auto_clock(): Promise<void> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/auto_clock`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/auto_clock`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_auto_flush_bus(): Promise<boolean> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_auto_flush_bus`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_auto_flush_bus`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_bus(): Promise<GstBus> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_bus`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_bus`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_configured_latency(): Promise<number> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_configured_latency`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_configured_latency`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_delay(): Promise<number> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_delay`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_delay`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_latency(): Promise<number> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_latency`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_latency`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_pipeline_clock(): Promise<GstClock> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_pipeline_clock`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/get_pipeline_clock`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async is_live(): Promise<boolean> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/is_live`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/is_live`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_auto_flush_bus(auto_flush: boolean): Promise<void> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/set_auto_flush_bus`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/set_auto_flush_bus`, apiConfig.baseUrl);
     url.searchParams.append('auto_flush', String(auto_flush));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_delay(delay: number): Promise<void> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/set_delay`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/set_delay`, apiConfig.baseUrl);
     url.searchParams.append('delay', String(delay));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_latency(latency: number): Promise<void> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/set_latency`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/set_latency`, apiConfig.baseUrl);
     url.searchParams.append('latency', String(latency));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async use_clock(clock?: GstClock): Promise<void> {
-    const url = new URL(`/Gst/Pipeline/${this.ptr}/use_clock`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Pipeline/${this.ptr}/use_clock`, apiConfig.baseUrl);
     if (clock !== undefined) url.searchParams.append('clock', String(clock));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4684,27 +4746,27 @@ export class GstPipeline extends GObjectObject {
 export class GstRegistry extends GObjectObject {
 
   async fork_is_enabled(): Promise<boolean> {
-    const url = new URL(`/Gst/Registry/fork_is_enabled`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/fork_is_enabled`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async fork_set_enabled(enabled: boolean): Promise<void> {
-    const url = new URL(`/Gst/Registry/fork_set_enabled`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/fork_set_enabled`, apiConfig.baseUrl);
     url.searchParams.append('enabled', String(enabled));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get(): Promise<GstRegistry> {
-    const url = new URL(`/Gst/Registry/get`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/get`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async add_feature(feature: GstPluginFeature): Promise<boolean> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/add_feature`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/add_feature`, apiConfig.baseUrl);
     url.searchParams.append('feature', String(feature));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4712,7 +4774,7 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async add_plugin(plugin: GstPlugin): Promise<boolean> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/add_plugin`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/add_plugin`, apiConfig.baseUrl);
     url.searchParams.append('plugin', String(plugin));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4720,7 +4782,7 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async check_feature_version(feature_name: string, min_major: number, min_minor: number, min_micro: number): Promise<boolean> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/check_feature_version`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/check_feature_version`, apiConfig.baseUrl);
     url.searchParams.append('feature_name', String(feature_name));
     url.searchParams.append('min_major', String(min_major));
     url.searchParams.append('min_minor', String(min_minor));
@@ -4731,7 +4793,7 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async feature_filter(first: boolean, filter: (feature: GstPluginFeature, user_data: Pointer) => boolean): Promise<Pointer> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/feature_filter`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/feature_filter`, apiConfig.baseUrl);
     url.searchParams.append('first', String(first));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4743,7 +4805,7 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async find_feature(name: string, type_: Pointer): Promise<GstPluginFeature> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/find_feature`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/find_feature`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
@@ -4752,7 +4814,7 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async find_plugin(name: string): Promise<GstPlugin> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/find_plugin`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/find_plugin`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4760,7 +4822,7 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async get_feature_list(type_: Pointer): Promise<Pointer> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/get_feature_list`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/get_feature_list`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4768,7 +4830,7 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async get_feature_list_by_plugin(name: string): Promise<Pointer> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/get_feature_list_by_plugin`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/get_feature_list_by_plugin`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4776,21 +4838,21 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async get_feature_list_cookie(): Promise<number> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/get_feature_list_cookie`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/get_feature_list_cookie`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_plugin_list(): Promise<Pointer> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/get_plugin_list`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/get_plugin_list`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async lookup(filename: string): Promise<GstPlugin> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/lookup`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/lookup`, apiConfig.baseUrl);
     url.searchParams.append('filename', String(filename));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4798,7 +4860,7 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async lookup_feature(name: string): Promise<GstPluginFeature> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/lookup_feature`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/lookup_feature`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4806,7 +4868,7 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async plugin_filter(first: boolean, filter: (plugin: GstPlugin, user_data: Pointer) => boolean): Promise<Pointer> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/plugin_filter`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/plugin_filter`, apiConfig.baseUrl);
     url.searchParams.append('first', String(first));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4818,19 +4880,19 @@ export class GstRegistry extends GObjectObject {
     return data.return;
   }
   async remove_feature(feature: GstPluginFeature): Promise<void> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/remove_feature`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/remove_feature`, apiConfig.baseUrl);
     url.searchParams.append('feature', String(feature));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async remove_plugin(plugin: GstPlugin): Promise<void> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/remove_plugin`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/remove_plugin`, apiConfig.baseUrl);
     url.searchParams.append('plugin', String(plugin));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async scan_path(path: Pointer): Promise<boolean> {
-    const url = new URL(`/Gst/Registry/${this.ptr}/scan_path`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Registry/${this.ptr}/scan_path`, apiConfig.baseUrl);
     url.searchParams.append('path', String(path));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4841,7 +4903,7 @@ export class GstRegistry extends GObjectObject {
 
 export class GstTaskPool extends GObjectObject {
   static async new(): Promise<GstTaskPool> {
-    const url = new URL(`/Gst/TaskPool/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TaskPool/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -4851,27 +4913,27 @@ export class GstTaskPool extends GObjectObject {
   }
 
   async cleanup(): Promise<void> {
-    const url = new URL(`/Gst/TaskPool/${this.ptr}/cleanup`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TaskPool/${this.ptr}/cleanup`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async dispose_handle(): Promise<void> {
-    const url = new URL(`/Gst/TaskPool/${this.ptr}/dispose_handle`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TaskPool/${this.ptr}/dispose_handle`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async join(): Promise<void> {
-    const url = new URL(`/Gst/TaskPool/${this.ptr}/join`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TaskPool/${this.ptr}/join`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async prepare(): Promise<void> {
-    const url = new URL(`/Gst/TaskPool/${this.ptr}/prepare`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TaskPool/${this.ptr}/prepare`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async push(func: (user_data: Pointer) => void): Promise<{ func?: number }> {
-    const url = new URL(`/Gst/TaskPool/${this.ptr}/push`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TaskPool/${this.ptr}/push`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -4885,7 +4947,7 @@ export class GstTaskPool extends GObjectObject {
 
 export class GstSharedTaskPool extends GObjectObject {
   static async new(): Promise<GstSharedTaskPool> {
-    const url = new URL(`/Gst/SharedTaskPool/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/SharedTaskPool/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -4895,14 +4957,14 @@ export class GstSharedTaskPool extends GObjectObject {
   }
 
   async get_max_threads(): Promise<number> {
-    const url = new URL(`/Gst/SharedTaskPool/${this.ptr}/get_max_threads`, 'http://localhost:9000');
+    const url = new URL(`/Gst/SharedTaskPool/${this.ptr}/get_max_threads`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_max_threads(max_threads: number): Promise<void> {
-    const url = new URL(`/Gst/SharedTaskPool/${this.ptr}/set_max_threads`, 'http://localhost:9000');
+    const url = new URL(`/Gst/SharedTaskPool/${this.ptr}/set_max_threads`, apiConfig.baseUrl);
     url.searchParams.append('max_threads', String(max_threads));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4911,7 +4973,7 @@ export class GstSharedTaskPool extends GObjectObject {
 
 export class GstStreamCollection extends GObjectObject {
   static async new(upstream_id?: string): Promise<GstStreamCollection> {
-    const url = new URL(`/Gst/StreamCollection/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/StreamCollection/new`, apiConfig.baseUrl);
     if (upstream_id !== undefined) url.searchParams.append('upstream_id', String(upstream_id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4924,16 +4986,16 @@ export class GstStreamCollection extends GObjectObject {
   async add_stream(stream: GstStream): Promise<boolean> {
     // Increment ref for parameters with full transfer ownership
     if (stream && typeof stream === 'object' && 'ptr' in stream) {
-      await fetch('http://localhost:9000/GObject/Object/' + stream.ptr + '/ref').catch(() => {});
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + stream.ptr + '/ref').catch(() => {});
     }
-    const url = new URL(`/Gst/StreamCollection/${this.ptr}/add_stream`, 'http://localhost:9000');
+    const url = new URL(`/Gst/StreamCollection/${this.ptr}/add_stream`, apiConfig.baseUrl);
     url.searchParams.append('stream', String(stream));
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
         // If the call fails, unref the objects we ref'd
         if (stream && typeof stream === 'object' && 'ptr' in stream) {
-          await fetch('http://localhost:9000/GObject/Object/' + stream.ptr + '/unref').catch(() => {});
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + stream.ptr + '/unref').catch(() => {});
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -4942,20 +5004,20 @@ export class GstStreamCollection extends GObjectObject {
     } catch (error) {
       // If there's an error, unref the objects we ref'd
       if (stream && typeof stream === 'object' && 'ptr' in stream) {
-        await fetch('http://localhost:9000/GObject/Object/' + stream.ptr + '/unref').catch(() => {});
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + stream.ptr + '/unref').catch(() => {});
       }
       throw error;
     }
   }
   async get_size(): Promise<number> {
-    const url = new URL(`/Gst/StreamCollection/${this.ptr}/get_size`, 'http://localhost:9000');
+    const url = new URL(`/Gst/StreamCollection/${this.ptr}/get_size`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_stream(index: number): Promise<GstStream> {
-    const url = new URL(`/Gst/StreamCollection/${this.ptr}/get_stream`, 'http://localhost:9000');
+    const url = new URL(`/Gst/StreamCollection/${this.ptr}/get_stream`, apiConfig.baseUrl);
     url.searchParams.append('index', String(index));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4963,7 +5025,7 @@ export class GstStreamCollection extends GObjectObject {
     return data.return;
   }
   async get_upstream_id(): Promise<string> {
-    const url = new URL(`/Gst/StreamCollection/${this.ptr}/get_upstream_id`, 'http://localhost:9000');
+    const url = new URL(`/Gst/StreamCollection/${this.ptr}/get_upstream_id`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -4974,14 +5036,14 @@ export class GstStreamCollection extends GObjectObject {
 export class GstSystemClock extends GObjectObject {
 
   async obtain(): Promise<GstClock> {
-    const url = new URL(`/Gst/SystemClock/obtain`, 'http://localhost:9000');
+    const url = new URL(`/Gst/SystemClock/obtain`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_default(new_clock?: GstClock): Promise<void> {
-    const url = new URL(`/Gst/SystemClock/set_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/SystemClock/set_default`, apiConfig.baseUrl);
     if (new_clock !== undefined) url.searchParams.append('new_clock', String(new_clock));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4990,7 +5052,7 @@ export class GstSystemClock extends GObjectObject {
 
 export class GstTask extends GObjectObject {
   static async new(func: (user_data: Pointer) => void): Promise<GstTask> {
-    const url = new URL(`/Gst/Task/new`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5004,47 +5066,47 @@ export class GstTask extends GObjectObject {
   }
 
   async cleanup_all(): Promise<void> {
-    const url = new URL(`/Gst/Task/cleanup_all`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/cleanup_all`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_pool(): Promise<GstTaskPool> {
-    const url = new URL(`/Gst/Task/${this.ptr}/get_pool`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/get_pool`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_state(): Promise<GstTaskState> {
-    const url = new URL(`/Gst/Task/${this.ptr}/get_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/get_state`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async join(): Promise<boolean> {
-    const url = new URL(`/Gst/Task/${this.ptr}/join`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/join`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async pause(): Promise<boolean> {
-    const url = new URL(`/Gst/Task/${this.ptr}/pause`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/pause`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async resume(): Promise<boolean> {
-    const url = new URL(`/Gst/Task/${this.ptr}/resume`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/resume`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async set_enter_callback(enter_func: (task: GstTask, thread: GLibThread, user_data: Pointer) => void): Promise<{ enter_func?: number }> {
-    const url = new URL(`/Gst/Task/${this.ptr}/set_enter_callback`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/set_enter_callback`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5055,7 +5117,7 @@ export class GstTask extends GObjectObject {
     return data;
   }
   async set_leave_callback(leave_func: (task: GstTask, thread: GLibThread, user_data: Pointer) => void): Promise<{ leave_func?: number }> {
-    const url = new URL(`/Gst/Task/${this.ptr}/set_leave_callback`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/set_leave_callback`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5066,19 +5128,19 @@ export class GstTask extends GObjectObject {
     return data;
   }
   async set_lock(mutex: GLibRecMutex): Promise<void> {
-    const url = new URL(`/Gst/Task/${this.ptr}/set_lock`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/set_lock`, apiConfig.baseUrl);
     url.searchParams.append('mutex', String(mutex));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_pool(pool: GstTaskPool): Promise<void> {
-    const url = new URL(`/Gst/Task/${this.ptr}/set_pool`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/set_pool`, apiConfig.baseUrl);
     url.searchParams.append('pool', String(pool));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async set_state(state: GstTaskState): Promise<boolean> {
-    const url = new URL(`/Gst/Task/${this.ptr}/set_state`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/set_state`, apiConfig.baseUrl);
     url.searchParams.append('state', String(state));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5086,14 +5148,14 @@ export class GstTask extends GObjectObject {
     return data.return;
   }
   async start(): Promise<boolean> {
-    const url = new URL(`/Gst/Task/${this.ptr}/start`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/start`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async stop(): Promise<boolean> {
-    const url = new URL(`/Gst/Task/${this.ptr}/stop`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Task/${this.ptr}/stop`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5104,7 +5166,7 @@ export class GstTask extends GObjectObject {
 export class GstTracer extends GObjectObject {
 
   async register(name: string, type_: Pointer, plugin?: GstPlugin): Promise<boolean> {
-    const url = new URL(`/Gst/Tracer/register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/Tracer/register`, apiConfig.baseUrl);
     if (plugin !== undefined) url.searchParams.append('plugin', String(plugin));
     url.searchParams.append('name', String(name));
     url.searchParams.append('type', String(type_));
@@ -5118,14 +5180,14 @@ export class GstTracer extends GObjectObject {
 export class GstTracerFactory extends GObjectObject {
 
   async get_list(): Promise<Pointer> {
-    const url = new URL(`/Gst/TracerFactory/get_list`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TracerFactory/get_list`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_tracer_type(): Promise<Pointer> {
-    const url = new URL(`/Gst/TracerFactory/${this.ptr}/get_tracer_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TracerFactory/${this.ptr}/get_tracer_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5136,34 +5198,34 @@ export class GstTracerFactory extends GObjectObject {
 export class GstTypeFindFactory extends GObjectObject {
 
   async get_list(): Promise<Pointer> {
-    const url = new URL(`/Gst/TypeFindFactory/get_list`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TypeFindFactory/get_list`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async call_function(find: GstTypeFind): Promise<void> {
-    const url = new URL(`/Gst/TypeFindFactory/${this.ptr}/call_function`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TypeFindFactory/${this.ptr}/call_function`, apiConfig.baseUrl);
     url.searchParams.append('find', String(find));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_caps(): Promise<GstCaps> {
-    const url = new URL(`/Gst/TypeFindFactory/${this.ptr}/get_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TypeFindFactory/${this.ptr}/get_caps`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async get_extensions(): Promise<Pointer> {
-    const url = new URL(`/Gst/TypeFindFactory/${this.ptr}/get_extensions`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TypeFindFactory/${this.ptr}/get_extensions`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   async has_function(): Promise<boolean> {
-    const url = new URL(`/Gst/TypeFindFactory/${this.ptr}/has_function`, 'http://localhost:9000');
+    const url = new URL(`/Gst/TypeFindFactory/${this.ptr}/has_function`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5178,9 +5240,9 @@ export class GstValueArray {
   async append_and_take_value(value_: GObjectValue, append_value: GObjectValue): Promise<void> {
     // Increment ref for parameters with full transfer ownership
     if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-      await fetch('http://localhost:9000/GObject/Object/' + append_value.ptr + '/ref').catch(() => {});
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + append_value.ptr + '/ref').catch(() => {});
     }
-    const url = new URL(`/Gst/ValueArray/append_and_take_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueArray/append_and_take_value`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('append_value', String(append_value));
     try {
@@ -5188,27 +5250,27 @@ export class GstValueArray {
       if (!response.ok) {
         // If the call fails, unref the objects we ref'd
         if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-          await fetch('http://localhost:9000/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (error) {
       // If there's an error, unref the objects we ref'd
       if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-        await fetch('http://localhost:9000/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
       }
       throw error;
     }
   }
   async append_value(value_: GObjectValue, append_value: GObjectValue): Promise<void> {
-    const url = new URL(`/Gst/ValueArray/append_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueArray/append_value`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('append_value', String(append_value));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async get_size(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/ValueArray/get_size`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueArray/get_size`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5216,7 +5278,7 @@ export class GstValueArray {
     return data.return;
   }
   async get_value(value_: GObjectValue, index: number): Promise<GObjectValue> {
-    const url = new URL(`/Gst/ValueArray/get_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueArray/get_value`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('index', String(index));
     const response = await fetch(url.toString());
@@ -5225,7 +5287,7 @@ export class GstValueArray {
     return data.return;
   }
   async init(value_: GObjectValue, prealloc: number): Promise<GObjectValue> {
-    const url = new URL(`/Gst/ValueArray/init`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueArray/init`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('prealloc', String(prealloc));
     const response = await fetch(url.toString());
@@ -5234,7 +5296,7 @@ export class GstValueArray {
     return data.return;
   }
   async prepend_value(value_: GObjectValue, prepend_value: GObjectValue): Promise<void> {
-    const url = new URL(`/Gst/ValueArray/prepend_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueArray/prepend_value`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('prepend_value', String(prepend_value));
     const response = await fetch(url.toString());
@@ -5249,9 +5311,9 @@ export class GstValueList {
   async append_and_take_value(value_: GObjectValue, append_value: GObjectValue): Promise<void> {
     // Increment ref for parameters with full transfer ownership
     if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-      await fetch('http://localhost:9000/GObject/Object/' + append_value.ptr + '/ref').catch(() => {});
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + append_value.ptr + '/ref').catch(() => {});
     }
-    const url = new URL(`/Gst/ValueList/append_and_take_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueList/append_and_take_value`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('append_value', String(append_value));
     try {
@@ -5259,27 +5321,27 @@ export class GstValueList {
       if (!response.ok) {
         // If the call fails, unref the objects we ref'd
         if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-          await fetch('http://localhost:9000/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (error) {
       // If there's an error, unref the objects we ref'd
       if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-        await fetch('http://localhost:9000/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
       }
       throw error;
     }
   }
   async append_value(value_: GObjectValue, append_value: GObjectValue): Promise<void> {
-    const url = new URL(`/Gst/ValueList/append_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueList/append_value`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('append_value', String(append_value));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async concat(value1: GObjectValue, value2: GObjectValue): Promise<{ dest?: GObjectValue }> {
-    const url = new URL(`/Gst/ValueList/concat`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueList/concat`, apiConfig.baseUrl);
     url.searchParams.append('value1', String(value1));
     url.searchParams.append('value2', String(value2));
     const response = await fetch(url.toString());
@@ -5288,7 +5350,7 @@ export class GstValueList {
     return data;
   }
   async get_size(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/ValueList/get_size`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueList/get_size`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5296,7 +5358,7 @@ export class GstValueList {
     return data.return;
   }
   async get_value(value_: GObjectValue, index: number): Promise<GObjectValue> {
-    const url = new URL(`/Gst/ValueList/get_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueList/get_value`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('index', String(index));
     const response = await fetch(url.toString());
@@ -5305,7 +5367,7 @@ export class GstValueList {
     return data.return;
   }
   async init(value_: GObjectValue, prealloc: number): Promise<GObjectValue> {
-    const url = new URL(`/Gst/ValueList/init`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueList/init`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('prealloc', String(prealloc));
     const response = await fetch(url.toString());
@@ -5314,7 +5376,7 @@ export class GstValueList {
     return data.return;
   }
   async merge(value1: GObjectValue, value2: GObjectValue): Promise<{ dest?: GObjectValue }> {
-    const url = new URL(`/Gst/ValueList/merge`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueList/merge`, apiConfig.baseUrl);
     url.searchParams.append('value1', String(value1));
     url.searchParams.append('value2', String(value2));
     const response = await fetch(url.toString());
@@ -5323,7 +5385,7 @@ export class GstValueList {
     return data;
   }
   async prepend_value(value_: GObjectValue, prepend_value: GObjectValue): Promise<void> {
-    const url = new URL(`/Gst/ValueList/prepend_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/ValueList/prepend_value`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('prepend_value', String(prepend_value));
     const response = await fetch(url.toString());
@@ -5334,14 +5396,14 @@ export class GstValueList {
 
 export namespace Gst {
   export async function buffer_get_max_memory(): Promise<number> {
-    const url = new URL(`/Gst/buffer_get_max_memory`, 'http://localhost:9000');
+    const url = new URL(`/Gst/buffer_get_max_memory`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function caps_features_from_string(features: string): Promise<GstCapsFeatures> {
-    const url = new URL(`/Gst/caps_features_from_string`, 'http://localhost:9000');
+    const url = new URL(`/Gst/caps_features_from_string`, apiConfig.baseUrl);
     url.searchParams.append('features', String(features));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5349,7 +5411,7 @@ export namespace Gst {
     return data.return;
   }
   export async function caps_from_string(string: string): Promise<GstCaps> {
-    const url = new URL(`/Gst/caps_from_string`, 'http://localhost:9000');
+    const url = new URL(`/Gst/caps_from_string`, apiConfig.baseUrl);
     url.searchParams.append('string', String(string));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5357,14 +5419,14 @@ export namespace Gst {
     return data.return;
   }
   export async function core_error_quark(): Promise<number> {
-    const url = new URL(`/Gst/core_error_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/core_error_quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function debug_add_log_function(func: (category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, object: GObjectObject, message: GstDebugMessage, user_data: Pointer) => void): Promise<{ func?: number }> {
-    const url = new URL(`/Gst/debug_add_log_function`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_add_log_function`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5375,14 +5437,14 @@ export namespace Gst {
     return data;
   }
   export async function debug_add_ring_buffer_logger(max_size_per_thread: number, thread_timeout: number): Promise<void> {
-    const url = new URL(`/Gst/debug_add_ring_buffer_logger`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_add_ring_buffer_logger`, apiConfig.baseUrl);
     url.searchParams.append('max_size_per_thread', String(max_size_per_thread));
     url.searchParams.append('thread_timeout', String(thread_timeout));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_bin_to_dot_data(bin: GstBin, details: GstDebugGraphDetails): Promise<string> {
-    const url = new URL(`/Gst/debug_bin_to_dot_data`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_bin_to_dot_data`, apiConfig.baseUrl);
     url.searchParams.append('bin', String(bin));
     url.searchParams.append('details', String(details));
     const response = await fetch(url.toString());
@@ -5391,7 +5453,7 @@ export namespace Gst {
     return data.return;
   }
   export async function debug_bin_to_dot_file(bin: GstBin, details: GstDebugGraphDetails, file_name: Pointer): Promise<void> {
-    const url = new URL(`/Gst/debug_bin_to_dot_file`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_bin_to_dot_file`, apiConfig.baseUrl);
     url.searchParams.append('bin', String(bin));
     url.searchParams.append('details', String(details));
     url.searchParams.append('file_name', String(file_name));
@@ -5399,7 +5461,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_bin_to_dot_file_with_ts(bin: GstBin, details: GstDebugGraphDetails, file_name: Pointer): Promise<void> {
-    const url = new URL(`/Gst/debug_bin_to_dot_file_with_ts`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_bin_to_dot_file_with_ts`, apiConfig.baseUrl);
     url.searchParams.append('bin', String(bin));
     url.searchParams.append('details', String(details));
     url.searchParams.append('file_name', String(file_name));
@@ -5407,7 +5469,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_construct_term_color(colorinfo: number): Promise<string> {
-    const url = new URL(`/Gst/debug_construct_term_color`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_construct_term_color`, apiConfig.baseUrl);
     url.searchParams.append('colorinfo', String(colorinfo));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5415,7 +5477,7 @@ export namespace Gst {
     return data.return;
   }
   export async function debug_construct_win_color(colorinfo: number): Promise<number> {
-    const url = new URL(`/Gst/debug_construct_win_color`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_construct_win_color`, apiConfig.baseUrl);
     url.searchParams.append('colorinfo', String(colorinfo));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5423,28 +5485,28 @@ export namespace Gst {
     return data.return;
   }
   export async function debug_get_all_categories(): Promise<Pointer> {
-    const url = new URL(`/Gst/debug_get_all_categories`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_get_all_categories`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function debug_get_color_mode(): Promise<GstDebugColorMode> {
-    const url = new URL(`/Gst/debug_get_color_mode`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_get_color_mode`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function debug_get_default_threshold(): Promise<GstDebugLevelValue> {
-    const url = new URL(`/Gst/debug_get_default_threshold`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_get_default_threshold`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function debug_get_stack_trace(flags: GstStackTraceFlags): Promise<string> {
-    const url = new URL(`/Gst/debug_get_stack_trace`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_get_stack_trace`, apiConfig.baseUrl);
     url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5452,21 +5514,21 @@ export namespace Gst {
     return data.return;
   }
   export async function debug_is_active(): Promise<boolean> {
-    const url = new URL(`/Gst/debug_is_active`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_is_active`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function debug_is_colored(): Promise<boolean> {
-    const url = new URL(`/Gst/debug_is_colored`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_is_colored`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function debug_level_get_name(level: GstDebugLevelValue): Promise<string> {
-    const url = new URL(`/Gst/debug_level_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_level_get_name`, apiConfig.baseUrl);
     url.searchParams.append('level', String(level));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5474,7 +5536,7 @@ export namespace Gst {
     return data.return;
   }
   export async function debug_log_default(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message: GstDebugMessage, object?: GObjectObject): Promise<void> {
-    const url = new URL(`/Gst/debug_log_default`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_log_default`, apiConfig.baseUrl);
     url.searchParams.append('category', String(category));
     url.searchParams.append('level', String(level));
     url.searchParams.append('file', String(file));
@@ -5486,7 +5548,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_log_get_line(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message: GstDebugMessage, object?: GObjectObject): Promise<string> {
-    const url = new URL(`/Gst/debug_log_get_line`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_log_get_line`, apiConfig.baseUrl);
     url.searchParams.append('category', String(category));
     url.searchParams.append('level', String(level));
     url.searchParams.append('file', String(file));
@@ -5500,7 +5562,7 @@ export namespace Gst {
     return data.return;
   }
   export async function debug_log_id_literal(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message_string: string, id?: string): Promise<void> {
-    const url = new URL(`/Gst/debug_log_id_literal`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_log_id_literal`, apiConfig.baseUrl);
     url.searchParams.append('category', String(category));
     url.searchParams.append('level', String(level));
     url.searchParams.append('file', String(file));
@@ -5512,7 +5574,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_log_literal(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message_string: string, object?: GObjectObject): Promise<void> {
-    const url = new URL(`/Gst/debug_log_literal`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_log_literal`, apiConfig.baseUrl);
     url.searchParams.append('category', String(category));
     url.searchParams.append('level', String(level));
     url.searchParams.append('file', String(file));
@@ -5524,12 +5586,12 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_print_stack_trace(): Promise<void> {
-    const url = new URL(`/Gst/debug_print_stack_trace`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_print_stack_trace`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_remove_log_function(func: (category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, object: GObjectObject, message: GstDebugMessage, user_data: Pointer) => void): Promise<number> {
-    const url = new URL(`/Gst/debug_remove_log_function`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_remove_log_function`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5540,81 +5602,81 @@ export namespace Gst {
     return data.return;
   }
   export async function debug_remove_log_function_by_data(): Promise<number> {
-    const url = new URL(`/Gst/debug_remove_log_function_by_data`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_remove_log_function_by_data`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function debug_remove_ring_buffer_logger(): Promise<void> {
-    const url = new URL(`/Gst/debug_remove_ring_buffer_logger`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_remove_ring_buffer_logger`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_ring_buffer_logger_get_logs(): Promise<Pointer> {
-    const url = new URL(`/Gst/debug_ring_buffer_logger_get_logs`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_ring_buffer_logger_get_logs`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function debug_set_active(active: boolean): Promise<void> {
-    const url = new URL(`/Gst/debug_set_active`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_set_active`, apiConfig.baseUrl);
     url.searchParams.append('active', String(active));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_set_color_mode(mode: GstDebugColorMode): Promise<void> {
-    const url = new URL(`/Gst/debug_set_color_mode`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_set_color_mode`, apiConfig.baseUrl);
     url.searchParams.append('mode', String(mode));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_set_color_mode_from_string(mode: string): Promise<void> {
-    const url = new URL(`/Gst/debug_set_color_mode_from_string`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_set_color_mode_from_string`, apiConfig.baseUrl);
     url.searchParams.append('mode', String(mode));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_set_colored(colored: boolean): Promise<void> {
-    const url = new URL(`/Gst/debug_set_colored`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_set_colored`, apiConfig.baseUrl);
     url.searchParams.append('colored', String(colored));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_set_default_threshold(level: GstDebugLevelValue): Promise<void> {
-    const url = new URL(`/Gst/debug_set_default_threshold`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_set_default_threshold`, apiConfig.baseUrl);
     url.searchParams.append('level', String(level));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_set_threshold_for_name(name: string, level: GstDebugLevelValue): Promise<void> {
-    const url = new URL(`/Gst/debug_set_threshold_for_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_set_threshold_for_name`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     url.searchParams.append('level', String(level));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_set_threshold_from_string(list: string, reset: boolean): Promise<void> {
-    const url = new URL(`/Gst/debug_set_threshold_from_string`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_set_threshold_from_string`, apiConfig.baseUrl);
     url.searchParams.append('list', String(list));
     url.searchParams.append('reset', String(reset));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function debug_unset_threshold_for_name(name: string): Promise<void> {
-    const url = new URL(`/Gst/debug_unset_threshold_for_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/debug_unset_threshold_for_name`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function deinit(): Promise<void> {
-    const url = new URL(`/Gst/deinit`, 'http://localhost:9000');
+    const url = new URL(`/Gst/deinit`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function dynamic_type_register(plugin: GstPlugin, type_: Pointer): Promise<boolean> {
-    const url = new URL(`/Gst/dynamic_type_register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/dynamic_type_register`, apiConfig.baseUrl);
     url.searchParams.append('plugin', String(plugin));
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
@@ -5623,7 +5685,7 @@ export namespace Gst {
     return data.return;
   }
   export async function error_get_message(domain: number, code: number): Promise<string> {
-    const url = new URL(`/Gst/error_get_message`, 'http://localhost:9000');
+    const url = new URL(`/Gst/error_get_message`, apiConfig.baseUrl);
     url.searchParams.append('domain', String(domain));
     url.searchParams.append('code', String(code));
     const response = await fetch(url.toString());
@@ -5632,7 +5694,7 @@ export namespace Gst {
     return data.return;
   }
   export async function event_type_get_flags(type_: GstEventTypeValue): Promise<GstEventTypeFlags> {
-    const url = new URL(`/Gst/event_type_get_flags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/event_type_get_flags`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5640,7 +5702,7 @@ export namespace Gst {
     return data.return;
   }
   export async function event_type_get_name(type_: GstEventTypeValue): Promise<string> {
-    const url = new URL(`/Gst/event_type_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/event_type_get_name`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5648,7 +5710,7 @@ export namespace Gst {
     return data.return;
   }
   export async function event_type_to_quark(type_: GstEventTypeValue): Promise<number> {
-    const url = new URL(`/Gst/event_type_to_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/event_type_to_quark`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5656,7 +5718,7 @@ export namespace Gst {
     return data.return;
   }
   export async function event_type_to_sticky_ordering(type_: GstEventTypeValue): Promise<number> {
-    const url = new URL(`/Gst/event_type_to_sticky_ordering`, 'http://localhost:9000');
+    const url = new URL(`/Gst/event_type_to_sticky_ordering`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5664,7 +5726,7 @@ export namespace Gst {
     return data.return;
   }
   export async function filename_to_uri(filename: Pointer): Promise<string> {
-    const url = new URL(`/Gst/filename_to_uri`, 'http://localhost:9000');
+    const url = new URL(`/Gst/filename_to_uri`, apiConfig.baseUrl);
     url.searchParams.append('filename', String(filename));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5672,7 +5734,7 @@ export namespace Gst {
     return data.return;
   }
   export async function flow_get_name(ret: GstFlowReturn): Promise<string> {
-    const url = new URL(`/Gst/flow_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/flow_get_name`, apiConfig.baseUrl);
     url.searchParams.append('ret', String(ret));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5680,7 +5742,7 @@ export namespace Gst {
     return data.return;
   }
   export async function flow_to_quark(ret: GstFlowReturn): Promise<number> {
-    const url = new URL(`/Gst/flow_to_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/flow_to_quark`, apiConfig.baseUrl);
     url.searchParams.append('ret', String(ret));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5688,7 +5750,7 @@ export namespace Gst {
     return data.return;
   }
   export async function format_get_by_nick(nick: string): Promise<GstFormatValue> {
-    const url = new URL(`/Gst/format_get_by_nick`, 'http://localhost:9000');
+    const url = new URL(`/Gst/format_get_by_nick`, apiConfig.baseUrl);
     url.searchParams.append('nick', String(nick));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5696,7 +5758,7 @@ export namespace Gst {
     return data.return;
   }
   export async function format_get_details(format: GstFormatValue): Promise<GstFormatDefinition> {
-    const url = new URL(`/Gst/format_get_details`, 'http://localhost:9000');
+    const url = new URL(`/Gst/format_get_details`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5704,7 +5766,7 @@ export namespace Gst {
     return data.return;
   }
   export async function format_get_name(format: GstFormatValue): Promise<string> {
-    const url = new URL(`/Gst/format_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/format_get_name`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5712,14 +5774,14 @@ export namespace Gst {
     return data.return;
   }
   export async function format_iterate_definitions(): Promise<GstIterator> {
-    const url = new URL(`/Gst/format_iterate_definitions`, 'http://localhost:9000');
+    const url = new URL(`/Gst/format_iterate_definitions`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function format_register(nick: string, description: string): Promise<GstFormatValue> {
-    const url = new URL(`/Gst/format_register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/format_register`, apiConfig.baseUrl);
     url.searchParams.append('nick', String(nick));
     url.searchParams.append('description', String(description));
     const response = await fetch(url.toString());
@@ -5728,7 +5790,7 @@ export namespace Gst {
     return data.return;
   }
   export async function format_to_quark(format: GstFormatValue): Promise<number> {
-    const url = new URL(`/Gst/format_to_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/format_to_quark`, apiConfig.baseUrl);
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5736,7 +5798,7 @@ export namespace Gst {
     return data.return;
   }
   export async function formats_contains(formats: Pointer, format: GstFormatValue): Promise<boolean> {
-    const url = new URL(`/Gst/formats_contains`, 'http://localhost:9000');
+    const url = new URL(`/Gst/formats_contains`, apiConfig.baseUrl);
     url.searchParams.append('formats', String(formats));
     url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
@@ -5745,14 +5807,14 @@ export namespace Gst {
     return data.return;
   }
   export async function get_main_executable_path(): Promise<string> {
-    const url = new URL(`/Gst/get_main_executable_path`, 'http://localhost:9000');
+    const url = new URL(`/Gst/get_main_executable_path`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function init(argc?: number, argv?: Pointer): Promise<{ argc?: number; argv?: Pointer }> {
-    const url = new URL(`/Gst/init`, 'http://localhost:9000');
+    const url = new URL(`/Gst/init`, apiConfig.baseUrl);
     if (argc !== undefined) url.searchParams.append('argc', String(argc));
     if (argv !== undefined) url.searchParams.append('argv', String(argv));
     const response = await fetch(url.toString());
@@ -5761,7 +5823,7 @@ export namespace Gst {
     return data;
   }
   export async function init_check(argc?: number, argv?: Pointer): Promise<boolean> {
-    const url = new URL(`/Gst/init_check`, 'http://localhost:9000');
+    const url = new URL(`/Gst/init_check`, apiConfig.baseUrl);
     if (argc !== undefined) url.searchParams.append('argc', String(argc));
     if (argv !== undefined) url.searchParams.append('argv', String(argv));
     const response = await fetch(url.toString());
@@ -5770,28 +5832,28 @@ export namespace Gst {
     return data.return;
   }
   export async function is_caps_features(): Promise<boolean> {
-    const url = new URL(`/Gst/is_caps_features`, 'http://localhost:9000');
+    const url = new URL(`/Gst/is_caps_features`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function is_initialized(): Promise<boolean> {
-    const url = new URL(`/Gst/is_initialized`, 'http://localhost:9000');
+    const url = new URL(`/Gst/is_initialized`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function library_error_quark(): Promise<number> {
-    const url = new URL(`/Gst/library_error_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/library_error_quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function message_type_get_name(type_: GstMessageTypeValue): Promise<string> {
-    const url = new URL(`/Gst/message_type_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/message_type_get_name`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5799,7 +5861,7 @@ export namespace Gst {
     return data.return;
   }
   export async function message_type_to_quark(type_: GstMessageTypeValue): Promise<number> {
-    const url = new URL(`/Gst/message_type_to_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/message_type_to_quark`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5807,7 +5869,7 @@ export namespace Gst {
     return data.return;
   }
   export async function meta_api_type_get_tags(api: Pointer): Promise<Pointer> {
-    const url = new URL(`/Gst/meta_api_type_get_tags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/meta_api_type_get_tags`, apiConfig.baseUrl);
     url.searchParams.append('api', String(api));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5815,7 +5877,7 @@ export namespace Gst {
     return data.return;
   }
   export async function meta_api_type_has_tag(api: Pointer, tag: number): Promise<boolean> {
-    const url = new URL(`/Gst/meta_api_type_has_tag`, 'http://localhost:9000');
+    const url = new URL(`/Gst/meta_api_type_has_tag`, apiConfig.baseUrl);
     url.searchParams.append('api', String(api));
     url.searchParams.append('tag', String(tag));
     const response = await fetch(url.toString());
@@ -5824,7 +5886,7 @@ export namespace Gst {
     return data.return;
   }
   export async function meta_api_type_register(api: string, tags: Pointer): Promise<Pointer> {
-    const url = new URL(`/Gst/meta_api_type_register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/meta_api_type_register`, apiConfig.baseUrl);
     url.searchParams.append('api', String(api));
     url.searchParams.append('tags', String(tags));
     const response = await fetch(url.toString());
@@ -5833,7 +5895,7 @@ export namespace Gst {
     return data.return;
   }
   export async function meta_deserialize(buffer: GstBuffer, data_: number, size: number): Promise<GstMeta> {
-    const url = new URL(`/Gst/meta_deserialize`, 'http://localhost:9000');
+    const url = new URL(`/Gst/meta_deserialize`, apiConfig.baseUrl);
     url.searchParams.append('buffer', String(buffer));
     url.searchParams.append('data', String(data_));
     url.searchParams.append('size', String(size));
@@ -5843,7 +5905,7 @@ export namespace Gst {
     return data.return;
   }
   export async function meta_get_info(impl: string): Promise<GstMetaInfo> {
-    const url = new URL(`/Gst/meta_get_info`, 'http://localhost:9000');
+    const url = new URL(`/Gst/meta_get_info`, apiConfig.baseUrl);
     url.searchParams.append('impl', String(impl));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5851,7 +5913,7 @@ export namespace Gst {
     return data.return;
   }
   export async function meta_register_custom(name: string, tags: Pointer, transform_func: (transbuf: GstBuffer, meta: GstCustomMeta, buffer: GstBuffer, type_: number, data_: Pointer, user_data: Pointer) => boolean): Promise<GstMetaInfo> {
-    const url = new URL(`/Gst/meta_register_custom`, 'http://localhost:9000');
+    const url = new URL(`/Gst/meta_register_custom`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     url.searchParams.append('tags', String(tags));
     const response = await fetch(url.toString());
@@ -5864,7 +5926,7 @@ export namespace Gst {
     return data.return;
   }
   export async function meta_register_custom_simple(name: string): Promise<GstMetaInfo> {
-    const url = new URL(`/Gst/meta_register_custom_simple`, 'http://localhost:9000');
+    const url = new URL(`/Gst/meta_register_custom_simple`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5872,7 +5934,7 @@ export namespace Gst {
     return data.return;
   }
   export async function mini_object_replace(olddata?: GstMiniObject, newdata?: GstMiniObject): Promise<boolean> {
-    const url = new URL(`/Gst/mini_object_replace`, 'http://localhost:9000');
+    const url = new URL(`/Gst/mini_object_replace`, apiConfig.baseUrl);
     if (olddata !== undefined) url.searchParams.append('olddata', String(olddata));
     if (newdata !== undefined) url.searchParams.append('newdata', String(newdata));
     const response = await fetch(url.toString());
@@ -5881,7 +5943,7 @@ export namespace Gst {
     return data.return;
   }
   export async function mini_object_take(olddata: GstMiniObject, newdata: GstMiniObject): Promise<boolean> {
-    const url = new URL(`/Gst/mini_object_take`, 'http://localhost:9000');
+    const url = new URL(`/Gst/mini_object_take`, apiConfig.baseUrl);
     url.searchParams.append('olddata', String(olddata));
     url.searchParams.append('newdata', String(newdata));
     const response = await fetch(url.toString());
@@ -5890,7 +5952,7 @@ export namespace Gst {
     return data.return;
   }
   export async function pad_mode_get_name(mode: GstPadModeValue): Promise<string> {
-    const url = new URL(`/Gst/pad_mode_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/pad_mode_get_name`, apiConfig.baseUrl);
     url.searchParams.append('mode', String(mode));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5898,7 +5960,7 @@ export namespace Gst {
     return data.return;
   }
   export async function param_spec_array(name: string, nick: string, blurb: string, element_spec: GObjectParamSpec, flags: GObjectParamFlags): Promise<GObjectParamSpec> {
-    const url = new URL(`/Gst/param_spec_array`, 'http://localhost:9000');
+    const url = new URL(`/Gst/param_spec_array`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     url.searchParams.append('nick', String(nick));
     url.searchParams.append('blurb', String(blurb));
@@ -5910,7 +5972,7 @@ export namespace Gst {
     return data.return;
   }
   export async function param_spec_fraction(name: string, nick: string, blurb: string, min_num: number, min_denom: number, max_num: number, max_denom: number, default_num: number, default_denom: number, flags: GObjectParamFlags): Promise<GObjectParamSpec> {
-    const url = new URL(`/Gst/param_spec_fraction`, 'http://localhost:9000');
+    const url = new URL(`/Gst/param_spec_fraction`, apiConfig.baseUrl);
     url.searchParams.append('name', String(name));
     url.searchParams.append('nick', String(nick));
     url.searchParams.append('blurb', String(blurb));
@@ -5927,21 +5989,21 @@ export namespace Gst {
     return data.return;
   }
   export async function parent_buffer_meta_api_get_type(): Promise<Pointer> {
-    const url = new URL(`/Gst/parent_buffer_meta_api_get_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/parent_buffer_meta_api_get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function parent_buffer_meta_get_info(): Promise<GstMetaInfo> {
-    const url = new URL(`/Gst/parent_buffer_meta_get_info`, 'http://localhost:9000');
+    const url = new URL(`/Gst/parent_buffer_meta_get_info`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function parse_bin_from_description(bin_description: string, ghost_unlinked_pads: boolean): Promise<GstBin> {
-    const url = new URL(`/Gst/parse_bin_from_description`, 'http://localhost:9000');
+    const url = new URL(`/Gst/parse_bin_from_description`, apiConfig.baseUrl);
     url.searchParams.append('bin_description', String(bin_description));
     url.searchParams.append('ghost_unlinked_pads', String(ghost_unlinked_pads));
     const response = await fetch(url.toString());
@@ -5950,7 +6012,7 @@ export namespace Gst {
     return data.return;
   }
   export async function parse_bin_from_description_full(bin_description: string, ghost_unlinked_pads: boolean, flags: GstParseFlags, context?: GstParseContext): Promise<GstElement> {
-    const url = new URL(`/Gst/parse_bin_from_description_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/parse_bin_from_description_full`, apiConfig.baseUrl);
     url.searchParams.append('bin_description', String(bin_description));
     url.searchParams.append('ghost_unlinked_pads', String(ghost_unlinked_pads));
     if (context !== undefined) url.searchParams.append('context', String(context));
@@ -5961,14 +6023,14 @@ export namespace Gst {
     return data.return;
   }
   export async function parse_error_quark(): Promise<number> {
-    const url = new URL(`/Gst/parse_error_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/parse_error_quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function parse_launch(pipeline_description: string): Promise<GstElement> {
-    const url = new URL(`/Gst/parse_launch`, 'http://localhost:9000');
+    const url = new URL(`/Gst/parse_launch`, apiConfig.baseUrl);
     url.searchParams.append('pipeline_description', String(pipeline_description));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5976,7 +6038,7 @@ export namespace Gst {
     return data.return;
   }
   export async function parse_launch_full(pipeline_description: string, flags: GstParseFlags, context?: GstParseContext): Promise<GstElement> {
-    const url = new URL(`/Gst/parse_launch_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/parse_launch_full`, apiConfig.baseUrl);
     url.searchParams.append('pipeline_description', String(pipeline_description));
     if (context !== undefined) url.searchParams.append('context', String(context));
     url.searchParams.append('flags', String(flags));
@@ -5986,7 +6048,7 @@ export namespace Gst {
     return data.return;
   }
   export async function parse_launchv(argv: Pointer): Promise<GstElement> {
-    const url = new URL(`/Gst/parse_launchv`, 'http://localhost:9000');
+    const url = new URL(`/Gst/parse_launchv`, apiConfig.baseUrl);
     url.searchParams.append('argv', String(argv));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5994,7 +6056,7 @@ export namespace Gst {
     return data.return;
   }
   export async function parse_launchv_full(argv: Pointer, flags: GstParseFlags, context?: GstParseContext): Promise<GstElement> {
-    const url = new URL(`/Gst/parse_launchv_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/parse_launchv_full`, apiConfig.baseUrl);
     url.searchParams.append('argv', String(argv));
     if (context !== undefined) url.searchParams.append('context', String(context));
     url.searchParams.append('flags', String(flags));
@@ -6004,21 +6066,21 @@ export namespace Gst {
     return data.return;
   }
   export async function plugin_error_quark(): Promise<number> {
-    const url = new URL(`/Gst/plugin_error_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/plugin_error_quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function preset_get_app_dir(): Promise<Pointer> {
-    const url = new URL(`/Gst/preset_get_app_dir`, 'http://localhost:9000');
+    const url = new URL(`/Gst/preset_get_app_dir`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function preset_set_app_dir(app_dir: Pointer): Promise<boolean> {
-    const url = new URL(`/Gst/preset_set_app_dir`, 'http://localhost:9000');
+    const url = new URL(`/Gst/preset_set_app_dir`, apiConfig.baseUrl);
     url.searchParams.append('app_dir', String(app_dir));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6026,7 +6088,7 @@ export namespace Gst {
     return data.return;
   }
   export async function protection_filter_systems_by_available_decryptors(system_identifiers: Pointer): Promise<Pointer> {
-    const url = new URL(`/Gst/protection_filter_systems_by_available_decryptors`, 'http://localhost:9000');
+    const url = new URL(`/Gst/protection_filter_systems_by_available_decryptors`, apiConfig.baseUrl);
     url.searchParams.append('system_identifiers', String(system_identifiers));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6034,21 +6096,21 @@ export namespace Gst {
     return data.return;
   }
   export async function protection_meta_api_get_type(): Promise<Pointer> {
-    const url = new URL(`/Gst/protection_meta_api_get_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/protection_meta_api_get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function protection_meta_get_info(): Promise<GstMetaInfo> {
-    const url = new URL(`/Gst/protection_meta_get_info`, 'http://localhost:9000');
+    const url = new URL(`/Gst/protection_meta_get_info`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function protection_select_system(system_identifiers: Pointer): Promise<string> {
-    const url = new URL(`/Gst/protection_select_system`, 'http://localhost:9000');
+    const url = new URL(`/Gst/protection_select_system`, apiConfig.baseUrl);
     url.searchParams.append('system_identifiers', String(system_identifiers));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6056,7 +6118,7 @@ export namespace Gst {
     return data.return;
   }
   export async function query_type_get_flags(type_: GstQueryTypeValue): Promise<GstQueryTypeFlags> {
-    const url = new URL(`/Gst/query_type_get_flags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/query_type_get_flags`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6064,7 +6126,7 @@ export namespace Gst {
     return data.return;
   }
   export async function query_type_get_name(type_: GstQueryTypeValue): Promise<string> {
-    const url = new URL(`/Gst/query_type_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/query_type_get_name`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6072,7 +6134,7 @@ export namespace Gst {
     return data.return;
   }
   export async function query_type_to_quark(type_: GstQueryTypeValue): Promise<number> {
-    const url = new URL(`/Gst/query_type_to_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/query_type_to_quark`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6080,41 +6142,41 @@ export namespace Gst {
     return data.return;
   }
   export async function reference_timestamp_meta_api_get_type(): Promise<Pointer> {
-    const url = new URL(`/Gst/reference_timestamp_meta_api_get_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/reference_timestamp_meta_api_get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function reference_timestamp_meta_get_info(): Promise<GstMetaInfo> {
-    const url = new URL(`/Gst/reference_timestamp_meta_get_info`, 'http://localhost:9000');
+    const url = new URL(`/Gst/reference_timestamp_meta_get_info`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function resource_error_quark(): Promise<number> {
-    const url = new URL(`/Gst/resource_error_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/resource_error_quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function segtrap_is_enabled(): Promise<boolean> {
-    const url = new URL(`/Gst/segtrap_is_enabled`, 'http://localhost:9000');
+    const url = new URL(`/Gst/segtrap_is_enabled`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function segtrap_set_enabled(enabled: boolean): Promise<void> {
-    const url = new URL(`/Gst/segtrap_set_enabled`, 'http://localhost:9000');
+    const url = new URL(`/Gst/segtrap_set_enabled`, apiConfig.baseUrl);
     url.searchParams.append('enabled', String(enabled));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function state_change_get_name(transition: GstStateChangeValue): Promise<string> {
-    const url = new URL(`/Gst/state_change_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/state_change_get_name`, apiConfig.baseUrl);
     url.searchParams.append('transition', String(transition));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6122,28 +6184,28 @@ export namespace Gst {
     return data.return;
   }
   export async function static_caps_get_type(): Promise<Pointer> {
-    const url = new URL(`/Gst/static_caps_get_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/static_caps_get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function static_pad_template_get_type(): Promise<Pointer> {
-    const url = new URL(`/Gst/static_pad_template_get_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/static_pad_template_get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function stream_error_quark(): Promise<number> {
-    const url = new URL(`/Gst/stream_error_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/stream_error_quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function stream_type_get_name(stype: GstStreamTypeValue): Promise<string> {
-    const url = new URL(`/Gst/stream_type_get_name`, 'http://localhost:9000');
+    const url = new URL(`/Gst/stream_type_get_name`, apiConfig.baseUrl);
     url.searchParams.append('stype', String(stype));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6151,7 +6213,7 @@ export namespace Gst {
     return data.return;
   }
   export async function structure_take(oldstr_ptr?: GstStructure, newstr?: GstStructure): Promise<boolean> {
-    const url = new URL(`/Gst/structure_take`, 'http://localhost:9000');
+    const url = new URL(`/Gst/structure_take`, apiConfig.baseUrl);
     if (oldstr_ptr !== undefined) url.searchParams.append('oldstr_ptr', String(oldstr_ptr));
     if (newstr !== undefined) url.searchParams.append('newstr', String(newstr));
     const response = await fetch(url.toString());
@@ -6160,7 +6222,7 @@ export namespace Gst {
     return data.return;
   }
   export async function tag_exists(tag: string): Promise<boolean> {
-    const url = new URL(`/Gst/tag_exists`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tag_exists`, apiConfig.baseUrl);
     url.searchParams.append('tag', String(tag));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6168,7 +6230,7 @@ export namespace Gst {
     return data.return;
   }
   export async function tag_get_description(tag: string): Promise<string> {
-    const url = new URL(`/Gst/tag_get_description`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tag_get_description`, apiConfig.baseUrl);
     url.searchParams.append('tag', String(tag));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6176,7 +6238,7 @@ export namespace Gst {
     return data.return;
   }
   export async function tag_get_flag(tag: string): Promise<GstTagFlag> {
-    const url = new URL(`/Gst/tag_get_flag`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tag_get_flag`, apiConfig.baseUrl);
     url.searchParams.append('tag', String(tag));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6184,7 +6246,7 @@ export namespace Gst {
     return data.return;
   }
   export async function tag_get_nick(tag: string): Promise<string> {
-    const url = new URL(`/Gst/tag_get_nick`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tag_get_nick`, apiConfig.baseUrl);
     url.searchParams.append('tag', String(tag));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6192,7 +6254,7 @@ export namespace Gst {
     return data.return;
   }
   export async function tag_get_type(tag: string): Promise<Pointer> {
-    const url = new URL(`/Gst/tag_get_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tag_get_type`, apiConfig.baseUrl);
     url.searchParams.append('tag', String(tag));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6200,7 +6262,7 @@ export namespace Gst {
     return data.return;
   }
   export async function tag_is_fixed(tag: string): Promise<boolean> {
-    const url = new URL(`/Gst/tag_is_fixed`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tag_is_fixed`, apiConfig.baseUrl);
     url.searchParams.append('tag', String(tag));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6208,7 +6270,7 @@ export namespace Gst {
     return data.return;
   }
   export async function tag_list_copy_value(list: GstTagList, tag: string): Promise<boolean> {
-    const url = new URL(`/Gst/tag_list_copy_value`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tag_list_copy_value`, apiConfig.baseUrl);
     url.searchParams.append('list', String(list));
     url.searchParams.append('tag', String(tag));
     const response = await fetch(url.toString());
@@ -6217,7 +6279,7 @@ export namespace Gst {
     return data.return;
   }
   export async function tag_merge_strings_with_comma(src: GObjectValue): Promise<{ dest?: GObjectValue }> {
-    const url = new URL(`/Gst/tag_merge_strings_with_comma`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tag_merge_strings_with_comma`, apiConfig.baseUrl);
     url.searchParams.append('src', String(src));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6225,7 +6287,7 @@ export namespace Gst {
     return data;
   }
   export async function tag_merge_use_first(src: GObjectValue): Promise<{ dest?: GObjectValue }> {
-    const url = new URL(`/Gst/tag_merge_use_first`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tag_merge_use_first`, apiConfig.baseUrl);
     url.searchParams.append('src', String(src));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6233,7 +6295,7 @@ export namespace Gst {
     return data;
   }
   export async function toc_entry_type_get_nick(type_: GstTocEntryTypeValue): Promise<string> {
-    const url = new URL(`/Gst/toc_entry_type_get_nick`, 'http://localhost:9000');
+    const url = new URL(`/Gst/toc_entry_type_get_nick`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6241,14 +6303,14 @@ export namespace Gst {
     return data.return;
   }
   export async function tracing_get_active_tracers(): Promise<Pointer> {
-    const url = new URL(`/Gst/tracing_get_active_tracers`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tracing_get_active_tracers`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function tracing_register_hook(tracer: GstTracer, detail: string, func: () => void): Promise<{ func?: number }> {
-    const url = new URL(`/Gst/tracing_register_hook`, 'http://localhost:9000');
+    const url = new URL(`/Gst/tracing_register_hook`, apiConfig.baseUrl);
     url.searchParams.append('tracer', String(tracer));
     url.searchParams.append('detail', String(detail));
     const response = await fetch(url.toString());
@@ -6261,14 +6323,14 @@ export namespace Gst {
     return data;
   }
   export async function type_find_get_type(): Promise<Pointer> {
-    const url = new URL(`/Gst/type_find_get_type`, 'http://localhost:9000');
+    const url = new URL(`/Gst/type_find_get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function type_find_register(name: string, rank: number, func: (find: GstTypeFind, user_data: Pointer) => void, plugin?: GstPlugin, extensions?: string, possible_caps?: GstCaps): Promise<boolean> {
-    const url = new URL(`/Gst/type_find_register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/type_find_register`, apiConfig.baseUrl);
     if (plugin !== undefined) url.searchParams.append('plugin', String(plugin));
     url.searchParams.append('name', String(name));
     url.searchParams.append('rank', String(rank));
@@ -6284,7 +6346,7 @@ export namespace Gst {
     return data.return;
   }
   export async function type_is_plugin_api(type_: Pointer): Promise<boolean> {
-    const url = new URL(`/Gst/type_is_plugin_api`, 'http://localhost:9000');
+    const url = new URL(`/Gst/type_is_plugin_api`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6292,21 +6354,21 @@ export namespace Gst {
     return data.return;
   }
   export async function type_mark_as_plugin_api(type_: Pointer, flags: GstPluginAPIFlags): Promise<void> {
-    const url = new URL(`/Gst/type_mark_as_plugin_api`, 'http://localhost:9000');
+    const url = new URL(`/Gst/type_mark_as_plugin_api`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function update_registry(): Promise<boolean> {
-    const url = new URL(`/Gst/update_registry`, 'http://localhost:9000');
+    const url = new URL(`/Gst/update_registry`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function uri_construct(protocol: string, location: string): Promise<string> {
-    const url = new URL(`/Gst/uri_construct`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_construct`, apiConfig.baseUrl);
     url.searchParams.append('protocol', String(protocol));
     url.searchParams.append('location', String(location));
     const response = await fetch(url.toString());
@@ -6315,14 +6377,14 @@ export namespace Gst {
     return data.return;
   }
   export async function uri_error_quark(): Promise<number> {
-    const url = new URL(`/Gst/uri_error_quark`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_error_quark`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function uri_from_string(uri: string): Promise<GstUri> {
-    const url = new URL(`/Gst/uri_from_string`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_from_string`, apiConfig.baseUrl);
     url.searchParams.append('uri', String(uri));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6330,7 +6392,7 @@ export namespace Gst {
     return data.return;
   }
   export async function uri_from_string_escaped(uri: string): Promise<GstUri> {
-    const url = new URL(`/Gst/uri_from_string_escaped`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_from_string_escaped`, apiConfig.baseUrl);
     url.searchParams.append('uri', String(uri));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6338,7 +6400,7 @@ export namespace Gst {
     return data.return;
   }
   export async function uri_get_location(uri: string): Promise<string> {
-    const url = new URL(`/Gst/uri_get_location`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_get_location`, apiConfig.baseUrl);
     url.searchParams.append('uri', String(uri));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6346,7 +6408,7 @@ export namespace Gst {
     return data.return;
   }
   export async function uri_get_protocol(uri: string): Promise<string> {
-    const url = new URL(`/Gst/uri_get_protocol`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_get_protocol`, apiConfig.baseUrl);
     url.searchParams.append('uri', String(uri));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6354,7 +6416,7 @@ export namespace Gst {
     return data.return;
   }
   export async function uri_has_protocol(uri: string, protocol: string): Promise<boolean> {
-    const url = new URL(`/Gst/uri_has_protocol`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_has_protocol`, apiConfig.baseUrl);
     url.searchParams.append('uri', String(uri));
     url.searchParams.append('protocol', String(protocol));
     const response = await fetch(url.toString());
@@ -6363,7 +6425,7 @@ export namespace Gst {
     return data.return;
   }
   export async function uri_is_valid(uri: string): Promise<boolean> {
-    const url = new URL(`/Gst/uri_is_valid`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_is_valid`, apiConfig.baseUrl);
     url.searchParams.append('uri', String(uri));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6371,7 +6433,7 @@ export namespace Gst {
     return data.return;
   }
   export async function uri_join_strings(base_uri: string, ref_uri: string): Promise<string> {
-    const url = new URL(`/Gst/uri_join_strings`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_join_strings`, apiConfig.baseUrl);
     url.searchParams.append('base_uri', String(base_uri));
     url.searchParams.append('ref_uri', String(ref_uri));
     const response = await fetch(url.toString());
@@ -6380,7 +6442,7 @@ export namespace Gst {
     return data.return;
   }
   export async function uri_protocol_is_supported(type_: GstURIType, protocol: string): Promise<boolean> {
-    const url = new URL(`/Gst/uri_protocol_is_supported`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_protocol_is_supported`, apiConfig.baseUrl);
     url.searchParams.append('type', String(type_));
     url.searchParams.append('protocol', String(protocol));
     const response = await fetch(url.toString());
@@ -6389,7 +6451,7 @@ export namespace Gst {
     return data.return;
   }
   export async function uri_protocol_is_valid(protocol: string): Promise<boolean> {
-    const url = new URL(`/Gst/uri_protocol_is_valid`, 'http://localhost:9000');
+    const url = new URL(`/Gst/uri_protocol_is_valid`, apiConfig.baseUrl);
     url.searchParams.append('protocol', String(protocol));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6397,7 +6459,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_array_binary_search(num_elements: number, element_size: number, mode: GstSearchMode, search_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ search_func?: number }> {
-    const url = new URL(`/Gst/util_array_binary_search`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_array_binary_search`, apiConfig.baseUrl);
     url.searchParams.append('num_elements', String(num_elements));
     url.searchParams.append('element_size', String(element_size));
     url.searchParams.append('mode', String(mode));
@@ -6411,7 +6473,7 @@ export namespace Gst {
     return data;
   }
   export async function util_ceil_log2(v: number): Promise<number> {
-    const url = new URL(`/Gst/util_ceil_log2`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_ceil_log2`, apiConfig.baseUrl);
     url.searchParams.append('v', String(v));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6419,7 +6481,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_double_to_fraction(src: number): Promise<{ dest_n?: number; dest_d?: number }> {
-    const url = new URL(`/Gst/util_double_to_fraction`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_double_to_fraction`, apiConfig.baseUrl);
     url.searchParams.append('src', String(src));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6427,20 +6489,20 @@ export namespace Gst {
     return data;
   }
   export async function util_dump_buffer(buf: GstBuffer): Promise<void> {
-    const url = new URL(`/Gst/util_dump_buffer`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_dump_buffer`, apiConfig.baseUrl);
     url.searchParams.append('buf', String(buf));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function util_dump_mem(mem: Pointer, size: number): Promise<void> {
-    const url = new URL(`/Gst/util_dump_mem`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_dump_mem`, apiConfig.baseUrl);
     url.searchParams.append('mem', String(mem));
     url.searchParams.append('size', String(size));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function util_filename_compare(a: Pointer, b: Pointer): Promise<number> {
-    const url = new URL(`/Gst/util_filename_compare`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_filename_compare`, apiConfig.baseUrl);
     url.searchParams.append('a', String(a));
     url.searchParams.append('b', String(b));
     const response = await fetch(url.toString());
@@ -6449,7 +6511,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_fraction_add(a_n: number, a_d: number, b_n: number, b_d: number): Promise<boolean> {
-    const url = new URL(`/Gst/util_fraction_add`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_fraction_add`, apiConfig.baseUrl);
     url.searchParams.append('a_n', String(a_n));
     url.searchParams.append('a_d', String(a_d));
     url.searchParams.append('b_n', String(b_n));
@@ -6460,7 +6522,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_fraction_compare(a_n: number, a_d: number, b_n: number, b_d: number): Promise<number> {
-    const url = new URL(`/Gst/util_fraction_compare`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_fraction_compare`, apiConfig.baseUrl);
     url.searchParams.append('a_n', String(a_n));
     url.searchParams.append('a_d', String(a_d));
     url.searchParams.append('b_n', String(b_n));
@@ -6471,7 +6533,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_fraction_multiply(a_n: number, a_d: number, b_n: number, b_d: number): Promise<boolean> {
-    const url = new URL(`/Gst/util_fraction_multiply`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_fraction_multiply`, apiConfig.baseUrl);
     url.searchParams.append('a_n', String(a_n));
     url.searchParams.append('a_d', String(a_d));
     url.searchParams.append('b_n', String(b_n));
@@ -6482,7 +6544,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_fraction_to_double(src_n: number, src_d: number): Promise<{ dest?: number }> {
-    const url = new URL(`/Gst/util_fraction_to_double`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_fraction_to_double`, apiConfig.baseUrl);
     url.searchParams.append('src_n', String(src_n));
     url.searchParams.append('src_d', String(src_d));
     const response = await fetch(url.toString());
@@ -6491,7 +6553,7 @@ export namespace Gst {
     return data;
   }
   export async function util_gdouble_to_guint64(value_: number): Promise<number> {
-    const url = new URL(`/Gst/util_gdouble_to_guint64`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_gdouble_to_guint64`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6499,7 +6561,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_get_object_array(object: GObjectObject, name: string): Promise<boolean> {
-    const url = new URL(`/Gst/util_get_object_array`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_get_object_array`, apiConfig.baseUrl);
     url.searchParams.append('object', String(object));
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
@@ -6508,14 +6570,14 @@ export namespace Gst {
     return data.return;
   }
   export async function util_get_timestamp(): Promise<number> {
-    const url = new URL(`/Gst/util_get_timestamp`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_get_timestamp`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function util_greatest_common_divisor(a: number, b: number): Promise<number> {
-    const url = new URL(`/Gst/util_greatest_common_divisor`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_greatest_common_divisor`, apiConfig.baseUrl);
     url.searchParams.append('a', String(a));
     url.searchParams.append('b', String(b));
     const response = await fetch(url.toString());
@@ -6524,7 +6586,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_greatest_common_divisor_int64(a: number, b: number): Promise<number> {
-    const url = new URL(`/Gst/util_greatest_common_divisor_int64`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_greatest_common_divisor_int64`, apiConfig.baseUrl);
     url.searchParams.append('a', String(a));
     url.searchParams.append('b', String(b));
     const response = await fetch(url.toString());
@@ -6533,14 +6595,14 @@ export namespace Gst {
     return data.return;
   }
   export async function util_group_id_next(): Promise<number> {
-    const url = new URL(`/Gst/util_group_id_next`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_group_id_next`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function util_guint64_to_gdouble(value_: number): Promise<number> {
-    const url = new URL(`/Gst/util_guint64_to_gdouble`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_guint64_to_gdouble`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6548,7 +6610,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_seqnum_compare(s1: number, s2: number): Promise<number> {
-    const url = new URL(`/Gst/util_seqnum_compare`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_seqnum_compare`, apiConfig.baseUrl);
     url.searchParams.append('s1', String(s1));
     url.searchParams.append('s2', String(s2));
     const response = await fetch(url.toString());
@@ -6557,14 +6619,14 @@ export namespace Gst {
     return data.return;
   }
   export async function util_seqnum_next(): Promise<number> {
-    const url = new URL(`/Gst/util_seqnum_next`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_seqnum_next`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
   export async function util_set_object_arg(object: GObjectObject, name: string, value_: string): Promise<void> {
-    const url = new URL(`/Gst/util_set_object_arg`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_set_object_arg`, apiConfig.baseUrl);
     url.searchParams.append('object', String(object));
     url.searchParams.append('name', String(name));
     url.searchParams.append('value', String(value_));
@@ -6572,7 +6634,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function util_set_object_array(object: GObjectObject, name: string, array: GObjectValueArray): Promise<boolean> {
-    const url = new URL(`/Gst/util_set_object_array`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_set_object_array`, apiConfig.baseUrl);
     url.searchParams.append('object', String(object));
     url.searchParams.append('name', String(name));
     url.searchParams.append('array', String(array));
@@ -6582,7 +6644,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_set_value_from_string(value_str: string): Promise<{ value_?: GObjectValue }> {
-    const url = new URL(`/Gst/util_set_value_from_string`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_set_value_from_string`, apiConfig.baseUrl);
     url.searchParams.append('value_str', String(value_str));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6590,7 +6652,7 @@ export namespace Gst {
     return data;
   }
   export async function util_simplify_fraction(numerator: number, denominator: number, n_terms: number, threshold: number): Promise<void> {
-    const url = new URL(`/Gst/util_simplify_fraction`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_simplify_fraction`, apiConfig.baseUrl);
     url.searchParams.append('numerator', String(numerator));
     url.searchParams.append('denominator', String(denominator));
     url.searchParams.append('n_terms', String(n_terms));
@@ -6599,7 +6661,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function util_uint64_scale(val: number, num: number, denom: number): Promise<number> {
-    const url = new URL(`/Gst/util_uint64_scale`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_uint64_scale`, apiConfig.baseUrl);
     url.searchParams.append('val', String(val));
     url.searchParams.append('num', String(num));
     url.searchParams.append('denom', String(denom));
@@ -6609,7 +6671,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_uint64_scale_ceil(val: number, num: number, denom: number): Promise<number> {
-    const url = new URL(`/Gst/util_uint64_scale_ceil`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_uint64_scale_ceil`, apiConfig.baseUrl);
     url.searchParams.append('val', String(val));
     url.searchParams.append('num', String(num));
     url.searchParams.append('denom', String(denom));
@@ -6619,7 +6681,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_uint64_scale_int(val: number, num: number, denom: number): Promise<number> {
-    const url = new URL(`/Gst/util_uint64_scale_int`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_uint64_scale_int`, apiConfig.baseUrl);
     url.searchParams.append('val', String(val));
     url.searchParams.append('num', String(num));
     url.searchParams.append('denom', String(denom));
@@ -6629,7 +6691,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_uint64_scale_int_ceil(val: number, num: number, denom: number): Promise<number> {
-    const url = new URL(`/Gst/util_uint64_scale_int_ceil`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_uint64_scale_int_ceil`, apiConfig.baseUrl);
     url.searchParams.append('val', String(val));
     url.searchParams.append('num', String(num));
     url.searchParams.append('denom', String(denom));
@@ -6639,7 +6701,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_uint64_scale_int_round(val: number, num: number, denom: number): Promise<number> {
-    const url = new URL(`/Gst/util_uint64_scale_int_round`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_uint64_scale_int_round`, apiConfig.baseUrl);
     url.searchParams.append('val', String(val));
     url.searchParams.append('num', String(num));
     url.searchParams.append('denom', String(denom));
@@ -6649,7 +6711,7 @@ export namespace Gst {
     return data.return;
   }
   export async function util_uint64_scale_round(val: number, num: number, denom: number): Promise<number> {
-    const url = new URL(`/Gst/util_uint64_scale_round`, 'http://localhost:9000');
+    const url = new URL(`/Gst/util_uint64_scale_round`, apiConfig.baseUrl);
     url.searchParams.append('val', String(val));
     url.searchParams.append('num', String(num));
     url.searchParams.append('denom', String(denom));
@@ -6659,7 +6721,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_can_compare(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_can_compare`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_can_compare`, apiConfig.baseUrl);
     url.searchParams.append('value1', String(value1));
     url.searchParams.append('value2', String(value2));
     const response = await fetch(url.toString());
@@ -6668,7 +6730,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_can_intersect(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_can_intersect`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_can_intersect`, apiConfig.baseUrl);
     url.searchParams.append('value1', String(value1));
     url.searchParams.append('value2', String(value2));
     const response = await fetch(url.toString());
@@ -6677,7 +6739,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_can_subtract(minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_can_subtract`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_can_subtract`, apiConfig.baseUrl);
     url.searchParams.append('minuend', String(minuend));
     url.searchParams.append('subtrahend', String(subtrahend));
     const response = await fetch(url.toString());
@@ -6686,7 +6748,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_can_union(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_can_union`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_can_union`, apiConfig.baseUrl);
     url.searchParams.append('value1', String(value1));
     url.searchParams.append('value2', String(value2));
     const response = await fetch(url.toString());
@@ -6695,7 +6757,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_compare(value1: GObjectValue, value2: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_compare`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_compare`, apiConfig.baseUrl);
     url.searchParams.append('value1', String(value1));
     url.searchParams.append('value2', String(value2));
     const response = await fetch(url.toString());
@@ -6704,7 +6766,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_deserialize(src: string): Promise<boolean> {
-    const url = new URL(`/Gst/value_deserialize`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_deserialize`, apiConfig.baseUrl);
     url.searchParams.append('src', String(src));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6712,7 +6774,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_deserialize_with_pspec(src: string, pspec?: GObjectParamSpec): Promise<boolean> {
-    const url = new URL(`/Gst/value_deserialize_with_pspec`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_deserialize_with_pspec`, apiConfig.baseUrl);
     url.searchParams.append('src', String(src));
     if (pspec !== undefined) url.searchParams.append('pspec', String(pspec));
     const response = await fetch(url.toString());
@@ -6721,7 +6783,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_fixate(dest: GObjectValue, src: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_fixate`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_fixate`, apiConfig.baseUrl);
     url.searchParams.append('dest', String(dest));
     url.searchParams.append('src', String(src));
     const response = await fetch(url.toString());
@@ -6730,7 +6792,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_fraction_multiply(product: GObjectValue, factor1: GObjectValue, factor2: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_fraction_multiply`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_fraction_multiply`, apiConfig.baseUrl);
     url.searchParams.append('product', String(product));
     url.searchParams.append('factor1', String(factor1));
     url.searchParams.append('factor2', String(factor2));
@@ -6740,7 +6802,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_fraction_subtract(dest: GObjectValue, minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_fraction_subtract`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_fraction_subtract`, apiConfig.baseUrl);
     url.searchParams.append('dest', String(dest));
     url.searchParams.append('minuend', String(minuend));
     url.searchParams.append('subtrahend', String(subtrahend));
@@ -6750,7 +6812,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_bitmask(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_bitmask`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_bitmask`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6758,7 +6820,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_caps(value_: GObjectValue): Promise<GstCaps> {
-    const url = new URL(`/Gst/value_get_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_caps`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6766,7 +6828,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_caps_features(value_: GObjectValue): Promise<GstCapsFeatures> {
-    const url = new URL(`/Gst/value_get_caps_features`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_caps_features`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6774,7 +6836,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_double_range_max(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_double_range_max`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_double_range_max`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6782,7 +6844,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_double_range_min(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_double_range_min`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_double_range_min`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6790,7 +6852,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_flagset_flags(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_flagset_flags`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_flagset_flags`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6798,7 +6860,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_flagset_mask(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_flagset_mask`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_flagset_mask`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6806,7 +6868,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_fraction_denominator(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_fraction_denominator`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_fraction_denominator`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6814,7 +6876,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_fraction_numerator(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_fraction_numerator`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_fraction_numerator`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6822,7 +6884,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_fraction_range_max(value_: GObjectValue): Promise<GObjectValue> {
-    const url = new URL(`/Gst/value_get_fraction_range_max`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_fraction_range_max`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6830,7 +6892,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_fraction_range_min(value_: GObjectValue): Promise<GObjectValue> {
-    const url = new URL(`/Gst/value_get_fraction_range_min`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_fraction_range_min`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6838,7 +6900,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_int64_range_max(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_int64_range_max`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_int64_range_max`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6846,7 +6908,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_int64_range_min(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_int64_range_min`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_int64_range_min`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6854,7 +6916,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_int64_range_step(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_int64_range_step`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_int64_range_step`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6862,7 +6924,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_int_range_max(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_int_range_max`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_int_range_max`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6870,7 +6932,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_int_range_min(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_int_range_min`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_int_range_min`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6878,7 +6940,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_int_range_step(value_: GObjectValue): Promise<number> {
-    const url = new URL(`/Gst/value_get_int_range_step`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_int_range_step`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6886,7 +6948,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_get_structure(value_: GObjectValue): Promise<GstStructure> {
-    const url = new URL(`/Gst/value_get_structure`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_get_structure`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6894,7 +6956,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_init_and_copy(src: GObjectValue): Promise<{ dest?: GObjectValue }> {
-    const url = new URL(`/Gst/value_init_and_copy`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_init_and_copy`, apiConfig.baseUrl);
     url.searchParams.append('src', String(src));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6902,7 +6964,7 @@ export namespace Gst {
     return data;
   }
   export async function value_intersect(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_intersect`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_intersect`, apiConfig.baseUrl);
     url.searchParams.append('value1', String(value1));
     url.searchParams.append('value2', String(value2));
     const response = await fetch(url.toString());
@@ -6911,7 +6973,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_is_fixed(value_: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_is_fixed`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_is_fixed`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6919,7 +6981,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_is_subset(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_is_subset`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_is_subset`, apiConfig.baseUrl);
     url.searchParams.append('value1', String(value1));
     url.searchParams.append('value2', String(value2));
     const response = await fetch(url.toString());
@@ -6928,13 +6990,13 @@ export namespace Gst {
     return data.return;
   }
   export async function value_register(table: GstValueTable): Promise<void> {
-    const url = new URL(`/Gst/value_register`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_register`, apiConfig.baseUrl);
     url.searchParams.append('table', String(table));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_serialize(value_: GObjectValue): Promise<string> {
-    const url = new URL(`/Gst/value_serialize`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_serialize`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6942,28 +7004,28 @@ export namespace Gst {
     return data.return;
   }
   export async function value_set_bitmask(value_: GObjectValue, bitmask: number): Promise<void> {
-    const url = new URL(`/Gst/value_set_bitmask`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_bitmask`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('bitmask', String(bitmask));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_caps(value_: GObjectValue, caps: GstCaps): Promise<void> {
-    const url = new URL(`/Gst/value_set_caps`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_caps`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('caps', String(caps));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_caps_features(value_: GObjectValue, features: GstCapsFeatures): Promise<void> {
-    const url = new URL(`/Gst/value_set_caps_features`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_caps_features`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('features', String(features));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_double_range(value_: GObjectValue, start: number, end: number): Promise<void> {
-    const url = new URL(`/Gst/value_set_double_range`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_double_range`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('start', String(start));
     url.searchParams.append('end', String(end));
@@ -6971,7 +7033,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_flagset(value_: GObjectValue, flags: number, mask: number): Promise<void> {
-    const url = new URL(`/Gst/value_set_flagset`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_flagset`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('flags', String(flags));
     url.searchParams.append('mask', String(mask));
@@ -6979,7 +7041,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_fraction(value_: GObjectValue, numerator: number, denominator: number): Promise<void> {
-    const url = new URL(`/Gst/value_set_fraction`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_fraction`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('numerator', String(numerator));
     url.searchParams.append('denominator', String(denominator));
@@ -6987,7 +7049,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_fraction_range(value_: GObjectValue, start: GObjectValue, end: GObjectValue): Promise<void> {
-    const url = new URL(`/Gst/value_set_fraction_range`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_fraction_range`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('start', String(start));
     url.searchParams.append('end', String(end));
@@ -6995,7 +7057,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_fraction_range_full(value_: GObjectValue, numerator_start: number, denominator_start: number, numerator_end: number, denominator_end: number): Promise<void> {
-    const url = new URL(`/Gst/value_set_fraction_range_full`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_fraction_range_full`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('numerator_start', String(numerator_start));
     url.searchParams.append('denominator_start', String(denominator_start));
@@ -7005,7 +7067,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_int64_range(value_: GObjectValue, start: number, end: number): Promise<void> {
-    const url = new URL(`/Gst/value_set_int64_range`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_int64_range`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('start', String(start));
     url.searchParams.append('end', String(end));
@@ -7013,7 +7075,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_int64_range_step(value_: GObjectValue, start: number, end: number, step: number): Promise<void> {
-    const url = new URL(`/Gst/value_set_int64_range_step`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_int64_range_step`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('start', String(start));
     url.searchParams.append('end', String(end));
@@ -7022,7 +7084,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_int_range(value_: GObjectValue, start: number, end: number): Promise<void> {
-    const url = new URL(`/Gst/value_set_int_range`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_int_range`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('start', String(start));
     url.searchParams.append('end', String(end));
@@ -7030,7 +7092,7 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_int_range_step(value_: GObjectValue, start: number, end: number, step: number): Promise<void> {
-    const url = new URL(`/Gst/value_set_int_range_step`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_int_range_step`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('start', String(start));
     url.searchParams.append('end', String(end));
@@ -7039,14 +7101,14 @@ export namespace Gst {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_set_structure(value_: GObjectValue, structure: GstStructure): Promise<void> {
-    const url = new URL(`/Gst/value_set_structure`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_set_structure`, apiConfig.baseUrl);
     url.searchParams.append('value', String(value_));
     url.searchParams.append('structure', String(structure));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_subtract(minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_subtract`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_subtract`, apiConfig.baseUrl);
     url.searchParams.append('minuend', String(minuend));
     url.searchParams.append('subtrahend', String(subtrahend));
     const response = await fetch(url.toString());
@@ -7055,7 +7117,7 @@ export namespace Gst {
     return data.return;
   }
   export async function value_union(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    const url = new URL(`/Gst/value_union`, 'http://localhost:9000');
+    const url = new URL(`/Gst/value_union`, apiConfig.baseUrl);
     url.searchParams.append('value1', String(value1));
     url.searchParams.append('value2', String(value2));
     const response = await fetch(url.toString());
@@ -7064,14 +7126,14 @@ export namespace Gst {
     return data.return;
   }
   export async function version(): Promise<{ major?: number; minor?: number; micro?: number; nano?: number }> {
-    const url = new URL(`/Gst/version`, 'http://localhost:9000');
+    const url = new URL(`/Gst/version`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
   export async function version_string(): Promise<string> {
-    const url = new URL(`/Gst/version_string`, 'http://localhost:9000');
+    const url = new URL(`/Gst/version_string`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();

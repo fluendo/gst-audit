@@ -7,33 +7,95 @@
 // Base types
 export type Pointer = string;
 
+// Configuration for API server location
+let apiConfig = {
+  host: '{{ host }}',
+  port: {{ port }},
+  get baseUrl(): string {
+    return `http://${this.host}:${this.port}`;
+  }
+};
+
+/**
+ * Update the API server configuration
+ * @param config New configuration with host and/or port
+ */
+export function setApiConfig(config: { host?: string; port?: number }): void {
+  if (config.host !== undefined) {
+    apiConfig.host = config.host;
+  }
+  if (config.port !== undefined) {
+    apiConfig.port = config.port;
+  }
+  // Reinitialize callback EventSource with new URL
+  if (typeof EventSource !== 'undefined' && (config.host !== undefined || config.port !== undefined)) {
+    initializeCallbackSource();
+  }
+}
+
+/**
+ * Get the current API server configuration
+ */
+export function getApiConfig(): { host: string; port: number; baseUrl: string } {
+  return {
+    host: apiConfig.host,
+    port: apiConfig.port,
+    baseUrl: apiConfig.baseUrl
+  };
+}
+
 // FinalizationRegistry for automatic cleanup of GObject instances
 const objectRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch('{{ base_url }}/GObject/Object/' + ptr + '/unref')
+  fetch(apiConfig.baseUrl + '/GObject/Object/' + ptr + '/unref')
     .catch(err => console.error('Failed to unref object:', ptr, err));
 });
 
 // Callback dispatcher for handling callbacks from the server
 const callbackDispatcher = new Map<string, Function>();
 
-// Initialize callback dispatcher with EventSource
-if (typeof EventSource !== 'undefined') {
-  const callbackSource = new EventSource('{{ base_url }}/GIRest/callbacks');
-  callbackSource.onmessage = (ev) => {
-    try {
-      const json = JSON.parse(ev.data);
-      const cb = callbackDispatcher.get(json.id.toString());
-      if (cb) {
-        cb(...Object.values(json.data));
+let callbackSource: EventSource | null = null;
+let isReinitializing = false;
+
+function initializeCallbackSource(): void {
+  // Prevent concurrent reinitialization
+  if (isReinitializing) {
+    return;
+  }
+  isReinitializing = true;
+  
+  // Close existing EventSource if it exists
+  if (callbackSource) {
+    callbackSource.close();
+    callbackSource = null;
+  }
+  
+  // Initialize callback dispatcher with EventSource
+  if (typeof EventSource !== 'undefined') {
+    callbackSource = new EventSource(apiConfig.baseUrl + '/GIRest/callbacks');
+    callbackSource.onmessage = (ev) => {
+      try {
+        const json = JSON.parse(ev.data);
+        const cb = callbackDispatcher.get(json.id.toString());
+        if (cb) {
+          cb(...Object.values(json.data));
+        }
+      } catch (error) {
+        console.error('Error processing callback:', error);
       }
-    } catch (error) {
-      console.error('Error processing callback:', error);
-    }
-  };
-  callbackSource.onerror = (error) => {
-    console.error('Callback EventSource error:', error);
-  };
+    };
+    callbackSource.onerror = (error) => {
+      console.error('Callback EventSource error:', error);
+    };
+    callbackSource.onopen = () => {
+      isReinitializing = false;
+    };
+  } else {
+    isReinitializing = false;
+  }
 }
+
+// Initialize on module load
+initializeCallbackSource();
 {% if interfaces %}
 
 {{ interfaces | join('\n') }}
