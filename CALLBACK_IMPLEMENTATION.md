@@ -25,7 +25,10 @@ The implementation allows TypeScript/JavaScript clients to register callback fun
 
 **Callback Type Signatures**: Added `_get_callback_type_signature()` to generate TypeScript function signatures from callback schemas:
 ```typescript
-(category: GstDebugCategory, level: GstDebugLevel, ...) => void
+// Example: GstLogFunction callback signature
+(category: GstDebugCategory, level: GstDebugLevel, file: string, 
+ function_: string, line: number, object: GObjectObject, 
+ message: GstDebugMessage) => void
 ```
 
 **Method Generation**: Modified `_prepare_method_data()` to:
@@ -76,7 +79,7 @@ export async function debug_add_log_function(
     category: GstDebugCategory,
     level: GstDebugLevel,
     file: string,
-    function_: string,  // Renamed from 'function' (reserved keyword)
+    function_: string,  // Original parameter name 'function' is a reserved keyword
     line: number,
     object: GObjectObject,
     message: GstDebugMessage
@@ -137,8 +140,25 @@ await Gst.debug_add_log_function(onLog);  // That's it!
 
 ### TypeScript Compilation
 The generated TypeScript may show warnings when compiled with strict settings:
-1. **FinalizationRegistry**: Requires ES2021+ target (`--lib es2021,dom`)
+1. **FinalizationRegistry**: Requires ES2021+ target
 2. **Namespace as Type**: Enums with methods create both namespaces and types, which can cause type checking issues
+
+To compile the generated TypeScript:
+```bash
+tsc --target es2021 --lib es2021,dom --module esnext --skipLibCheck gst.ts
+```
+
+Or add to your `tsconfig.json`:
+```json
+{
+  "compilerOptions": {
+    "target": "es2021",
+    "lib": ["es2021", "dom"],
+    "module": "esnext",
+    "skipLibCheck": true
+  }
+}
+```
 
 These warnings don't affect functionality - the generated JavaScript works correctly at runtime.
 
@@ -147,11 +167,57 @@ The current implementation does not handle GObject reference counting for callba
 
 > If the type of any parameter is a GObject inherited type, on finalizing it the refcounting will be decreased. If the transfer is none, we will destroy the object earlier so we need to increase the ref counting first.
 
-This should be handled in the Frida script (gstaudit.js) when invoking callbacks:
-1. Check if callback parameter is a GObject type
-2. Check transfer mode from callback schema
-3. If transfer is "none", call `g_object_ref` before passing to callback
-4. After callback completes, call `g_object_unref`
+This should be handled in the Frida script (gstaudit.js) when invoking callbacks, based on the transfer mode:
+
+**Transfer Mode: "none"**
+- The callee (callback) does not take ownership
+- The object may be destroyed after the callback returns
+- Solution: Call `g_object_ref` before passing to callback, then `g_object_unref` after callback completes
+- This keeps the object alive during callback execution
+
+**Transfer Mode: "full"**
+- The callee (callback) takes full ownership
+- The callback is responsible for unreferencing the object
+- No additional ref counting needed from the dispatcher
+
+**Transfer Mode: "container"**
+- The callee takes ownership of the container but not the contents
+- For callbacks, this is rare and would need case-by-case handling
+
+Implementation example for gstaudit.js:
+```javascript
+// In the NativeCallback handler
+for (var cb_a of cb_def) {
+  var arg_value = args[cb_idx];
+  
+  // Check if this is a GObject type with transfer "none"
+  if (cb_a["is_gobject"] && cb_a["transfer"] === "none") {
+    // Increase ref count to keep object alive
+    var g_object_ref = new NativeFunction(
+      Module.findExportByName(null, 'g_object_ref'),
+      'pointer', ['pointer']
+    );
+    g_object_ref(arg_value);
+  }
+  
+  data[cb_a["name"]] = arg_value;
+  cb_idx++;
+}
+
+// Send callback data to client
+send({ "kind": "callback", "data": {"id": cb_id, "data": data} });
+
+// After callback completes, unref GObject parameters with transfer "none"
+for (var cb_a of cb_def) {
+  if (cb_a["is_gobject"] && cb_a["transfer"] === "none") {
+    var g_object_unref = new NativeFunction(
+      Module.findExportByName(null, 'g_object_unref'),
+      'void', ['pointer']
+    );
+    g_object_unref(data[cb_a["name"]]);
+  }
+}
+```
 
 This is a server-side concern and doesn't affect the TypeScript bindings implementation.
 
