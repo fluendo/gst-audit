@@ -4,6 +4,7 @@ from gi.repository import GIRepository
 from apispec import APISpec
 import asyncio
 import threading
+import json
 from collections import deque
 from typing import Optional
 
@@ -441,5 +442,23 @@ class GIRest():
             # Wait for new events
             await self.sse_event.wait()
             self.sse_event.clear()
+    
+    async def sse_callbacks_endpoint(self):
+        """
+        SSE endpoint that streams callback events.
+        
+        This endpoint is registered at /GIRest/callbacks and streams events
+        in Server-Sent Events format.
+        
+        Returns:
+            Async generator yielding SSE-formatted messages
+        """
+        async def event_stream():
+            async for event_data in self.sse_event_generator():
+                # Format as SSE
+                message = f'data: {json.dumps(event_data)}\n\n'
+                yield message
+        
+        return event_stream()
 
 

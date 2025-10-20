@@ -9,10 +9,7 @@ import argparse
 import connexion
 import sys
 import os
-import json
-import asyncio
-import threading
-from flask import Response
+from starlette.responses import StreamingResponse
 
 # Add the girest module to the path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,48 +18,6 @@ sys.path.insert(0, girest_dir)
 
 from main import GIRest
 from resolvers import FridaResolver
-
-
-def create_sse_endpoint(girest: GIRest):
-    """Create SSE endpoint that streams events from the GIRest buffer."""
-    def sse_callbacks():
-        """SSE endpoint for callback events."""
-        def event_generator():
-            # Create a new event loop for this thread if needed
-            try:
-                loop = asyncio.get_event_loop()
-            except RuntimeError:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-            
-            # Get the async generator
-            async_gen = girest.sse_event_generator()
-            
-            # Convert async generator to sync
-            while True:
-                try:
-                    # Run the async iterator in the loop
-                    event = loop.run_until_complete(async_gen.__anext__())
-                    # Format as SSE
-                    message = f'data: {json.dumps(event)}\n\n'
-                    yield message
-                except StopAsyncIteration:
-                    break
-                except Exception as e:
-                    print(f"Error in SSE generator: {e}")
-                    break
-        
-        return Response(
-            event_generator(),
-            mimetype='text/event-stream',
-            headers={
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-                'X-Accel-Buffering': 'no'
-            }
-        )
-    
-    return sse_callbacks
 
 
 def main():
@@ -104,8 +59,8 @@ def main():
         girest = GIRest(args.namespace, args.version, sse_buffer_size=args.sse_buffer_size)
         spec = girest.generate()
         
-        # Create the connexion app
-        app = connexion.App(__name__)
+        # Create the connexion AsyncApp
+        app = connexion.AsyncApp(__name__)
         specd = spec.to_dict()
         
         # Create the resolver with Frida
@@ -114,15 +69,19 @@ def main():
         # Add the API without naming it
         app.add_api(specd, resolver=resolver)
         
-        # Register the SSE endpoint using Flask
-        flask_app = app.app
-        sse_endpoint = create_sse_endpoint(girest)
-        flask_app.add_url_rule(
-            f'/{args.namespace}/callbacks',
-            'sse_callbacks',
-            sse_endpoint,
-            methods=['GET']
-        )
+        # Register the SSE endpoint at /GIRest/callbacks
+        @app.route('/GIRest/callbacks', methods=['GET'])
+        async def sse_callbacks():
+            """SSE endpoint for callback events."""
+            return StreamingResponse(
+                girest.sse_callbacks_endpoint(),
+                media_type='text/event-stream',
+                headers={
+                    'Cache-Control': 'no-cache',
+                    'Connection': 'keep-alive',
+                    'X-Accel-Buffering': 'no'
+                }
+            )
         
         # Run the server
         app.run(port=args.port)
