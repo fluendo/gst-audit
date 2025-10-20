@@ -13,6 +13,11 @@ frida = "*"
 pygobject = "<3.50.0"
 apispec = "^6.8.4"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.0"
+httpx = "^0.27.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
