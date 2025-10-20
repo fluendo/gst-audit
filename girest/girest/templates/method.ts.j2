@@ -56,8 +56,8 @@
 {% if callback_params %}
       // Register callbacks
 {% for cb in callback_params %}
-      if (data.{{ cb.name }} !== undefined) {
-        callbackDispatcher.set(data.{{ cb.name }}.toString(), {{ cb.name }});
+      if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
+        callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
       }
 {% endfor %}
 {% endif %}
@@ -96,8 +96,8 @@
 {% if callback_params %}
     // Register callbacks
 {% for cb in callback_params %}
-    if (data.{{ cb.name }} !== undefined) {
-      callbackDispatcher.set(data.{{ cb.name }}.toString(), {{ cb.name }});
+    if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
+      callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
     }
 {% endfor %}
 {% endif %}
@@ -165,8 +165,8 @@
 {% if callback_params %}
       // Register callbacks
 {% for cb in callback_params %}
-      if (data.{{ cb.name }} !== undefined) {
-        callbackDispatcher.set(data.{{ cb.name }}.toString(), {{ cb.name }});
+      if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
+        callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
       }
 {% endfor %}
 {% endif %}
@@ -201,8 +201,8 @@
 {% if callback_params %}
     // Register callbacks
 {% for cb in callback_params %}
-    if (data.{{ cb.name }} !== undefined) {
-      callbackDispatcher.set(data.{{ cb.name }}.toString(), {{ cb.name }});
+    if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
+      callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
     }
 {% endfor %}
 {% endif %}

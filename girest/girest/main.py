@@ -334,7 +334,7 @@ class GIRest():
         
         # Get callback parameters
         n_args = GIRepository.callable_info_get_n_args(bi)
-        params = []
+        properties = {}
         
         for i in range(n_args):
             arg = GIRepository.callable_info_get_arg(bi, i)
@@ -353,40 +353,34 @@ class GIRest():
                 transfer_str = "none"
             
             param_schema = self._type_to_schema(arg_type)
-            if param_schema:
-                params.append({
-                    "name": arg_name,
-                    "schema": param_schema,
-                    "x-gi-transfer": transfer_str
-                })
+            # Ensure param_schema always has a value
+            if not param_schema:
+                param_schema = {"$ref": "#/components/schemas/Pointer"}
+            
+            # Add parameter as a property with transfer information
+            properties[arg_name] = {
+                **param_schema,
+                "x-gi-transfer": transfer_str,
+                "x-gi-is-return": False
+            }
         
         # Get return type
         return_type = GIRepository.callable_info_get_return_type(bi)
         return_schema = self._type_to_schema(return_type)
         
+        # Add return type to properties if it exists
+        if return_schema:
+            properties["return"] = {
+                **return_schema,
+                "x-gi-is-return": True
+            }
+        
         # Create callback schema
         callback_schema = {
             "type": "object",
             "x-gi-type": "callback",
-            "properties": {
-                "parameters": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "name": {"type": "string"},
-                            "schema": {"type": "object"},
-                            "x-gi-transfer": {"type": "string"}
-                        }
-                    }
-                },
-                "returnType": {"type": "object"}
-            },
-            "x-gi-callback-params": params
+            "properties": properties
         }
-        
-        if return_schema:
-            callback_schema["x-gi-callback-return"] = return_schema
         
         self.spec.components.schema(full_name, callback_schema)
 

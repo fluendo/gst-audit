@@ -12,6 +12,15 @@ from jinja2 import Environment, FileSystemLoader, Template
 class TypeScriptGenerator:
     """Generates TypeScript bindings from OpenAPI schema using Jinja2 templates."""
     
+    # Reserved keywords in TypeScript/JavaScript
+    RESERVED_KEYWORDS = {
+        "function", "var", "let", "const", "class", "interface", "enum", "type",
+        "namespace", "module", "import", "export", "default", "async", "await",
+        "break", "case", "catch", "continue", "debugger", "delete", "do", "else",
+        "finally", "for", "if", "in", "instanceof", "new", "return", "switch",
+        "this", "throw", "try", "typeof", "void", "while", "with", "yield"
+    }
+    
     def __init__(self, openapi_schema: Dict[str, Any], base_url: str):
         """
         Initialize the generator with an OpenAPI schema.
@@ -45,6 +54,24 @@ class TypeScriptGenerator:
         
         # Parse operations and organize by tag (class)
         self._parse_operations()
+    
+    def _safe_property_name(self, name: str) -> str:
+        """
+        Convert a schema property name to a safe TypeScript/JavaScript identifier.
+        
+        Appends an underscore to reserved keywords to avoid syntax errors.
+        This method should be used for all property names in schemas (enums,
+        structs, objects, callbacks, functions, etc).
+        
+        Args:
+            name: The property name from the schema
+            
+        Returns:
+            Safe TypeScript identifier (may have underscore appended)
+        """
+        if name in self.RESERVED_KEYWORDS:
+            return f"{name}_"
+        return name
     
     def _identify_special_schemas(self):
         """Identify which schemas are enums, callbacks, and which are GObject-based."""
@@ -121,27 +148,28 @@ class TypeScriptGenerator:
         if not callback_schema or callback_schema.get("x-gi-type") != "callback":
             return "Function"
         
-        # Reserved keywords in TypeScript/JavaScript
-        reserved_keywords = {"function", "var", "let", "const", "class", "interface", "enum", "type", "namespace", "module", "import", "export", "default", "async", "await"}
-        
-        # Get callback parameters
-        callback_params = callback_schema.get("x-gi-callback-params", [])
+        # Get callback properties
+        properties = callback_schema.get("properties", {})
         param_list = []
+        return_type = "void"
         
-        for param in callback_params:
-            param_name = param.get("name", "arg")
-            # Rename reserved keywords
-            ts_param_name = f"{param_name}_" if param_name in reserved_keywords else param_name
-            param_schema = param.get("schema", {})
-            param_type = self._openapi_type_to_ts(param_schema)
-            param_list.append(f"{ts_param_name}: {param_type}")
-        
-        # Get return type
-        callback_return = callback_schema.get("x-gi-callback-return", {})
-        if callback_return:
-            return_type = self._openapi_type_to_ts(callback_return)
-        else:
-            return_type = "void"
+        # Iterate through properties to get parameters and return type
+        for prop_name, prop_schema in properties.items():
+            is_return = prop_schema.get("x-gi-is-return", False)
+            
+            if is_return:
+                # This is the return type
+                # Remove x-gi-is-return from schema before converting
+                clean_schema = {k: v for k, v in prop_schema.items() if k != "x-gi-is-return"}
+                return_type = self._openapi_type_to_ts(clean_schema)
+            else:
+                # This is a parameter
+                # Use safe property name to handle reserved keywords
+                ts_param_name = self._safe_property_name(prop_name)
+                # Remove x-gi-transfer and x-gi-is-return from schema before converting
+                clean_schema = {k: v for k, v in prop_schema.items() if k not in ["x-gi-transfer", "x-gi-is-return"]}
+                param_type = self._openapi_type_to_ts(clean_schema)
+                param_list.append(f"{ts_param_name}: {param_type}")
         
         params_str = ", ".join(param_list)
         return f"({params_str}) => {return_type}"
@@ -191,7 +219,8 @@ class TypeScriptGenerator:
                     is_required = prop_name in required
                     prop_type = self._openapi_type_to_ts(prop_schema)
                     optional_marker = "" if is_required else "?"
-                    prop_types.append(f"{prop_name}{optional_marker}: {prop_type}")
+                    safe_name = self._safe_property_name(prop_name)
+                    prop_types.append(f"{safe_name}{optional_marker}: {prop_type}")
                 return "{ " + "; ".join(prop_types) + " }" + (" | null" if nullable else "")
             return "object" + (" | null" if nullable else "")
         
@@ -259,7 +288,7 @@ class TypeScriptGenerator:
             required = schema.get("required", [])
             data["properties"] = [
                 {
-                    "name": prop_name,
+                    "name": self._safe_property_name(prop_name),
                     "optional": "" if prop_name in required else "?",
                     "type": self._openapi_type_to_ts(prop_schema)
                 }
@@ -287,9 +316,6 @@ class TypeScriptGenerator:
         callbacks = operation.get("x-gi-callbacks", {})
         callback_params = []
         
-        # Reserved keywords in TypeScript/JavaScript that need to be renamed
-        reserved_keywords = {"function", "var", "let", "const", "class", "interface", "enum", "type", "namespace", "module", "import", "export", "default", "async", "await"}
-        
         for param in params:
             param_name = param.get("name", "")
             param_schema = param.get("schema", {})
@@ -302,8 +328,8 @@ class TypeScriptGenerator:
                 path_params.append((param_name, param_schema))
                 continue
             
-            # Rename reserved keywords by appending underscore
-            ts_param_name = f"{param_name}_" if param_name in reserved_keywords else param_name
+            # Use safe property name to handle reserved keywords
+            ts_param_name = self._safe_property_name(param_name)
             
             param_type = self._openapi_type_to_ts(param_schema)
             optional_marker = "" if param_required else "?"
@@ -331,9 +357,11 @@ class TypeScriptGenerator:
         # Add callback parameters to method signature
         for callback_name, callback_ref in callbacks.items():
             callback_type = self._get_callback_type_signature(callback_ref)
-            method_params.append(f"{callback_name}: {callback_type}")
+            safe_callback_name = self._safe_property_name(callback_name)
+            method_params.append(f"{safe_callback_name}: {callback_type}")
             callback_params.append({
-                "name": callback_name,
+                "name": safe_callback_name,
+                "api_name": callback_name,  # Original name for API
                 "type_ref": callback_ref
             })
         
