@@ -9,6 +9,7 @@ import argparse
 import connexion
 import sys
 import os
+from starlette.responses import StreamingResponse
 
 # Add the girest module to the path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -44,16 +45,22 @@ def main():
         default=9000,
         help="Port to run the server on (default: 9000)"
     )
+    parser.add_argument(
+        "--sse-buffer-size",
+        type=int,
+        default=100,
+        help="Size of the SSE event ring buffer (default: 100)"
+    )
     
     args = parser.parse_args()
     
     try:
-        # Generate the OpenAPI schema
-        girest = GIRest(args.namespace, args.version)
+        # Generate the OpenAPI schema with specified buffer size
+        girest = GIRest(args.namespace, args.version, sse_buffer_size=args.sse_buffer_size)
         spec = girest.generate()
         
-        # Create the connexion app
-        app = connexion.App(__name__)
+        # Create the connexion AsyncApp
+        app = connexion.AsyncApp(__name__)
         specd = spec.to_dict()
         
         # Create the resolver with Frida
@@ -61,6 +68,20 @@ def main():
         
         # Add the API without naming it
         app.add_api(specd, resolver=resolver)
+        
+        # Register the SSE endpoint at /GIRest/callbacks
+        @app.route('/GIRest/callbacks', methods=['GET'])
+        async def sse_callbacks():
+            """SSE endpoint for callback events."""
+            return StreamingResponse(
+                girest.sse_callbacks_endpoint(),
+                media_type='text/event-stream',
+                headers={
+                    'Cache-Control': 'no-cache',
+                    'Connection': 'keep-alive',
+                    'X-Accel-Buffering': 'no'
+                }
+            )
         
         # Run the server
         app.run(port=args.port)

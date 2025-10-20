@@ -1,3 +1,4 @@
+import asyncio
 import connexion
 import gi
 gi.require_version("GIRepository", "2.0")
@@ -93,11 +94,14 @@ class FridaResolver(connexion.resolver.Resolver):
     
     def _on_message(self, message, data):
         """Handle messages from the Frida script"""
-        # For now, just log the messages
         if message["type"] != "send":
             return
-        # TODO: handle callbacks like in gstaudit/main.py if needed
-        print(f"Message from Frida: {message}")
+        # Handle callbacks by pushing them to the SSE buffer
+        if message.get("payload", {}).get("kind") == "callback":
+            self.girest.push_sse_event(message["payload"]["data"])
+        else:
+            # For now, just log other messages
+            print(f"Message from Frida: {message}")
     
     def _type_to_json(self, t):
         """Convert GIRepository type to JSON type string"""
@@ -258,7 +262,7 @@ class FridaResolver(connexion.resolver.Resolver):
 
     def create_frida_handler(self):
         """Create handler that calls Frida with the method JSON, converting enum strings to integers"""
-        def frida_resolver_handler(_method=None, _type=None, *args, **kwargs):
+        async def frida_resolver_handler(_method=None, _type=None, *args, **kwargs):
             # Get the symbol from the method info
             symbol = GIRepository.function_info_get_symbol(_method)
             
@@ -293,7 +297,10 @@ class FridaResolver(connexion.resolver.Resolver):
                         converted_kwargs[arg_name] = kwargs[arg_name]
             
             # Call the Frida script with the symbol and method JSON
-            result = self.script.exports_sync.call(symbol, _type, *converted_kwargs.values())
+            # Use asyncio.to_thread to avoid blocking the event loop with the sync Frida call
+            result = await asyncio.to_thread(
+                self.script.exports_sync.call, symbol, _type, *converted_kwargs.values()
+            )
             return result
 
         return frida_resolver_handler
@@ -317,7 +324,7 @@ class FridaResolver(connexion.resolver.Resolver):
 
 class DummyResolver(connexion.resolver.Resolver):
     def resolve_function_from_operation_id(self, operation_id):
-        def dummy_resolver_handler(*args, **kwargs):
+        async def dummy_resolver_handler(*args, **kwargs):
             return {"received": kwargs}
 
         return dummy_resolver_handler
