@@ -266,6 +266,11 @@ function findRunningPipelines()
                     if (name) {
                         console.info(`Pipeline found with name ${name}`);
                         pipelines.push(gtypeclass);
+                        /* Send a message to notify the Python side */
+                        send({
+                            "kind": "pipeline",
+                            "data": {"ptr": gtypeclass.toString(), "name": name}
+                        });
                     }
                 } catch (error) {
                   console.debug(`Pipeline not found at ${gtypeclass} [${error}]`);
