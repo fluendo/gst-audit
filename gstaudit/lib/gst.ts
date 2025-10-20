@@ -28,7 +28,7 @@ export function setApiConfig(config: { host?: string; port?: number }): void {
     apiConfig.port = config.port;
   }
   // Reinitialize callback EventSource with new URL
-  if (typeof EventSource !== 'undefined' && config.host !== undefined || config.port !== undefined) {
+  if (typeof EventSource !== 'undefined' && (config.host !== undefined || config.port !== undefined)) {
     initializeCallbackSource();
   }
 }
