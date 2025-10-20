@@ -24,26 +24,36 @@ def gst_pipeline():
     
     Launches 'gst-launch-1.0 fakesrc ! fakesink' as a background process
     and yields the PID for the test server to attach to.
+    
+    The pipeline runs continuously with fakesrc producing buffers at a slow rate
+    to keep the process alive during testing.
     """
-    # Start the pipeline
+    # Start the pipeline with a slow rate to keep it running
+    # The is-live=true and do-timestamp=true keep the pipeline running
     process = subprocess.Popen(
-        ["gst-launch-1.0", "fakesrc", "!", "fakesink"],
+        ["gst-launch-1.0", "fakesrc", "is-live=true", "do-timestamp=true", "!", 
+         "fakesink", "sync=true"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
     
-    # Give it a moment to start
-    time.sleep(2)
+    # Give it a moment to start and enter PLAYING state
+    time.sleep(3)
     
     # Verify it's running
     if process.poll() is not None:
-        raise RuntimeError("GStreamer pipeline failed to start")
+        stdout, stderr = process.communicate()
+        raise RuntimeError(f"GStreamer pipeline failed to start. stdout: {stdout.decode()}, stderr: {stderr.decode()}")
     
     yield process.pid
     
     # Cleanup: terminate the pipeline
-    process.send_signal(signal.SIGTERM)
-    process.wait(timeout=5)
+    try:
+        process.send_signal(signal.SIGTERM)
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
 
 
 @pytest.fixture(scope="module")
@@ -54,6 +64,12 @@ def girest_server(gst_pipeline):
     Launches 'python girest-frida.py Gst 1.0 --pid <pid>' as a background process
     and yields the base URL for making test requests.
     """
+    # Verify the pipeline is still running
+    try:
+        os.kill(gst_pipeline, 0)  # Check if process exists
+    except OSError:
+        raise RuntimeError(f"Pipeline process {gst_pipeline} is not running")
+    
     # Get the path to girest-frida.py
     girest_path = os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
@@ -67,8 +83,8 @@ def girest_server(gst_pipeline):
         stderr=subprocess.PIPE
     )
     
-    # Give the server time to start
-    time.sleep(5)
+    # Give the server time to start and attach to the process
+    time.sleep(7)
     
     # Verify it's running
     if process.poll() is not None:
@@ -79,37 +95,44 @@ def girest_server(gst_pipeline):
     
     # Wait for the server to be ready by polling the docs endpoint
     ready = False
-    for _ in range(10):
+    for i in range(15):
         try:
             response = httpx.get(f"{base_url}/openapi.json", timeout=2)
             if response.status_code == 200:
                 ready = True
                 break
-        except Exception:
+        except Exception as e:
+            if i == 14:  # Last attempt
+                print(f"Failed to connect: {e}")
             pass
         time.sleep(1)
     
     if not ready:
         process.send_signal(signal.SIGTERM)
-        raise RuntimeError("GIRest server did not become ready in time")
+        stdout, stderr = process.communicate(timeout=5)
+        raise RuntimeError(f"GIRest server did not become ready in time. stdout: {stdout.decode()}, stderr: {stderr.decode()}")
     
     yield base_url
     
     # Cleanup: terminate the server
-    process.send_signal(signal.SIGTERM)
-    process.wait(timeout=5)
+    try:
+        process.send_signal(signal.SIGTERM)
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
 
 
 @pytest.mark.asyncio
-async def test_gst_version_endpoint(girest_server):
+async def test_gst_version_string_endpoint(girest_server):
     """
-    Test the /Gst/version endpoint which returns a string.
+    Test the /Gst/version_string endpoint which returns a string.
     
     This tests that non-void return values are properly returned in the HTTP response.
-    The version endpoint should return the GStreamer version as a string.
+    The version_string endpoint should return the GStreamer version as a string.
     """
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"{girest_server}/Gst/version")
+        response = await client.get(f"{girest_server}/Gst/version_string")
         
         # Check the response status
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
@@ -127,15 +150,15 @@ async def test_gst_version_endpoint(girest_server):
 
 
 @pytest.mark.asyncio
-async def test_gst_get_version_endpoint(girest_server):
+async def test_gst_version_endpoint(girest_server):
     """
-    Test the /Gst/get_version endpoint which returns output integer parameters.
+    Test the /Gst/version endpoint which returns output integer parameters.
     
     This tests that output parameters are properly returned in the HTTP response.
-    The get_version endpoint should return major, minor, micro, and nano version numbers.
+    The version endpoint should return major, minor, micro, and nano version numbers.
     """
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"{girest_server}/Gst/get_version")
+        response = await client.get(f"{girest_server}/Gst/version")
         
         # Check the response status
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
@@ -144,7 +167,7 @@ async def test_gst_get_version_endpoint(girest_server):
         data = response.json()
         
         # Check that the response contains the output parameters
-        # Based on GStreamer documentation, get_version returns major, minor, micro, and nano
+        # Based on GStreamer documentation, version returns major, minor, micro, and nano
         assert "major" in data, "Response should contain 'major' field"
         assert "minor" in data, "Response should contain 'minor' field"
         assert "micro" in data, "Response should contain 'micro' field"

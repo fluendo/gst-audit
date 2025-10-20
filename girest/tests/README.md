@@ -40,11 +40,11 @@ poetry run pytest tests/test_gst_e2e.py -v
 
 End-to-end tests for the Gst namespace. These tests:
 
-1. **Start a GStreamer Pipeline** - Launches `gst-launch-1.0 fakesrc ! fakesink` in a subprocess
+1. **Start a GStreamer Pipeline** - Launches `gst-launch-1.0 fakesrc is-live=true do-timestamp=true ! fakesink sync=true` in a subprocess
 2. **Start the GIRest Server** - Launches the server attached to the pipeline using Frida
 3. **Test Endpoints**:
-   - `/Gst/version` - Tests non-void return values (returns a string)
-   - `/Gst/get_version` - Tests output integer parameters (returns major, minor, micro, nano versions)
+   - `/Gst/version_string` - Tests non-void return values (returns a string)
+   - `/Gst/version` - Tests output integer parameters (returns major, minor, micro, nano versions)
 
 ## Writing New Tests
 
@@ -82,9 +82,18 @@ If tests fail:
    poetry install
    ```
 
-3. **Run with More Verbose Output**:
+3. **Check ptrace Permissions** - Frida requires permissions to attach to processes. If you get "process not found" errors:
+   ```bash
+   # Temporarily allow ptrace for all processes (requires sudo)
+   echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+   ```
+   
+   Note: This setting resets after reboot. For a permanent solution on development systems, add to `/etc/sysctl.d/10-ptrace.conf`:
+   ```
+   kernel.yama.ptrace_scope = 0
+   ```
+
+4. **Run with More Verbose Output**:
    ```bash
    poetry run pytest tests/ -vv -s
    ```
-
-4. **Check Frida Permissions** - Frida requires permissions to attach to processes. You may need to adjust permissions or run tests with appropriate privileges.
