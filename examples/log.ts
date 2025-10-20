@@ -49,7 +49,7 @@ function onLog(
  *   await Gst.debug_add_log_function(onLog);
  * 
  * The generated code will:
- * 1. Call GET /Gst/debug_add_log_function
+ * 1. Make a REST API call to /Gst/debug_add_log_function
  * 2. Receive a response with { func: <callback_id> }
  * 3. Register the callback in the callbackDispatcher map
  * 4. The EventSource listener will automatically receive callback events

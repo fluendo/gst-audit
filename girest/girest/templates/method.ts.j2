@@ -1,6 +1,11 @@
 {# Method template #}
-{% if is_static %}
+{# Method template #}
+{% if is_namespace_function or is_static %}
+{% if is_namespace_function %}
+  export async function {{ name }}({{ params }}): Promise<{{ return_type }}> {
+{% else %}
   static async {{ name }}({{ params }}): Promise<{{ return_type }}> {
+{% endif %}
 {% set has_full_transfer = query_params | selectattr('transfer', 'equalto', 'full') | selectattr('is_gobject', 'equalto', true) | list | length > 0 %}
 {% if has_full_transfer %}
     // Increment ref for parameters with full transfer ownership
@@ -21,9 +26,9 @@
     const url = new URL(`{{ path }}`, '{{ base_url }}');
 {% for param in query_params %}
 {% if param.required %}
-    url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+    url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
 {% else %}
-    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
 {% endif %}
 {% endfor %}
 {% if has_full_transfer %}
@@ -130,9 +135,9 @@
     const url = new URL(`{{ path }}`, '{{ base_url }}');
 {% for param in query_params %}
 {% if param.required %}
-    url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+    url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
 {% else %}
-    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
 {% endif %}
 {% endfor %}
 {% if has_full_transfer %}

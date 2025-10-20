@@ -121,15 +121,20 @@ class TypeScriptGenerator:
         if not callback_schema or callback_schema.get("x-gi-type") != "callback":
             return "Function"
         
+        # Reserved keywords in TypeScript/JavaScript
+        reserved_keywords = {"function", "var", "let", "const", "class", "interface", "enum", "type", "namespace", "module", "import", "export", "default", "async", "await"}
+        
         # Get callback parameters
         callback_params = callback_schema.get("x-gi-callback-params", [])
         param_list = []
         
         for param in callback_params:
             param_name = param.get("name", "arg")
+            # Rename reserved keywords
+            ts_param_name = f"{param_name}_" if param_name in reserved_keywords else param_name
             param_schema = param.get("schema", {})
             param_type = self._openapi_type_to_ts(param_schema)
-            param_list.append(f"{param_name}: {param_type}")
+            param_list.append(f"{ts_param_name}: {param_type}")
         
         # Get return type
         callback_return = callback_schema.get("x-gi-callback-return", {})
@@ -282,6 +287,9 @@ class TypeScriptGenerator:
         callbacks = operation.get("x-gi-callbacks", {})
         callback_params = []
         
+        # Reserved keywords in TypeScript/JavaScript that need to be renamed
+        reserved_keywords = {"function", "var", "let", "const", "class", "interface", "enum", "type", "namespace", "module", "import", "export", "default", "async", "await"}
+        
         for param in params:
             param_name = param.get("name", "")
             param_schema = param.get("schema", {})
@@ -294,9 +302,12 @@ class TypeScriptGenerator:
                 path_params.append((param_name, param_schema))
                 continue
             
+            # Rename reserved keywords by appending underscore
+            ts_param_name = f"{param_name}_" if param_name in reserved_keywords else param_name
+            
             param_type = self._openapi_type_to_ts(param_schema)
             optional_marker = "" if param_required else "?"
-            method_params.append(f"{param_name}{optional_marker}: {param_type}")
+            method_params.append(f"{ts_param_name}{optional_marker}: {param_type}")
             
             # Check if this parameter is a GObject type (needs ref counting)
             is_gobject_param = False
@@ -310,7 +321,8 @@ class TypeScriptGenerator:
                 path_params.append((param_name, param_schema))
             elif param_in == "query":
                 query_params.append({
-                    "name": param_name,
+                    "name": ts_param_name,  # Use renamed parameter
+                    "api_name": param_name,  # Original name for API call
                     "required": param_required,
                     "transfer": param_transfer,
                     "is_gobject": is_gobject_param
@@ -469,6 +481,8 @@ class TypeScriptGenerator:
                 methods = []
                 for method_info in self.class_methods[schema_name]:
                     method_data = self._prepare_method_data(method_info, schema_name)
+                    # In namespaces, we don't use the static keyword
+                    method_data["is_namespace_function"] = True
                     methods.append(method_template.render(method_data).rstrip())
                 
                 # Insert methods into the namespace
@@ -509,8 +523,8 @@ class TypeScriptGenerator:
             methods = []
             for func_info in self.standalone_functions:
                 method_data = self._prepare_method_data(func_info, namespace_name)
-                # Mark standalone functions as static
-                method_data["is_static"] = True
+                # Standalone functions are namespace functions (no static keyword)
+                method_data["is_namespace_function"] = True
                 methods.append(method_template.render(method_data).rstrip())
             
             standalone_namespace = f"export namespace {namespace_name} {{\n"
