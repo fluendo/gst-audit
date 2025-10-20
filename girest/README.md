@@ -130,7 +130,7 @@ function onLog(category, level, file, func, line, obj, message) {
 await Gst.debug_add_log_function(onLog);
 ```
 
-Compare this with the manual approach in `examples/log.js` - the TypeScript bindings handle all the boilerplate automatically!
+Compare this with the manual approach in `girest/examples/log.js` - the TypeScript bindings handle all the boilerplate automatically!
 
 See [design/CALLBACK_IMPLEMENTATION.md](design/CALLBACK_IMPLEMENTATION.md) for implementation details.
 

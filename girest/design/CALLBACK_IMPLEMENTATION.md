@@ -113,7 +113,7 @@ await Gst.debug_add_log_function(onLog);
 
 ### Comparison with Manual Approach
 
-**Before (examples/log.js)**:
+**Before (girest/examples/log.js)**:
 ```javascript
 const cbsDispatcher = new Map();
 
@@ -245,9 +245,9 @@ Expected output shows:
 2. **girest/girest/generator.py**: Added callback type generation and reserved keyword handling
 3. **girest/girest/templates/main.ts.j2**: Added callback dispatcher
 4. **girest/girest/templates/method.ts.j2**: Added callback registration
-5. **examples/log.ts**: TypeScript example demonstrating callback usage
+5. **girest/examples/log.ts**: TypeScript example demonstrating callback usage
 6. **README.md**: Updated with callback support documentation
-7. **girest/README-client-generator.md**: Added detailed callback examples
+7. **girest/design/README-client-generator.md**: Added detailed callback examples
 
 ## Future Improvements
 
