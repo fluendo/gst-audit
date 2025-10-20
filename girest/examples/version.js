@@ -1,5 +1,5 @@
 /* Get the GStreamer version on the system
- * This proves the output parameters maechanism
+ * This proves the output parameters mechanism
  */
 
 const getVersion = async () => {
