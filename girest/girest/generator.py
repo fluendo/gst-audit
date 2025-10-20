@@ -21,19 +21,22 @@ class TypeScriptGenerator:
         "this", "throw", "try", "typeof", "void", "while", "with", "yield"
     }
     
-    def __init__(self, openapi_schema: Dict[str, Any], base_url: str):
+    def __init__(self, openapi_schema: Dict[str, Any], host: str = "localhost", port: int = 9000):
         """
         Initialize the generator with an OpenAPI schema.
         
         Args:
             openapi_schema: The OpenAPI schema dictionary from GIRest
-            base_url: Base URL for REST API calls (e.g., 'http://localhost:8000')
+            host: Host for REST API calls (default: 'localhost')
+            port: Port for REST API calls (default: 9000)
         """
         self.schema = openapi_schema
         self.components = openapi_schema.get("components", {})
         self.schemas = self.components.get("schemas", {})
         self.paths = openapi_schema.get("paths", {})
-        self.base_url = base_url
+        self.host = host
+        self.port = port
+        self.base_url = f"http://{host}:{port}"
         self.enum_schemas: Set[str] = set()
         self.class_methods: Dict[str, List[Dict]] = {}
         self.class_constructors: Dict[str, List[Dict]] = {}
@@ -405,6 +408,8 @@ class TypeScriptGenerator:
             "is_static": is_constructor or is_enum,
             "with_impl": True,
             "base_url": self.base_url,
+            "host": self.host,
+            "port": self.port,
             "path": url_path,
             "query_params": query_params,
             "callback_params": callback_params,
@@ -424,6 +429,8 @@ class TypeScriptGenerator:
             "name": class_name,
             "is_enum": is_enum,
             "base_url": self.base_url,
+            "host": self.host,
+            "port": self.port,
             "extends_gobject": extends_gobject,
             "has_interface": has_interface,
             "properties": [],
@@ -565,6 +572,8 @@ class TypeScriptGenerator:
             title=title,
             version=version,
             base_url=self.base_url,
+            host=self.host,
+            port=self.port,
             interfaces=interfaces,
             classes=classes,
             standalone_namespace=standalone_namespace
