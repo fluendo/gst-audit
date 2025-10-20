@@ -1,6 +1,5 @@
 var gst_pipeline_get_type;
 var gst_pipeline_new;
-var pipelines = [];
 var functions = {};
 
 const callbacks = new Map();
@@ -184,11 +183,6 @@ function call(symbol, type, ...args)
   return ret;
 }
 
-function enumeratePipelines()
-{
-    return pipelines;
-}
-
 function findGTypeClass(address)
 {
     console.debug(`Looking for a GTypeClass pointing to ${address}`);
@@ -265,7 +259,6 @@ function findRunningPipelines()
                     let name = namep.readCString();
                     if (name) {
                         console.info(`Pipeline found with name ${name}`);
-                        pipelines.push(gtypeclass);
                         /* Send a message to notify the Python side */
                         send({
                             "kind": "pipeline",
@@ -299,5 +292,4 @@ rpc.exports = {
   'call': call,
   'init': init,
   'shutdown': shutdown,
-  'enumeratePipelines': enumeratePipelines,
 };
