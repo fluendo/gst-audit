@@ -1,6 +1,11 @@
 {# Method template #}
-{% if is_static %}
+{# Method template #}
+{% if is_namespace_function or is_static %}
+{% if is_namespace_function %}
+  export async function {{ name }}({{ params }}): Promise<{{ return_type }}> {
+{% else %}
   static async {{ name }}({{ params }}): Promise<{{ return_type }}> {
+{% endif %}
 {% set has_full_transfer = query_params | selectattr('transfer', 'equalto', 'full') | selectattr('is_gobject', 'equalto', true) | list | length > 0 %}
 {% if has_full_transfer %}
     // Increment ref for parameters with full transfer ownership
@@ -21,9 +26,9 @@
     const url = new URL(`{{ path }}`, '{{ base_url }}');
 {% for param in query_params %}
 {% if param.required %}
-    url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+    url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
 {% else %}
-    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
 {% endif %}
 {% endfor %}
 {% if has_full_transfer %}
@@ -46,8 +51,16 @@
 {% endfor %}
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-{% if return_type != 'void' %}
+{% if return_type != 'void' or callback_params %}
       const data = await response.json();
+{% if callback_params %}
+      // Register callbacks
+{% for cb in callback_params %}
+      if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
+        callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
+      }
+{% endfor %}
+{% endif %}
 {% if is_constructor %}
       const instance = new {{ class_name }}();
       Object.assign(instance, data.return || data);
@@ -78,15 +91,23 @@
 {% else %}
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-{% if return_type != 'void' %}
+{% if return_type != 'void' or callback_params %}
     const data = await response.json();
+{% if callback_params %}
+    // Register callbacks
+{% for cb in callback_params %}
+    if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
+      callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
+    }
+{% endfor %}
+{% endif %}
 {% if is_constructor %}
     const instance = new {{ class_name }}();
     Object.assign(instance, data.return || data);
     return instance;
 {% elif has_return %}
     return data.return;
-{% else %}
+{% elif return_type != 'void' %}
     return data;
 {% endif %}
 {% endif %}
@@ -114,9 +135,9 @@
     const url = new URL(`{{ path }}`, '{{ base_url }}');
 {% for param in query_params %}
 {% if param.required %}
-    url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+    url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
 {% else %}
-    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.name }}', String({{ param.name }}));
+    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
 {% endif %}
 {% endfor %}
 {% if has_full_transfer %}
@@ -139,11 +160,19 @@
 {% endfor %}
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-{% if return_type != 'void' %}
+{% if return_type != 'void' or callback_params %}
       const data = await response.json();
+{% if callback_params %}
+      // Register callbacks
+{% for cb in callback_params %}
+      if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
+        callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
+      }
+{% endfor %}
+{% endif %}
 {% if has_return %}
       return data.return;
-{% else %}
+{% elif return_type != 'void' %}
       return data;
 {% endif %}
 {% endif %}
@@ -167,12 +196,20 @@
 {% else %}
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-{% if return_type != 'void' %}
+{% if return_type != 'void' or callback_params %}
     const data = await response.json();
+{% if callback_params %}
+    // Register callbacks
+{% for cb in callback_params %}
+    if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
+      callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
+    }
+{% endfor %}
+{% endif %}
 {% if has_return %}
-      return data.return;
-{% else %}
-      return data;
+    return data.return;
+{% elif return_type != 'void' %}
+    return data;
 {% endif %}
 {% endif %}
 {% endif %}

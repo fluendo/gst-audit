@@ -12,6 +12,15 @@ from jinja2 import Environment, FileSystemLoader, Template
 class TypeScriptGenerator:
     """Generates TypeScript bindings from OpenAPI schema using Jinja2 templates."""
     
+    # Reserved keywords in TypeScript/JavaScript
+    RESERVED_KEYWORDS = {
+        "function", "var", "let", "const", "class", "interface", "enum", "type",
+        "namespace", "module", "import", "export", "default", "async", "await",
+        "break", "case", "catch", "continue", "debugger", "delete", "do", "else",
+        "finally", "for", "if", "in", "instanceof", "new", "return", "switch",
+        "this", "throw", "try", "typeof", "void", "while", "with", "yield"
+    }
+    
     def __init__(self, openapi_schema: Dict[str, Any], base_url: str):
         """
         Initialize the generator with an OpenAPI schema.
@@ -29,6 +38,8 @@ class TypeScriptGenerator:
         self.class_methods: Dict[str, List[Dict]] = {}
         self.class_constructors: Dict[str, List[Dict]] = {}
         self.gobject_types: Set[str] = set()  # Track GObject-derived types
+        self.callback_schemas: Set[str] = set()  # Track callback types
+        self.standalone_functions: List[Dict] = []  # Track standalone functions without tags
         
         # Setup Jinja2 environment
         template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -44,12 +55,34 @@ class TypeScriptGenerator:
         # Parse operations and organize by tag (class)
         self._parse_operations()
     
+    def _safe_property_name(self, name: str) -> str:
+        """
+        Convert a schema property name to a safe TypeScript/JavaScript identifier.
+        
+        Appends an underscore to reserved keywords to avoid syntax errors.
+        This method should be used for all property names in schemas (enums,
+        structs, objects, callbacks, functions, etc).
+        
+        Args:
+            name: The property name from the schema
+            
+        Returns:
+            Safe TypeScript identifier (may have underscore appended)
+        """
+        if name in self.RESERVED_KEYWORDS:
+            return f"{name}_"
+        return name
+    
     def _identify_special_schemas(self):
-        """Identify which schemas are enums and which are GObject-based."""
+        """Identify which schemas are enums, callbacks, and which are GObject-based."""
         for schema_name, schema_def in self.schemas.items():
             # Identify enums
             if "enum" in schema_def and schema_def.get("type") == "string":
                 self.enum_schemas.add(schema_name)
+            
+            # Identify callbacks
+            if schema_def.get("x-gi-type") == "callback":
+                self.callback_schemas.add(schema_name)
             
             # Identify GObject-based types by checking inheritance chain
             if self._is_gobject_type(schema_name, schema_def):
@@ -81,15 +114,15 @@ class TypeScriptGenerator:
                     continue
                 
                 tags = operation.get("tags", [])
+                method_info = {
+                    "path": path,
+                    "http_method": method,
+                    "operation": operation,
+                    "operation_id": operation.get("operationId", "")
+                }
+                
                 if tags:
                     class_name = tags[0]
-                    method_info = {
-                        "path": path,
-                        "http_method": method,
-                        "operation": operation,
-                        "operation_id": operation.get("operationId", "")
-                    }
-                    
                     is_constructor = operation.get("x-gi-constructor", False)
                     
                     if is_constructor:
@@ -100,6 +133,46 @@ class TypeScriptGenerator:
                         if class_name not in self.class_methods:
                             self.class_methods[class_name] = []
                         self.class_methods[class_name].append(method_info)
+                else:
+                    # Standalone function without tags
+                    self.standalone_functions.append(method_info)
+    
+    def _get_callback_type_signature(self, callback_ref: str) -> str:
+        """Generate TypeScript function signature for a callback."""
+        if not callback_ref.startswith("#/components/schemas/"):
+            return "Function"
+        
+        callback_name = callback_ref.split("/")[-1]
+        callback_schema = self.schemas.get(callback_name, {})
+        
+        if not callback_schema or callback_schema.get("x-gi-type") != "callback":
+            return "Function"
+        
+        # Get callback properties
+        properties = callback_schema.get("properties", {})
+        param_list = []
+        return_type = "void"
+        
+        # Iterate through properties to get parameters and return type
+        for prop_name, prop_schema in properties.items():
+            is_return = prop_schema.get("x-gi-is-return", False)
+            
+            if is_return:
+                # This is the return type
+                # Remove x-gi-is-return from schema before converting
+                clean_schema = {k: v for k, v in prop_schema.items() if k != "x-gi-is-return"}
+                return_type = self._openapi_type_to_ts(clean_schema)
+            else:
+                # This is a parameter
+                # Use safe property name to handle reserved keywords
+                ts_param_name = self._safe_property_name(prop_name)
+                # Remove x-gi-transfer and x-gi-is-return from schema before converting
+                clean_schema = {k: v for k, v in prop_schema.items() if k not in ["x-gi-transfer", "x-gi-is-return"]}
+                param_type = self._openapi_type_to_ts(clean_schema)
+                param_list.append(f"{ts_param_name}: {param_type}")
+        
+        params_str = ", ".join(param_list)
+        return f"({params_str}) => {return_type}"
     
     def _openapi_type_to_ts(self, schema: Dict[str, Any], nullable: bool = False) -> str:
         """Convert an OpenAPI schema type to TypeScript type."""
@@ -146,7 +219,8 @@ class TypeScriptGenerator:
                     is_required = prop_name in required
                     prop_type = self._openapi_type_to_ts(prop_schema)
                     optional_marker = "" if is_required else "?"
-                    prop_types.append(f"{prop_name}{optional_marker}: {prop_type}")
+                    safe_name = self._safe_property_name(prop_name)
+                    prop_types.append(f"{safe_name}{optional_marker}: {prop_type}")
                 return "{ " + "; ".join(prop_types) + " }" + (" | null" if nullable else "")
             return "object" + (" | null" if nullable else "")
         
@@ -214,7 +288,7 @@ class TypeScriptGenerator:
             required = schema.get("required", [])
             data["properties"] = [
                 {
-                    "name": prop_name,
+                    "name": self._safe_property_name(prop_name),
                     "optional": "" if prop_name in required else "?",
                     "type": self._openapi_type_to_ts(prop_schema)
                 }
@@ -238,6 +312,10 @@ class TypeScriptGenerator:
         path_params = []
         has_self_param = False
         
+        # Check if this method has callbacks
+        callbacks = operation.get("x-gi-callbacks", {})
+        callback_params = []
+        
         for param in params:
             param_name = param.get("name", "")
             param_schema = param.get("schema", {})
@@ -250,9 +328,12 @@ class TypeScriptGenerator:
                 path_params.append((param_name, param_schema))
                 continue
             
+            # Use safe property name to handle reserved keywords
+            ts_param_name = self._safe_property_name(param_name)
+            
             param_type = self._openapi_type_to_ts(param_schema)
             optional_marker = "" if param_required else "?"
-            method_params.append(f"{param_name}{optional_marker}: {param_type}")
+            method_params.append(f"{ts_param_name}{optional_marker}: {param_type}")
             
             # Check if this parameter is a GObject type (needs ref counting)
             is_gobject_param = False
@@ -266,11 +347,23 @@ class TypeScriptGenerator:
                 path_params.append((param_name, param_schema))
             elif param_in == "query":
                 query_params.append({
-                    "name": param_name,
+                    "name": ts_param_name,  # Use renamed parameter
+                    "api_name": param_name,  # Original name for API call
                     "required": param_required,
                     "transfer": param_transfer,
                     "is_gobject": is_gobject_param
                 })
+        
+        # Add callback parameters to method signature
+        for callback_name, callback_ref in callbacks.items():
+            callback_type = self._get_callback_type_signature(callback_ref)
+            safe_callback_name = self._safe_property_name(callback_name)
+            method_params.append(f"{safe_callback_name}: {callback_type}")
+            callback_params.append({
+                "name": safe_callback_name,
+                "api_name": callback_name,  # Original name for API
+                "type_ref": callback_ref
+            })
         
         # Determine return type
         return_type = "void"
@@ -314,6 +407,7 @@ class TypeScriptGenerator:
             "base_url": self.base_url,
             "path": url_path,
             "query_params": query_params,
+            "callback_params": callback_params,
             "is_constructor": is_constructor,
             "has_return": response_has_return,
             "class_name": class_name
@@ -415,6 +509,8 @@ class TypeScriptGenerator:
                 methods = []
                 for method_info in self.class_methods[schema_name]:
                     method_data = self._prepare_method_data(method_info, schema_name)
+                    # In namespaces, we don't use the static keyword
+                    method_data["is_namespace_function"] = True
                     methods.append(method_template.render(method_data).rstrip())
                 
                 # Insert methods into the namespace
@@ -442,6 +538,27 @@ class TypeScriptGenerator:
                 class_data = self._prepare_class_data(class_name)
                 classes.append(class_template.render(class_data))
         
+        # Generate standalone functions namespace
+        standalone_namespace = ""
+        if self.standalone_functions:
+            # Extract namespace name from the first function's operation_id
+            # Format: {namespace}--{function_name}
+            first_func = self.standalone_functions[0]
+            op_id = first_func.get("operation_id", "")
+            namespace_name = op_id.split("-")[0] if op_id else "Functions"
+            
+            method_template = self.jinja_env.get_template('method.ts.j2')
+            methods = []
+            for func_info in self.standalone_functions:
+                method_data = self._prepare_method_data(func_info, namespace_name)
+                # Standalone functions are namespace functions (no static keyword)
+                method_data["is_namespace_function"] = True
+                methods.append(method_template.render(method_data).rstrip())
+            
+            standalone_namespace = f"export namespace {namespace_name} {{\n"
+            standalone_namespace += "\n".join(methods)
+            standalone_namespace += "\n}"
+        
         # Generate main file
         main_template = self.jinja_env.get_template('main.ts.j2')
         return main_template.render(
@@ -449,5 +566,6 @@ class TypeScriptGenerator:
             version=version,
             base_url=self.base_url,
             interfaces=interfaces,
-            classes=classes
+            classes=classes,
+            standalone_namespace=standalone_namespace
         )

@@ -14,7 +14,7 @@ function on_log(category, level, file, func, line, obj, msg)
 
 
 /* Listen to the callbacks */
-const cbsSource = new EventSource("http://localhost:8000/Application/callbacks");
+const cbsSource = new EventSource("http://localhost:8000/GIRest/callbacks");
 cbsSource.onmessage = (ev) => {
   const json = JSON.parse(ev.data);
   var cb = cbsDispatcher.get(json.id.toString());

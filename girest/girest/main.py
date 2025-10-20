@@ -78,8 +78,11 @@ class GIRest():
                     full_name = f"{interface.get_namespace()}{interface.get_name()}"
                     return {"$ref": f"#/components/schemas/{full_name}"}
                 elif info_type == GIRepository.InfoType.CALLBACK:
-                    # Callbacks are represented as integers (callback IDs)
-                    return {"type": "integer"}
+                    # Generate the callback schema if not already generated
+                    self._generate_callback(interface)
+                    # Return reference to the callback schema
+                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                    return {"$ref": f"#/components/schemas/{full_name}"}
         
         # Map GIRepository type tags to OpenAPI types
         # Note: OpenAPI 3.0 doesn't distinguish between signed and unsigned integers
@@ -118,6 +121,7 @@ class GIRest():
         # Handle the parameters
         params = []
         response_props = {}
+        callback_schemas = {}  # Track callbacks for x-gi-callback field
         
         # Add self parameter for methods
         if GIRepository.function_info_get_flags(bim) & 1:
@@ -167,6 +171,11 @@ class GIRest():
             if tag == "interface":
                 interface = GIRepository.type_info_get_interface(arg_type)
                 if interface and interface.get_type() == GIRepository.InfoType.CALLBACK:
+                    # Generate the callback schema
+                    self._generate_callback(interface)
+                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                    # Track this callback for the x-gi-callback field
+                    callback_schemas[arg_name] = f"#/components/schemas/{full_name}"
                     # Add callback ID to response
                     response_props[arg_name] = {"type": "integer", "description": "Callback ID"}
                     continue
@@ -249,6 +258,10 @@ class GIRest():
             "x-gi-constructor": is_constructor
         }
         
+        # Add callback schema references if there are callbacks
+        if callback_schemas:
+            operation["x-gi-callbacks"] = callback_schemas
+        
         # Add paths, components, etc. programmatically
         self.spec.path(path=api, operations={
             "get": operation
@@ -324,6 +337,67 @@ class GIRest():
         
         # Mark as generated
         self.schemas[full_name] = True
+
+    def _generate_callback(self, bi):
+        """Generate OpenAPI schema for a callback"""
+        full_name = f"{bi.get_namespace()}{bi.get_name()}"
+        if full_name in self.schemas:
+            return
+        
+        # Mark as generated early to prevent circular dependencies
+        self.schemas[full_name] = True
+        
+        # Get callback parameters
+        n_args = GIRepository.callable_info_get_n_args(bi)
+        properties = {}
+        
+        for i in range(n_args):
+            arg = GIRepository.callable_info_get_arg(bi, i)
+            arg_type = GIRepository.arg_info_get_type(arg)
+            arg_name = arg.get_name()
+            
+            # Get transfer ownership information
+            transfer = GIRepository.arg_info_get_ownership_transfer(arg)
+            if transfer == GIRepository.Transfer.NOTHING:
+                transfer_str = "none"
+            elif transfer == GIRepository.Transfer.CONTAINER:
+                transfer_str = "container"
+            elif transfer == GIRepository.Transfer.EVERYTHING:
+                transfer_str = "full"
+            else:
+                transfer_str = "none"
+            
+            param_schema = self._type_to_schema(arg_type)
+            # Ensure param_schema always has a value
+            if not param_schema:
+                param_schema = {"$ref": "#/components/schemas/Pointer"}
+            
+            # Add parameter as a property with transfer information
+            properties[arg_name] = {
+                **param_schema,
+                "x-gi-transfer": transfer_str,
+                "x-gi-is-return": False
+            }
+        
+        # Get return type
+        return_type = GIRepository.callable_info_get_return_type(bi)
+        return_schema = self._type_to_schema(return_type)
+        
+        # Add return type to properties if it exists
+        if return_schema:
+            properties["return"] = {
+                **return_schema,
+                "x-gi-is-return": True
+            }
+        
+        # Create callback schema
+        callback_schema = {
+            "type": "object",
+            "x-gi-type": "callback",
+            "properties": properties
+        }
+        
+        self.spec.components.schema(full_name, callback_schema)
 
     def _generate_enum(self, bi):
         """Generate OpenAPI schema for an enum"""
