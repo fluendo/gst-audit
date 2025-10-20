@@ -4,10 +4,12 @@
 
 `gst-audit` is a live auditing tool for running GStreamer pipelines. It uses Frida to attach to running processes and exposes the GStreamer API as a REST API through FastAPI.
 
+For detailed usage examples and additional context, see the [main README](../README.md).
+
 ## Technology Stack
 
 - **Language**: Python 3.10+
-- **Framework**: FastAPI
+- **Framework**: FastAPI (main app), Connexion (girest subproject)
 - **Process Instrumentation**: Frida
 - **Introspection**: GObject Introspection (GIRepository)
 - **API Documentation**: OpenAPI/Swagger
@@ -15,14 +17,24 @@
 
 ## Project Structure
 
-- `gstaudit/` - Main Python package
-  - `main.py` - FastAPI application entry point
-  - `router.py` - Dynamic route generation from GObject introspection
-  - `types.py` - Custom type definitions (e.g., Pointer)
-  - `decorators.py` - SSE and other decorators
-- `girest/` - GIRepository REST API utilities
-- `examples/` - Example scripts demonstrating usage
-- `gstaudit.js` - Frida JavaScript instrumentation script
+The repository consists of two main components:
+
+### Main Application (`gstaudit/`)
+- `main.py` - FastAPI application entry point with Frida session management
+- `router.py` - Dynamic route generation from GObject introspection (GIRouter class)
+- `types.py` - Custom type definitions (Pointer type with validation)
+- `decorators.py` - SSE response handlers and decorators
+
+### GIRest Subproject (`girest/`)
+A standalone GIRepository to REST API generator with its own dependencies:
+- `girest/main.py` - Core GIRest class for generating OpenAPI schemas from GIR
+- `girest/app.py` - Connexion-based API application
+- `pyproject.toml` - Separate Poetry configuration (uses Connexion instead of FastAPI)
+
+### Other Components
+- `gstaudit.js` - Frida JavaScript instrumentation script for process attachment
+- `examples/` - Example JavaScript files demonstrating usage
+- `pyproject.toml` - Root Poetry configuration for the main gstaudit application
 
 ## Code Style & Conventions
 
@@ -42,11 +54,21 @@
 
 ## Dependencies
 
-Managed via Poetry (`pyproject.toml`):
+The project has two separate dependency configurations:
+
+### Main Application (`pyproject.toml`)
+Managed via Poetry:
 - `frida` - Process instrumentation
 - `fastapi` - Web framework
 - `fastapi-sse` - Server-Sent Events support
 - `colorlog` - Colored logging
+
+### GIRest Subproject (`girest/pyproject.toml`)
+Separate Poetry configuration:
+- `connexion` - API framework with built-in OpenAPI support
+- `frida` - Process instrumentation (shared with main app)
+- `pygobject` - GObject bindings (version < 3.50.0)
+- `apispec` - OpenAPI schema generation library
 
 ## Key Concepts
 
@@ -102,10 +124,11 @@ logger.error("Error message")
 
 ## Important Notes
 
-- **PyGObject not used**: Direct GIRepository access is required to expose internal functions (e.g., `unref`, functions to free structs)
-- **Custom OpenAPI schema**: FastAPI's automatic schema generation has limitations; custom `apispec` usage may be needed
-- **Frida session lifecycle**: Managed in the FastAPI lifespan context manager
-- **Thread safety**: Be cautious with shared state (e.g., `callbacks_data`)
+- **PyGObject not used directly**: Direct GIRepository access is required to expose internal functions (e.g., `unref`, functions to free structs). PyGObject hides this information as it manages memory internally. See the [README](../README.md#pyGObject) for more context.
+- **FastAPI limitations**: FastAPI lacks proper inheritance support for object types in OpenAPI schemas and makes it difficult to add schema metadata for fields (needed for automatic TypeScript bindings). The `apispec` library is used directly for more control. See the [README](../README.md#fastapi) for details.
+- **Frida session lifecycle**: Managed in the FastAPI lifespan context manager (see `main.py`)
+- **Thread safety**: Be cautious with shared state (e.g., `callbacks_data` list in `main.py`)
+- **Two similar but different approaches**: The main `gstaudit` uses FastAPI with custom GIRouter, while `girest` uses Connexion with apispec for schema generation
 
 ## Future Enhancements
 
@@ -116,7 +139,10 @@ logger.error("Error message")
 
 ## References
 
+- [Main README](../README.md) - Project overview, examples, and architectural decisions
 - [Frida Documentation](https://frida.re)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [GIRepository Documentation](https://gnome.pages.gitlab.gnome.org/gobject-introspection/girepository/)
 - [OpenAPI Specification](https://spec.openapis.org/)
+- [OpenAPI to TypeScript](https://heyapi.dev/openapi-ts/output)
+- [Connexion Documentation](https://connexion.readthedocs.io/)
