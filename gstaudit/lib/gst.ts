@@ -54,11 +54,19 @@ const objectRegistry = new FinalizationRegistry((ptr: string) => {
 const callbackDispatcher = new Map<string, Function>();
 
 let callbackSource: EventSource | null = null;
+let isReinitializing = false;
 
 function initializeCallbackSource(): void {
+  // Prevent concurrent reinitialization
+  if (isReinitializing) {
+    return;
+  }
+  isReinitializing = true;
+  
   // Close existing EventSource if it exists
   if (callbackSource) {
     callbackSource.close();
+    callbackSource = null;
   }
   
   // Initialize callback dispatcher with EventSource
@@ -78,6 +86,11 @@ function initializeCallbackSource(): void {
     callbackSource.onerror = (error) => {
       console.error('Callback EventSource error:', error);
     };
+    callbackSource.onopen = () => {
+      isReinitializing = false;
+    };
+  } else {
+    isReinitializing = false;
   }
 }
 
