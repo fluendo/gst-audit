@@ -31,8 +31,15 @@ def gst_pipeline():
     # Start the pipeline with a slow rate to keep it running
     # The is-live=true and do-timestamp=true keep the pipeline running
     process = subprocess.Popen(
-        ["gst-launch-1.0", "fakesrc", "is-live=true", "do-timestamp=true", "!", 
-         "fakesink", "sync=true"],
+        [
+            "gst-launch-1.0",
+            "fakesrc",
+            "is-live=true",
+            "do-timestamp=true",
+            "!",
+            "fakesink",
+            "sync=true"
+        ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
@@ -95,14 +102,15 @@ def girest_server(gst_pipeline):
     
     # Wait for the server to be ready by polling the docs endpoint
     ready = False
-    for i in range(15):
+    max_retries = 15
+    for i in range(max_retries):
         try:
             response = httpx.get(f"{base_url}/openapi.json", timeout=2)
             if response.status_code == 200:
                 ready = True
                 break
         except Exception as e:
-            if i == 14:  # Last attempt
+            if i == max_retries - 1:  # Last attempt
                 print(f"Failed to connect: {e}")
             pass
         time.sleep(1)
@@ -179,5 +187,5 @@ async def test_gst_version_endpoint(girest_server):
         assert isinstance(data["micro"], int), "micro should be an integer"
         assert isinstance(data["nano"], int), "nano should be an integer"
         
-        # Sanity check: major version should be reasonable (1-2 for GStreamer 1.x/2.x)
-        assert data["major"] in [1, 2], f"Unexpected major version: {data['major']}"
+        # Sanity check: major version should be reasonable (GStreamer 1.x or later)
+        assert data["major"] >= 1, f"Unexpected major version: {data['major']}"
