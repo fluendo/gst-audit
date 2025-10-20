@@ -15,6 +15,7 @@ TypeScript bindings generator for GIRest schemas.
 - **Automatic memory management**: When `--base-url` is provided, GObject-derived classes use FinalizationRegistry for automatic cleanup via `g_object_unref`
 - **Manual cleanup**: All GObject-based classes have an `unref()` method for explicit cleanup
 - **Transfer ownership handling**: Automatically manages reference counting for parameters with full transfer ownership
+- **Callback support**: Functions with callback parameters automatically register callbacks and dispatch events via EventSource
 - **Enum support**: Enumerations with methods are generated as namespaces with const values and static methods
 - **REST API implementation**: When `--base-url` is provided, generates complete method implementations with fetch calls
 - **Template-based generation**: Uses Jinja2 templates for cleaner and more maintainable code generation
@@ -385,6 +386,74 @@ const transition = GstStateChange.NULL_TO_READY;
 // Call static enum methods
 const name = await GstStateChange.get_name(transition);
 console.log(name); // "null_to_ready"
+```
+
+### Example 5: Using Callbacks
+
+The generated TypeScript bindings automatically handle callback registration and dispatching:
+
+```typescript
+import { Gst } from './gst';
+
+// Define your callback function with proper type signature
+function onLog(
+  category: any,
+  level: any,
+  file: string,
+  func: string,
+  line: number,
+  obj: any,
+  message: any
+) {
+  console.log(`${file}:${line} ${func}() - ${message}`);
+}
+
+// Register the callback - the binding handles everything automatically
+await Gst.debug_add_log_function(onLog);
+
+// The generated code will:
+// 1. Call the REST endpoint /Gst/debug_add_log_function
+// 2. Receive a callback ID from the server
+// 3. Register your callback in the internal dispatcher map
+// 4. Listen for callback events via EventSource on /Application/callbacks
+// 5. Automatically dispatch events to your callback function
+
+// Compare this to the manual approach in examples/log.js:
+// - No need to manually create EventSource
+// - No need to manually manage the callback dispatcher map
+// - No need to manually parse event data
+// All of this is handled automatically by the generated bindings!
+```
+
+The callback dispatcher is initialized automatically in the generated code:
+
+```typescript
+// Generated code includes:
+const callbackDispatcher = new Map<string, Function>();
+
+const callbackSource = new EventSource('http://localhost:8000/Application/callbacks');
+callbackSource.onmessage = (ev) => {
+  const json = JSON.parse(ev.data);
+  const cb = callbackDispatcher.get(json.id.toString());
+  if (cb) {
+    cb(...Object.values(json.data));
+  }
+};
+```
+
+When you call a function that takes a callback, the generated method implementation automatically registers it:
+
+```typescript
+// Generated method implementation:
+static async debug_add_log_function(func: (category, level, ...) => void): Promise<...> {
+  const response = await fetch(url);
+  const data = await response.json();
+  // Automatically register the callback
+  if (data.func !== undefined) {
+    callbackDispatcher.set(data.func.toString(), func);
+  }
+  return data;
+}
 ```
 
 ## See Also

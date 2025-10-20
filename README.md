@@ -16,6 +16,7 @@ information provided by the GObject's introspection system. The following featur
 * [x] Output arguments are properly returned in the HTTP response
 * [x] Enums are included in the schema to narrow the possibilites of the parameters
 * [x] Callbacks are handled in a generic SSE endpoint
+* [x] TypeScript bindings automatically dispatch callbacks via EventSource
 * [ ] Callbacks are handled as an HTTP callback
 * [ ] GError handling to return different HTTP response
 
@@ -95,6 +96,32 @@ python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o g
 ```
 
 See [girest/README-client-generator.md](girest/README-client-generator.md) for more details.
+
+### Callback Support
+
+The TypeScript bindings include automatic callback support. When you call a function that takes a callback parameter (like `Gst.debug_add_log_function`), the generated code will:
+
+1. Make the REST API call to register the callback
+2. Receive a callback ID from the server
+3. Automatically register your callback function with the internal dispatcher
+4. Listen for callback events via EventSource on `/Application/callbacks`
+5. Dispatch events to your callback function when they arrive
+
+Example usage:
+
+```typescript
+import { Gst } from './gst';
+
+// Define your callback function with proper types
+function onLog(category, level, file, func, line, obj, message) {
+  console.log(`${file}:${line} ${func}() - ${message}`);
+}
+
+// Register the callback - it will be automatically dispatched
+await Gst.debug_add_log_function(onLog);
+```
+
+Compare this with the manual approach in `examples/log.js` - the TypeScript bindings handle all the boilerplate automatically!
 
 ## References
 * [OpenAPI to TypeScript](https://heyapi.dev/openapi-ts/output)
