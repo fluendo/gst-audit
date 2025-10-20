@@ -418,7 +418,7 @@ await Gst.debug_add_log_function(onLog);
 // 4. Listen for callback events via EventSource on /GIRest/callbacks
 // 5. Automatically dispatch events to your callback function
 
-// Compare this to the manual approach in examples/log.js:
+// Compare this to the manual approach in girest/examples/log.js:
 // - No need to manually create EventSource
 // - No need to manually manage the callback dispatcher map
 // - No need to manually parse event data

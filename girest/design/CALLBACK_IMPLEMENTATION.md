@@ -6,6 +6,32 @@ This document describes the implementation of TypeScript callback support for GI
 
 The implementation allows TypeScript/JavaScript clients to register callback functions that are automatically dispatched when events are received from the server via Server-Sent Events (SSE).
 
+## Usage
+
+The TypeScript bindings include automatic callback support. When you call a function that takes a callback parameter (like `Gst.debug_add_log_function`), the generated code will:
+
+1. Make the REST API call to register the callback
+2. Receive a callback ID from the server
+3. Automatically register your callback function with the internal dispatcher
+4. Listen for callback events via EventSource on `/GIRest/callbacks`
+5. Dispatch events to your callback function when they arrive
+
+Example usage:
+
+```typescript
+import { Gst } from './gst';
+
+// Define your callback function with proper types
+function onLog(category, level, file, func, line, obj, message) {
+  console.log(`${file}:${line} ${func}() - ${message}`);
+}
+
+// Register the callback - it will be automatically dispatched
+await Gst.debug_add_log_function(onLog);
+```
+
+Compare this with the manual approach in `girest/examples/log.js` - the TypeScript bindings handle all the boilerplate automatically!
+
 ## Architecture
 
 ### 1. OpenAPI Schema Generation (girest/main.py)
@@ -113,7 +139,7 @@ await Gst.debug_add_log_function(onLog);
 
 ### Comparison with Manual Approach
 
-**Before (examples/log.js)**:
+**Before (girest/examples/log.js)**:
 ```javascript
 const cbsDispatcher = new Map();
 
@@ -245,9 +271,9 @@ Expected output shows:
 2. **girest/girest/generator.py**: Added callback type generation and reserved keyword handling
 3. **girest/girest/templates/main.ts.j2**: Added callback dispatcher
 4. **girest/girest/templates/method.ts.j2**: Added callback registration
-5. **examples/log.ts**: TypeScript example demonstrating callback usage
+5. **girest/examples/log.ts**: TypeScript example demonstrating callback usage
 6. **README.md**: Updated with callback support documentation
-7. **girest/README-client-generator.md**: Added detailed callback examples
+7. **girest/design/README-client-generator.md**: Added detailed callback examples
 
 ## Future Improvements
 
