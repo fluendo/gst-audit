@@ -14,7 +14,7 @@ function on_log(category, level, file, func, line, obj, msg)
 
 
 /* Listen to the callbacks */
-const cbsSource = new EventSource("http://localhost:8000/GIRest/callbacks");
+const cbsSource = new EventSource("http://localhost:9000/GIRest/callbacks");
 cbsSource.onmessage = (ev) => {
   const json = JSON.parse(ev.data);
   var cb = cbsDispatcher.get(json.id.toString());
@@ -25,7 +25,7 @@ cbsSource.onmessage = (ev) => {
 
 /* Register */
 const addLogFunction = async () => {
-  const response = await fetch("http://localhost:8000/Gst/debug_add_log_function");
+  const response = await fetch("http://localhost:9000/Gst/debug_add_log_function");
   const json = await response.json();
   cbsDispatcher.set(json.func.toString(), on_log);
 }
