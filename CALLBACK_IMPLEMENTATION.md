@@ -49,7 +49,7 @@ The implementation allows TypeScript/JavaScript clients to register callback fun
 ```typescript
 const callbackDispatcher = new Map<string, Function>();
 
-const callbackSource = new EventSource('{base_url}/Application/callbacks');
+const callbackSource = new EventSource('{base_url}/GIRest/callbacks');
 callbackSource.onmessage = (ev) => {
   const json = JSON.parse(ev.data);
   const cb = callbackDispatcher.get(json.id.toString());
@@ -118,7 +118,7 @@ await Gst.debug_add_log_function(onLog);
 const cbsDispatcher = new Map();
 
 // Manually create EventSource
-const cbsSource = new EventSource("http://localhost:8000/Application/callbacks");
+const cbsSource = new EventSource("http://localhost:8000/GIRest/callbacks");
 cbsSource.onmessage = (ev) => {
   const json = JSON.parse(ev.data);
   var cb = cbsDispatcher.get(json.id.toString());

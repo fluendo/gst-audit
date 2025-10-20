@@ -53,7 +53,7 @@ function onLog(
  * 2. Receive a response with { func: <callback_id> }
  * 3. Register the callback in the callbackDispatcher map
  * 4. The EventSource listener will automatically receive callback events
- *    from /Application/callbacks and dispatch them to the registered function
+ *    from /GIRest/callbacks and dispatch them to the registered function
  */
 async function main() {
   // In a real application with generated bindings:

@@ -104,7 +104,7 @@ The TypeScript bindings include automatic callback support. When you call a func
 1. Make the REST API call to register the callback
 2. Receive a callback ID from the server
 3. Automatically register your callback function with the internal dispatcher
-4. Listen for callback events via EventSource on `/Application/callbacks`
+4. Listen for callback events via EventSource on `/GIRest/callbacks`
 5. Dispatch events to your callback function when they arrive
 
 Example usage:

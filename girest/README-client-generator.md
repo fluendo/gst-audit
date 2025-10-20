@@ -415,7 +415,7 @@ await Gst.debug_add_log_function(onLog);
 // 1. Call the REST endpoint /Gst/debug_add_log_function
 // 2. Receive a callback ID from the server
 // 3. Register your callback in the internal dispatcher map
-// 4. Listen for callback events via EventSource on /Application/callbacks
+// 4. Listen for callback events via EventSource on /GIRest/callbacks
 // 5. Automatically dispatch events to your callback function
 
 // Compare this to the manual approach in examples/log.js:
@@ -431,7 +431,7 @@ The callback dispatcher is initialized automatically in the generated code:
 // Generated code includes:
 const callbackDispatcher = new Map<string, Function>();
 
-const callbackSource = new EventSource('http://localhost:8000/Application/callbacks');
+const callbackSource = new EventSource('http://localhost:8000/GIRest/callbacks');
 callbackSource.onmessage = (ev) => {
   const json = JSON.parse(ev.data);
   const cb = callbackDispatcher.get(json.id.toString());
