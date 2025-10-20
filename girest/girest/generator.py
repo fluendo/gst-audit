@@ -29,6 +29,8 @@ class TypeScriptGenerator:
         self.class_methods: Dict[str, List[Dict]] = {}
         self.class_constructors: Dict[str, List[Dict]] = {}
         self.gobject_types: Set[str] = set()  # Track GObject-derived types
+        self.callback_schemas: Set[str] = set()  # Track callback types
+        self.standalone_functions: List[Dict] = []  # Track standalone functions without tags
         
         # Setup Jinja2 environment
         template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -45,11 +47,15 @@ class TypeScriptGenerator:
         self._parse_operations()
     
     def _identify_special_schemas(self):
-        """Identify which schemas are enums and which are GObject-based."""
+        """Identify which schemas are enums, callbacks, and which are GObject-based."""
         for schema_name, schema_def in self.schemas.items():
             # Identify enums
             if "enum" in schema_def and schema_def.get("type") == "string":
                 self.enum_schemas.add(schema_name)
+            
+            # Identify callbacks
+            if schema_def.get("x-gi-type") == "callback":
+                self.callback_schemas.add(schema_name)
             
             # Identify GObject-based types by checking inheritance chain
             if self._is_gobject_type(schema_name, schema_def):
@@ -81,15 +87,15 @@ class TypeScriptGenerator:
                     continue
                 
                 tags = operation.get("tags", [])
+                method_info = {
+                    "path": path,
+                    "http_method": method,
+                    "operation": operation,
+                    "operation_id": operation.get("operationId", "")
+                }
+                
                 if tags:
                     class_name = tags[0]
-                    method_info = {
-                        "path": path,
-                        "http_method": method,
-                        "operation": operation,
-                        "operation_id": operation.get("operationId", "")
-                    }
-                    
                     is_constructor = operation.get("x-gi-constructor", False)
                     
                     if is_constructor:
@@ -100,6 +106,40 @@ class TypeScriptGenerator:
                         if class_name not in self.class_methods:
                             self.class_methods[class_name] = []
                         self.class_methods[class_name].append(method_info)
+                else:
+                    # Standalone function without tags
+                    self.standalone_functions.append(method_info)
+    
+    def _get_callback_type_signature(self, callback_ref: str) -> str:
+        """Generate TypeScript function signature for a callback."""
+        if not callback_ref.startswith("#/components/schemas/"):
+            return "Function"
+        
+        callback_name = callback_ref.split("/")[-1]
+        callback_schema = self.schemas.get(callback_name, {})
+        
+        if not callback_schema or callback_schema.get("x-gi-type") != "callback":
+            return "Function"
+        
+        # Get callback parameters
+        callback_params = callback_schema.get("x-gi-callback-params", [])
+        param_list = []
+        
+        for param in callback_params:
+            param_name = param.get("name", "arg")
+            param_schema = param.get("schema", {})
+            param_type = self._openapi_type_to_ts(param_schema)
+            param_list.append(f"{param_name}: {param_type}")
+        
+        # Get return type
+        callback_return = callback_schema.get("x-gi-callback-return", {})
+        if callback_return:
+            return_type = self._openapi_type_to_ts(callback_return)
+        else:
+            return_type = "void"
+        
+        params_str = ", ".join(param_list)
+        return f"({params_str}) => {return_type}"
     
     def _openapi_type_to_ts(self, schema: Dict[str, Any], nullable: bool = False) -> str:
         """Convert an OpenAPI schema type to TypeScript type."""
@@ -238,6 +278,10 @@ class TypeScriptGenerator:
         path_params = []
         has_self_param = False
         
+        # Check if this method has callbacks
+        callbacks = operation.get("x-gi-callbacks", {})
+        callback_params = []
+        
         for param in params:
             param_name = param.get("name", "")
             param_schema = param.get("schema", {})
@@ -271,6 +315,15 @@ class TypeScriptGenerator:
                     "transfer": param_transfer,
                     "is_gobject": is_gobject_param
                 })
+        
+        # Add callback parameters to method signature
+        for callback_name, callback_ref in callbacks.items():
+            callback_type = self._get_callback_type_signature(callback_ref)
+            method_params.append(f"{callback_name}: {callback_type}")
+            callback_params.append({
+                "name": callback_name,
+                "type_ref": callback_ref
+            })
         
         # Determine return type
         return_type = "void"
@@ -314,6 +367,7 @@ class TypeScriptGenerator:
             "base_url": self.base_url,
             "path": url_path,
             "query_params": query_params,
+            "callback_params": callback_params,
             "is_constructor": is_constructor,
             "has_return": response_has_return,
             "class_name": class_name
@@ -442,6 +496,27 @@ class TypeScriptGenerator:
                 class_data = self._prepare_class_data(class_name)
                 classes.append(class_template.render(class_data))
         
+        # Generate standalone functions namespace
+        standalone_namespace = ""
+        if self.standalone_functions:
+            # Extract namespace name from the first function's operation_id
+            # Format: {namespace}--{function_name}
+            first_func = self.standalone_functions[0]
+            op_id = first_func.get("operation_id", "")
+            namespace_name = op_id.split("-")[0] if op_id else "Functions"
+            
+            method_template = self.jinja_env.get_template('method.ts.j2')
+            methods = []
+            for func_info in self.standalone_functions:
+                method_data = self._prepare_method_data(func_info, namespace_name)
+                # Mark standalone functions as static
+                method_data["is_static"] = True
+                methods.append(method_template.render(method_data).rstrip())
+            
+            standalone_namespace = f"export namespace {namespace_name} {{\n"
+            standalone_namespace += "\n".join(methods)
+            standalone_namespace += "\n}"
+        
         # Generate main file
         main_template = self.jinja_env.get_template('main.ts.j2')
         return main_template.render(
@@ -449,5 +524,6 @@ class TypeScriptGenerator:
             version=version,
             base_url=self.base_url,
             interfaces=interfaces,
-            classes=classes
+            classes=classes,
+            standalone_namespace=standalone_namespace
         )

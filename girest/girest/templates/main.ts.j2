@@ -9,6 +9,28 @@ const objectRegistry = new FinalizationRegistry((ptr: string) => {
   fetch('{{ base_url }}/GObject/Object/' + ptr + '/unref')
     .catch(err => console.error('Failed to unref object:', ptr, err));
 });
+
+// Callback dispatcher for handling callbacks from the server
+const callbackDispatcher = new Map<string, Function>();
+
+// Initialize callback dispatcher with EventSource
+if (typeof EventSource !== 'undefined') {
+  const callbackSource = new EventSource('{{ base_url }}/Application/callbacks');
+  callbackSource.onmessage = (ev) => {
+    try {
+      const json = JSON.parse(ev.data);
+      const cb = callbackDispatcher.get(json.id.toString());
+      if (cb) {
+        cb(...Object.values(json.data));
+      }
+    } catch (error) {
+      console.error('Error processing callback:', error);
+    }
+  };
+  callbackSource.onerror = (error) => {
+    console.error('Callback EventSource error:', error);
+  };
+}
 {% if interfaces %}
 
 {{ interfaces | join('\n') }}
@@ -16,4 +38,8 @@ const objectRegistry = new FinalizationRegistry((ptr: string) => {
 {% if classes %}
 
 {{ classes | join('\n') }}
+{% endif %}
+{% if standalone_namespace %}
+
+{{ standalone_namespace }}
 {% endif %}
