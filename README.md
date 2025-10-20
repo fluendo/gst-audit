@@ -12,5 +12,4 @@ See [girest/README.md](girest/README.md) for more details.
 
 **GstAudit** (deprecated) was the original tool for auditing GStreamer pipelines. This implementation has been superseded by GIRest.
 
-See [gstaudit/README.md](gstaudit/README.md) for more details.
 
