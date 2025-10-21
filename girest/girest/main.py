@@ -342,8 +342,32 @@ class GIRest():
         # Mark as generated
         self.schemas[full_name] = True
         
+        # Check if struct has methods and needs generic constructors
+        n_methods = GIRepository.struct_info_get_n_methods(bi)
+        has_constructor = False
+        has_free = False
+        
+        # Check existing methods for constructors/free
+        for i in range(0, n_methods):
+            bim = GIRepository.struct_info_get_method(bi, i)
+            flags = GIRepository.function_info_get_flags(bim)
+            is_constructor = bool(flags & GIRepository.FunctionInfoFlags.IS_CONSTRUCTOR)
+            method_name = bim.get_name()
+            
+            if is_constructor or method_name == 'new':
+                has_constructor = True
+            if method_name == 'free':
+                has_free = True
+        
+        # Generate generic new/free endpoints if struct has methods but no constructor/free
+        if n_methods > 0 and not has_constructor:
+            self._generate_generic_struct_new(bi)
+        
+        if n_methods > 0 and not has_free:
+            self._generate_generic_struct_free(bi)
+        
         # Generate endpoints for struct methods
-        for i in range(0, GIRepository.struct_info_get_n_methods(bi)):
+        for i in range(0, n_methods):
             bim = GIRepository.struct_info_get_method(bi, i)
             self._generate_function(bim, bi)
 
@@ -407,6 +431,75 @@ class GIRest():
         }
         
         self.spec.components.schema(full_name, callback_schema)
+
+    def _generate_generic_struct_new(self, bi):
+        """Generate a generic 'new' endpoint for structs without constructors"""
+        namespace = bi.get_namespace()
+        name = bi.get_name()
+        size = GIRepository.struct_info_get_size(bi)
+        
+        # Create API path: /{namespace}/{name}/new
+        api = f"/{namespace}/{name}/new"
+        
+        # Build operation definition for the generic constructor
+        operation = {
+            "summary": f"Allocate memory for {name} struct",
+            "description": f"Generic constructor that allocates {size} bytes for {name}",
+            "operationId": f"{namespace}-{name}-new",
+            "tags": [f"{namespace}{name}"],
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Success",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "return": {"$ref": f"#/components/schemas/{namespace}{name}"}
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "x-gi-constructor": True,
+            "x-gi-generic": True,
+            "x-gi-struct-size": size
+        }
+        
+        self.spec.path(path=api, operations={"get": operation})
+    
+    def _generate_generic_struct_free(self, bi):
+        """Generate a generic 'free' endpoint for structs without free methods"""
+        namespace = bi.get_namespace()
+        name = bi.get_name()
+        
+        # Create API path: /{namespace}/{name}/{self}/free
+        api = f"/{namespace}/{name}/{{self}}/free"
+        
+        # Build operation definition for the generic destructor
+        operation = {
+            "summary": f"Free memory for {name} struct",
+            "description": f"Generic destructor that frees memory for {name}",
+            "operationId": f"{namespace}-{name}-free",
+            "tags": [f"{namespace}{name}"],
+            "parameters": [
+                {
+                    "name": "self",
+                    "in": "path",
+                    "required": True,
+                    "schema": {"$ref": f"#/components/schemas/{namespace}{name}"},
+                    "description": "Pointer to the struct to free"
+                }
+            ],
+            "responses": {
+                "204": {"description": "No Content"}
+            },
+            "x-gi-generic": True
+        }
+        
+        self.spec.path(path=api, operations={"get": operation})
 
     def _generate_enum(self, bi):
         """Generate OpenAPI schema for an enum"""
