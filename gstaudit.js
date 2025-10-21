@@ -288,8 +288,38 @@ function shutdown()
   console.log("Shutdown done");
 }
 
+// Keep track of allocated pointers to prevent garbage collection
+const allocatedPointers = new Map();
+
+function alloc(size)
+{
+  console.info(`Allocating ${size} bytes`);
+  const ptr = Memory.alloc(size);
+  // Store in map to prevent garbage collection
+  allocatedPointers.set(ptr.toString(), ptr);
+  console.info(`Allocated ${size} bytes at ${ptr}`);
+  return ptr.toString();
+}
+
+function free(ptr)
+{
+  console.info(`Freeing pointer ${ptr}`);
+  // Remove from map to allow garbage collection
+  // Note: We don't actually call any free function as Frida's Memory.alloc
+  // uses the system allocator and the memory will be freed when the script unloads
+  const ptrStr = ptr.toString();
+  if (allocatedPointers.has(ptrStr)) {
+    allocatedPointers.delete(ptrStr);
+    console.info(`Freed pointer ${ptr}`);
+  } else {
+    console.warn(`Pointer ${ptr} was not in allocated pointers map`);
+  }
+}
+
 rpc.exports = {
   'call': call,
+  'alloc': alloc,
+  'free': free,
   'init': init,
   'shutdown': shutdown,
 };

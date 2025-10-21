@@ -8,6 +8,12 @@ import os
 from typing import Dict, List, Set, Optional, Any
 from jinja2 import Environment, FileSystemLoader, Template
 
+try:
+    from .utils import parse_operation_id
+except ImportError:
+    # Fallback for when module is imported directly (e.g., in tests)
+    from utils import parse_operation_id
+
 
 class TypeScriptGenerator:
     """Generates TypeScript bindings from OpenAPI schema using Jinja2 templates."""
@@ -46,6 +52,7 @@ class TypeScriptGenerator:
         self.gobject_types: Set[str] = set()  # Track GObject-derived types
         self.callback_schemas: Set[str] = set()  # Track callback types
         self.standalone_functions: List[Dict] = []  # Track standalone functions without tags
+        self.struct_destructors: Dict[str, Dict] = {}  # Track structs with destructors (free methods)
         
         # Setup Jinja2 environment
         template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -130,6 +137,7 @@ class TypeScriptGenerator:
                 if tags:
                     class_name = tags[0]
                     is_constructor = operation.get("x-gi-constructor", False)
+                    is_destructor = operation.get("x-gi-destructor", False)
                     
                     if is_constructor:
                         if class_name not in self.class_constructors:
@@ -139,6 +147,10 @@ class TypeScriptGenerator:
                         if class_name not in self.class_methods:
                             self.class_methods[class_name] = []
                         self.class_methods[class_name].append(method_info)
+                    
+                    # Track destructors for struct finalization
+                    if is_destructor:
+                        self.struct_destructors[class_name] = method_info
                 else:
                     # Standalone function without tags
                     self.standalone_functions.append(method_info)
@@ -457,6 +469,24 @@ class TypeScriptGenerator:
         if extends_gobject and self.base_url:
             parent_class = self._get_direct_parent(class_name)
         
+        # Check if this struct has a destructor
+        has_destructor = class_name in self.struct_destructors
+        destructor_info = self.struct_destructors.get(class_name, {})
+        destructor_path = ""
+        destructor_method_name = "free"
+        destructor_registry = ""
+        
+        if has_destructor:
+            # Get the destructor path and method name
+            destructor_path = destructor_info.get("path", "")
+            operation = destructor_info.get("operation", {})
+            operation_id = operation.get("operationId", "")
+            # Extract method name from operation ID using shared utility
+            parsed = parse_operation_id(operation_id)
+            if parsed and parsed[2]:
+                destructor_method_name = parsed[2]
+            destructor_registry = f"{class_name.lower()}Registry"
+        
         data = {
             "name": class_name,
             "is_enum": is_enum,
@@ -466,6 +496,10 @@ class TypeScriptGenerator:
             "extends_gobject": extends_gobject,
             "parent_class": parent_class,
             "has_interface": has_interface,
+            "has_destructor": has_destructor,
+            "destructor_path": destructor_path,
+            "destructor_method_name": destructor_method_name,
+            "destructor_registry": destructor_registry,
             "properties": [],
             "constructors": [],
             "methods": []
@@ -515,6 +549,9 @@ class TypeScriptGenerator:
                     method_data = self._prepare_method_data(method_info, class_name)
                     # Skip 'unref' method for GObjectObject as it's provided by the base class
                     if class_name == "GObjectObject" and method_data.get("name") == "unref":
+                        continue
+                    # Skip destructor method for structs as it's provided by the class constructor
+                    if has_destructor and method_data.get("name") == destructor_method_name:
                         continue
                     data["methods"].append(method_template.render(method_data).rstrip())
         
@@ -636,6 +673,16 @@ class TypeScriptGenerator:
             standalone_namespace += "\n".join(methods)
             standalone_namespace += "\n}"
         
+        # Prepare struct registries for finalization
+        struct_registries = []
+        for class_name, destructor_info in self.struct_destructors.items():
+            destructor_path = destructor_info.get("path", "")
+            struct_registries.append({
+                "name": f"{class_name.lower()}Registry",
+                "class_name": class_name,
+                "path": destructor_path
+            })
+        
         # Generate main file
         main_template = self.jinja_env.get_template('main.ts.j2')
         return main_template.render(
@@ -646,5 +693,6 @@ class TypeScriptGenerator:
             port=self.port,
             interfaces=interfaces,
             classes=classes,
-            standalone_namespace=standalone_namespace
+            standalone_namespace=standalone_namespace,
+            struct_registries=struct_registries
         )

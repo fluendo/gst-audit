@@ -251,6 +251,10 @@ class GIRest():
         flags = GIRepository.function_info_get_flags(bim)
         is_constructor = bool(flags & GIRepository.FunctionInfoFlags.IS_CONSTRUCTOR)
         
+        # Check if this is a destructor method (free function for structs)
+        method_name = bim.get_name()
+        is_destructor = method_name == 'free' and bi and bi.get_type() == GIRepository.InfoType.STRUCT
+        
         # Build operation definition
         operation = {
             "summary": "",
@@ -259,7 +263,8 @@ class GIRest():
             "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
             "parameters": params,
             "responses": responses,
-            "x-gi-constructor": is_constructor
+            "x-gi-constructor": is_constructor,
+            "x-gi-destructor": is_destructor
         }
         
         # Add callback schema references if there are callbacks
@@ -343,7 +348,35 @@ class GIRest():
         self.schemas[full_name] = True
         
         # Generate endpoints for struct methods
-        for i in range(0, GIRepository.struct_info_get_n_methods(bi)):
+        n_methods = GIRepository.struct_info_get_n_methods(bi)
+        
+        # Only process structs with methods
+        if n_methods == 0:
+            return
+        
+        # Check existing methods for constructors/free
+        has_constructor = False
+        has_free = False
+        for i in range(0, n_methods):
+            bim = GIRepository.struct_info_get_method(bi, i)
+            flags = GIRepository.function_info_get_flags(bim)
+            is_constructor = bool(flags & GIRepository.FunctionInfoFlags.IS_CONSTRUCTOR)
+            method_name = bim.get_name()
+            
+            if is_constructor or method_name == 'new':
+                has_constructor = True
+            if method_name == 'free':
+                has_free = True
+        
+        # Generate generic new/free endpoints if struct doesn't have constructor/free
+        if not has_constructor:
+            self._generate_generic_struct_new(bi)
+        
+        if not has_free:
+            self._generate_generic_struct_free(bi)
+        
+        # Generate endpoints for struct methods
+        for i in range(0, n_methods):
             bim = GIRepository.struct_info_get_method(bi, i)
             self._generate_function(bim, bi)
 
@@ -407,6 +440,72 @@ class GIRest():
         }
         
         self.spec.components.schema(full_name, callback_schema)
+
+    def _generate_generic_struct_new(self, bi):
+        """Generate a generic 'new' endpoint for structs without constructors"""
+        namespace = bi.get_namespace()
+        name = bi.get_name()
+        
+        # Create API path: /{namespace}/{name}/new
+        api = f"/{namespace}/{name}/new"
+        
+        # Build operation definition for the generic constructor
+        operation = {
+            "summary": f"Allocate memory for {name} struct",
+            "description": f"Generic constructor for {name}",
+            "operationId": f"{namespace}-{name}-new",
+            "tags": [f"{namespace}{name}"],
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Success",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "return": {"$ref": f"#/components/schemas/{namespace}{name}"}
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "x-gi-constructor": True
+        }
+        
+        self.spec.path(path=api, operations={"get": operation})
+    
+    def _generate_generic_struct_free(self, bi):
+        """Generate a generic 'free' endpoint for structs without free methods"""
+        namespace = bi.get_namespace()
+        name = bi.get_name()
+        
+        # Create API path: /{namespace}/{name}/{self}/free
+        api = f"/{namespace}/{name}/{{self}}/free"
+        
+        # Build operation definition for the generic destructor
+        operation = {
+            "summary": f"Free memory for {name} struct",
+            "description": f"Generic destructor that frees memory for {name}",
+            "operationId": f"{namespace}-{name}-free",
+            "tags": [f"{namespace}{name}"],
+            "parameters": [
+                {
+                    "name": "self",
+                    "in": "path",
+                    "required": True,
+                    "schema": {"$ref": f"#/components/schemas/{namespace}{name}"},
+                    "description": "Pointer to the struct to free"
+                }
+            ],
+            "responses": {
+                "204": {"description": "No Content"}
+            },
+            "x-gi-destructor": True
+        }
+        
+        self.spec.path(path=api, operations={"get": operation})
 
     def _generate_enum(self, bi):
         """Generate OpenAPI schema for an enum"""

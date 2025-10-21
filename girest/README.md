@@ -12,6 +12,7 @@ information provided by the GObject's introspection system. The following featur
 * [x] Enums are included in the schema to narrow the possibilites of the parameters
 * [x] Callbacks are handled in a generic SSE endpoint
 * [x] TypeScript bindings automatically dispatch callbacks via EventSource
+* [x] Generic constructors and destructors for structs without native ones (e.g., GValue)
 * [ ] Callbacks are handled as an HTTP callback
 * [ ] GError handling to return different HTTP response
 

@@ -9,6 +9,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from main import GIRest
 
+try:
+    from .utils import parse_operation_id
+except ImportError:
+    # Fallback for when module is imported directly (e.g., in tests)
+    from utils import parse_operation_id
+
 
 class FridaResolver(connexion.resolver.Resolver):
     """
@@ -220,11 +226,11 @@ class FridaResolver(connexion.resolver.Resolver):
         # operation_id format: {namespace}_{object_name}_{method_name}
         # or {namespace}__{function_name} for standalone functions
         
-        parts = operation_id.split('-')
-        if len(parts) < 2:
+        parsed = parse_operation_id(operation_id)
+        if not parsed:
             return None
         
-        namespace = parts[0]
+        namespace, class_name, method_name = parsed
         
         # Search through the repository
         n_infos = self.girest.repo.get_n_infos(namespace)
@@ -234,37 +240,66 @@ class FridaResolver(connexion.resolver.Resolver):
             
             if info_type == GIRepository.InfoType.FUNCTION:
                 # Standalone function: namespace__function_name
-                if len(parts) == 3 and parts[1] == '' and info.get_name() == parts[2]:
+                if class_name is None and info.get_name() == method_name:
                     return info
             elif info_type == GIRepository.InfoType.OBJECT:
                 # Method: namespace_objectname_methodname
-                if len(parts) == 3 and info.get_name() == parts[1]:
+                if class_name and info.get_name() == class_name:
                     # Search for the method
                     n_methods = GIRepository.object_info_get_n_methods(info)
                     for j in range(n_methods):
                         method = GIRepository.object_info_get_method(info, j)
-                        if method.get_name() == parts[2]:
+                        if method.get_name() == method_name:
                             return method
             elif info_type == GIRepository.InfoType.STRUCT:
                 # Method: namespace_objectname_methodname
-                if len(parts) == 3 and info.get_name() == parts[1]:
+                if class_name and info.get_name() == class_name:
                     # Search for the method
                     n_methods = GIRepository.struct_info_get_n_methods(info)
                     for j in range(n_methods):
                         method = GIRepository.struct_info_get_method(info, j)
-                        if method.get_name() == parts[2]:
+                        if method.get_name() == method_name:
                             return method
             elif info_type in [GIRepository.InfoType.ENUM, GIRepository.InfoType.FLAGS]:
                 # Method: namespace_objectname_methodname
-                if len(parts) == 3 and info.get_name() == parts[1]:
+                if class_name and info.get_name() == class_name:
                     # Search for the method
                     n_methods = GIRepository.enum_info_get_n_methods(info)
                     for j in range(n_methods):
                         method = GIRepository.enum_info_get_method(info, j)
-                        if method.get_name() == parts[2]:
+                        if method.get_name() == method_name:
                             return method
         
         return None
+
+    def _create_generic_new_handler(self, struct_info):
+        """Create handler for generic struct allocation"""
+        size = GIRepository.struct_info_get_size(struct_info)
+        
+        async def generic_new_handler(*args, **kwargs):
+            # Call the Frida script's generic alloc function
+            result = await asyncio.to_thread(
+                self.script.exports_sync.alloc, size
+            )
+            return {"return": result}
+        
+        return generic_new_handler
+    
+    def _create_generic_free_handler(self, struct_info):
+        """Create handler for generic struct deallocation"""
+        async def generic_free_handler(*args, **kwargs):
+            # Extract the self parameter (pointer to free)
+            ptr = kwargs.get('self')
+            if ptr is None:
+                raise ValueError("Missing 'self' parameter for free operation")
+            
+            # Call the Frida script's generic free function
+            await asyncio.to_thread(
+                self.script.exports_sync.free, ptr
+            )
+            return None
+        
+        return generic_free_handler
 
     def create_frida_handler(self):
         """Create handler that calls Frida with the method JSON, converting enum strings to integers"""
@@ -313,6 +348,34 @@ class FridaResolver(connexion.resolver.Resolver):
 
     def resolve_function_from_operation_id(self, operation_id):
         """Resolve function from operation_id and return handler"""
+        # Check if this is a generic new/free operation
+        # Format: {namespace}-{name}-{new|free}
+        parsed = parse_operation_id(operation_id)
+        if parsed:
+            namespace, struct_name, operation = parsed
+            
+            # Check if operation is 'new' or 'free'
+            if operation in ['new', 'free']:
+                # Try to find the struct info
+                struct_info = None
+                n_infos = self.girest.repo.get_n_infos(namespace)
+                for i in range(n_infos):
+                    info = self.girest.repo.get_info(namespace, i)
+                    if info.get_type() == GIRepository.InfoType.STRUCT and info.get_name() == struct_name:
+                        struct_info = info
+                        break
+                
+                if struct_info:
+                    # Check if this struct has the actual method
+                    method_info = self._find_function_info(operation_id)
+                    
+                    # If method doesn't exist, this is a generic operation
+                    if not method_info:
+                        if operation == 'new':
+                            return self._create_generic_new_handler(struct_info)
+                        elif operation == 'free':
+                            return self._create_generic_free_handler(struct_info)
+        
         # Find the function info
         method_info = self._find_function_info(operation_id)
         if not method_info:
