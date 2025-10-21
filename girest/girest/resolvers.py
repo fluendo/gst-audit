@@ -240,7 +240,8 @@ class FridaResolver(connexion.resolver.Resolver):
             
             if info_type == GIRepository.InfoType.FUNCTION:
                 # Standalone function: namespace__function_name
-                if class_name is None and info.get_name() == method_name:
+                # class_name can be None or empty string for standalone functions
+                if (class_name is None or class_name == '') and info.get_name() == method_name:
                     return info
             elif info_type == GIRepository.InfoType.OBJECT:
                 # Method: namespace_objectname_methodname
