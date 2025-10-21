@@ -116,7 +116,6 @@ def test_generic_endpoint_exists():
     assert value_new_path in schema['paths'], "Value new endpoint should exist"
     
     operation = schema['paths'][value_new_path]['get']
-    assert operation.get('x-gi-generic') == True, "Should be marked as generic"
     assert operation.get('x-gi-constructor') == True, "Should be marked as constructor"
     
     print("✓ Generic endpoints are created for structs without constructors")
@@ -155,19 +154,23 @@ def test_operation_ids_are_consistent():
     spec = girest.generate()
     schema = spec.to_dict()
     
-    # Find all generic operations
-    generic_operations = []
+    # Find all struct constructor/destructor operations
+    # These follow the pattern: namespace-structname-{new|free}
+    struct_operations = []
     for path, operations in schema['paths'].items():
         for method, operation in operations.items():
-            if operation.get('x-gi-generic'):
-                generic_operations.append({
+            op_id = operation['operationId']
+            parts = op_id.split('-')
+            # Struct operations have 3 parts and end with 'new' or 'free'
+            if len(parts) == 3 and parts[2] in ['new', 'free']:
+                struct_operations.append({
                     'path': path,
-                    'operation_id': operation['operationId'],
+                    'operation_id': op_id,
                     'is_constructor': operation.get('x-gi-constructor', False)
                 })
     
     # Check that operation IDs follow the pattern
-    for op in generic_operations:
+    for op in struct_operations:
         op_id = op['operation_id']
         parts = op_id.split('-')
         
@@ -182,7 +185,7 @@ def test_operation_ids_are_consistent():
             assert parts[2] == 'new', \
                 f"Constructor operation {op_id} should end with 'new'"
     
-    print(f"✓ All {len(generic_operations)} generic operations have consistent IDs")
+    print(f"✓ All {len(struct_operations)} struct operations have consistent IDs")
 
 
 if __name__ == '__main__':

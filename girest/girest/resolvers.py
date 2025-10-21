@@ -220,6 +220,7 @@ class FridaResolver(connexion.resolver.Resolver):
         
         Returns:
             tuple: (namespace, class_name, method_name) or None if invalid format
+            For standalone functions: (namespace, None, method_name)
         """
         parts = operation_id.split('-')
         if len(parts) < 2:
@@ -227,6 +228,9 @@ class FridaResolver(connexion.resolver.Resolver):
         
         if len(parts) == 3:
             return (parts[0], parts[1], parts[2])
+        
+        if len(parts) == 2:
+            return (parts[0], None, parts[1])
         
         return None
     

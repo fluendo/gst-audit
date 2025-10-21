@@ -36,7 +36,6 @@ def demonstrate_generic_endpoints():
         print(f"✓ Generic constructor endpoint: {new_path}")
         print(f"  - Operation ID: {operation['operationId']}")
         print(f"  - Is constructor: {operation['x-gi-constructor']}")
-        print(f"  - Is generic: {operation['x-gi-generic']}")
         print()
     
     # Show the free endpoint
@@ -45,7 +44,6 @@ def demonstrate_generic_endpoints():
         operation = schema['paths'][free_path]['get']
         print(f"✓ Generic destructor endpoint: {free_path}")
         print(f"  - Operation ID: {operation['operationId']}")
-        print(f"  - Is generic: {operation['x-gi-generic']}")
         print()
     
     # Example 2: Multiple Gst structs
@@ -59,7 +57,7 @@ def demonstrate_generic_endpoints():
     generic_structs = []
     for path, operations in schema['paths'].items():
         for method, operation in operations.items():
-            if operation.get('x-gi-generic') and operation.get('x-gi-constructor'):
+            if operation.get('x-gi-constructor') and operation['operationId'].endswith('-new'):
                 op_id = operation['operationId']
                 struct_name = op_id.replace('Gst-', '').replace('-new', '')
                 generic_structs.append(struct_name)
@@ -81,9 +79,8 @@ def demonstrate_generic_endpoints():
     print(f"GstBuffer has {len(buffer_new_paths)} constructor endpoints:")
     for path in buffer_new_paths:
         operation = schema['paths'][path]['get']
-        is_generic = operation.get('x-gi-generic', False)
         op_id = operation['operationId']
-        print(f"  - {op_id:30} (generic: {is_generic})")
+        print(f"  - {op_id}")
     
     print()
     print("=" * 80)

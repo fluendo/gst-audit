@@ -27,12 +27,10 @@ During schema generation, for each struct that has methods:
 - If no free method exists: generate a generic `/{namespace}/{name}/{self}/free` endpoint
 
 The generic `new` endpoint includes:
-- Metadata: `x-gi-generic: true`, `x-gi-constructor: true`
-- Struct size: `x-gi-struct-size: <size in bytes>`
+- Metadata: `x-gi-constructor: true`
 - Returns a pointer to the allocated memory
 
 The generic `free` endpoint includes:
-- Metadata: `x-gi-generic: true`
 - Path parameter: `self` (pointer to free)
 - No return value (204 No Content)
 

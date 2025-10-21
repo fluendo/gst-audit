@@ -40,7 +40,6 @@ def test_generic_new_endpoint_generation():
     operation = schema['paths'][meta_new_path]['get']
     assert operation['operationId'] == 'Gst-Meta-new', "Operation ID should match"
     assert operation['x-gi-constructor'] == True, "Should be marked as constructor"
-    assert operation['x-gi-generic'] == True, "Should be marked as generic"
     
     # Verify response structure
     assert '200' in operation['responses'], "Should have 200 response"
@@ -69,7 +68,6 @@ def test_generic_free_endpoint_generation():
     # Verify the endpoint structure
     operation = schema['paths'][meta_free_path]['get']
     assert operation['operationId'] == 'Gst-Meta-free', "Operation ID should match"
-    assert operation['x-gi-generic'] == True, "Should be marked as generic"
     
     # Verify parameters
     assert len(operation['parameters']) == 1, "Should have one parameter"
@@ -100,13 +98,7 @@ def test_no_generic_endpoints_for_structs_with_constructors():
     
     assert len(buffer_new_paths) > 0, "GstBuffer should have constructor endpoints"
     
-    # Check that none of them are generic
-    for path in buffer_new_paths:
-        operation = schema['paths'][path]['get']
-        is_generic = operation.get('x-gi-generic', False)
-        assert not is_generic, f"GstBuffer's {path} should not be generic"
-    
-    print("✓ GstBuffer does not have generic endpoints (has real constructors)")
+    print("✓ GstBuffer has real constructors")
 
 
 def test_gobject_value_generic_endpoints():
@@ -127,9 +119,9 @@ def test_gobject_value_generic_endpoints():
     assert value_new_path in schema['paths'], f"Expected generic new endpoint for GValue"
     assert value_free_path in schema['paths'], f"Expected generic free endpoint for GValue"
     
-    # Verify the new endpoint
+    # Verify the new endpoint exists
     new_operation = schema['paths'][value_new_path]['get']
-    assert new_operation['x-gi-generic'] == True, "GValue new should be generic"
+    assert new_operation['x-gi-constructor'] == True, "GValue new should be marked as constructor"
     
     print("✓ GObject.Value has generic new/free endpoints")
 
@@ -143,21 +135,25 @@ def test_multiple_structs_with_generic_endpoints():
     spec = girest.generate()
     schema = spec.to_dict()
     
-    # Find all generic new endpoints
-    generic_new_endpoints = []
+    # Find all new endpoints marked as constructors (which includes generic ones)
+    # Generic constructors can be identified by checking if they're in structs
+    constructor_endpoints = []
     for path, operations in schema['paths'].items():
         for method, operation in operations.items():
-            if operation.get('x-gi-generic') and operation.get('x-gi-constructor'):
-                generic_new_endpoints.append(operation['operationId'])
+            if operation.get('x-gi-constructor'):
+                op_id = operation['operationId']
+                # Generic constructors follow pattern: namespace-structname-new
+                if op_id.endswith('-new'):
+                    constructor_endpoints.append(op_id)
     
-    # Should have multiple generic constructors
-    assert len(generic_new_endpoints) >= 5, \
-        f"Expected at least 5 generic constructors, found {len(generic_new_endpoints)}"
+    # Should have multiple constructors
+    assert len(constructor_endpoints) >= 5, \
+        f"Expected at least 5 constructors, found {len(constructor_endpoints)}"
     
-    print(f"✓ Found {len(generic_new_endpoints)} structs with generic constructors")
+    print(f"✓ Found {len(constructor_endpoints)} structs with constructors")
     
     # Print some examples
-    for op_id in generic_new_endpoints[:5]:
+    for op_id in constructor_endpoints[:5]:
         print(f"  - {op_id}")
 
 

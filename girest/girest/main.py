@@ -466,8 +466,7 @@ class GIRest():
                     }
                 }
             },
-            "x-gi-constructor": True,
-            "x-gi-generic": True
+            "x-gi-constructor": True
         }
         
         self.spec.path(path=api, operations={"get": operation})
@@ -497,8 +496,7 @@ class GIRest():
             ],
             "responses": {
                 "204": {"description": "No Content"}
-            },
-            "x-gi-generic": True
+            }
         }
         
         self.spec.path(path=api, operations={"get": operation})
