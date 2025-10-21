@@ -49,6 +49,16 @@ const objectRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.baseUrl + '/GObject/Object/' + ptr + '/unref')
     .catch(err => console.error('Failed to unref object:', ptr, err));
 });
+{% if struct_registries %}
+
+// FinalizationRegistry for automatic cleanup of struct instances
+{% for registry in struct_registries %}
+const {{ registry.name }} = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.baseUrl + '{{ registry.path }}')
+    .catch(err => console.error('Failed to free {{ registry.class_name }}:', ptr, err));
+});
+{% endfor %}
+{% endif %}
 
 // Callback dispatcher for handling callbacks from the server
 const callbackDispatcher = new Map<string, Function>();

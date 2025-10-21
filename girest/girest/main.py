@@ -251,6 +251,10 @@ class GIRest():
         flags = GIRepository.function_info_get_flags(bim)
         is_constructor = bool(flags & GIRepository.FunctionInfoFlags.IS_CONSTRUCTOR)
         
+        # Check if this is a destructor method (free function for structs)
+        method_name = bim.get_name()
+        is_destructor = method_name == 'free' and bi and bi.get_type() == GIRepository.InfoType.STRUCT
+        
         # Build operation definition
         operation = {
             "summary": "",
@@ -259,7 +263,8 @@ class GIRest():
             "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
             "parameters": params,
             "responses": responses,
-            "x-gi-constructor": is_constructor
+            "x-gi-constructor": is_constructor,
+            "x-gi-destructor": is_destructor
         }
         
         # Add callback schema references if there are callbacks
@@ -496,7 +501,8 @@ class GIRest():
             ],
             "responses": {
                 "204": {"description": "No Content"}
-            }
+            },
+            "x-gi-destructor": True
         }
         
         self.spec.path(path=api, operations={"get": operation})
