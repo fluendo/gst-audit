@@ -8,6 +8,12 @@ import os
 from typing import Dict, List, Set, Optional, Any
 from jinja2 import Environment, FileSystemLoader, Template
 
+try:
+    from .utils import parse_operation_id
+except ImportError:
+    # Fallback for when module is imported directly (e.g., in tests)
+    from utils import parse_operation_id
+
 
 class TypeScriptGenerator:
     """Generates TypeScript bindings from OpenAPI schema using Jinja2 templates."""
@@ -475,10 +481,10 @@ class TypeScriptGenerator:
             destructor_path = destructor_info.get("path", "")
             operation = destructor_info.get("operation", {})
             operation_id = operation.get("operationId", "")
-            # Extract method name from operation ID (namespace-class-methodname)
-            parts = operation_id.split("-")
-            if len(parts) >= 3:
-                destructor_method_name = parts[-1]
+            # Extract method name from operation ID using shared utility
+            parsed = parse_operation_id(operation_id)
+            if parsed and parsed[2]:
+                destructor_method_name = parsed[2]
             destructor_registry = f"{class_name.lower()}Registry"
         
         data = {

@@ -9,6 +9,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from main import GIRest
 
+try:
+    from .utils import parse_operation_id
+except ImportError:
+    # Fallback for when module is imported directly (e.g., in tests)
+    from utils import parse_operation_id
+
 
 class FridaResolver(connexion.resolver.Resolver):
     """
@@ -215,25 +221,6 @@ class FridaResolver(connexion.resolver.Resolver):
         is_method = bool(flags & GIRepository.FunctionInfoFlags.IS_METHOD)
         return self._callable_to_json(method, is_method=is_method)
     
-    def _parse_operation_id(self, operation_id):
-        """Parse operation_id into namespace, class/struct name, and method name.
-        
-        Returns:
-            tuple: (namespace, class_name, method_name) or None if invalid format
-            For standalone functions: (namespace, None, method_name)
-        """
-        parts = operation_id.split('-')
-        if len(parts) < 2:
-            return None
-        
-        if len(parts) == 3:
-            return (parts[0], parts[1], parts[2])
-        
-        if len(parts) == 2:
-            return (parts[0], None, parts[1])
-        
-        return None
-    
     def _find_function_info(self, operation_id):
         """Find function info from operation_id"""
         # operation_id format: {namespace}_{object_name}_{method_name}
@@ -363,7 +350,7 @@ class FridaResolver(connexion.resolver.Resolver):
         """Resolve function from operation_id and return handler"""
         # Check if this is a generic new/free operation
         # Format: {namespace}-{name}-{new|free}
-        parsed = self._parse_operation_id(operation_id)
+        parsed = parse_operation_id(operation_id)
         if parsed:
             namespace, struct_name, operation = parsed
             
