@@ -146,7 +146,14 @@ function call(symbol, type, ...args)
     } else if ([1, 2].includes(a["direction"])) {
       /* For an output only argument, create the memory to store it */
       console.log(`Output arg ${a["name"]} allocated`);
-      tx_args.push(Memory.alloc(base_type_to_size(a["type"])));
+      /* For struct out parameters, we need to allocate space for the whole struct, not just a pointer */
+      var alloc_size = base_type_to_size(a["type"]);
+      if (a["struct_size"]) {
+        /* If struct_size is provided, use it instead of the base type size */
+        console.log(`Using struct size ${a["struct_size"]} for ${a["name"]}`);
+        alloc_size = a["struct_size"];
+      }
+      tx_args.push(Memory.alloc(alloc_size));
       /* TODO */
       /* If INOUT set the value from args and skip it */
       /* continue otherwise */
@@ -176,7 +183,15 @@ function call(symbol, type, ...args)
           ret[a["name"]] = key;
       }
     } else if ([1, 2].includes(a["direction"])) {
-      ret[a["name"]] = base_type_read(a["type"], tx_args[idx]);
+      /* For out parameters, return the value */
+      if (a["struct_size"]) {
+        /* For struct out parameters, return the pointer to the allocated struct */
+        /* The caller can then access the struct data using this pointer */
+        ret[a["name"]] = tx_args[idx];
+      } else {
+        /* For scalar out parameters, read the value from the allocated memory */
+        ret[a["name"]] = base_type_read(a["type"], tx_args[idx]);
+      }
     }
     idx++;
   }
