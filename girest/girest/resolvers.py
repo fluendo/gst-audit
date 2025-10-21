@@ -226,11 +226,11 @@ class FridaResolver(connexion.resolver.Resolver):
         # operation_id format: {namespace}_{object_name}_{method_name}
         # or {namespace}__{function_name} for standalone functions
         
-        parts = operation_id.split('-')
-        if len(parts) < 2:
+        parsed = parse_operation_id(operation_id)
+        if not parsed:
             return None
         
-        namespace = parts[0]
+        namespace, class_name, method_name = parsed
         
         # Search through the repository
         n_infos = self.girest.repo.get_n_infos(namespace)
@@ -240,34 +240,34 @@ class FridaResolver(connexion.resolver.Resolver):
             
             if info_type == GIRepository.InfoType.FUNCTION:
                 # Standalone function: namespace__function_name
-                if len(parts) == 3 and parts[1] == '' and info.get_name() == parts[2]:
+                if class_name is None and info.get_name() == method_name:
                     return info
             elif info_type == GIRepository.InfoType.OBJECT:
                 # Method: namespace_objectname_methodname
-                if len(parts) == 3 and info.get_name() == parts[1]:
+                if class_name and info.get_name() == class_name:
                     # Search for the method
                     n_methods = GIRepository.object_info_get_n_methods(info)
                     for j in range(n_methods):
                         method = GIRepository.object_info_get_method(info, j)
-                        if method.get_name() == parts[2]:
+                        if method.get_name() == method_name:
                             return method
             elif info_type == GIRepository.InfoType.STRUCT:
                 # Method: namespace_objectname_methodname
-                if len(parts) == 3 and info.get_name() == parts[1]:
+                if class_name and info.get_name() == class_name:
                     # Search for the method
                     n_methods = GIRepository.struct_info_get_n_methods(info)
                     for j in range(n_methods):
                         method = GIRepository.struct_info_get_method(info, j)
-                        if method.get_name() == parts[2]:
+                        if method.get_name() == method_name:
                             return method
             elif info_type in [GIRepository.InfoType.ENUM, GIRepository.InfoType.FLAGS]:
                 # Method: namespace_objectname_methodname
-                if len(parts) == 3 and info.get_name() == parts[1]:
+                if class_name and info.get_name() == class_name:
                     # Search for the method
                     n_methods = GIRepository.enum_info_get_n_methods(info)
                     for j in range(n_methods):
                         method = GIRepository.enum_info_get_method(info, j)
-                        if method.get_name() == parts[2]:
+                        if method.get_name() == method_name:
                             return method
         
         return None

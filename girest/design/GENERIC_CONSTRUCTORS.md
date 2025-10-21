@@ -31,6 +31,7 @@ The generic `new` endpoint includes:
 - Returns a pointer to the allocated memory
 
 The generic `free` endpoint includes:
+- Metadata: `x-gi-destructor: true`
 - Path parameter: `self` (pointer to free)
 - No return value (204 No Content)
 
