@@ -9,28 +9,18 @@ OpenAPI schemas from GObject Introspection data, including:
 - Correct tags and operation IDs
 """
 
-import sys
-import os
-
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from girest.main import GIRest
 import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
 
 
-def test_generic_new_endpoint_generation():
+def test_generic_new_endpoint_generation(gst_schema):
     """
     Test that structs without constructors get a generic 'new' endpoint.
     
     Uses GstMeta as a test case since it has methods but no constructor.
     """
-    # Generate schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
+    schema = gst_schema
     
     # Find structs with methods but no constructor
     # GstMeta should be one of them
@@ -51,16 +41,13 @@ def test_generic_new_endpoint_generation():
     print("✓ Generic new endpoint generated for GstMeta")
 
 
-def test_generic_free_endpoint_generation():
+def test_generic_free_endpoint_generation(gst_schema):
     """
     Test that structs without free methods get a generic 'free' endpoint.
     
     Uses GstMeta as a test case.
     """
-    # Generate schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
+    schema = gst_schema
     
     # GstMeta should have a generic free endpoint
     meta_free_path = '/Gst/Meta/{self}/free'
@@ -83,16 +70,13 @@ def test_generic_free_endpoint_generation():
     print("✓ Generic free endpoint generated for GstMeta")
 
 
-def test_no_generic_endpoints_for_structs_with_constructors():
+def test_no_generic_endpoints_for_structs_with_constructors(gst_schema):
     """
     Test that structs with existing constructors don't get generic endpoints.
     
     Uses GstBuffer as a test case since it has a 'new' constructor.
     """
-    # Generate schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
+    schema = gst_schema
     
     # GstBuffer has actual constructors, so it should NOT have generic ones
     # Check that the new endpoint exists but is NOT generic
@@ -103,16 +87,13 @@ def test_no_generic_endpoints_for_structs_with_constructors():
     print("✓ GstBuffer has real constructors")
 
 
-def test_gobject_value_generic_endpoints():
+def test_gobject_value_generic_endpoints(gobject_schema):
     """
     Test that GObject.Value gets generic new/free endpoints.
     
     GValue is specifically mentioned in the issue as an example.
     """
-    # Generate schema for GObject
-    girest = GIRest('GObject', '2.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
+    schema = gobject_schema
     
     # GObject.Value should have generic new/free endpoints
     value_new_path = '/GObject/Value/new'
@@ -128,14 +109,11 @@ def test_gobject_value_generic_endpoints():
     print("✓ GObject.Value has generic new/free endpoints")
 
 
-def test_multiple_structs_with_generic_endpoints():
+def test_multiple_structs_with_generic_endpoints(gst_schema):
     """
     Test that multiple structs get generic endpoints as expected.
     """
-    # Generate schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
+    schema = gst_schema
     
     # Find all new endpoints marked as constructors (which includes generic ones)
     # Generic constructors can be identified by checking if they're in structs
@@ -159,11 +137,11 @@ def test_multiple_structs_with_generic_endpoints():
         print(f"  - {op_id}")
 
 
-def test_resolver_identifies_generic_new_operation():
+def test_resolver_identifies_generic_new_operation(gst_girest):
     """
     Test that the resolver correctly identifies generic 'new' operations.
     """
-    girest = GIRest('Gst', '1.0')
+    girest = gst_girest
     
     # We can't fully test the resolver without a Frida connection,
     # but we can test the pattern matching logic
@@ -203,11 +181,11 @@ def test_resolver_identifies_generic_new_operation():
     print("✓ Resolver can identify generic 'new' operations")
 
 
-def test_resolver_identifies_generic_free_operation():
+def test_resolver_identifies_generic_free_operation(gst_girest):
     """
     Test that the resolver correctly identifies generic 'free' operations.
     """
-    girest = GIRest('Gst', '1.0')
+    girest = gst_girest
     
     # Operation ID for generic free: namespace-structname-free
     operation_id = "Gst-Meta-free"
@@ -241,13 +219,11 @@ def test_resolver_identifies_generic_free_operation():
     print("✓ Resolver can identify generic 'free' operations")
 
 
-def test_generic_endpoint_exists():
+def test_generic_endpoint_exists(gobject_schema):
     """
     Test that generic endpoints are created for structs without constructors.
     """
-    girest = GIRest('GObject', '2.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
+    schema = gobject_schema
     
     # GObject.Value should have generic new endpoint
     value_new_path = '/GObject/Value/new'
@@ -259,13 +235,11 @@ def test_generic_endpoint_exists():
     print("✓ Generic endpoints are created for structs without constructors")
 
 
-def test_generic_endpoints_have_correct_tags():
+def test_generic_endpoints_have_correct_tags(gst_schema):
     """
     Test that generic endpoints have the correct tags for TypeScript generation.
     """
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
+    schema = gst_schema
     
     # Check Meta endpoints
     meta_new_path = '/Gst/Meta/new'
@@ -284,13 +258,11 @@ def test_generic_endpoints_have_correct_tags():
     print("✓ Generic endpoints have correct tags for TypeScript class generation")
 
 
-def test_operation_ids_are_consistent():
+def test_operation_ids_are_consistent(gst_schema):
     """
     Test that operation IDs follow the expected pattern.
     """
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
+    schema = gst_schema
     
     # Find all struct constructor/destructor operations
     # These follow the pattern: namespace-structname-{new|free}
@@ -326,16 +298,13 @@ def test_operation_ids_are_consistent():
     print(f"✓ All {len(struct_operations)} struct operations have consistent IDs")
 
 
-def test_struct_methods_in_schema():
+def test_struct_methods_in_schema(gst_schema):
     """
     Test that struct methods are generated in the OpenAPI schema.
     
     Uses GstBuffer as a test case since it's a struct with many methods.
     """
-    # Generate schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
+    schema = gst_schema
     
     # Verify GstBuffer schema exists
     assert 'GstBuffer' in schema['components']['schemas'], "GstBuffer schema should exist"
@@ -367,16 +336,13 @@ def test_struct_methods_in_schema():
     print(f"✓ Found {len(buffer_paths)} methods for GstBuffer struct")
 
 
-def test_struct_without_methods_in_schema():
+def test_struct_without_methods_in_schema(gst_schema):
     """
     Test that structs without methods are still generated in the schema.
     
     Uses GstAllocatorPrivate as a test case since it's a struct without methods.
     """
-    # Generate schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
+    schema = gst_schema
     
     # Verify GstAllocatorPrivate schema exists
     assert 'GstAllocatorPrivate' in schema['components']['schemas'], \

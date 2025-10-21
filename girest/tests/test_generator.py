@@ -10,18 +10,10 @@ generates TypeScript client bindings from OpenAPI schemas, including:
 - Method generation
 """
 
-import sys
-import os
 import re
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from girest.main import GIRest
-from girest.generator import TypeScriptGenerator
-
-
-def test_gst_inheritance_chain():
+def test_gst_inheritance_chain(gst_typescript):
     """
     Test that GStreamer classes have the correct inheritance chain.
     
@@ -33,14 +25,7 @@ def test_gst_inheritance_chain():
     - GObjectInitiallyUnowned extends GObjectObject
     - GObjectObject is the base class
     """
-    # Generate the OpenAPI schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    openapi_schema = spec.to_dict()
-    
-    # Generate TypeScript bindings with base_url (full implementation)
-    ts_gen = TypeScriptGenerator(openapi_schema, host='localhost', port=9000)
-    output = ts_gen.generate()
+    output = gst_typescript
     
     # Define expected inheritance relationships
     expected_classes = [
@@ -70,7 +55,7 @@ def test_gst_inheritance_chain():
             )
 
 
-def test_gobject_base_class_structure():
+def test_gobject_base_class_structure(gst_typescript):
     """
     Test that GObjectObject has the correct structure as a base class.
     
@@ -79,14 +64,7 @@ def test_gobject_base_class_structure():
     - constructor
     - unref method
     """
-    # Generate the OpenAPI schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    openapi_schema = spec.to_dict()
-    
-    # Generate TypeScript bindings with base_url
-    ts_gen = TypeScriptGenerator(openapi_schema, host='localhost', port=9000)
-    output = ts_gen.generate()
+    output = gst_typescript
     
     # Find the GObjectObject class definition
     match = re.search(
@@ -104,21 +82,14 @@ def test_gobject_base_class_structure():
     assert 'unref():' in gobject_class, "GObjectObject should have unref method"
 
 
-def test_intermediate_classes_generated():
+def test_intermediate_classes_generated(gst_typescript):
     """
     Test that intermediate classes without methods are still generated.
     
     Verifies that GObjectInitiallyUnowned (which has no methods) is generated
     as a class in the inheritance chain, not just as an interface.
     """
-    # Generate the OpenAPI schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    openapi_schema = spec.to_dict()
-    
-    # Generate TypeScript bindings with base_url
-    ts_gen = TypeScriptGenerator(openapi_schema, host='localhost', port=9000)
-    output = ts_gen.generate()
+    output = gst_typescript
     
     # GObjectInitiallyUnowned should be generated as a class
     assert 'export class GObjectInitiallyUnowned extends GObjectObject' in output, (
@@ -141,7 +112,7 @@ def test_intermediate_classes_generated():
     )
 
 
-def test_element_factory_inheritance():
+def test_element_factory_inheritance(gst_typescript):
     """
     Test another inheritance chain: GstElementFactory.
     
@@ -149,14 +120,7 @@ def test_element_factory_inheritance():
     which extends GstObject, demonstrating that the fix works
     for multiple inheritance chains.
     """
-    # Generate the OpenAPI schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    openapi_schema = spec.to_dict()
-    
-    # Generate TypeScript bindings with base_url
-    ts_gen = TypeScriptGenerator(openapi_schema, host='localhost', port=9000)
-    output = ts_gen.generate()
+    output = gst_typescript
     
     # Verify GstElementFactory inheritance
     assert 'export class GstElementFactory extends GstPluginFeature' in output, (
@@ -169,18 +133,11 @@ def test_element_factory_inheritance():
     )
 
 
-def test_typescript_generation_with_generic_constructors():
+def test_typescript_generation_with_generic_constructors(gst_typescript):
     """
     Test that TypeScript generator properly handles generic constructors.
     """
-    # Generate schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
-    
-    # Generate TypeScript
-    generator = TypeScriptGenerator(schema, host='localhost', port=9000)
-    typescript = generator.generate()
+    typescript = gst_typescript
     
     # GstMeta should have a static new method in the TypeScript class
     assert 'export class GstMeta {' in typescript, \
@@ -197,20 +154,13 @@ def test_typescript_generation_with_generic_constructors():
     print("✓ TypeScript generator creates classes with generic constructors")
 
 
-def test_typescript_class_generation_for_structs():
+def test_typescript_class_generation_for_structs(gst_typescript):
     """
     Test that TypeScript generator creates classes for structs with methods.
     
     Uses GstBuffer as a test case.
     """
-    # Generate schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
-    
-    # Generate TypeScript
-    generator = TypeScriptGenerator(schema, host='localhost', port=9000)
-    typescript = generator.generate()
+    typescript = gst_typescript
     
     # Verify GstBuffer is generated as a class, not an interface
     assert 'export class GstBuffer {' in typescript, \
@@ -234,20 +184,13 @@ def test_typescript_class_generation_for_structs():
     print("✓ TypeScript generator creates class for struct with methods")
 
 
-def test_typescript_interface_generation_for_structs_without_methods():
+def test_typescript_interface_generation_for_structs_without_methods(gst_typescript):
     """
     Test that TypeScript generator creates interfaces for structs without methods.
     
     Uses GstAllocatorPrivate as a test case.
     """
-    # Generate schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    schema = spec.to_dict()
-    
-    # Generate TypeScript
-    generator = TypeScriptGenerator(schema, host='localhost', port=9000)
-    typescript = generator.generate()
+    typescript = gst_typescript
     
     # Verify GstAllocatorPrivate is generated as an interface
     assert 'export interface GstAllocatorPrivate {' in typescript, \
