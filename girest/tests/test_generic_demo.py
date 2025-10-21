@@ -37,7 +37,6 @@ def demonstrate_generic_endpoints():
         print(f"  - Operation ID: {operation['operationId']}")
         print(f"  - Is constructor: {operation['x-gi-constructor']}")
         print(f"  - Is generic: {operation['x-gi-generic']}")
-        print(f"  - Struct size: {operation['x-gi-struct-size']} bytes")
         print()
     
     # Show the free endpoint
@@ -62,13 +61,12 @@ def demonstrate_generic_endpoints():
         for method, operation in operations.items():
             if operation.get('x-gi-generic') and operation.get('x-gi-constructor'):
                 op_id = operation['operationId']
-                size = operation.get('x-gi-struct-size', 0)
                 struct_name = op_id.replace('Gst-', '').replace('-new', '')
-                generic_structs.append((struct_name, size))
+                generic_structs.append(struct_name)
     
     print(f"Found {len(generic_structs)} structs with generic constructors:")
-    for i, (name, size) in enumerate(sorted(generic_structs)[:10], 1):
-        print(f"  {i:2}. {name:30} (size: {size:3} bytes)")
+    for i, name in enumerate(sorted(generic_structs)[:10], 1):
+        print(f"  {i:2}. {name}")
     
     if len(generic_structs) > 10:
         print(f"  ... and {len(generic_structs) - 10} more")
@@ -94,9 +92,8 @@ def demonstrate_generic_endpoints():
     print("""
 1. Python side (main.py):
    - Checks each struct during schema generation
-   - If struct has methods but no constructor -> adds generic /new endpoint
-   - If struct has methods but no free -> adds generic /free endpoint
-   - Stores struct size in x-gi-struct-size metadata
+   - If struct doesn't have a constructor -> adds generic /new endpoint
+   - If struct doesn't have a free method -> adds generic /free endpoint
 
 2. Python resolver (resolvers.py):
    - Detects generic operations by operation_id pattern

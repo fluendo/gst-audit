@@ -42,7 +42,6 @@ def show_gvalue_example():
     
     print(f"Endpoint: GET {new_path}")
     print(f"Operation ID: {operation['operationId']}")
-    print(f"Struct size: {operation['x-gi-struct-size']} bytes")
     print(f"Returns: pointer to allocated GValue")
     print()
     print("Example curl command:")
@@ -141,7 +140,6 @@ def show_gst_meta_example():
     print("1. GstMeta Allocation")
     print("-" * 80)
     print(f"Endpoint: GET {new_path}")
-    print(f"Struct size: {operation['x-gi-struct-size']} bytes")
     print()
     
     # Find GstMeta methods
@@ -201,22 +199,21 @@ def show_summary():
             for method, operation in operations.items():
                 if operation.get('x-gi-generic') and operation.get('x-gi-constructor'):
                     op_id = operation['operationId']
-                    size = operation.get('x-gi-struct-size', 0)
                     struct_name = op_id.replace(f'{namespace}-', '').replace('-new', '')
-                    all_structs.append((namespace, struct_name, size))
+                    all_structs.append((namespace, struct_name))
     
     # Group by namespace
     by_namespace = {}
-    for ns, name, size in all_structs:
+    for ns, name in all_structs:
         if ns not in by_namespace:
             by_namespace[ns] = []
-        by_namespace[ns].append((name, size))
+        by_namespace[ns].append(name)
     
     for ns, structs in sorted(by_namespace.items()):
         print(f"{ns} Namespace ({len(structs)} structs):")
         print("-" * 80)
-        for name, size in sorted(structs):
-            print(f"  - {name:35} {size:4} bytes")
+        for name in sorted(structs):
+            print(f"  - {name}")
         print()
     
     total = sum(len(s) for s in by_namespace.values())

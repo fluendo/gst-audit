@@ -103,25 +103,23 @@ def test_resolver_identifies_generic_free_operation():
     print("✓ Resolver can identify generic 'free' operations")
 
 
-def test_struct_size_in_schema():
+def test_generic_endpoint_exists():
     """
-    Test that struct size is correctly stored in the schema.
+    Test that generic endpoints are created for structs without constructors.
     """
     girest = GIRest('GObject', '2.0')
     spec = girest.generate()
     schema = spec.to_dict()
     
-    # GObject.Value should have size information
+    # GObject.Value should have generic new endpoint
     value_new_path = '/GObject/Value/new'
     assert value_new_path in schema['paths'], "Value new endpoint should exist"
     
     operation = schema['paths'][value_new_path]['get']
-    assert 'x-gi-struct-size' in operation, "Should have struct size metadata"
+    assert operation.get('x-gi-generic') == True, "Should be marked as generic"
+    assert operation.get('x-gi-constructor') == True, "Should be marked as constructor"
     
-    size = operation['x-gi-struct-size']
-    assert size == 24, f"GValue size should be 24 bytes, got {size}"
-    
-    print(f"✓ Struct size correctly stored in schema (GValue = {size} bytes)")
+    print("✓ Generic endpoints are created for structs without constructors")
 
 
 def test_generic_endpoints_have_correct_tags():

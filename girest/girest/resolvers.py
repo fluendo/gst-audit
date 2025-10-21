@@ -215,6 +215,21 @@ class FridaResolver(connexion.resolver.Resolver):
         is_method = bool(flags & GIRepository.FunctionInfoFlags.IS_METHOD)
         return self._callable_to_json(method, is_method=is_method)
     
+    def _parse_operation_id(self, operation_id):
+        """Parse operation_id into namespace, class/struct name, and method name.
+        
+        Returns:
+            tuple: (namespace, class_name, method_name) or None if invalid format
+        """
+        parts = operation_id.split('-')
+        if len(parts) < 2:
+            return None
+        
+        if len(parts) == 3:
+            return (parts[0], parts[1], parts[2])
+        
+        return None
+    
     def _find_function_info(self, operation_id):
         """Find function info from operation_id"""
         # operation_id format: {namespace}_{object_name}_{method_name}
@@ -269,8 +284,6 @@ class FridaResolver(connexion.resolver.Resolver):
     def _create_generic_new_handler(self, struct_info):
         """Create handler for generic struct allocation"""
         size = GIRepository.struct_info_get_size(struct_info)
-        namespace = struct_info.get_namespace()
-        name = struct_info.get_name()
         
         async def generic_new_handler(*args, **kwargs):
             # Call the Frida script's generic alloc function
@@ -283,9 +296,6 @@ class FridaResolver(connexion.resolver.Resolver):
     
     def _create_generic_free_handler(self, struct_info):
         """Create handler for generic struct deallocation"""
-        namespace = struct_info.get_namespace()
-        name = struct_info.get_name()
-        
         async def generic_free_handler(*args, **kwargs):
             # Extract the self parameter (pointer to free)
             ptr = kwargs.get('self')
@@ -349,11 +359,9 @@ class FridaResolver(connexion.resolver.Resolver):
         """Resolve function from operation_id and return handler"""
         # Check if this is a generic new/free operation
         # Format: {namespace}-{name}-{new|free}
-        parts = operation_id.split('-')
-        if len(parts) == 3:
-            namespace = parts[0]
-            struct_name = parts[1]
-            operation = parts[2]
+        parsed = self._parse_operation_id(operation_id)
+        if parsed:
+            namespace, struct_name, operation = parsed
             
             # Check if operation is 'new' or 'free'
             if operation in ['new', 'free']:

@@ -41,15 +41,13 @@ def test_generic_new_endpoint_generation():
     assert operation['operationId'] == 'Gst-Meta-new', "Operation ID should match"
     assert operation['x-gi-constructor'] == True, "Should be marked as constructor"
     assert operation['x-gi-generic'] == True, "Should be marked as generic"
-    assert 'x-gi-struct-size' in operation, "Should include struct size"
-    assert operation['x-gi-struct-size'] > 0, "Struct size should be positive"
     
     # Verify response structure
     assert '200' in operation['responses'], "Should have 200 response"
     response_schema = operation['responses']['200']['content']['application/json']['schema']
     assert 'return' in response_schema['properties'], "Should return a pointer"
     
-    print(f"✓ Generic new endpoint generated for GstMeta (size={operation['x-gi-struct-size']} bytes)")
+    print("✓ Generic new endpoint generated for GstMeta")
 
 
 def test_generic_free_endpoint_generation():
@@ -132,9 +130,8 @@ def test_gobject_value_generic_endpoints():
     # Verify the new endpoint
     new_operation = schema['paths'][value_new_path]['get']
     assert new_operation['x-gi-generic'] == True, "GValue new should be generic"
-    assert new_operation['x-gi-struct-size'] == 24, "GValue size should be 24 bytes"
     
-    print("✓ GObject.Value has generic new/free endpoints (size=24 bytes)")
+    print("✓ GObject.Value has generic new/free endpoints")
 
 
 def test_multiple_structs_with_generic_endpoints():

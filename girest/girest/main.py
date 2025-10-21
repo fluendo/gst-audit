@@ -342,12 +342,16 @@ class GIRest():
         # Mark as generated
         self.schemas[full_name] = True
         
-        # Check if struct has methods and needs generic constructors
+        # Generate endpoints for struct methods
         n_methods = GIRepository.struct_info_get_n_methods(bi)
-        has_constructor = False
-        has_free = False
+        
+        # Only process structs with methods
+        if n_methods == 0:
+            return
         
         # Check existing methods for constructors/free
+        has_constructor = False
+        has_free = False
         for i in range(0, n_methods):
             bim = GIRepository.struct_info_get_method(bi, i)
             flags = GIRepository.function_info_get_flags(bim)
@@ -359,11 +363,11 @@ class GIRest():
             if method_name == 'free':
                 has_free = True
         
-        # Generate generic new/free endpoints if struct has methods but no constructor/free
-        if n_methods > 0 and not has_constructor:
+        # Generate generic new/free endpoints if struct doesn't have constructor/free
+        if not has_constructor:
             self._generate_generic_struct_new(bi)
         
-        if n_methods > 0 and not has_free:
+        if not has_free:
             self._generate_generic_struct_free(bi)
         
         # Generate endpoints for struct methods
@@ -436,7 +440,6 @@ class GIRest():
         """Generate a generic 'new' endpoint for structs without constructors"""
         namespace = bi.get_namespace()
         name = bi.get_name()
-        size = GIRepository.struct_info_get_size(bi)
         
         # Create API path: /{namespace}/{name}/new
         api = f"/{namespace}/{name}/new"
@@ -444,7 +447,7 @@ class GIRest():
         # Build operation definition for the generic constructor
         operation = {
             "summary": f"Allocate memory for {name} struct",
-            "description": f"Generic constructor that allocates {size} bytes for {name}",
+            "description": f"Generic constructor for {name}",
             "operationId": f"{namespace}-{name}-new",
             "tags": [f"{namespace}{name}"],
             "parameters": [],
@@ -464,8 +467,7 @@ class GIRest():
                 }
             },
             "x-gi-constructor": True,
-            "x-gi-generic": True,
-            "x-gi-struct-size": size
+            "x-gi-generic": True
         }
         
         self.spec.path(path=api, operations={"get": operation})
