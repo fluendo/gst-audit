@@ -1,24 +1,19 @@
 #!/usr/bin/env python3
 """
-Tests for TypeScript generator inheritance handling.
+Tests for TypeScript generator in GIRest.
 
-These tests verify that the TypeScript generator correctly respects
-the GObject inheritance chain when generating class definitions.
+These tests verify that the TypeScript generator (generator.py) correctly
+generates TypeScript client bindings from OpenAPI schemas, including:
+- Proper inheritance handling
+- Class vs interface generation
+- Generic constructor handling
+- Method generation
 """
-import sys
-import os
+
 import re
 
-# Add the girest module to the path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-girest_dir = os.path.join(os.path.dirname(current_dir), 'girest')
-sys.path.insert(0, girest_dir)
 
-from main import GIRest
-from generator import TypeScriptGenerator
-
-
-def test_gst_inheritance_chain():
+def test_gst_inheritance_chain(gst_typescript):
     """
     Test that GStreamer classes have the correct inheritance chain.
     
@@ -30,14 +25,7 @@ def test_gst_inheritance_chain():
     - GObjectInitiallyUnowned extends GObjectObject
     - GObjectObject is the base class
     """
-    # Generate the OpenAPI schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    openapi_schema = spec.to_dict()
-    
-    # Generate TypeScript bindings with base_url (full implementation)
-    ts_gen = TypeScriptGenerator(openapi_schema, host='localhost', port=9000)
-    output = ts_gen.generate()
+    output = gst_typescript
     
     # Define expected inheritance relationships
     expected_classes = [
@@ -67,7 +55,7 @@ def test_gst_inheritance_chain():
             )
 
 
-def test_gobject_base_class_structure():
+def test_gobject_base_class_structure(gst_typescript):
     """
     Test that GObjectObject has the correct structure as a base class.
     
@@ -76,14 +64,7 @@ def test_gobject_base_class_structure():
     - constructor
     - unref method
     """
-    # Generate the OpenAPI schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    openapi_schema = spec.to_dict()
-    
-    # Generate TypeScript bindings with base_url
-    ts_gen = TypeScriptGenerator(openapi_schema, host='localhost', port=9000)
-    output = ts_gen.generate()
+    output = gst_typescript
     
     # Find the GObjectObject class definition
     match = re.search(
@@ -101,21 +82,14 @@ def test_gobject_base_class_structure():
     assert 'unref():' in gobject_class, "GObjectObject should have unref method"
 
 
-def test_intermediate_classes_generated():
+def test_intermediate_classes_generated(gst_typescript):
     """
     Test that intermediate classes without methods are still generated.
     
     Verifies that GObjectInitiallyUnowned (which has no methods) is generated
     as a class in the inheritance chain, not just as an interface.
     """
-    # Generate the OpenAPI schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    openapi_schema = spec.to_dict()
-    
-    # Generate TypeScript bindings with base_url
-    ts_gen = TypeScriptGenerator(openapi_schema, host='localhost', port=9000)
-    output = ts_gen.generate()
+    output = gst_typescript
     
     # GObjectInitiallyUnowned should be generated as a class
     assert 'export class GObjectInitiallyUnowned extends GObjectObject' in output, (
@@ -138,7 +112,7 @@ def test_intermediate_classes_generated():
     )
 
 
-def test_element_factory_inheritance():
+def test_element_factory_inheritance(gst_typescript):
     """
     Test another inheritance chain: GstElementFactory.
     
@@ -146,14 +120,7 @@ def test_element_factory_inheritance():
     which extends GstObject, demonstrating that the fix works
     for multiple inheritance chains.
     """
-    # Generate the OpenAPI schema
-    girest = GIRest('Gst', '1.0')
-    spec = girest.generate()
-    openapi_schema = spec.to_dict()
-    
-    # Generate TypeScript bindings with base_url
-    ts_gen = TypeScriptGenerator(openapi_schema, host='localhost', port=9000)
-    output = ts_gen.generate()
+    output = gst_typescript
     
     # Verify GstElementFactory inheritance
     assert 'export class GstElementFactory extends GstPluginFeature' in output, (
@@ -166,6 +133,71 @@ def test_element_factory_inheritance():
     )
 
 
-if __name__ == "__main__":
-    import pytest
-    pytest.main([__file__, "-v"])
+def test_typescript_generation_with_generic_constructors(gst_typescript):
+    """
+    Test that TypeScript generator properly handles generic constructors.
+    """
+    typescript = gst_typescript
+    
+    # GstMeta should have a static new method in the TypeScript class
+    assert 'export class GstMeta {' in typescript, \
+        "GstMeta should be generated as a class"
+    
+    # The class should have a static new() method
+    assert 'static async new():' in typescript or 'static async new(' in typescript, \
+        "GstMeta should have a static new() constructor method"
+    
+    # The class should have instance methods
+    assert 'async ' in typescript, \
+        "GstMeta should have async methods"
+    
+    print("✓ TypeScript generator creates classes with generic constructors")
+
+
+def test_typescript_class_generation_for_structs(gst_typescript):
+    """
+    Test that TypeScript generator creates classes for structs with methods.
+    
+    Uses GstBuffer as a test case.
+    """
+    typescript = gst_typescript
+    
+    # Verify GstBuffer is generated as a class, not an interface
+    assert 'export class GstBuffer {' in typescript, \
+        "GstBuffer should be generated as a class"
+    
+    # Verify it's not also generated as an interface (avoid duplication)
+    # Count occurrences - should only be the class definition
+    interface_count = typescript.count('export interface GstBuffer {')
+    assert interface_count == 0, \
+        f"GstBuffer should not be generated as interface, found {interface_count} occurrences"
+    
+    # Verify the class has methods
+    # Check for at least one constructor
+    assert 'static async new():' in typescript or 'static async new(' in typescript, \
+        "GstBuffer class should have constructor methods"
+    
+    # Check for at least one instance method
+    assert 'async add_meta(' in typescript, \
+        "GstBuffer class should have instance methods"
+    
+    print("✓ TypeScript generator creates class for struct with methods")
+
+
+def test_typescript_interface_generation_for_structs_without_methods(gst_typescript):
+    """
+    Test that TypeScript generator creates interfaces for structs without methods.
+    
+    Uses GstAllocatorPrivate as a test case.
+    """
+    typescript = gst_typescript
+    
+    # Verify GstAllocatorPrivate is generated as an interface
+    assert 'export interface GstAllocatorPrivate {' in typescript, \
+        "GstAllocatorPrivate should be generated as an interface"
+    
+    # Verify it's not generated as a class
+    assert 'export class GstAllocatorPrivate {' not in typescript, \
+        "GstAllocatorPrivate should not be generated as a class"
+    
+    print("✓ TypeScript generator creates interface for struct without methods")
