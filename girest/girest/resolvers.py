@@ -130,6 +130,11 @@ class FridaResolver(connexion.resolver.Resolver):
                     return "callback"
                 elif info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
                     return "int32"
+                elif info_type == GIRepository.InfoType.STRUCT:
+                    # Check if this is a struct with a registered GType (boxed type)
+                    gtype = GIRepository.registered_type_info_get_g_type(interface)
+                    if gtype != 0:
+                        return "gtype"
         
         # Map GIRepository type tags to JSON type strings
         type_map = {
@@ -169,28 +174,6 @@ class FridaResolver(connexion.resolver.Resolver):
         if ret["type"] == "callback":
             interface = GIRepository.type_info_get_interface(arg_type)
             ret["subtype"] = self._callable_to_json(interface)
-        
-        # For pointer types, check if it's an interface and provide additional metadata
-        # This is important for out/inout parameters of structs vs boxed types
-        if ret["type"] == "pointer":
-            tag_enum = GIRepository.type_info_get_tag(arg_type)
-            if GIRepository.type_tag_to_string(tag_enum) == "interface":
-                interface = GIRepository.type_info_get_interface(arg_type)
-                if interface:
-                    info_type = interface.get_type()
-                    # For structs, we need to know the size for out/inout parameters
-                    if info_type == GIRepository.InfoType.STRUCT:
-                        # Get struct size for proper memory allocation
-                        struct_size = GIRepository.struct_info_get_size(interface)
-                        if struct_size > 0:
-                            ret["struct_size"] = struct_size
-                        
-                        # Check if this is a struct with a registered GType (boxed type)
-                        gtype = GIRepository.registered_type_info_get_g_type(interface)
-                        if gtype != 0:
-                            ret["is_registered_gtype"] = True
-                        else:
-                            ret["is_registered_gtype"] = False
         
         return ret
     
@@ -262,8 +245,7 @@ class FridaResolver(connexion.resolver.Resolver):
             
             if info_type == GIRepository.InfoType.FUNCTION:
                 # Standalone function: namespace__function_name
-                # class_name can be None or empty string for standalone functions
-                if (class_name is None or class_name == '') and info.get_name() == method_name:
+                if class_name is None and info.get_name() == method_name:
                     return info
             elif info_type == GIRepository.InfoType.OBJECT:
                 # Method: namespace_objectname_methodname
