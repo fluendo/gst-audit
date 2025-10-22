@@ -40,63 +40,122 @@ The Frida script needs to allocate memory for the GValue structure (24 bytes), n
 
 ### 1. Resolver Changes (girest/girest/resolvers.py)
 
-The resolver now provides additional metadata for out/inout parameters:
+The resolver now detects structs with registered GTypes and assigns them the "gtype" type instead of "pointer":
+
+```python
+# In _type_to_json method
+if tag == "interface":
+    interface = GIRepository.type_info_get_interface(t)
+    if interface:
+        info_type = interface.get_type()
+        if info_type == GIRepository.InfoType.CALLBACK:
+            return "callback"
+        elif info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+            return "int32"
+        elif info_type == GIRepository.InfoType.STRUCT:
+            # Check if this is a struct with a registered GType (boxed type)
+            gtype = GIRepository.registered_type_info_get_g_type(interface)
+            if gtype != 0:
+                return "gtype"
+```
+
+This means for a GValue out parameter, the JSON representation is:
 
 ```python
 {
     "name": "elem",
     "direction": 1,  # OUT
-    "type": "pointer",
-    "struct_size": 24,  # Size of GValue structure
-    "is_registered_gtype": True  # GValue has a registered GType
+    "type": "gtype"  # Indicates a registered GType struct
 }
 ```
 
 ### 2. Frida Script Changes (gstaudit.js)
 
-The Frida script now uses the `struct_size` metadata when allocating memory:
+The Frida script handles the "gtype" type for memory allocation and dereferencing:
 
+**Type Signature:**
 ```javascript
-} else if ([1, 2].includes(a["direction"])) {
-  /* For output arguments, allocate memory */
-  var alloc_size = base_type_to_size(a["type"]);
-  if (a["struct_size"]) {
-    /* Use struct size for struct out parameters */
-    alloc_size = a["struct_size"];
-  }
-  tx_args.push(Memory.alloc(alloc_size));
+function type_signature(type)
+{
+    if (type == "callback") {
+      return "pointer";
+    } else if (type == "string") {
+      return "pointer";
+    } else if (type == "gtype") {
+      return "pointer";
+    } else {
+     return type;
+    }
 }
 ```
 
-For reading out parameters:
+**Memory Allocation:**
+```javascript
+function base_type_to_size(t)
+{
+  switch (t) {
+    case "string":
+    case "pointer":
+    case "callback":
+    case "gtype":
+      return Process.pointerSize;  // 8 bytes on 64-bit
+    // ... other types
+  }
+}
+```
 
+**Reading Out Parameters:**
+```javascript
+function base_type_read(t, p)
+{
+  switch (t) {
+    case "string":
+      return p.readCString();
+    case "gtype":
+      return p.readPointer();  // Dereference the pointer
+    // ... other types
+  }
+}
+```
+
+For out parameters with direction 1 or 2 (OUT/INOUT):
 ```javascript
 } else if ([1, 2].includes(a["direction"])) {
-  if (a["struct_size"]) {
-    /* For struct out parameters, return the pointer to the struct */
-    ret[a["name"]] = tx_args[idx];
-  } else {
-    /* For scalar out parameters, dereference and read the value */
-    ret[a["name"]] = base_type_read(a["type"], tx_args[idx]);
-  }
+  /* Allocate memory for the output parameter */
+  tx_args.push(Memory.alloc(base_type_to_size(a["type"])));
+}
+
+// Later, when reading results:
+} else if ([1, 2].includes(a["direction"])) {
+  ret[a["name"]] = base_type_read(a["type"], tx_args[idx]);
 }
 ```
 
 ## Implications
 
+### Type Distinction
+
+- **Before**: All interface types (structs, objects, etc.) were uniformly treated as "pointer" type
+- **After**: Registered GType structs (boxed types) are identified as "gtype" type, distinguishing them from regular structs and objects
+
 ### Memory Allocation
 
-- **Before**: All out parameters of type "pointer" allocated 8 bytes (pointer size)
-- **After**: Struct out parameters allocate the full struct size (e.g., 24 bytes for GValue)
+- **All pointer-like types**: Allocate `Process.pointerSize` bytes (8 bytes on 64-bit systems)
+- This includes: "pointer", "string", "callback", and "gtype"
 
-### Return Values
+### Return Values for Out Parameters
 
-- **Before**: Out parameters were dereferenced and the pointer value was returned
-- **After**: Struct out parameters return the pointer to the allocated memory
+- **Regular types**: Read using appropriate method (e.g., `readS32()` for int32)
+- **String types**: Read using `readCString()`
+- **GType types**: Read using `readPointer()` to dereference the pointer stored in the allocated memory
 
 ### API Usage
 
-When calling a method with struct out parameters via the REST API, the response will contain a pointer to the filled struct. The caller can then use this pointer to access the struct data in subsequent calls.
+For registered GType out parameters (like GValue in `gst_iterator_next`):
+1. Frida allocates 8 bytes (pointer size) for the out parameter
+2. The C function fills this memory with a pointer to the actual GValue struct
+3. Frida reads this pointer using `readPointer()`
+4. The REST API returns this pointer value, which can be used in subsequent calls
 
 ## Testing
 

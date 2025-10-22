@@ -39,7 +39,6 @@ function base_type_read(t, p)
   switch (t) {
     case "string":
       return p.readCString();
-    case "pointer":
     case "gtype":
       return p.readPointer();
     case "int8":
