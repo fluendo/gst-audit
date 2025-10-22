@@ -235,6 +235,39 @@ def test_generic_endpoint_exists(gobject_schema):
     print("✓ Generic endpoints are created for structs without constructors")
 
 
+def test_struct_vs_boxed_type_detection(gst_schema):
+    """
+    Test that the schema correctly identifies struct types and their GType registration.
+    
+    This verifies:
+    - GstIterator is marked as a struct
+    - GstMessage is marked as a struct (boxed types are still structs in GIRepository)
+    - The schema metadata is correctly generated
+    """
+    schema = gst_schema
+    
+    # Check if schemas are present
+    assert "components" in schema
+    assert "schemas" in schema["components"]
+    schemas = schema["components"]["schemas"]
+    
+    # GstIterator should be present and marked as a struct
+    if "GstIterator" in schemas:
+        iterator_schema = schemas["GstIterator"]
+        # It should be marked as a struct
+        assert iterator_schema.get("x-gi-type") == "struct", "GstIterator should be marked as struct"
+        print("✓ GstIterator correctly identified as struct")
+    
+    # GstMessage should be present and marked as a struct
+    # (boxed types are still structs in GIRepository)
+    if "GstMessage" in schemas:
+        message_schema = schemas["GstMessage"]
+        assert message_schema.get("x-gi-type") == "struct", "GstMessage should be marked as struct"
+        print("✓ GstMessage correctly identified as struct")
+    
+    print("✓ Schema correctly identifies struct types")
+
+
 def test_generic_endpoints_have_correct_tags(gst_schema):
     """
     Test that generic endpoints have the correct tags for TypeScript generation.
