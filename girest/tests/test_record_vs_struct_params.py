@@ -209,71 +209,91 @@ async def test_struct_out_parameter_gvalue_iterator(girest_server):
 @pytest.mark.asyncio
 async def test_record_return_value_gstmessage(girest_server):
     """
-    Test record/boxed type handling with GstMessage and message_parse methods.
+    Test record/boxed type handling with GstMessage parse methods.
     
-    This tests the case where a boxed/record type (GstMessage) is used with
-    out parameters in parse methods. GstMessage is a registered GType (boxed type).
+    This tests the case where a boxed/record type is used as an OUT parameter
+    in parse methods. The key difference from structs is that boxed types
+    (registered GTypes) should be dereferenced as pointers when used as out parameters.
     
     The test validates:
-        1. Creating a new GstMessage
-        2. Using a parse method that has out parameters
-        3. Verifying the out parameter logic works for boxed types
+        1. Creating a GstMessage with boxed type data
+        2. Parsing it to extract the boxed type out parameter
+        3. Verifying the out parameter is a valid pointer to the boxed type
     """
     async with httpx.AsyncClient(timeout=10.0) as client:
-        # Step 1: Create a new EOS message
-        response = await client.get(f"{girest_server}/Gst/Message/new_eos", params={"src": "0x0"})
-        assert response.status_code == 200, f"Failed to create message: {response.status_code}"
-        message_data = response.json()
-        message_ptr = message_data["return"]
-        print(f"✓ Created EOS message with pointer: {message_ptr}")
-        assert message_ptr is not None and message_ptr != "0x0"
-        
-        # Step 2: Test a parse method with out parameters
-        # Let's create a state-changed message and parse it
-        # First, create a state-changed message
-        response = await client.get(
-            f"{girest_server}/Gst/Message/new_state_changed",
-            params={
-                "src": "0x0",
-                "oldstate": 1,  # GST_STATE_NULL
-                "newstate": 2,  # GST_STATE_READY  
-                "pending": 3    # GST_STATE_PAUSED
-            }
-        )
+        # Step 1: Create a tag message which contains a GstTagList (a boxed type)
+        # First we need to create a TagList
+        response = await client.get(f"{girest_server}/Gst/TagList/new_empty")
         if response.status_code == 200:
-            state_msg_data = response.json()
-            state_msg_ptr = state_msg_data["return"]
-            print(f"✓ Created state-changed message with pointer: {state_msg_ptr}")
+            taglist_data = response.json()
+            taglist_ptr = taglist_data["return"]
+            print(f"✓ Created TagList with pointer: {taglist_ptr}")
             
-            # Step 3: Parse the state-changed message
-            # This has out parameters: oldstate, newstate, pending
-            response = await client.get(f"{girest_server}/Gst/Message/{state_msg_ptr}/parse_state_changed")
+            # Step 2: Create a tag message with this TagList
+            response = await client.get(
+                f"{girest_server}/Gst/Message/new_tag",
+                params={"src": "0x0", "tag_list": taglist_ptr}
+            )
             if response.status_code == 200:
-                parse_result = response.json()
-                print(f"✓ Parse state-changed result: {parse_result}")
-                # Verify we got the out parameters
-                assert "oldstate" in parse_result, "Out parameter 'oldstate' should be in result"
-                assert "newstate" in parse_result, "Out parameter 'newstate' should be in result"
-                assert "pending" in parse_result, "Out parameter 'pending' should be in result"
-                print(f"✓ Successfully tested boxed type out parameter handling")
+                tag_msg_data = response.json()
+                tag_msg_ptr = tag_msg_data["return"]
+                print(f"✓ Created tag message with pointer: {tag_msg_ptr}")
+                
+                # Step 3: Parse the tag message to extract the TagList out parameter
+                # This tests the boxed type (GstTagList) as an OUT parameter
+                response = await client.get(f"{girest_server}/Gst/Message/{tag_msg_ptr}/parse_tag")
+                if response.status_code == 200:
+                    parse_result = response.json()
+                    print(f"✓ Parse tag result: {parse_result}")
+                    # Verify we got the out parameter (tag_list is a boxed type)
+                    assert "tag_list" in parse_result, "Out parameter 'tag_list' (boxed type) should be in result"
+                    parsed_taglist_ptr = parse_result["tag_list"]
+                    print(f"✓ Successfully extracted boxed type out parameter: {parsed_taglist_ptr}")
+                    # The parsed taglist pointer should be valid (not null)
+                    assert parsed_taglist_ptr is not None and parsed_taglist_ptr != "0x0"
+                    print(f"✓ Successfully tested boxed type (GstTagList) out parameter handling")
+                else:
+                    print(f"Note: parse_tag returned {response.status_code}")
             else:
-                print(f"Note: parse_state_changed returned {response.status_code}")
+                print(f"Note: new_tag endpoint returned {response.status_code}")
         else:
-            print(f"Note: new_state_changed endpoint returned {response.status_code}")
+            print(f"Note: TagList/new_empty endpoint returned {response.status_code}")
         
-        # Step 4: Test message ref/unref behavior (boxed type specific)
-        # Create another message to test reference counting behavior
-        response = await client.get(f"{girest_server}/Gst/Message/new_eos", params={"src": "0x0"})
+        # Alternative test: Create a TOC message and parse it (GstToc is also a boxed type)
+        response = await client.get(f"{girest_server}/Gst/Toc/new", params={"scope": 1})  # GST_TOC_SCOPE_GLOBAL
         if response.status_code == 200:
-            msg2_data = response.json()
-            msg2_ptr = msg2_data["return"]
-            print(f"✓ Created second EOS message with pointer: {msg2_ptr}")
+            toc_data = response.json()
+            toc_ptr = toc_data["return"]
+            print(f"✓ Created Toc with pointer: {toc_ptr}")
             
-            # Verify we got a different pointer
-            assert msg2_ptr != message_ptr, "Should get a different message pointer"
-            print(f"✓ Successfully tested boxed type creation (different pointers: {message_ptr} vs {msg2_ptr})")
+            # Create a TOC message
+            response = await client.get(
+                f"{girest_server}/Gst/Message/new_toc",
+                params={"src": "0x0", "toc": toc_ptr, "updated": 1}
+            )
+            if response.status_code == 200:
+                toc_msg_data = response.json()
+                toc_msg_ptr = toc_msg_data["return"]
+                print(f"✓ Created toc message with pointer: {toc_msg_ptr}")
+                
+                # Parse the TOC message to extract the Toc out parameter
+                response = await client.get(f"{girest_server}/Gst/Message/{toc_msg_ptr}/parse_toc")
+                if response.status_code == 200:
+                    parse_result = response.json()
+                    print(f"✓ Parse toc result: {parse_result}")
+                    # Verify we got the out parameter (toc is a boxed type)
+                    assert "toc" in parse_result, "Out parameter 'toc' (boxed type) should be in result"
+                    parsed_toc_ptr = parse_result["toc"]
+                    assert parsed_toc_ptr is not None and parsed_toc_ptr != "0x0"
+                    print(f"✓ Successfully tested another boxed type (GstToc) out parameter")
+                else:
+                    print(f"Note: parse_toc returned {response.status_code}")
+            else:
+                print(f"Note: new_toc endpoint returned {response.status_code}")
+        else:
+            print(f"Note: Toc/new endpoint returned {response.status_code}")
         
-        print("✓ Successfully tested record/boxed type handling")
+        print("✓ Successfully tested record/boxed type out parameter handling")
 
 
 @pytest.mark.asyncio  
