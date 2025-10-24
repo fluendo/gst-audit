@@ -93,7 +93,7 @@ def girest_server(gst_pipeline):
     )
     
     # Give the server time to start and attach to the process
-    time.sleep(10)
+    time.sleep(15)
     
     # Verify it's running
     if process.poll() is not None:
@@ -104,10 +104,10 @@ def girest_server(gst_pipeline):
     
     # Wait for the server to be ready by polling the docs endpoint
     ready = False
-    max_retries = 15
+    max_retries = 2
     for i in range(max_retries):
         try:
-            response = httpx.get(f"{base_url}/openapi.json", timeout=2)
+            response = httpx.get(f"{base_url}/openapi.json")
             if response.status_code == 200:
                 ready = True
                 break
@@ -286,7 +286,8 @@ async def test_struct_out_parameter_gvalue_iterator(girest_server):
         element_ptr = element_data["return"]
         
         # Step 3: Add the element to the bin
-        response = await client.get(f"{girest_server}/Gst/Bin/{bin_ptr}/add", params={"element": element_ptr})
+        # Note: Objects are serialized as "ptr,value" per OpenAPI spec (style=form, explode=false for query params)
+        response = await client.get(f"{girest_server}/Gst/Bin/ptr,{bin_ptr}/add", params={"element": f"ptr,{element_ptr}"})
         if response.status_code != 200:
             try:
                 server_output = girest_server.process.stdout.read()
@@ -296,7 +297,8 @@ async def test_struct_out_parameter_gvalue_iterator(girest_server):
         assert response.status_code == 200, f"Failed to add element to bin: {response.status_code}"
         
         # Step 4: Get an iterator for the bin's elements
-        response = await client.get(f"{girest_server}/Gst/Bin/{bin_ptr}/iterate_elements")
+        # Note: Path parameter for object is serialized as "ptr,value" per OpenAPI spec (style=simple, explode=false)
+        response = await client.get(f"{girest_server}/Gst/Bin/ptr,{bin_ptr}/iterate_elements")
         assert response.status_code == 200, f"Failed to get iterator: {response.status_code}"
         iterator_data = response.json()
         iterator_ptr = iterator_data["return"]
@@ -310,7 +312,8 @@ async def test_struct_out_parameter_gvalue_iterator(girest_server):
                 value_ptr = value_data["return"]
                 
                 # Try to call iterator next
-                response = await client.get(f"{girest_server}/Gst/Iterator/{iterator_ptr}/next", params={"elem": value_ptr})
+                # Note: Path and query parameters for objects use "ptr,value" format
+                response = await client.get(f"{girest_server}/Gst/Iterator/ptr,{iterator_ptr}/next", params={"elem": f"ptr,{value_ptr}"})
                 if response.status_code == 200:
                     next_result = response.json()
                     # The result should contain the return value and may contain the out parameter 'elem'
@@ -344,16 +347,18 @@ async def test_boxed_type_out_parameter_handling(girest_server):
             taglist_ptr = taglist_data["return"]
             
             # Create a tag message with this TagList
+            # Note: Object parameters use "ptr,value" format (style=form, explode=false)
             response = await client.get(
                 f"{girest_server}/Gst/Message/new_tag",
-                params={"src": "0x0", "tag_list": taglist_ptr}
+                params={"src": "ptr,0x0", "tag_list": f"ptr,{taglist_ptr}"}
             )
             if response.status_code == 200:
                 tag_msg_data = response.json()
                 tag_msg_ptr = tag_msg_data["return"]
                 
                 # Parse the tag message to extract the TagList out parameter
-                response = await client.get(f"{girest_server}/Gst/Message/{tag_msg_ptr}/parse_tag")
+                # Note: Path parameter for object uses "ptr,value" format (style=simple, explode=false)
+                response = await client.get(f"{girest_server}/Gst/Message/ptr,{tag_msg_ptr}/parse_tag")
                 if response.status_code == 200:
                     parse_result = response.json()
                     # Verify we got the out parameter (tag_list is a boxed type)
@@ -370,16 +375,18 @@ async def test_boxed_type_out_parameter_handling(girest_server):
             toc_ptr = toc_data["return"]
             
             # Create a TOC message
+            # Note: Object parameters use "ptr,value" format
             response = await client.get(
                 f"{girest_server}/Gst/Message/new_toc",
-                params={"src": "0x0", "toc": toc_ptr, "updated": 1}
+                params={"src": "ptr,0x0", "toc": f"ptr,{toc_ptr}", "updated": 1}
             )
             if response.status_code == 200:
                 toc_msg_data = response.json()
                 toc_msg_ptr = toc_msg_data["return"]
                 
                 # Parse the TOC message to extract the Toc out parameter
-                response = await client.get(f"{girest_server}/Gst/Message/{toc_msg_ptr}/parse_toc")
+                # Note: Path parameter for object uses "ptr,value" format
+                response = await client.get(f"{girest_server}/Gst/Message/ptr,{toc_msg_ptr}/parse_toc")
                 if response.status_code == 200:
                     parse_result = response.json()
                     # Verify we got the out parameter (toc is a boxed type)

@@ -306,8 +306,11 @@ class FridaResolver(connexion.resolver.Resolver):
         
         return generic_free_handler
 
+    # TODO what to access here, the info from GI (_method) or the type info for Frida (_type)
     def create_frida_handler(self):
-        """Create handler that calls Frida with the method JSON, converting enum strings to integers"""
+        """Create handler that calls Frida with the method JSON, converting enum strings to integers,
+           objects to pointers, etc.
+        """
         async def frida_resolver_handler(_method=None, _type=None, *args, **kwargs):
             # Get the symbol from the method info
             symbol = GIRepository.function_info_get_symbol(_method)
@@ -315,7 +318,11 @@ class FridaResolver(connexion.resolver.Resolver):
             # Convert enum string values to integers before calling Frida
             converted_kwargs = {}
             n_args = GIRepository.callable_info_get_n_args(_method)
-            
+
+            # Add 'self' as a parameter
+            if _type["is_method"]:
+                converted_kwargs["this"] = kwargs["self"]["ptr"]
+
             for i in range(n_args):
                 arg = GIRepository.callable_info_get_arg(_method, i)
                 arg_name = arg.get_name()
@@ -324,19 +331,33 @@ class FridaResolver(connexion.resolver.Resolver):
                     arg_type = GIRepository.arg_info_get_type(arg)
                     tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
                     
-                    # Check if this is an enum type
+                    # Check if this is an interface type
                     if tag == "interface":
                         interface = GIRepository.type_info_get_interface(arg_type)
-                        if interface and (interface.get_type() == GIRepository.InfoType.ENUM or 
-                                         interface.get_type() == GIRepository.InfoType.FLAGS):
-                            # Convert string enum name to integer value
-                            full_name = f"{interface.get_namespace()}{interface.get_name()}"
-                            enum_mapping = self.enum_mappings.get(full_name, {})
-                            value = kwargs[arg_name]
-                            if isinstance(value, str) and value in enum_mapping:
-                                converted_kwargs[arg_name] = enum_mapping[value]
+                        if interface:
+                            info_type = interface.get_type()
+                            
+                            if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                                # Convert string enum name to integer value
+                                full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                                enum_mapping = self.enum_mappings.get(full_name, {})
+                                value = kwargs[arg_name]
+                                if isinstance(value, str) and value in enum_mapping:
+                                    converted_kwargs[arg_name] = enum_mapping[value]
+                                else:
+                                    converted_kwargs[arg_name] = value
+                            elif info_type == GIRepository.InfoType.OBJECT:
+                                # For GObject types, extract the 'ptr' field from the JSON object
+                                # Our URI parser deserializes "ptr,value" into {"ptr": "value"}
+                                # but Frida expects just the pointer value
+                                value = kwargs[arg_name]
+                                if isinstance(value, dict) and 'ptr' in value:
+                                    converted_kwargs[arg_name] = value['ptr']
+                                else:
+                                    # If it's already a string/int pointer value, use it as-is
+                                    converted_kwargs[arg_name] = value
                             else:
-                                converted_kwargs[arg_name] = value
+                                converted_kwargs[arg_name] = kwargs[arg_name]
                         else:
                             converted_kwargs[arg_name] = kwargs[arg_name]
                     else:
