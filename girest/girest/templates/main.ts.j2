@@ -106,6 +106,43 @@ function initializeCallbackSource(): void {
 
 // Initialize on module load
 initializeCallbackSource();
+
+/**
+ * Serialize a parameter value according to OpenAPI style and explode settings
+ * @param value The value to serialize (can be object, array, or primitive)
+ * @param style The serialization style ('simple', 'form', etc.)
+ * @param explode Whether to use exploded format
+ * @returns Serialized string value
+ */
+function serializeParam(value: any, style: string, explode: boolean): string {
+  // Handle null/undefined
+  if (value === null || value === undefined) {
+    return String(value);
+  }
+  
+  // Handle objects with ptr property (common in GIRest)
+  if (typeof value === 'object' && !Array.isArray(value)) {
+    if ('ptr' in value) {
+      // For objects with ptr, serialize according to style/explode
+      if (style === 'simple' || style === 'form') {
+        if (explode) {
+          // explode=true: ptr=value
+          // For query params this will be handled by URLSearchParams
+          // For path params, this format shouldn't be used (default is explode=false)
+          return `ptr=${value.ptr}`;
+        } else {
+          // explode=false: ptr,value (comma-separated key-value pairs)
+          return `ptr,${value.ptr}`;
+        }
+      }
+    }
+    // For other objects, serialize as JSON (fallback)
+    return JSON.stringify(value);
+  }
+  
+  // For arrays and primitives, use String conversion
+  return String(value);
+}
 {% if interfaces %}
 
 {{ interfaces | join('\n') }}
