@@ -30,13 +30,14 @@ def test_object_in_path_parameter():
     parser = URITemplateParser(params, {})
     
     # Test parsing a path parameter with an object value
-    # In practice, this would be a pointer represented as an integer or hex string
-    path_params = {"self": "0x12345"}
+    # According to OpenAPI spec with style=simple, explode=false (default for path),
+    # an object {"ptr": "0x12345"} should be serialized as "ptr,0x12345"
+    path_params = {"self": "ptr,0x12345"}
     resolved = parser.resolve_path(path_params)
     
     assert "self" in resolved
-    # The value should be parsed correctly (as a dict with ptr)
-    assert resolved["self"] is not None
+    # The value should be parsed correctly as a dict with ptr
+    assert resolved["self"] == {"ptr": "0x12345"}, f"Expected {{'ptr': '0x12345'}}, got {resolved['self']}"
 
 
 def test_allof_schema_in_path():
@@ -63,11 +64,12 @@ def test_allof_schema_in_path():
     # Create a URI parser with these parameters
     parser = URITemplateParser(params, {})
     
-    # Test parsing with a pointer value
-    path_params = {"self": "12345"}  # Integer pointer
+    # Test parsing with a pointer value in object serialization format
+    path_params = {"self": "ptr,12345"}  # Serialized object with ptr property
     resolved = parser.resolve_path(path_params)
     
     assert "self" in resolved
+    assert resolved["self"] == {"ptr": "12345"}, f"Expected {{'ptr': '12345'}}, got {resolved['self']}"
 
 
 def test_validator_handles_pointer_schema():
@@ -222,14 +224,15 @@ def test_integration_with_real_endpoint():
     # Create parser
     parser = URITemplateParser(params, {})
     
-    # Parse path with object
-    path_data = {"self": "0x7fff12345678"}
+    # Parse path with object in serialized format (style=simple, explode=false)
+    path_data = {"self": "ptr,0x7fff12345678"}
     resolved = parser.resolve_path(path_data)
     
     # Validate the parameter
     self_param = [p for p in params if p['name'] == 'self'][0]
     
     # The validator should accept the resolved value
-    # Note: The actual validation depends on how the schema is structured
-    # For struct types, the parameter is typically just a pointer value
+    # The resolved value should be an object with ptr property
     assert "self" in resolved
+    assert isinstance(resolved["self"], dict), f"Expected dict, got {type(resolved['self'])}"
+    assert "ptr" in resolved["self"], f"Expected ptr in resolved object, got {resolved['self']}"

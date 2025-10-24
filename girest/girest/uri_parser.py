@@ -77,27 +77,91 @@ class URITemplateParser(OpenAPIURIParser):
                 
         return templates
 
-    def _parse_with_template(self, param_name: str, value: Any, param_defn: Dict) -> Any:
+    def _is_object_schema(self, param_schema: Dict) -> bool:
+        """
+        Check if a parameter schema represents an object type.
+        
+        This includes:
+        - Schemas with type="object"
+        - Schemas with allOf/anyOf/oneOf (complex schemas)
+        - Schemas with $ref to object types
+        
+        :param param_schema: The schema to check
+        :return: True if it's an object schema
+        """
+        if not param_schema:
+            return False
+        
+        # Direct object type
+        if param_schema.get("type") == "object":
+            return True
+        
+        # Complex schemas (allOf, anyOf, oneOf)
+        if any(key in param_schema for key in ["allOf", "anyOf", "oneOf"]):
+            return True
+        
+        # Schemas with $ref are treated as potentially objects
+        # We can't easily resolve the ref here, so we'll try to parse it
+        if "$ref" in param_schema:
+            return True
+        
+        return False
+    
+    def _parse_object_from_string(self, value: str, param_defn: Dict, _in: str) -> Any:
+        """
+        Parse an object from its serialized string representation.
+        
+        According to OpenAPI spec:
+        - style=simple, explode=false (default for path): "prop1,val1,prop2,val2"
+        - style=form, explode=false (used for query): "param=prop1,val1,prop2,val2"
+        
+        Since GIRest objects always have a single "ptr" property, the format is:
+        - path: "ptr,value"
+        - query: "param=ptr,value"
+        
+        :param value: Serialized string value
+        :param param_defn: Parameter definition
+        :param _in: Parameter location (path/query)
+        :return: Parsed object or original value
+        """
+        if not isinstance(value, str):
+            return value
+        
+        # Get style and explode settings
+        default_style = self.style_defaults.get(_in, "simple")
+        style = param_defn.get("style", default_style)
+        is_form = style == "form"
+        explode = param_defn.get("explode", is_form)
+        
+        # For style=simple or style=form with explode=false
+        # Object format is "prop1,val1,prop2,val2,..."
+        if not explode and "," in value:
+            parts = value.split(",")
+            # Must have even number of parts (property-value pairs)
+            if len(parts) >= 2 and len(parts) % 2 == 0:
+                obj = {}
+                for i in range(0, len(parts), 2):
+                    obj[parts[i]] = parts[i + 1]
+                return obj
+        
+        # If it doesn't match the pattern, return as-is
+        return value
+    
+    def _parse_with_template(self, param_name: str, value: Any, param_defn: Dict, _in: str) -> Any:
         """
         Parse a parameter value using URI template extraction if available.
         
         :param param_name: Name of the parameter
         :param value: Raw value from the request
         :param param_defn: Parameter definition from the spec
+        :param _in: Parameter location (path/query)
         :return: Parsed value
         """
-        # If we have a template for this parameter, try to use it
-        if param_name in self._uri_templates:
-            template = self._uri_templates[param_name]
-            
-            # For simple values, just return as-is
-            if isinstance(value, (str, int, float, bool)):
-                return value
-            
-            # For objects or complex types, the template should have already
-            # been used during URI construction. Here we just validate.
-            logger.debug(f"Parameter {param_name} parsed with template: {value}")
-            
+        # For string values, try to parse as serialized objects
+        if isinstance(value, str):
+            return self._parse_object_from_string(value, param_defn, _in)
+        
+        # For other types, return as-is
         return value
 
     def resolve_params(self, params, _in):
@@ -126,12 +190,8 @@ class URITemplateParser(OpenAPIURIParser):
                 # multiple values in a path is impossible
                 values = [values]
 
-            # Check if this is an object type with allOf/anyOf/oneOf
-            is_complex_schema = False
-            if param_schema:
-                is_complex_schema = any(
-                    key in param_schema for key in ["allOf", "anyOf", "oneOf"]
-                )
+            # Check if this is an object type with allOf/anyOf/oneOf or $ref
+            is_complex_schema = self._is_object_schema(param_schema)
             
             # Handle array types
             if param_schema and param_schema.get("type") == "array":
@@ -139,16 +199,14 @@ class URITemplateParser(OpenAPIURIParser):
                 values = self._resolve_param_duplicates(values, param_defn, _in)
                 # handle array styles
                 resolved_param[k] = self._split(values, param_defn, _in)
-            # Handle object types and complex schemas
-            elif (param_schema and param_schema.get("type") == "object") or is_complex_schema:
-                # For objects, use template-based parsing
-                parsed_value = self._parse_with_template(k, values, param_defn)
+            # Handle object types and complex schemas (including $ref)
+            elif is_complex_schema:
+                # Extract the value from list if needed
+                value_to_parse = values[-1] if isinstance(values, list) else values
                 
-                # If values is a list, take the last one (standard behavior)
-                if isinstance(parsed_value, list):
-                    resolved_param[k] = parsed_value[-1]
-                else:
-                    resolved_param[k] = parsed_value
+                # For objects, use template-based parsing
+                parsed_value = self._parse_with_template(k, value_to_parse, param_defn, _in)
+                resolved_param[k] = parsed_value
             else:
                 # Standard scalar handling
                 resolved_param[k] = values[-1]
