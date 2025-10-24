@@ -25,18 +25,10 @@
 {% endif %}
     const url = new URL(`{{ path }}`, apiConfig.baseUrl);
 {% for param in query_params %}
-{% if param.is_object %}
 {% if param.required %}
     url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', serializeParam({{ param.name }}, '{{ param.style }}', {{ 'true' if param.explode else 'false' }}));
 {% else %}
     if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', serializeParam({{ param.name }}, '{{ param.style }}', {{ 'true' if param.explode else 'false' }}));
-{% endif %}
-{% else %}
-{% if param.required %}
-    url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
-{% else %}
-    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
-{% endif %}
 {% endif %}
 {% endfor %}
 {% if has_full_transfer %}
@@ -142,18 +134,10 @@
 {% endif %}
     const url = new URL(`{{ path }}`, apiConfig.baseUrl);
 {% for param in query_params %}
-{% if param.is_object %}
 {% if param.required %}
     url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', serializeParam({{ param.name }}, '{{ param.style }}', {{ 'true' if param.explode else 'false' }}));
 {% else %}
     if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', serializeParam({{ param.name }}, '{{ param.style }}', {{ 'true' if param.explode else 'false' }}));
-{% endif %}
-{% else %}
-{% if param.required %}
-    url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
-{% else %}
-    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
-{% endif %}
 {% endif %}
 {% endfor %}
 {% if has_full_transfer %}

@@ -344,6 +344,7 @@ class TypeScriptGenerator:
             param_required = param.get("required", False)
             param_in = param.get("in", "query")
             param_transfer = param.get("x-gi-transfer", "none")
+            # Get style and explode settings from OpenAPI spec
             param_style = param.get("style", "form" if param_in == "query" else "simple")
             param_explode = param.get("explode", True if param_style == "form" else False)
             
@@ -367,16 +368,11 @@ class TypeScriptGenerator:
             
             # Check if this parameter is a GObject type (needs ref counting)
             is_gobject_param = False
-            is_object_param = False
             if "$ref" in param_schema:
                 ref_path = param_schema["$ref"]
                 if ref_path.startswith("#/components/schemas/"):
                     type_name = ref_path.split("/")[-1]
                     is_gobject_param = type_name in self.gobject_types
-                    # Check if this is an object type that needs serialization
-                    schema_def = self.schemas.get(type_name, {})
-                    if schema_def.get("type") == "object" or "allOf" in schema_def:
-                        is_object_param = True
             
             if param_in == "path":
                 path_params.append((param_name, param_schema, param_style, param_explode))
@@ -387,7 +383,6 @@ class TypeScriptGenerator:
                     "required": param_required,
                     "transfer": param_transfer,
                     "is_gobject": is_gobject_param,
-                    "is_object": is_object_param,
                     "style": param_style,
                     "explode": param_explode
                 })
@@ -429,39 +424,18 @@ class TypeScriptGenerator:
                 else:
                     return_type = "void"
         
-        # Build URL path with proper serialization for object parameters
+        # Build URL path - use serializeParam for all path parameters
         url_path = path
-        path_param_info = []
         for param_tuple in path_params:
             param_name = param_tuple[0]
-            param_schema = param_tuple[1]
             param_style = param_tuple[2] if len(param_tuple) > 2 else "simple"
             param_explode = param_tuple[3] if len(param_tuple) > 3 else False
             
-            # Check if this is an object type
-            is_object_param = False
-            if "$ref" in param_schema:
-                ref_path = param_schema["$ref"]
-                if ref_path.startswith("#/components/schemas/"):
-                    type_name = ref_path.split("/")[-1]
-                    schema_def = self.schemas.get(type_name, {})
-                    if schema_def.get("type") == "object" or "allOf" in schema_def:
-                        is_object_param = True
-            
             if param_name == "self":
-                if is_object_param:
-                    # For object types in path, serialize according to style/explode
-                    # style=simple, explode=false (default): {ptr: "0x123"} -> "ptr,0x123"
-                    url_path = url_path.replace("{self}", "${serializeParam(this, 'simple', false)}")
-                else:
-                    url_path = url_path.replace("{self}", "${this.ptr}")
-                path_param_info.append({"name": param_name, "is_object": is_object_param, "style": param_style, "explode": param_explode})
+                # Use serializeParam with style and explode settings
+                url_path = url_path.replace("{self}", f"${{serializeParam(this, '{param_style}', {str(param_explode).lower()})}}")
             else:
-                if is_object_param:
-                    url_path = url_path.replace(f"{{{param_name}}}", f"${{serializeParam({param_name}, '{param_style}', {str(param_explode).lower()})}}")
-                else:
-                    url_path = url_path.replace(f"{{{param_name}}}", f"${{{param_name}}}")
-                path_param_info.append({"name": param_name, "is_object": is_object_param, "style": param_style, "explode": param_explode})
+                url_path = url_path.replace(f"{{{param_name}}}", f"${{serializeParam({param_name}, '{param_style}', {str(param_explode).lower()})}}")
         
         is_enum = class_name in self.enum_schemas
         

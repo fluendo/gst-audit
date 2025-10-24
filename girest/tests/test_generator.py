@@ -201,3 +201,55 @@ def test_typescript_interface_generation_for_structs_without_methods(gst_typescr
         "GstAllocatorPrivate should not be generated as a class"
     
     print("✓ TypeScript generator creates interface for struct without methods")
+
+
+def test_typescript_parameter_serialization(gst_typescript):
+    """
+    Test that TypeScript generator properly serializes parameters using serializeParam.
+    
+    Verifies that:
+    - serializeParam function is generated
+    - All parameters (both objects and primitives) use serializeParam
+    - Style and explode settings are correctly applied
+    """
+    typescript = gst_typescript
+    
+    # Verify serializeParam function exists
+    assert 'function serializeParam(' in typescript, \
+        "serializeParam function should be generated"
+    
+    # Verify it handles ptr property
+    assert "'ptr' in value" in typescript or '"ptr" in value' in typescript, \
+        "serializeParam should check for 'ptr' property"
+    
+    # Verify it handles style parameter
+    assert "style === 'simple' || style === 'form'" in typescript or \
+           'style === "simple" || style === "form"' in typescript, \
+        "serializeParam should handle 'simple' and 'form' styles"
+    
+    # Find a method with object parameter (days_between has GLibDate object parameter)
+    import re
+    match = re.search(r'async days_between\(date2: GLibDate\)', typescript)
+    if match:
+        start_pos = match.start()
+        method_section = typescript[start_pos:start_pos + 500]
+        
+        # Check that path parameter uses serializeParam with style=simple, explode=false
+        assert "serializeParam(this, 'simple', false)" in method_section, \
+            "Path parameter 'self' should use serializeParam with style='simple', explode=false"
+        
+        # Check that query parameter uses serializeParam with style=form, explode=false
+        assert "serializeParam(date2, 'form', false)" in method_section, \
+            "Query parameter 'date2' should use serializeParam with style='form', explode=false"
+    
+    # Find a method with primitive parameter (set_day has number parameter)
+    match = re.search(r'async set_day\(day: number\)', typescript)
+    if match:
+        start_pos = match.start()
+        method_section = typescript[start_pos:start_pos + 500]
+        
+        # Primitive parameters should also use serializeParam (which will call String internally)
+        assert "serializeParam(day, 'form', false)" in method_section, \
+            "Primitive parameter 'day' should also use serializeParam"
+    
+    print("✓ TypeScript generator uses serializeParam for all parameters with correct style/explode")
