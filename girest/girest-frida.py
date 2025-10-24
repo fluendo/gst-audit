@@ -20,7 +20,6 @@ from main import GIRest
 from resolvers import FridaResolver
 from uri_parser import URITemplateParser
 from validators import GIRestParameterValidator
-from decorators import GIRestStarletteDecorator
 from connexion.datastructures import MediaTypeDict
 from connexion.validators import (
     JSONRequestBodyValidator,
@@ -31,29 +30,44 @@ from connexion.validators import (
 )
 
 
-def patch_connexion_decorator():
+def patch_connexion_parameter_decorator():
     """
-    Patch Connexion's AsyncOperation to use our custom decorator.
+    Patch Connexion's _get_val_from_param to handle complex schemas.
     
-    This replaces the StarletteDecorator with our GIRestStarletteDecorator
-    which properly handles schemas with allOf, anyOf, oneOf.
+    This patches the parameter decorator to handle schemas with allOf, anyOf, oneOf
+    that don't have a direct "type" field. The patched function returns the validated
+    parameter directly since our URI parser has already deserialized it.
     """
-    from connexion.apps import asynchronous
+    from connexion.decorators import parameter
+    from connexion.utils import is_null, is_nullable, make_type
     
-    # Store original fn property
-    original_fn = asynchronous.AsyncOperation.fn.fget
+    # Store the original function
+    original_get_val_from_param = parameter._get_val_from_param
     
-    # Create new fn property that uses our decorator
-    @property
-    def custom_fn(self):
-        decorator = GIRestStarletteDecorator(
-            pythonic_params=self.pythonic_params,
-            jsonifier=self.jsonifier,
-        )
-        return decorator(self._fn)
+    def _get_val_from_param_girest(value, param_definitions):
+        """
+        Cast a value according to its definition, handling complex schemas.
+        
+        For schemas with allOf/anyOf/oneOf (no direct "type" field), return
+        the value as-is since it's already been parsed by our URI parser.
+        """
+        param_schema = param_definitions.get("schema", param_definitions)
+
+        if is_nullable(param_schema) and is_null(value):
+            return None
+
+        # Check if schema has a direct "type" field
+        if "type" in param_schema:
+            # Use original logic for schemas with type
+            return original_get_val_from_param(value, param_definitions)
+        
+        # For complex schemas (allOf, anyOf, oneOf) or schemas with $ref,
+        # the value has already been parsed by our custom URI parser
+        # Return it as-is
+        return value
     
-    # Replace the fn property
-    asynchronous.AsyncOperation.fn = custom_fn
+    # Replace the function
+    parameter._get_val_from_param = _get_val_from_param_girest
 
 
 def main():
@@ -90,8 +104,8 @@ def main():
     
     args = parser.parse_args()
     
-    # Patch Connexion to use our custom decorator
-    patch_connexion_decorator()
+    # Patch Connexion's parameter decorator to handle complex schemas
+    patch_connexion_parameter_decorator()
     
     try:
         # Generate the OpenAPI schema with specified buffer size
