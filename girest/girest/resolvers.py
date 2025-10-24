@@ -130,10 +130,6 @@ class FridaResolver(connexion.resolver.Resolver):
                     return "callback"
                 elif info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
                     return "int32"
-                elif info_type == GIRepository.InfoType.OBJECT:
-                    # For GObject types, we receive JSON objects with 'ptr' field
-                    # but Frida expects the pointer value directly
-                    return "object"
                 elif info_type == GIRepository.InfoType.STRUCT:
                     # Check if this is a struct with a registered GType (boxed type)
                     gtype = GIRepository.registered_type_info_get_g_type(interface)
@@ -310,8 +306,11 @@ class FridaResolver(connexion.resolver.Resolver):
         
         return generic_free_handler
 
+    # TODO what to access here, the info from GI (_method) or the type info for Frida (_type)
     def create_frida_handler(self):
-        """Create handler that calls Frida with the method JSON, converting enum strings to integers"""
+        """Create handler that calls Frida with the method JSON, converting enum strings to integers,
+           objects to pointers, etc.
+        """
         async def frida_resolver_handler(_method=None, _type=None, *args, **kwargs):
             # Get the symbol from the method info
             symbol = GIRepository.function_info_get_symbol(_method)
@@ -319,7 +318,11 @@ class FridaResolver(connexion.resolver.Resolver):
             # Convert enum string values to integers before calling Frida
             converted_kwargs = {}
             n_args = GIRepository.callable_info_get_n_args(_method)
-            
+
+            # Add 'self' as a parameter
+            if _type["is_method"]:
+                converted_kwargs["this"] = kwargs["self"]["ptr"]
+
             for i in range(n_args):
                 arg = GIRepository.callable_info_get_arg(_method, i)
                 arg_name = arg.get_name()
