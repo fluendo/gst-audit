@@ -93,7 +93,7 @@ def girest_server(gst_pipeline):
     )
     
     # Give the server time to start and attach to the process
-    time.sleep(7)
+    time.sleep(10)
     
     # Verify it's running
     if process.poll() is not None:
