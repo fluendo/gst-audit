@@ -324,3 +324,108 @@ class TestIntegration:
         
         # Should be valid
         assert error is None
+
+
+class TestPointerParsing:
+    """Test cases for pointer parameter parsing."""
+    
+    def test_pointer_with_hex_prefix(self):
+        """Test parsing a pointer parameter with 0x prefix."""
+        param_defns = [
+            {
+                "name": "ptr_param",
+                "in": "query",
+                "schema": {
+                    "oneOf": [
+                        {"type": "integer"},
+                        {"type": "string", "pattern": "^0x[0-9a-fA-F]+$|^[0-9]+$"}
+                    ]
+                },
+                "style": "form",
+                "explode": False,
+            }
+        ]
+        body_defn = {}
+        
+        parser = URITemplateParser(param_defns, body_defn)
+        
+        # Parse with hex prefix
+        params = {"ptr_param": ["0x12345abc"]}
+        resolved = parser.resolve_query(params)
+        
+        # Validate it's parsed correctly
+        assert "ptr_param" in resolved
+        assert resolved["ptr_param"] == "0x12345abc"
+        
+        # Validate against the schema
+        error = GIRestParameterValidator.validate_parameter(
+            "query", resolved["ptr_param"], param_defns[0]
+        )
+        assert error is None, f"Expected valid, got error: {error}"
+    
+    def test_pointer_with_integer_value(self):
+        """Test parsing a pointer parameter as an integer."""
+        param_defns = [
+            {
+                "name": "ptr_param",
+                "in": "query",
+                "schema": {
+                    "oneOf": [
+                        {"type": "integer"},
+                        {"type": "string", "pattern": "^0x[0-9a-fA-F]+$|^[0-9]+$"}
+                    ]
+                },
+                "style": "form",
+                "explode": False,
+            }
+        ]
+        body_defn = {}
+        
+        parser = URITemplateParser(param_defns, body_defn)
+        
+        # Parse with integer value (as string from URL)
+        params = {"ptr_param": ["12345"]}
+        resolved = parser.resolve_query(params)
+        
+        # Validate it's parsed correctly
+        assert "ptr_param" in resolved
+        assert resolved["ptr_param"] == "12345"
+        
+        # Validate against the schema
+        error = GIRestParameterValidator.validate_parameter(
+            "query", resolved["ptr_param"], param_defns[0]
+        )
+        assert error is None, f"Expected valid, got error: {error}"
+    
+    def test_pointer_as_direct_integer(self):
+        """Test parsing a pointer parameter passed as an integer (not string)."""
+        param_defns = [
+            {
+                "name": "ptr_param",
+                "in": "path",
+                "schema": {
+                    "oneOf": [
+                        {"type": "integer"},
+                        {"type": "string", "pattern": "^0x[0-9a-fA-F]+$|^[0-9]+$"}
+                    ]
+                },
+            }
+        ]
+        body_defn = {}
+        
+        parser = URITemplateParser(param_defns, body_defn)
+        
+        # Parse with integer value (actual integer, not string)
+        params = {"ptr_param": 305419896}  # 0x12345678 in decimal
+        resolved = parser.resolve_path(params)
+        
+        # Validate it's parsed correctly
+        assert "ptr_param" in resolved
+        assert resolved["ptr_param"] == 305419896
+        
+        # Validate against the schema
+        error = GIRestParameterValidator.validate_parameter(
+            "path", resolved["ptr_param"], param_defns[0]
+        )
+        assert error is None, f"Expected valid, got error: {error}"
+

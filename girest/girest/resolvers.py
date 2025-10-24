@@ -130,6 +130,10 @@ class FridaResolver(connexion.resolver.Resolver):
                     return "callback"
                 elif info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
                     return "int32"
+                elif info_type == GIRepository.InfoType.OBJECT:
+                    # For GObject types, we receive JSON objects with 'ptr' field
+                    # but Frida expects the pointer value directly
+                    return "object"
                 elif info_type == GIRepository.InfoType.STRUCT:
                     # Check if this is a struct with a registered GType (boxed type)
                     gtype = GIRepository.registered_type_info_get_g_type(interface)
@@ -324,19 +328,33 @@ class FridaResolver(connexion.resolver.Resolver):
                     arg_type = GIRepository.arg_info_get_type(arg)
                     tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
                     
-                    # Check if this is an enum type
+                    # Check if this is an interface type
                     if tag == "interface":
                         interface = GIRepository.type_info_get_interface(arg_type)
-                        if interface and (interface.get_type() == GIRepository.InfoType.ENUM or 
-                                         interface.get_type() == GIRepository.InfoType.FLAGS):
-                            # Convert string enum name to integer value
-                            full_name = f"{interface.get_namespace()}{interface.get_name()}"
-                            enum_mapping = self.enum_mappings.get(full_name, {})
-                            value = kwargs[arg_name]
-                            if isinstance(value, str) and value in enum_mapping:
-                                converted_kwargs[arg_name] = enum_mapping[value]
+                        if interface:
+                            info_type = interface.get_type()
+                            
+                            if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                                # Convert string enum name to integer value
+                                full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                                enum_mapping = self.enum_mappings.get(full_name, {})
+                                value = kwargs[arg_name]
+                                if isinstance(value, str) and value in enum_mapping:
+                                    converted_kwargs[arg_name] = enum_mapping[value]
+                                else:
+                                    converted_kwargs[arg_name] = value
+                            elif info_type == GIRepository.InfoType.OBJECT:
+                                # For GObject types, extract the 'ptr' field from the JSON object
+                                # Our URI parser deserializes "ptr,value" into {"ptr": "value"}
+                                # but Frida expects just the pointer value
+                                value = kwargs[arg_name]
+                                if isinstance(value, dict) and 'ptr' in value:
+                                    converted_kwargs[arg_name] = value['ptr']
+                                else:
+                                    # If it's already a string/int pointer value, use it as-is
+                                    converted_kwargs[arg_name] = value
                             else:
-                                converted_kwargs[arg_name] = value
+                                converted_kwargs[arg_name] = kwargs[arg_name]
                         else:
                             converted_kwargs[arg_name] = kwargs[arg_name]
                     else:
