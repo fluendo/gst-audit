@@ -12,6 +12,7 @@ connexion = { version = "^3.3.0", extras = ["flask", "swagger-ui","uvicorn"]}
 frida = "*"
 pygobject = "<3.50.0"
 apispec = "^6.8.4"
+uritemplate = "^4.1.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

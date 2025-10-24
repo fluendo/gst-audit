@@ -18,6 +18,16 @@ sys.path.insert(0, girest_dir)
 
 from main import GIRest
 from resolvers import FridaResolver
+from uri_parser import URITemplateParser
+from validators import GIRestParameterValidator
+from connexion.datastructures import MediaTypeDict
+from connexion.validators import (
+    JSONRequestBodyValidator,
+    FormDataValidator,
+    MultiPartFormDataValidator,
+    JSONResponseBodyValidator,
+    TextResponseBodyValidator,
+)
 
 
 def main():
@@ -66,8 +76,31 @@ def main():
         # Create the resolver with Frida
         resolver = FridaResolver(girest, args.pid)
         
-        # Add the API without naming it
-        app.add_api(specd, resolver=resolver)
+        # Create custom validator map with our enhanced parameter validator
+        custom_validator_map = {
+            "parameter": GIRestParameterValidator,
+            "body": MediaTypeDict(
+                {
+                    "*/*json": JSONRequestBodyValidator,
+                    "application/x-www-form-urlencoded": FormDataValidator,
+                    "multipart/form-data": MultiPartFormDataValidator,
+                }
+            ),
+            "response": MediaTypeDict(
+                {
+                    "*/*json": JSONResponseBodyValidator,
+                    "text/plain": TextResponseBodyValidator,
+                }
+            ),
+        }
+        
+        # Add the API with custom URI parser and validator
+        app.add_api(
+            specd,
+            resolver=resolver,
+            uri_parser_class=URITemplateParser,
+            validator_map=custom_validator_map,
+        )
         
         # Register the SSE endpoint at /GIRest/callbacks
         @app.route('/GIRest/callbacks', methods=['GET'])
