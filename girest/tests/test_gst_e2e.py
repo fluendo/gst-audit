@@ -93,7 +93,7 @@ def girest_server(gst_pipeline):
     )
     
     # Give the server time to start and attach to the process
-    time.sleep(10)
+    time.sleep(15)
     
     # Verify it's running
     if process.poll() is not None:
@@ -104,10 +104,10 @@ def girest_server(gst_pipeline):
     
     # Wait for the server to be ready by polling the docs endpoint
     ready = False
-    max_retries = 15
+    max_retries = 2
     for i in range(max_retries):
         try:
-            response = httpx.get(f"{base_url}/openapi.json", timeout=2)
+            response = httpx.get(f"{base_url}/openapi.json")
             if response.status_code == 200:
                 ready = True
                 break
