@@ -20,6 +20,7 @@ from main import GIRest
 from resolvers import FridaResolver
 from uri_parser import URITemplateParser
 from validators import GIRestParameterValidator
+from decorators import GIRestStarletteDecorator
 from connexion.datastructures import MediaTypeDict
 from connexion.validators import (
     JSONRequestBodyValidator,
@@ -28,6 +29,31 @@ from connexion.validators import (
     JSONResponseBodyValidator,
     TextResponseBodyValidator,
 )
+
+
+def patch_connexion_decorator():
+    """
+    Patch Connexion's AsyncOperation to use our custom decorator.
+    
+    This replaces the StarletteDecorator with our GIRestStarletteDecorator
+    which properly handles schemas with allOf, anyOf, oneOf.
+    """
+    from connexion.apps import asynchronous
+    
+    # Store original fn property
+    original_fn = asynchronous.AsyncOperation.fn.fget
+    
+    # Create new fn property that uses our decorator
+    @property
+    def custom_fn(self):
+        decorator = GIRestStarletteDecorator(
+            pythonic_params=self.pythonic_params,
+            jsonifier=self.jsonifier,
+        )
+        return decorator(self._fn)
+    
+    # Replace the fn property
+    asynchronous.AsyncOperation.fn = custom_fn
 
 
 def main():
@@ -63,6 +89,9 @@ def main():
     )
     
     args = parser.parse_args()
+    
+    # Patch Connexion to use our custom decorator
+    patch_connexion_decorator()
     
     try:
         # Generate the OpenAPI schema with specified buffer size

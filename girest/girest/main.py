@@ -295,7 +295,6 @@ class GIRest():
             self.spec.components.schema(
                 full_name,
                 {
-                    "type": "object",
                     "allOf": [
                         {"$ref": f"#/components/schemas/{full_parent_name}"},
                         {
