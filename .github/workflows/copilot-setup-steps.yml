@@ -25,6 +25,3 @@ jobs:
 
       - name: Disable ptrace restrictions
         run: "echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope"
-
-      - name: Install girest's dependencies
-        run: "cd girest && poetry install"
