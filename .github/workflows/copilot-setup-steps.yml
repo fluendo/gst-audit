@@ -21,7 +21,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libgirepository1.0-dev libgstreamer1.0-dev
+            libgirepository1.0-dev libgstreamer1.0-dev libcairo2-dev
 
       - name: Disable ptrace restrictions
         run: "echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope"
