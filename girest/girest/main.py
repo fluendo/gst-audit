@@ -221,7 +221,9 @@ class GIRest():
                 "required": not may_be_null,
                 "schema": param_schema,
                 "description": "",
-                "x-gi-transfer": transfer_str
+                "x-gi-transfer": transfer_str,
+                "style": "form",
+                "explode": False
             })
         
         # Handle the return value

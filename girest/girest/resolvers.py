@@ -130,6 +130,11 @@ class FridaResolver(connexion.resolver.Resolver):
                     return "callback"
                 elif info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
                     return "int32"
+                elif info_type == GIRepository.InfoType.STRUCT:
+                    # Check if this is a struct with a registered GType (boxed type)
+                    gtype = GIRepository.registered_type_info_get_g_type(interface)
+                    if gtype != 0:
+                        return "gtype"
         
         # Map GIRepository type tags to JSON type strings
         type_map = {

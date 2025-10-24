@@ -10,6 +10,7 @@ function base_type_to_size(t)
     case "string":
     case "pointer":
     case "callback":
+    case "gtype":
       return Process.pointerSize;
     case "int8":
     case "uint8":
@@ -38,6 +39,8 @@ function base_type_read(t, p)
   switch (t) {
     case "string":
       return p.readCString();
+    case "gtype":
+      return p.readPointer();
     case "int8":
       return p.readS8();
     case "uint8":
@@ -54,6 +57,8 @@ function base_type_read(t, p)
       return p.readFloat();
     case "double":
       return p.readDouble();
+    case "pointer":
+      return p;
     default:
       console.error(`Unsupported type ${t} to read`);
       return 0;
@@ -65,6 +70,8 @@ function type_signature(type)
     if (type == "callback") {
       return "pointer";
     } else if (type == "string") {
+      return "pointer";
+    } else if (type == "gtype") {
       return "pointer";
     } else {
      return type;

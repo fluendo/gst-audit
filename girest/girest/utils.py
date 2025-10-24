@@ -31,7 +31,9 @@ def parse_operation_id(operation_id):
         return None
     
     if len(parts) == 3:
-        return (parts[0], parts[1], parts[2])
+        # Convert empty string to None for class_name
+        class_name = parts[1] if parts[1] else None
+        return (parts[0], class_name, parts[2])
     
     if len(parts) == 2:
         return (parts[0], None, parts[1])
