@@ -581,8 +581,12 @@ class TypeScriptGenerator:
             # Regular class
             # Add properties from schema in these cases:
             # 1. Not using base_url (testing/interface generation)
-            # 2. Not a GObject type
+            # 2. Not a GObject type  
             # 3. GObject type without parent and without destructor (needs ptr field and constructor)
+            # 
+            # Why case 3? GObject types with parents inherit the ptr field from their parent.
+            # GObject types with destructors get ptr field from the destructor template section.
+            # But GObject types without either (like GObjectParamSpec) need properties from schema.
             should_add_properties = (
                 not self.base_url or
                 not extends_gobject or
