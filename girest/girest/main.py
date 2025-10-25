@@ -11,10 +11,8 @@ from typing import Optional
 
 class GIRest():
     pointer_schema = {
-        "oneOf": [
-            {"type": "integer"},
-            {"type": "string", "pattern": "^0x[0-9a-fA-F]+$|^[0-9]+$"}
-        ],
+        "type": "string",
+        "pattern": "^0x[0-9a-fA-F]+$|^[0-9]+$"
     }
 
     def __init__(self, ns, ns_version, sse_buffer_size: int = 100):
