@@ -93,7 +93,16 @@
       Object.assign(instance, data.return || data);
       return instance;
 {% elif has_return %}
+{% if return_is_object %}
+      // Return value is an object/struct, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        const instance = new {{ return_class_name }}(data.return.ptr);
+        return instance;
+      }
       return data.return;
+{% else %}
+      return data.return;
+{% endif %}
 {% else %}
       return data;
 {% endif %}
@@ -133,7 +142,16 @@
     Object.assign(instance, data.return || data);
     return instance;
 {% elif has_return %}
+{% if return_is_object %}
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new {{ return_class_name }}(data.return.ptr);
+      return instance;
+    }
     return data.return;
+{% else %}
+    return data.return;
+{% endif %}
 {% elif return_type != 'void' %}
     return data;
 {% endif %}
@@ -225,7 +243,16 @@
 {% endfor %}
 {% endif %}
 {% if has_return %}
+{% if return_is_object %}
+      // Return value is an object/struct, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        const instance = new {{ return_class_name }}(data.return.ptr);
+        return instance;
+      }
       return data.return;
+{% else %}
+      return data.return;
+{% endif %}
 {% elif return_type != 'void' %}
       return data;
 {% endif %}
@@ -261,7 +288,16 @@
 {% endfor %}
 {% endif %}
 {% if has_return %}
+{% if return_is_object %}
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new {{ return_class_name }}(data.return.ptr);
+      return instance;
+    }
     return data.return;
+{% else %}
+    return data.return;
+{% endif %}
 {% elif return_type != 'void' %}
     return data;
 {% endif %}

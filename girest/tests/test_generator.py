@@ -249,3 +249,54 @@ def test_typescript_parameter_serialization(gst_typescript):
             "Path parameter 'self' should be serialized inline even for methods with primitive query params"
     
     print("✓ TypeScript generator serializes parameters inline with correct style/explode")
+
+
+def test_typescript_object_return_value_instantiation(gst_typescript):
+    """
+    Test that TypeScript generator properly instantiates object return values.
+    
+    Verifies that:
+    - Methods returning objects/structs instantiate them from the ptr field
+    - The instantiation code checks if data.return is an object with a ptr field
+    - Primitive return values are returned directly without instantiation
+    """
+    typescript = gst_typescript
+    
+    # Find a method that returns an object (copy method of GstAllocationParams)
+    import re
+    # Look for the copy method in GstAllocationParams class
+    gst_allocation_match = re.search(r'export class GstAllocationParams.*?(?=export class|export namespace|$)', typescript, re.DOTALL)
+    if gst_allocation_match:
+        allocation_class = gst_allocation_match.group(0)
+        copy_match = re.search(r'async copy\(\): Promise<GstAllocationParams>.*?(?=async |static |  })', allocation_class, re.DOTALL)
+        if copy_match:
+            method_section = copy_match.group(0)
+            
+            # Check that it instantiates the object from ptr
+            assert "new GstAllocationParams(data.return.ptr)" in method_section, \
+                "Method returning object should instantiate it using 'new GstAllocationParams(data.return.ptr)'"
+            
+            # Check that it checks for the ptr field
+            assert "typeof data.return === 'object' && 'ptr' in data.return" in method_section, \
+                "Method returning object should check if data.return is an object with ptr field"
+    
+    # Find a method that returns a primitive (get_name or similar) - look for one without object instantiation
+    match = re.search(r'async get_name\(\): Promise<string> \{[^}]*const data = await response\.json\(\);[^}]*return data\.return;[^}]*\}', typescript, re.DOTALL)
+    if match:
+        method_section = match.group(0)
+        
+        # Check that it doesn't have object instantiation code for primitives
+        # It's OK to have "new URL" but not "new GstXXX" or similar object instantiation
+        if "new " in method_section:
+            assert method_section.count("new ") == method_section.count("new URL"), \
+                "Method returning primitive should only use 'new' for URL creation, not object instantiation"
+        
+        # It should just return data.return directly (without instantiation logic)
+        assert "return data.return;" in method_section, \
+            "Method returning primitive should return data.return directly"
+        
+        # It should NOT have object instantiation logic
+        assert "data.return.ptr" not in method_section, \
+            "Method returning primitive should not access data.return.ptr"
+    
+    print("✓ TypeScript generator instantiates object return values correctly")

@@ -410,6 +410,8 @@ class TypeScriptGenerator:
         # Determine return type
         return_type = "void"
         response_has_return = False
+        return_is_object = False  # Track if return type is an object/struct that needs instantiation
+        return_class_name = None  # The class name to instantiate if return_is_object is True
         responses = operation.get("responses", {})
         
         if "200" in responses:
@@ -422,8 +424,23 @@ class TypeScriptGenerator:
                 if "return" in props:
                     if is_constructor:
                         return_type = class_name
+                        return_is_object = True
+                        return_class_name = class_name
                     else:
                         return_type = self._openapi_type_to_ts(props["return"])
+                        # Check if the return type is a class that needs instantiation
+                        if "$ref" in props["return"]:
+                            ref_path = props["return"]["$ref"]
+                            if ref_path.startswith("#/components/schemas/"):
+                                type_name = ref_path.split("/")[-1]
+                                schema_def = self.schemas.get(type_name, {})
+                                # Check if this is an object type (class) or struct with methods
+                                # Objects/structs have type=object or allOf (inheritance)
+                                # Also check if it's in class_methods (has methods, so it's a class)
+                                if (schema_def.get("type") == "object" or "allOf" in schema_def) and \
+                                   type_name in self.class_methods:
+                                    return_is_object = True
+                                    return_class_name = type_name
                     response_has_return = True
                 elif props:
                     return_type = self._openapi_type_to_ts(schema)
@@ -489,6 +506,8 @@ class TypeScriptGenerator:
             "callback_params": callback_params,
             "is_constructor": is_constructor,
             "has_return": response_has_return,
+            "return_is_object": return_is_object,
+            "return_class_name": return_class_name,
             "class_name": class_name
         }
     

@@ -402,6 +402,11 @@ export namespace GstFormat {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function register(nick: string, description: string): Promise<GstFormatValue> {
@@ -1090,6 +1095,11 @@ export class GLibBytes {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibBytes(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async ref(): Promise<GLibBytes> {
@@ -1097,6 +1107,11 @@ export class GLibBytes {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibBytes(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async unref(): Promise<void> {
@@ -1305,6 +1320,11 @@ export class GLibDate {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDate(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async days_between(date2: GLibDate): Promise<number> {
@@ -1833,6 +1853,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_days(days: number): Promise<GLibDateTime> {
@@ -1842,6 +1867,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_full(years: number, months: number, days: number, hours: number, minutes: number, seconds: number): Promise<GLibDateTime> {
@@ -1861,6 +1891,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_hours(hours: number): Promise<GLibDateTime> {
@@ -1870,6 +1905,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_minutes(minutes: number): Promise<GLibDateTime> {
@@ -1879,6 +1919,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_months(months: number): Promise<GLibDateTime> {
@@ -1888,6 +1933,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_seconds(seconds: number): Promise<GLibDateTime> {
@@ -1897,6 +1947,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_weeks(weeks: number): Promise<GLibDateTime> {
@@ -1906,6 +1961,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_years(years: number): Promise<GLibDateTime> {
@@ -1915,6 +1975,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async compare(dt2: GLibDateTime): Promise<number> {
@@ -2034,6 +2099,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibTimeZone(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_timezone_abbreviation(): Promise<string> {
@@ -2097,6 +2167,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async to_local(): Promise<GLibDateTime> {
@@ -2104,6 +2179,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async to_timeval(tv: GLibTimeVal): Promise<boolean> {
@@ -2126,6 +2206,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async to_unix(): Promise<number> {
@@ -2147,6 +2232,11 @@ export class GLibDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async unref(): Promise<void> {
@@ -2243,6 +2333,11 @@ export class GLibMainContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibSource(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async find_source_by_id(source_id: number): Promise<GLibSource> {
@@ -2252,6 +2347,11 @@ export class GLibMainContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibSource(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async find_source_by_user_data(): Promise<GLibSource> {
@@ -2259,6 +2359,11 @@ export class GLibMainContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibSource(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async invoke_full(priority: number, function_: (user_data: Pointer) => boolean): Promise<{ function_?: number }> {
@@ -2330,6 +2435,11 @@ export class GLibMainContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibMainContext(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async release(): Promise<void> {
@@ -2374,6 +2484,11 @@ export class GLibMainContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibMainContext(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_thread_default(): Promise<GLibMainContext> {
@@ -2381,6 +2496,11 @@ export class GLibMainContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibMainContext(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async ref_thread_default(): Promise<GLibMainContext> {
@@ -2388,6 +2508,11 @@ export class GLibMainContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibMainContext(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -2544,6 +2669,11 @@ export class GLibSource {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibMainContext(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_current_time(timeval: GLibTimeVal): Promise<void> {
@@ -2616,6 +2746,11 @@ export class GLibSource {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibSource(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async remove_child_source(child_source: GLibSource): Promise<void> {
@@ -2810,6 +2945,11 @@ export class GLibThread {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibThread(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async unref(): Promise<void> {
@@ -2834,6 +2974,11 @@ export class GLibThread {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibThread(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async yield(): Promise<void> {
@@ -2888,10 +3033,14 @@ export class GLibTimeVal {
     const data = await response.json();
     return data.return;
   }
-  async from_iso8601(iso_date: string): Promise<boolean> {
+  async from_iso8601(iso_date: string, time_: GLibTimeVal): Promise<boolean> {
     const url = new URL(`/GLib/TimeVal/from_iso8601`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('iso_date', String(iso_date));
+    // Object with explode=false: serialize as comma-separated
+    if (time_ && typeof time_ === 'object' && 'ptr' in time_) {
+      url.searchParams.append('time_', 'ptr,' + time_.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -3033,6 +3182,11 @@ export class GLibTimeZone {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibTimeZone(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async unref(): Promise<void> {
@@ -3398,6 +3552,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async check_format_string(format_string: string, copy_only: boolean): Promise<boolean> {
@@ -3510,6 +3669,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_data(): Promise<void> {
@@ -3522,6 +3686,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibBytes(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_double(): Promise<number> {
@@ -3564,6 +3733,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_normal_form(): Promise<GLibVariant> {
@@ -3571,6 +3745,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_objv(): Promise<Pointer> {
@@ -3606,6 +3785,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariantType(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_type_string(): Promise<string> {
@@ -3641,6 +3825,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async hash(): Promise<number> {
@@ -3693,6 +3882,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async n_children(): Promise<number> {
@@ -3716,6 +3910,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async ref_sink(): Promise<GLibVariant> {
@@ -3723,6 +3922,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async store(): Promise<void> {
@@ -3735,6 +3939,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async unref(): Promise<void> {
@@ -3775,6 +3984,11 @@ export class GLibVariant {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async parse_error_print_context(error_: Pointer, source_str: string): Promise<string> {
@@ -3898,6 +4112,11 @@ export class GLibVariantType {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariantType(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async dup_string(): Promise<string> {
@@ -3912,6 +4131,11 @@ export class GLibVariantType {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariantType(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async equal(type2: GLibVariantType): Promise<boolean> {
@@ -3930,6 +4154,11 @@ export class GLibVariantType {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariantType(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_string_length(): Promise<number> {
@@ -4018,6 +4247,11 @@ export class GLibVariantType {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariantType(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async n_items(): Promise<number> {
@@ -4032,6 +4266,11 @@ export class GLibVariantType {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariantType(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async value(): Promise<GLibVariantType> {
@@ -4039,6 +4278,11 @@ export class GLibVariantType {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariantType(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async checked_(type_string: string): Promise<GLibVariantType> {
@@ -4048,6 +4292,11 @@ export class GLibVariantType {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariantType(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async string_get_depth_(type_string: string): Promise<number> {
@@ -4136,6 +4385,11 @@ export class GObjectObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectParamSpec(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async interface_install_property(g_iface: GObjectTypeInterface, pspec: GObjectParamSpec): Promise<void> {
@@ -4177,6 +4431,11 @@ export class GObjectObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectBinding(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async bind_property_full(source_property: string, target: GObjectObject, target_property: string, flags: GObjectBindingFlags, transform_to: GObjectClosure, transform_from: GObjectClosure): Promise<GObjectBinding> {
@@ -4202,6 +4461,11 @@ export class GObjectObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectBinding(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async force_floating(): Promise<void> {
@@ -4278,6 +4542,11 @@ export class GObjectObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectObject(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async ref_sink(): Promise<GObjectObject> {
@@ -4285,6 +4554,11 @@ export class GObjectObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectObject(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async run_dispose(): Promise<void> {
@@ -4347,6 +4621,11 @@ export class GObjectBinding extends GObjectObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectObject(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async dup_target(): Promise<GObjectObject> {
@@ -4354,6 +4633,11 @@ export class GObjectBinding extends GObjectObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectObject(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_flags(): Promise<GObjectBindingFlags> {
@@ -4368,6 +4652,11 @@ export class GObjectBinding extends GObjectObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectObject(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_source_property(): Promise<string> {
@@ -4382,6 +4671,11 @@ export class GObjectBinding extends GObjectObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectObject(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_target_property(): Promise<string> {
@@ -4450,22 +4744,29 @@ export class GObjectClosure {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async invoke(n_param_values: number, param_values: Pointer): Promise<{ return_value?: GObjectValue }> {
+  async invoke(return_value: GObjectValue, n_param_values: number, param_values: Pointer): Promise<void> {
     const url = new URL(`/GObject/Closure/ptr,${this.ptr}/invoke`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (return_value && typeof return_value === 'object' && 'ptr' in return_value) {
+      url.searchParams.append('return_value', 'ptr,' + return_value.ptr);
+    }
     // Primitive parameter
     url.searchParams.append('n_param_values', String(n_param_values));
     // Primitive parameter
     url.searchParams.append('param_values', String(param_values));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async ref(): Promise<GObjectClosure> {
     const url = new URL(`/GObject/Closure/ptr,${this.ptr}/ref`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectClosure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async sink(): Promise<void> {
@@ -4508,6 +4809,11 @@ export class GObjectParamSpec {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_name(): Promise<string> {
@@ -4543,6 +4849,11 @@ export class GObjectParamSpec {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectParamSpec(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async set_qdata(quark: number): Promise<void> {
@@ -4615,6 +4926,11 @@ export class GObjectTypeClass {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectTypeClass(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async unref(): Promise<void> {
@@ -4636,6 +4952,11 @@ export class GObjectTypeClass {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectTypeClass(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async peek_static(type_: Pointer): Promise<GObjectTypeClass> {
@@ -4645,6 +4966,11 @@ export class GObjectTypeClass {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectTypeClass(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async ref(type_: Pointer): Promise<GObjectTypeClass> {
@@ -4654,6 +4980,11 @@ export class GObjectTypeClass {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectTypeClass(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -4732,6 +5063,11 @@ export class GObjectTypeInterface {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectTypeInterface(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_prerequisite(interface_type: Pointer, prerequisite_type: Pointer): Promise<void> {
@@ -4774,6 +5110,11 @@ export class GObjectTypeInterface {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectTypeInterface(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async prerequisites(interface_type: Pointer): Promise<Pointer> {
@@ -4831,6 +5172,11 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectObject(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async dup_string(): Promise<string> {
@@ -4845,6 +5191,11 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async fits_pointer(): Promise<boolean> {
@@ -4934,6 +5285,11 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectObject(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_param(): Promise<GObjectParamSpec> {
@@ -4941,6 +5297,11 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectParamSpec(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_pointer(): Promise<void> {
@@ -4995,6 +5356,11 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibVariant(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async init(g_type: Pointer): Promise<GObjectValue> {
@@ -5004,6 +5370,11 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async init_from_instance(instance: GObjectTypeInstance): Promise<void> {
@@ -5025,6 +5396,11 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async set_boolean(v_boolean: boolean): Promise<void> {
@@ -5321,6 +5697,11 @@ export class GObjectValueArray {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValueArray(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async copy(): Promise<GObjectValueArray> {
@@ -5328,6 +5709,11 @@ export class GObjectValueArray {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValueArray(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_nth(index_: number): Promise<GObjectValue> {
@@ -5337,6 +5723,11 @@ export class GObjectValueArray {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async insert(index_: number, value_?: GObjectValue): Promise<GObjectValueArray> {
@@ -5350,6 +5741,11 @@ export class GObjectValueArray {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValueArray(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async prepend(value_?: GObjectValue): Promise<GObjectValueArray> {
@@ -5361,6 +5757,11 @@ export class GObjectValueArray {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValueArray(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async remove(index_: number): Promise<GObjectValueArray> {
@@ -5370,6 +5771,11 @@ export class GObjectValueArray {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValueArray(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async sort(compare_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<GObjectValueArray> {
@@ -5380,6 +5786,11 @@ export class GObjectValueArray {
     // Register callbacks
     if (data.compare_func !== undefined) {
       callbackDispatcher.set(data.compare_func.toString(), compare_func);
+    }
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValueArray(data.return.ptr);
+      return instance;
     }
     return data.return;
   }
@@ -5421,6 +5832,11 @@ export class GstAllocationParams {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstAllocationParams(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async init(): Promise<void> {
@@ -5522,6 +5938,11 @@ export class GstObject extends GObjectInitiallyUnowned {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstControlBinding(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_control_rate(): Promise<number> {
@@ -5560,6 +5981,11 @@ export class GstObject extends GObjectInitiallyUnowned {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstObject(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_path_string(): Promise<string> {
@@ -5578,6 +6004,11 @@ export class GstObject extends GObjectInitiallyUnowned {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async has_active_control_bindings(): Promise<boolean> {
@@ -5625,6 +6056,11 @@ export class GstObject extends GObjectInitiallyUnowned {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstObject(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async remove_control_binding(binding: GstControlBinding): Promise<boolean> {
@@ -5718,6 +6154,11 @@ export class GstAllocator extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstAllocator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async register(name: string, allocator: GstAllocator): Promise<void> {
@@ -5760,6 +6201,11 @@ export class GstAllocator extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMemory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async free(memory: GstMemory): Promise<void> {
@@ -5858,6 +6304,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async register(name: string, rank: number, type_: Pointer, plugin?: GstPlugin): Promise<boolean> {
@@ -6028,6 +6479,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBus(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_clock(): Promise<GstClock> {
@@ -6035,6 +6491,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstClock(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_compatible_pad(pad: GstPad, caps?: GstCaps): Promise<GstPad> {
@@ -6050,6 +6511,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPad(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_compatible_pad_template(compattempl: GstPadTemplate): Promise<GstPadTemplate> {
@@ -6061,6 +6527,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPadTemplate(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_context(context_type: string): Promise<GstContext> {
@@ -6070,6 +6541,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstContext(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_context_unlocked(context_type: string): Promise<GstContext> {
@@ -6079,6 +6555,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstContext(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_contexts(): Promise<Pointer> {
@@ -6107,6 +6588,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElementFactory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_metadata(key: string): Promise<string> {
@@ -6125,6 +6611,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPadTemplate(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_pad_template_list(): Promise<Pointer> {
@@ -6141,6 +6632,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPad(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_start_time(): Promise<number> {
@@ -6150,8 +6646,12 @@ export class GstElement extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async get_state(timeout: number): Promise<GstStateChangeReturn> {
+  async get_state(state: GstState, pending: GstState, timeout: number): Promise<GstStateChangeReturn> {
     const url = new URL(`/Gst/Element/ptr,${this.ptr}/get_state`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('state', String(state));
+    // Primitive parameter
+    url.searchParams.append('pending', String(pending));
     // Primitive parameter
     url.searchParams.append('timeout', String(timeout));
     const response = await fetch(url.toString());
@@ -6166,6 +6666,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPad(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async is_locked_state(): Promise<boolean> {
@@ -6180,6 +6685,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async iterate_sink_pads(): Promise<GstIterator> {
@@ -6187,6 +6697,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async iterate_src_pads(): Promise<GstIterator> {
@@ -6194,6 +6709,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async link(dest: GstElement): Promise<boolean> {
@@ -6345,6 +6865,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstClock(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async query(query: GstQuery): Promise<boolean> {
@@ -6431,6 +6956,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPad(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async request_pad_simple(name: string): Promise<GstPad> {
@@ -6440,6 +6970,11 @@ export class GstElement extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPad(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async seek(rate: number, format: GstFormatValue, flags: GstSeekFlags, start_type: GstSeekType, start: number, stop_type: GstSeekType, stop: number): Promise<boolean> {
@@ -6610,6 +7145,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPad(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_by_interface(iface: Pointer): Promise<GstElement> {
@@ -6619,6 +7159,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_by_name(name: string): Promise<GstElement> {
@@ -6628,6 +7173,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_by_name_recurse_up(name: string): Promise<GstElement> {
@@ -6637,6 +7187,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_suppressed_flags(): Promise<GstElementFlags> {
@@ -6653,6 +7208,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async iterate_all_by_interface(iface: Pointer): Promise<GstIterator> {
@@ -6662,6 +7222,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async iterate_elements(): Promise<GstIterator> {
@@ -6669,6 +7234,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async iterate_recurse(): Promise<GstIterator> {
@@ -6676,6 +7246,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async iterate_sinks(): Promise<GstIterator> {
@@ -6683,6 +7258,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async iterate_sorted(): Promise<GstIterator> {
@@ -6690,6 +7270,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async iterate_sources(): Promise<GstIterator> {
@@ -6697,6 +7282,11 @@ export class GstBin extends GstElement {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async recalculate_latency(): Promise<boolean> {
@@ -6852,6 +7442,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCustomMeta(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_meta(info: GstMetaInfo): Promise<GstMeta> {
@@ -6863,6 +7458,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMeta(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_parent_buffer_meta(ref: GstBuffer): Promise<GstParentBufferMeta> {
@@ -6874,6 +7474,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstParentBufferMeta(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_protection_meta(info: GstStructure): Promise<GstProtectionMeta> {
@@ -6885,6 +7490,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstProtectionMeta(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_reference_timestamp_meta(reference: GstCaps, timestamp: number, duration: number): Promise<GstReferenceTimestampMeta> {
@@ -6900,6 +7510,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstReferenceTimestampMeta(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async append(buf2: GstBuffer): Promise<GstBuffer> {
@@ -6911,6 +7526,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBuffer(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async append_memory(mem: GstMemory): Promise<void> {
@@ -6935,6 +7555,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBuffer(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async copy_deep(): Promise<GstBuffer> {
@@ -6942,6 +7567,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBuffer(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async copy_into(src: GstBuffer, flags: GstBufferCopyFlags, offset: number, size: number): Promise<boolean> {
@@ -6972,6 +7602,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBuffer(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async extract(offset: number): Promise<number> {
@@ -7034,6 +7669,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMemory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_custom_meta(name: string): Promise<GstCustomMeta> {
@@ -7043,6 +7683,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCustomMeta(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_flags(): Promise<GstBufferFlags> {
@@ -7059,6 +7704,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMemory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_memory_range(idx: number, length: number): Promise<GstMemory> {
@@ -7070,6 +7720,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMemory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_meta(api: Pointer): Promise<GstMeta> {
@@ -7079,6 +7734,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMeta(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_n_meta(api_type: Pointer): Promise<number> {
@@ -7099,6 +7759,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstReferenceTimestampMeta(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_size(): Promise<number> {
@@ -7164,8 +7829,12 @@ export class GstBuffer {
     const data = await response.json();
     return data.return;
   }
-  async map(flags: GstMapFlags): Promise<boolean> {
+  async map(info: GstMapInfo, flags: GstMapFlags): Promise<boolean> {
     const url = new URL(`/Gst/Buffer/ptr,${this.ptr}/map`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (info && typeof info === 'object' && 'ptr' in info) {
+      url.searchParams.append('info', 'ptr,' + info.ptr);
+    }
     // Primitive parameter
     url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
@@ -7173,12 +7842,16 @@ export class GstBuffer {
     const data = await response.json();
     return data.return;
   }
-  async map_range(idx: number, length: number, flags: GstMapFlags): Promise<boolean> {
+  async map_range(idx: number, length: number, info: GstMapInfo, flags: GstMapFlags): Promise<boolean> {
     const url = new URL(`/Gst/Buffer/ptr,${this.ptr}/map_range`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('idx', String(idx));
     // Primitive parameter
     url.searchParams.append('length', String(length));
+    // Object with explode=false: serialize as comma-separated
+    if (info && typeof info === 'object' && 'ptr' in info) {
+      url.searchParams.append('info', 'ptr,' + info.ptr);
+    }
     // Primitive parameter
     url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
@@ -7226,6 +7899,11 @@ export class GstBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMemory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async prepend_memory(mem: GstMemory): Promise<void> {
@@ -7423,6 +8101,11 @@ export class GstBufferList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBufferList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async foreach(func: (buffer: GstBuffer, idx: number, user_data: Pointer) => boolean): Promise<boolean> {
@@ -7443,6 +8126,11 @@ export class GstBufferList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBuffer(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_writable(idx: number): Promise<GstBuffer> {
@@ -7452,6 +8140,11 @@ export class GstBufferList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBuffer(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async insert(idx: number, buffer: GstBuffer): Promise<void> {
@@ -7505,11 +8198,19 @@ export class GstBufferPool extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async config_get_allocator(config: GstStructure): Promise<boolean> {
+  async config_get_allocator(config: GstStructure, params: GstAllocationParams, allocator?: GstAllocator): Promise<boolean> {
     const url = new URL(`/Gst/BufferPool/config_get_allocator`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (config && typeof config === 'object' && 'ptr' in config) {
       url.searchParams.append('config', 'ptr,' + config.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (allocator !== undefined && typeof allocator === 'object' && 'ptr' in allocator) {
+      url.searchParams.append('allocator', 'ptr,' + allocator.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (params && typeof params === 'object' && 'ptr' in params) {
+      url.searchParams.append('params', 'ptr,' + params.ptr);
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -7529,11 +8230,15 @@ export class GstBufferPool extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async config_get_params(config: GstStructure): Promise<boolean> {
+  async config_get_params(config: GstStructure, caps?: GstCaps): Promise<boolean> {
     const url = new URL(`/Gst/BufferPool/config_get_params`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (config && typeof config === 'object' && 'ptr' in config) {
       url.searchParams.append('config', 'ptr,' + config.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (caps !== undefined && typeof caps === 'object' && 'ptr' in caps) {
+      url.searchParams.append('caps', 'ptr,' + caps.ptr);
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -7621,8 +8326,12 @@ export class GstBufferPool extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async acquire_buffer(params?: GstBufferPoolAcquireParams): Promise<GstFlowReturn> {
+  async acquire_buffer(buffer?: GstBuffer, params?: GstBufferPoolAcquireParams): Promise<GstFlowReturn> {
     const url = new URL(`/Gst/BufferPool/ptr,${this.ptr}/acquire_buffer`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (buffer !== undefined && typeof buffer === 'object' && 'ptr' in buffer) {
+      url.searchParams.append('buffer', 'ptr,' + buffer.ptr);
+    }
     // Object with explode=false: serialize as comma-separated
     if (params !== undefined && typeof params === 'object' && 'ptr' in params) {
       url.searchParams.append('params', 'ptr,' + params.ptr);
@@ -7637,6 +8346,11 @@ export class GstBufferPool extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_options(): Promise<Pointer> {
@@ -7752,6 +8466,11 @@ export class GstBus extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibSource(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async disable_sync_message_emission(): Promise<void> {
@@ -7764,12 +8483,14 @@ export class GstBus extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async get_pollfd(): Promise<{ fd?: GLibPollFD }> {
+  async get_pollfd(fd: GLibPollFD): Promise<void> {
     const url = new URL(`/Gst/Bus/ptr,${this.ptr}/get_pollfd`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (fd && typeof fd === 'object' && 'ptr' in fd) {
+      url.searchParams.append('fd', 'ptr,' + fd.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async have_pending(): Promise<boolean> {
     const url = new URL(`/Gst/Bus/ptr,${this.ptr}/have_pending`, apiConfig.baseUrl);
@@ -7783,6 +8504,11 @@ export class GstBus extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMessage(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async poll(events: GstMessageTypeValue, timeout: number): Promise<GstMessage> {
@@ -7794,6 +8520,11 @@ export class GstBus extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMessage(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async pop(): Promise<GstMessage> {
@@ -7801,6 +8532,11 @@ export class GstBus extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMessage(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async pop_filtered(types: GstMessageTypeValue): Promise<GstMessage> {
@@ -7810,6 +8546,11 @@ export class GstBus extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMessage(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async post(message: GstMessage): Promise<boolean> {
@@ -7871,6 +8612,11 @@ export class GstBus extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMessage(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async timed_pop_filtered(timeout: number, types: GstMessageTypeValue): Promise<GstMessage> {
@@ -7882,6 +8628,11 @@ export class GstBus extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMessage(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -7984,6 +8735,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async copy_nth(nth: number): Promise<GstCaps> {
@@ -7993,6 +8749,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async filter_and_map_in_place(func: (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean): Promise<{ func?: number }> {
@@ -8011,6 +8772,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async foreach(func: (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean): Promise<boolean> {
@@ -8031,6 +8797,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCapsFeatures(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_size(): Promise<number> {
@@ -8047,6 +8818,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async intersect(caps2: GstCaps): Promise<GstCaps> {
@@ -8058,6 +8834,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async intersect_full(caps2: GstCaps, mode: GstCapsIntersectMode): Promise<GstCaps> {
@@ -8071,6 +8852,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async is_always_compatible(caps2: GstCaps): Promise<boolean> {
@@ -8195,6 +8981,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async merge_structure(structure: GstStructure): Promise<GstCaps> {
@@ -8206,6 +8997,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async merge_structure_full(structure: GstStructure, features?: GstCapsFeatures): Promise<GstCaps> {
@@ -8221,6 +9017,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async normalize(): Promise<GstCaps> {
@@ -8228,6 +9029,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async remove_structure(idx: number): Promise<void> {
@@ -8282,6 +9088,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async steal_structure(index: number): Promise<GstStructure> {
@@ -8291,6 +9102,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async subtract(subtrahend: GstCaps): Promise<GstCaps> {
@@ -8302,6 +9118,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async to_string(): Promise<string> {
@@ -8316,6 +9137,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async from_string(string: string): Promise<GstCaps> {
@@ -8325,6 +9151,11 @@ export class GstCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -8417,6 +9248,11 @@ export class GstCapsFeatures {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCapsFeatures(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_nth(i: number): Promise<string> {
@@ -8499,6 +9335,11 @@ export class GstCapsFeatures {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCapsFeatures(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -8517,6 +9358,11 @@ export class GstClock extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstClock(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async id_get_time(): Promise<number> {
@@ -8637,6 +9483,11 @@ export class GstClock extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstClock(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_resolution(): Promise<number> {
@@ -8834,6 +9685,11 @@ export class GstContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async has_context_type(context_type: string): Promise<boolean> {
@@ -8857,6 +9713,11 @@ export class GstContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -8885,6 +9746,11 @@ export class GstControlBinding extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async is_disabled(): Promise<boolean> {
@@ -8982,6 +9848,11 @@ export class GstCustomMeta {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async has_name(name: string): Promise<boolean> {
@@ -9282,6 +10153,11 @@ export class GstDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async to_g_date_time(): Promise<GLibDateTime> {
@@ -9289,6 +10165,11 @@ export class GstDateTime {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibDateTime(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async to_iso8601_string(): Promise<string> {
@@ -9434,6 +10315,11 @@ export class GstDevice extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_caps(): Promise<GstCaps> {
@@ -9441,6 +10327,11 @@ export class GstDevice extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_device_class(): Promise<string> {
@@ -9462,6 +10353,11 @@ export class GstDevice extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async has_classes(classes: string): Promise<boolean> {
@@ -9524,6 +10420,11 @@ export class GstDeviceMonitor extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBus(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_devices(): Promise<Pointer> {
@@ -9639,6 +10540,11 @@ export class GstDeviceProvider extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBus(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_devices(): Promise<Pointer> {
@@ -9653,6 +10559,11 @@ export class GstDeviceProvider extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstDeviceProviderFactory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_hidden_providers(): Promise<Pointer> {
@@ -9756,6 +10667,11 @@ export class GstPluginFeature extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPlugin(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_plugin_name(): Promise<string> {
@@ -9777,6 +10693,11 @@ export class GstPluginFeature extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPluginFeature(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async set_rank(rank: number): Promise<void> {
@@ -9797,6 +10718,11 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstDeviceProviderFactory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_by_name(factoryname: string): Promise<GstDeviceProvider> {
@@ -9806,6 +10732,11 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstDeviceProvider(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async list_get_device_providers(minrank: GstRank): Promise<Pointer> {
@@ -9822,6 +10753,11 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstDeviceProvider(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_device_provider_type(): Promise<Pointer> {
@@ -9889,6 +10825,11 @@ export class GstElementFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElementFactory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async list_filter(list: Pointer, caps: GstCaps, direction: GstPadDirection, subsetonly: boolean): Promise<Pointer> {
@@ -9928,6 +10869,11 @@ export class GstElementFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async make_with_properties(factoryname: string, n: number, names?: Pointer, values?: Pointer): Promise<GstElement> {
@@ -9943,6 +10889,11 @@ export class GstElementFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async can_sink_all_caps(caps: GstCaps): Promise<boolean> {
@@ -9996,6 +10947,11 @@ export class GstElementFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async create_with_properties(n: number, names?: Pointer, values?: Pointer): Promise<GstElement> {
@@ -10009,6 +10965,11 @@ export class GstElementFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_element_type(): Promise<Pointer> {
@@ -10489,6 +11450,11 @@ export class GstEvent {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async has_name(name: string): Promise<boolean> {
@@ -10509,19 +11475,23 @@ export class GstEvent {
     const data = await response.json();
     return data.return;
   }
-  async parse_buffer_size(): Promise<{ format?: GstFormatValue; minsize?: number; maxsize?: number; async_?: boolean }> {
+  async parse_buffer_size(format: GstFormatValue): Promise<{ minsize?: number; maxsize?: number; async_?: boolean }> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_buffer_size`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_caps(): Promise<{ caps?: GstCaps }> {
+  async parse_caps(caps: GstCaps): Promise<void> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_caps`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (caps && typeof caps === 'object' && 'ptr' in caps) {
+      url.searchParams.append('caps', 'ptr,' + caps.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async parse_flush_stop(): Promise<{ reset_time?: boolean }> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_flush_stop`, apiConfig.baseUrl);
@@ -10537,12 +11507,12 @@ export class GstEvent {
     const data = await response.json();
     return data;
   }
-  async parse_gap_flags(): Promise<{ flags?: GstGapFlags }> {
+  async parse_gap_flags(flags: GstGapFlags): Promise<void> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_gap_flags`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async parse_group_id(): Promise<boolean> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_group_id`, apiConfig.baseUrl);
@@ -10551,8 +11521,10 @@ export class GstEvent {
     const data = await response.json();
     return data.return;
   }
-  async parse_instant_rate_change(): Promise<{ rate_multiplier?: number; new_flags?: GstSegmentFlags }> {
+  async parse_instant_rate_change(new_flags: GstSegmentFlags): Promise<{ rate_multiplier?: number }> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_instant_rate_change`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('new_flags', String(new_flags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -10572,22 +11544,36 @@ export class GstEvent {
     const data = await response.json();
     return data;
   }
-  async parse_protection(): Promise<{ system_id?: string; data_?: GstBuffer; origin?: string }> {
+  async parse_protection(data_: GstBuffer): Promise<{ system_id?: string; origin?: string }> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_protection`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (data_ && typeof data_ === 'object' && 'ptr' in data_) {
+      url.searchParams.append('data', 'ptr,' + data_.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_qos(): Promise<{ type_?: GstQOSType; proportion?: number; diff?: number; timestamp?: number }> {
+  async parse_qos(type_: GstQOSType): Promise<{ proportion?: number; diff?: number; timestamp?: number }> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_qos`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_seek(): Promise<{ rate?: number; format?: GstFormatValue; flags?: GstSeekFlags; start_type?: GstSeekType; start?: number; stop_type?: GstSeekType; stop?: number }> {
+  async parse_seek(format: GstFormatValue, flags: GstSeekFlags, start_type: GstSeekType, stop_type: GstSeekType): Promise<{ rate?: number; start?: number; stop?: number }> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_seek`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
+    // Primitive parameter
+    url.searchParams.append('start_type', String(start_type));
+    // Primitive parameter
+    url.searchParams.append('stop_type', String(stop_type));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -10600,15 +11586,19 @@ export class GstEvent {
     const data = await response.json();
     return data;
   }
-  async parse_segment(): Promise<{ segment?: GstSegment }> {
+  async parse_segment(segment: GstSegment): Promise<void> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_segment`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (segment && typeof segment === 'object' && 'ptr' in segment) {
+      url.searchParams.append('segment', 'ptr,' + segment.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  async parse_segment_done(): Promise<{ format?: GstFormatValue; position?: number }> {
+  async parse_segment_done(format: GstFormatValue): Promise<{ position?: number }> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_segment_done`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -10621,40 +11611,84 @@ export class GstEvent {
     const data = await response.json();
     return data;
   }
-  async parse_sink_message(): Promise<{ msg?: GstMessage }> {
+  async parse_sink_message(msg: GstMessage): Promise<void> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_sink_message`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (msg && typeof msg === 'object' && 'ptr' in msg) {
+      url.searchParams.append('msg', 'ptr,' + msg.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  async parse_step(): Promise<{ format?: GstFormatValue; amount?: number; rate?: number; flush?: boolean; intermediate?: boolean }> {
+  async parse_step(format: GstFormatValue): Promise<{ amount?: number; rate?: number; flush?: boolean; intermediate?: boolean }> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_step`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_stream(): Promise<{ stream?: GstStream }> {
+  async parse_stream(stream: GstStream): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    if (stream && typeof stream === 'object' && 'ptr' in stream) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + stream.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_stream`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
+    // Object with explode=false: serialize as comma-separated
+    if (stream && typeof stream === 'object' && 'ptr' in stream) {
+      url.searchParams.append('stream', 'ptr,' + stream.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (stream && typeof stream === 'object' && 'ptr' in stream) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + stream.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (stream && typeof stream === 'object' && 'ptr' in stream) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + stream.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
-  async parse_stream_collection(): Promise<{ collection?: GstStreamCollection }> {
+  async parse_stream_collection(collection: GstStreamCollection): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    if (collection && typeof collection === 'object' && 'ptr' in collection) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + collection.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_stream_collection`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
+    // Object with explode=false: serialize as comma-separated
+    if (collection && typeof collection === 'object' && 'ptr' in collection) {
+      url.searchParams.append('collection', 'ptr,' + collection.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (collection && typeof collection === 'object' && 'ptr' in collection) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + collection.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (collection && typeof collection === 'object' && 'ptr' in collection) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + collection.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
-  async parse_stream_flags(): Promise<{ flags?: GstStreamFlags }> {
+  async parse_stream_flags(flags: GstStreamFlags): Promise<void> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_stream_flags`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async parse_stream_group_done(): Promise<{ group_id?: number }> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_stream_group_done`, apiConfig.baseUrl);
@@ -10670,15 +11704,21 @@ export class GstEvent {
     const data = await response.json();
     return data;
   }
-  async parse_tag(): Promise<{ taglist?: GstTagList }> {
+  async parse_tag(taglist: GstTagList): Promise<void> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_tag`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (taglist && typeof taglist === 'object' && 'ptr' in taglist) {
+      url.searchParams.append('taglist', 'ptr,' + taglist.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  async parse_toc(): Promise<{ toc?: GstToc; updated?: boolean }> {
+  async parse_toc(toc: GstToc): Promise<{ updated?: boolean }> {
     const url = new URL(`/Gst/Event/ptr,${this.ptr}/parse_toc`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (toc && typeof toc === 'object' && 'ptr' in toc) {
+      url.searchParams.append('toc', 'ptr,' + toc.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -10747,6 +11787,11 @@ export class GstEvent {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -10928,6 +11973,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_current_caps(): Promise<GstCaps> {
@@ -10935,6 +11985,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_direction(): Promise<GstPadDirection> {
@@ -10968,6 +12023,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPadTemplate(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_pad_template_caps(): Promise<GstCaps> {
@@ -10975,6 +12035,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_parent_element(): Promise<GstElement> {
@@ -10982,6 +12047,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_peer(): Promise<GstPad> {
@@ -10989,14 +12059,23 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPad(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
-  async get_range(offset: number, size: number): Promise<GstFlowReturn> {
+  async get_range(offset: number, size: number, buffer: GstBuffer): Promise<GstFlowReturn> {
     const url = new URL(`/Gst/Pad/ptr,${this.ptr}/get_range`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('offset', String(offset));
     // Primitive parameter
     url.searchParams.append('size', String(size));
+    // Object with explode=false: serialize as comma-separated
+    if (buffer && typeof buffer === 'object' && 'ptr' in buffer) {
+      url.searchParams.append('buffer', 'ptr,' + buffer.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11007,6 +12086,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPad(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_sticky_event(event_type: GstEventTypeValue, idx: number): Promise<GstEvent> {
@@ -11018,6 +12102,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstEvent(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_stream(): Promise<GstStream> {
@@ -11025,6 +12114,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStream(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_stream_id(): Promise<string> {
@@ -11081,6 +12175,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async iterate_internal_links_default(parent?: GstObject): Promise<GstIterator> {
@@ -11092,6 +12191,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async link(sinkpad: GstPad): Promise<GstPadLinkReturn> {
@@ -11192,6 +12296,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async peer_query_convert(src_format: GstFormatValue, src_val: number, dest_format: GstFormatValue): Promise<boolean> {
@@ -11247,12 +12356,16 @@ export class GstPad extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async pull_range(offset: number, size: number): Promise<GstFlowReturn> {
+  async pull_range(offset: number, size: number, buffer: GstBuffer): Promise<GstFlowReturn> {
     const url = new URL(`/Gst/Pad/ptr,${this.ptr}/pull_range`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('offset', String(offset));
     // Primitive parameter
     url.searchParams.append('size', String(size));
+    // Object with explode=false: serialize as comma-separated
+    if (buffer && typeof buffer === 'object' && 'ptr' in buffer) {
+      url.searchParams.append('buffer', 'ptr,' + buffer.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11322,6 +12435,11 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async query_convert(src_format: GstFormatValue, src_val: number, dest_format: GstFormatValue): Promise<boolean> {
@@ -11628,7 +12746,7 @@ export class GstProxyPad extends GstPad {
     const data = await response.json();
     return data.return;
   }
-  async getrange_default(pad: GstPad, parent: GstObject, offset: number, size: number): Promise<GstFlowReturn> {
+  async getrange_default(pad: GstPad, parent: GstObject, offset: number, size: number, buffer: GstBuffer): Promise<GstFlowReturn> {
     const url = new URL(`/Gst/ProxyPad/getrange_default`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (pad && typeof pad === 'object' && 'ptr' in pad) {
@@ -11642,6 +12760,10 @@ export class GstProxyPad extends GstPad {
     url.searchParams.append('offset', String(offset));
     // Primitive parameter
     url.searchParams.append('size', String(size));
+    // Object with explode=false: serialize as comma-separated
+    if (buffer && typeof buffer === 'object' && 'ptr' in buffer) {
+      url.searchParams.append('buffer', 'ptr,' + buffer.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11660,6 +12782,11 @@ export class GstProxyPad extends GstPad {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_internal(): Promise<GstProxyPad> {
@@ -11667,6 +12794,11 @@ export class GstProxyPad extends GstPad {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstProxyPad(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -11785,6 +12917,11 @@ export class GstGhostPad extends GstProxyPad {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPad(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async set_target(newtarget?: GstPad): Promise<boolean> {
@@ -11842,6 +12979,11 @@ export class GstIterator {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async filter(user_data: GObjectValue, func: (a: Pointer, b: Pointer) => number): Promise<GstIterator> {
@@ -11857,10 +12999,19 @@ export class GstIterator {
     if (data.func !== undefined) {
       callbackDispatcher.set(data.func.toString(), func);
     }
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
-  async find_custom(func: (a: Pointer, b: Pointer) => number): Promise<boolean> {
+  async find_custom(elem: GObjectValue, func: (a: Pointer, b: Pointer) => number): Promise<boolean> {
     const url = new URL(`/Gst/Iterator/ptr,${this.ptr}/find_custom`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (elem && typeof elem === 'object' && 'ptr' in elem) {
+      url.searchParams.append('elem', 'ptr,' + elem.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11896,8 +13047,12 @@ export class GstIterator {
     }
     return data.return;
   }
-  async next(): Promise<GstIteratorResult> {
+  async next(elem: GObjectValue): Promise<GstIteratorResult> {
     const url = new URL(`/Gst/Iterator/ptr,${this.ptr}/next`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (elem && typeof elem === 'object' && 'ptr' in elem) {
+      url.searchParams.append('elem', 'ptr,' + elem.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11973,6 +13128,11 @@ export class GstMemory {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMemory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_sizes(): Promise<number> {
@@ -12002,17 +13162,30 @@ export class GstMemory {
     const data = await response.json();
     return data.return;
   }
-  async make_mapped(flags: GstMapFlags): Promise<GstMemory> {
+  async make_mapped(info: GstMapInfo, flags: GstMapFlags): Promise<GstMemory> {
     const url = new URL(`/Gst/Memory/ptr,${this.ptr}/make_mapped`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (info && typeof info === 'object' && 'ptr' in info) {
+      url.searchParams.append('info', 'ptr,' + info.ptr);
+    }
     // Primitive parameter
     url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMemory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
-  async map(flags: GstMapFlags): Promise<boolean> {
+  async map(info: GstMapInfo, flags: GstMapFlags): Promise<boolean> {
     const url = new URL(`/Gst/Memory/ptr,${this.ptr}/map`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (info && typeof info === 'object' && 'ptr' in info) {
+      url.searchParams.append('info', 'ptr,' + info.ptr);
+    }
     // Primitive parameter
     url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
@@ -12038,6 +13211,11 @@ export class GstMemory {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMemory(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async unmap(info: GstMapInfo): Promise<void> {
@@ -12884,6 +14062,11 @@ export class GstMessage {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_structure(): Promise<GstStructure> {
@@ -12891,6 +14074,11 @@ export class GstMessage {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async has_name(name: string): Promise<boolean> {
@@ -12916,22 +14104,30 @@ export class GstMessage {
     const data = await response.json();
     return data;
   }
-  async parse_buffering_stats(): Promise<{ mode?: GstBufferingMode; avg_in?: number; avg_out?: number; buffering_left?: number }> {
+  async parse_buffering_stats(mode: GstBufferingMode): Promise<{ avg_in?: number; avg_out?: number; buffering_left?: number }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_buffering_stats`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mode', String(mode));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_clock_lost(): Promise<{ clock?: GstClock }> {
+  async parse_clock_lost(clock: GstClock): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_clock_lost`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (clock && typeof clock === 'object' && 'ptr' in clock) {
+      url.searchParams.append('clock', 'ptr,' + clock.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  async parse_clock_provide(): Promise<{ clock?: GstClock; ready?: boolean }> {
+  async parse_clock_provide(clock: GstClock): Promise<{ ready?: boolean }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_clock_provide`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (clock && typeof clock === 'object' && 'ptr' in clock) {
+      url.searchParams.append('clock', 'ptr,' + clock.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -12944,26 +14140,99 @@ export class GstMessage {
     const data = await response.json();
     return data.return;
   }
-  async parse_device_added(): Promise<{ device?: GstDevice }> {
+  async parse_device_added(device: GstDevice): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    if (device && typeof device === 'object' && 'ptr' in device) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + device.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_device_added`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
+    // Object with explode=false: serialize as comma-separated
+    if (device && typeof device === 'object' && 'ptr' in device) {
+      url.searchParams.append('device', 'ptr,' + device.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (device && typeof device === 'object' && 'ptr' in device) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + device.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (device && typeof device === 'object' && 'ptr' in device) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + device.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
-  async parse_device_changed(): Promise<{ device?: GstDevice; changed_device?: GstDevice }> {
+  async parse_device_changed(device: GstDevice, changed_device: GstDevice): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    if (device && typeof device === 'object' && 'ptr' in device) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + device.ptr + '/ref').catch(() => {});
+    }
+    if (changed_device && typeof changed_device === 'object' && 'ptr' in changed_device) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + changed_device.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_device_changed`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
+    // Object with explode=false: serialize as comma-separated
+    if (device && typeof device === 'object' && 'ptr' in device) {
+      url.searchParams.append('device', 'ptr,' + device.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (changed_device && typeof changed_device === 'object' && 'ptr' in changed_device) {
+      url.searchParams.append('changed_device', 'ptr,' + changed_device.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (device && typeof device === 'object' && 'ptr' in device) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + device.ptr + '/unref').catch(() => {});
+        }
+        if (changed_device && typeof changed_device === 'object' && 'ptr' in changed_device) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + changed_device.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (device && typeof device === 'object' && 'ptr' in device) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + device.ptr + '/unref').catch(() => {});
+      }
+      if (changed_device && typeof changed_device === 'object' && 'ptr' in changed_device) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + changed_device.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
-  async parse_device_removed(): Promise<{ device?: GstDevice }> {
+  async parse_device_removed(device: GstDevice): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    if (device && typeof device === 'object' && 'ptr' in device) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + device.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_device_removed`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
+    // Object with explode=false: serialize as comma-separated
+    if (device && typeof device === 'object' && 'ptr' in device) {
+      url.searchParams.append('device', 'ptr,' + device.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (device && typeof device === 'object' && 'ptr' in device) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + device.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (device && typeof device === 'object' && 'ptr' in device) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + device.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
   async parse_error(): Promise<{ gerror?: Pointer; debug?: string }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_error`, apiConfig.baseUrl);
@@ -12972,12 +14241,14 @@ export class GstMessage {
     const data = await response.json();
     return data;
   }
-  async parse_error_details(): Promise<{ structure?: GstStructure }> {
+  async parse_error_details(structure?: GstStructure): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_error_details`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (structure !== undefined && typeof structure === 'object' && 'ptr' in structure) {
+      url.searchParams.append('structure', 'ptr,' + structure.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async parse_group_id(): Promise<boolean> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_group_id`, apiConfig.baseUrl);
@@ -12986,12 +14257,14 @@ export class GstMessage {
     const data = await response.json();
     return data.return;
   }
-  async parse_have_context(): Promise<{ context?: GstContext }> {
+  async parse_have_context(context: GstContext): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_have_context`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (context && typeof context === 'object' && 'ptr' in context) {
+      url.searchParams.append('context', 'ptr,' + context.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async parse_info(): Promise<{ gerror?: Pointer; debug?: string }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_info`, apiConfig.baseUrl);
@@ -13000,12 +14273,14 @@ export class GstMessage {
     const data = await response.json();
     return data;
   }
-  async parse_info_details(): Promise<{ structure?: GstStructure }> {
+  async parse_info_details(structure?: GstStructure): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_info_details`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (structure !== undefined && typeof structure === 'object' && 'ptr' in structure) {
+      url.searchParams.append('structure', 'ptr,' + structure.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async parse_instant_rate_request(): Promise<{ rate_multiplier?: number }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_instant_rate_request`, apiConfig.baseUrl);
@@ -13014,22 +14289,34 @@ export class GstMessage {
     const data = await response.json();
     return data;
   }
-  async parse_new_clock(): Promise<{ clock?: GstClock }> {
+  async parse_new_clock(clock: GstClock): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_new_clock`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (clock && typeof clock === 'object' && 'ptr' in clock) {
+      url.searchParams.append('clock', 'ptr,' + clock.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  async parse_progress(): Promise<{ type_?: GstProgressType; code?: string; text?: string }> {
+  async parse_progress(type_: GstProgressType): Promise<{ code?: string; text?: string }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_progress`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_property_notify(): Promise<{ object?: GstObject; property_name?: string; property_value?: GObjectValue }> {
+  async parse_property_notify(object: GstObject, property_value?: GObjectValue): Promise<{ property_name?: string }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_property_notify`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (object && typeof object === 'object' && 'ptr' in object) {
+      url.searchParams.append('object', 'ptr,' + object.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (property_value !== undefined && typeof property_value === 'object' && 'ptr' in property_value) {
+      url.searchParams.append('property_value', 'ptr,' + property_value.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -13042,8 +14329,10 @@ export class GstMessage {
     const data = await response.json();
     return data;
   }
-  async parse_qos_stats(): Promise<{ format?: GstFormatValue; processed?: number; dropped?: number }> {
+  async parse_qos_stats(format: GstFormatValue): Promise<{ processed?: number; dropped?: number }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_qos_stats`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -13056,21 +14345,29 @@ export class GstMessage {
     const data = await response.json();
     return data;
   }
-  async parse_redirect_entry(entry_index: number): Promise<{ location?: string; tag_list?: GstTagList; entry_struct?: GstStructure }> {
+  async parse_redirect_entry(entry_index: number, tag_list?: GstTagList, entry_struct?: GstStructure): Promise<{ location?: string }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_redirect_entry`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('entry_index', String(entry_index));
+    // Object with explode=false: serialize as comma-separated
+    if (tag_list !== undefined && typeof tag_list === 'object' && 'ptr' in tag_list) {
+      url.searchParams.append('tag_list', 'ptr,' + tag_list.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (entry_struct !== undefined && typeof entry_struct === 'object' && 'ptr' in entry_struct) {
+      url.searchParams.append('entry_struct', 'ptr,' + entry_struct.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_request_state(): Promise<{ state?: GstState }> {
+  async parse_request_state(state: GstState): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_request_state`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('state', String(state));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async parse_reset_time(): Promise<{ running_time?: number }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_reset_time`, apiConfig.baseUrl);
@@ -13079,78 +14376,146 @@ export class GstMessage {
     const data = await response.json();
     return data;
   }
-  async parse_segment_done(): Promise<{ format?: GstFormatValue; position?: number }> {
+  async parse_segment_done(format: GstFormatValue): Promise<{ position?: number }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_segment_done`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_segment_start(): Promise<{ format?: GstFormatValue; position?: number }> {
+  async parse_segment_start(format: GstFormatValue): Promise<{ position?: number }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_segment_start`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_state_changed(): Promise<{ oldstate?: GstState; newstate?: GstState; pending?: GstState }> {
+  async parse_state_changed(oldstate: GstState, newstate: GstState, pending: GstState): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_state_changed`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('oldstate', String(oldstate));
+    // Primitive parameter
+    url.searchParams.append('newstate', String(newstate));
+    // Primitive parameter
+    url.searchParams.append('pending', String(pending));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  async parse_step_done(): Promise<{ format?: GstFormatValue; amount?: number; rate?: number; flush?: boolean; intermediate?: boolean; duration?: number; eos?: boolean }> {
+  async parse_step_done(format: GstFormatValue): Promise<{ amount?: number; rate?: number; flush?: boolean; intermediate?: boolean; duration?: number; eos?: boolean }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_step_done`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_step_start(): Promise<{ active?: boolean; format?: GstFormatValue; amount?: number; rate?: number; flush?: boolean; intermediate?: boolean }> {
+  async parse_step_start(format: GstFormatValue): Promise<{ active?: boolean; amount?: number; rate?: number; flush?: boolean; intermediate?: boolean }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_step_start`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_stream_collection(): Promise<{ collection?: GstStreamCollection }> {
+  async parse_stream_collection(collection: GstStreamCollection): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    if (collection && typeof collection === 'object' && 'ptr' in collection) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + collection.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_stream_collection`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
+    // Object with explode=false: serialize as comma-separated
+    if (collection && typeof collection === 'object' && 'ptr' in collection) {
+      url.searchParams.append('collection', 'ptr,' + collection.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (collection && typeof collection === 'object' && 'ptr' in collection) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + collection.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (collection && typeof collection === 'object' && 'ptr' in collection) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + collection.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
-  async parse_stream_status(): Promise<{ type_?: GstStreamStatusType; owner?: GstElement }> {
+  async parse_stream_status(type_: GstStreamStatusType, owner: GstElement): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_stream_status`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    // Object with explode=false: serialize as comma-separated
+    if (owner && typeof owner === 'object' && 'ptr' in owner) {
+      url.searchParams.append('owner', 'ptr,' + owner.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  async parse_streams_selected(): Promise<{ collection?: GstStreamCollection }> {
+  async parse_streams_selected(collection: GstStreamCollection): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    if (collection && typeof collection === 'object' && 'ptr' in collection) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + collection.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_streams_selected`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
+    // Object with explode=false: serialize as comma-separated
+    if (collection && typeof collection === 'object' && 'ptr' in collection) {
+      url.searchParams.append('collection', 'ptr,' + collection.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (collection && typeof collection === 'object' && 'ptr' in collection) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + collection.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (collection && typeof collection === 'object' && 'ptr' in collection) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + collection.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
-  async parse_structure_change(): Promise<{ type_?: GstStructureChangeType; owner?: GstElement; busy?: boolean }> {
+  async parse_structure_change(type_: GstStructureChangeType, owner: GstElement): Promise<{ busy?: boolean }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_structure_change`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    // Object with explode=false: serialize as comma-separated
+    if (owner && typeof owner === 'object' && 'ptr' in owner) {
+      url.searchParams.append('owner', 'ptr,' + owner.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_tag(): Promise<{ tag_list?: GstTagList }> {
+  async parse_tag(tag_list: GstTagList): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_tag`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (tag_list && typeof tag_list === 'object' && 'ptr' in tag_list) {
+      url.searchParams.append('tag_list', 'ptr,' + tag_list.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  async parse_toc(): Promise<{ toc?: GstToc; updated?: boolean }> {
+  async parse_toc(toc: GstToc): Promise<{ updated?: boolean }> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_toc`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (toc && typeof toc === 'object' && 'ptr' in toc) {
+      url.searchParams.append('toc', 'ptr,' + toc.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -13163,12 +14528,14 @@ export class GstMessage {
     const data = await response.json();
     return data;
   }
-  async parse_warning_details(): Promise<{ structure?: GstStructure }> {
+  async parse_warning_details(structure?: GstStructure): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/parse_warning_details`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (structure !== undefined && typeof structure === 'object' && 'ptr' in structure) {
+      url.searchParams.append('structure', 'ptr,' + structure.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async set_buffering_stats(mode: GstBufferingMode, avg_in: number, avg_out: number, buffering_left: number): Promise<void> {
     const url = new URL(`/Gst/Message/ptr,${this.ptr}/set_buffering_stats`, apiConfig.baseUrl);
@@ -13251,6 +14618,11 @@ export class GstMessage {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStream(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async writable_structure(): Promise<GstStructure> {
@@ -13258,6 +14630,11 @@ export class GstMessage {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -13375,6 +14752,11 @@ export class GstMeta {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMeta(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_info(impl: string): Promise<GstMetaInfo> {
@@ -13384,6 +14766,11 @@ export class GstMeta {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async register_custom(name: string, tags: Pointer, transform_func: (transbuf: GstBuffer, meta: GstCustomMeta, buffer: GstBuffer, type_: number, data_: Pointer, user_data: Pointer) => boolean): Promise<GstMetaInfo> {
@@ -13399,6 +14786,11 @@ export class GstMeta {
     if (data.transform_func !== undefined) {
       callbackDispatcher.set(data.transform_func.toString(), transform_func);
     }
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async register_custom_simple(name: string): Promise<GstMetaInfo> {
@@ -13408,6 +14800,11 @@ export class GstMeta {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -13455,6 +14852,11 @@ export class GstMetaInfo {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -13626,6 +15028,11 @@ export class GstPadProbeInfo {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBuffer(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_buffer_list(): Promise<GstBufferList> {
@@ -13633,6 +15040,11 @@ export class GstPadProbeInfo {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBufferList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_event(): Promise<GstEvent> {
@@ -13640,6 +15052,11 @@ export class GstPadProbeInfo {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstEvent(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_query(): Promise<GstQuery> {
@@ -13647,6 +15064,11 @@ export class GstPadProbeInfo {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstQuery(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -13713,6 +15135,11 @@ export class GstPadTemplate extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_documentation_caps(): Promise<GstCaps> {
@@ -13720,6 +15147,11 @@ export class GstPadTemplate extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async pad_created(pad: GstPad): Promise<void> {
@@ -13778,6 +15210,11 @@ export class GstParentBufferMeta {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -13818,6 +15255,11 @@ export class GstParseContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstParseContext(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_missing_elements(): Promise<Pointer> {
@@ -13859,6 +15301,11 @@ export class GstPipeline extends GstBin {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBus(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_configured_latency(): Promise<number> {
@@ -13887,6 +15334,11 @@ export class GstPipeline extends GstBin {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstClock(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async is_live(): Promise<boolean> {
@@ -13944,6 +15396,11 @@ export class GstPlugin extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPlugin(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async load_file(filename: Pointer): Promise<GstPlugin> {
@@ -13953,6 +15410,11 @@ export class GstPlugin extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPlugin(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async register_static(major_version: number, minor_version: number, name: string, description: string, version: string, license: string, source: string, package_: string, origin: string, init_func: (plugin: GstPlugin) => boolean): Promise<boolean> {
@@ -14065,6 +15527,11 @@ export class GstPlugin extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_description(): Promise<string> {
@@ -14163,6 +15630,11 @@ export class GstPlugin extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPlugin(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async set_cache_data(cache_data: GstStructure): Promise<void> {
@@ -14479,6 +15951,11 @@ export class GstPromise {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async interrupt(): Promise<void> {
@@ -14540,6 +16017,11 @@ export class GstProtectionMeta {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -14872,6 +16354,11 @@ export class GstQuery {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async has_scheduling_mode(mode: GstPadModeValue): Promise<boolean> {
@@ -14894,12 +16381,14 @@ export class GstQuery {
     const data = await response.json();
     return data.return;
   }
-  async parse_accept_caps(): Promise<{ caps?: GstCaps }> {
+  async parse_accept_caps(caps: GstCaps): Promise<void> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_accept_caps`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (caps && typeof caps === 'object' && 'ptr' in caps) {
+      url.searchParams.append('caps', 'ptr,' + caps.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async parse_accept_caps_result(): Promise<{ result_?: boolean }> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_accept_caps_result`, apiConfig.baseUrl);
@@ -14908,8 +16397,12 @@ export class GstQuery {
     const data = await response.json();
     return data;
   }
-  async parse_allocation(): Promise<{ caps?: GstCaps; need_pool?: boolean }> {
+  async parse_allocation(caps?: GstCaps): Promise<{ need_pool?: boolean }> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_allocation`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (caps !== undefined && typeof caps === 'object' && 'ptr' in caps) {
+      url.searchParams.append('caps', 'ptr,' + caps.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -14929,40 +16422,50 @@ export class GstQuery {
     const data = await response.json();
     return data;
   }
-  async parse_buffering_range(): Promise<{ format?: GstFormatValue; start?: number; stop?: number; estimated_total?: number }> {
+  async parse_buffering_range(format: GstFormatValue): Promise<{ start?: number; stop?: number; estimated_total?: number }> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_buffering_range`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_buffering_stats(): Promise<{ mode?: GstBufferingMode; avg_in?: number; avg_out?: number; buffering_left?: number }> {
+  async parse_buffering_stats(mode: GstBufferingMode): Promise<{ avg_in?: number; avg_out?: number; buffering_left?: number }> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_buffering_stats`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mode', String(mode));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_caps(): Promise<{ filter?: GstCaps }> {
+  async parse_caps(filter: GstCaps): Promise<void> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_caps`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (filter && typeof filter === 'object' && 'ptr' in filter) {
+      url.searchParams.append('filter', 'ptr,' + filter.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  async parse_caps_result(): Promise<{ caps?: GstCaps }> {
+  async parse_caps_result(caps?: GstCaps): Promise<void> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_caps_result`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (caps !== undefined && typeof caps === 'object' && 'ptr' in caps) {
+      url.searchParams.append('caps', 'ptr,' + caps.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  async parse_context(): Promise<{ context?: GstContext }> {
+  async parse_context(context?: GstContext): Promise<void> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_context`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (context !== undefined && typeof context === 'object' && 'ptr' in context) {
+      url.searchParams.append('context', 'ptr,' + context.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async parse_context_type(): Promise<boolean> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_context_type`, apiConfig.baseUrl);
@@ -14971,15 +16474,21 @@ export class GstQuery {
     const data = await response.json();
     return data.return;
   }
-  async parse_convert(): Promise<{ src_format?: GstFormatValue; src_value?: number; dest_format?: GstFormatValue; dest_value?: number }> {
+  async parse_convert(src_format: GstFormatValue, dest_format: GstFormatValue): Promise<{ src_value?: number; dest_value?: number }> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_convert`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('src_format', String(src_format));
+    // Primitive parameter
+    url.searchParams.append('dest_format', String(dest_format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_duration(): Promise<{ format?: GstFormatValue; duration?: number }> {
+  async parse_duration(format: GstFormatValue): Promise<{ duration?: number }> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_duration`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -14999,32 +16508,82 @@ export class GstQuery {
     const data = await response.json();
     return data;
   }
-  async parse_nth_allocation_meta(index: number): Promise<Pointer> {
+  async parse_nth_allocation_meta(index: number, params: GstStructure): Promise<Pointer> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_nth_allocation_meta`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('index', String(index));
+    // Object with explode=false: serialize as comma-separated
+    if (params && typeof params === 'object' && 'ptr' in params) {
+      url.searchParams.append('params', 'ptr,' + params.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  async parse_nth_allocation_param(index: number): Promise<{ allocator?: GstAllocator; params?: GstAllocationParams }> {
+  async parse_nth_allocation_param(index: number, params: GstAllocationParams, allocator?: GstAllocator): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    if (allocator && typeof allocator === 'object' && 'ptr' in allocator) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + allocator.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_nth_allocation_param`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('index', String(index));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
+    // Object with explode=false: serialize as comma-separated
+    if (allocator !== undefined && typeof allocator === 'object' && 'ptr' in allocator) {
+      url.searchParams.append('allocator', 'ptr,' + allocator.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (params && typeof params === 'object' && 'ptr' in params) {
+      url.searchParams.append('params', 'ptr,' + params.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (allocator && typeof allocator === 'object' && 'ptr' in allocator) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + allocator.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (allocator && typeof allocator === 'object' && 'ptr' in allocator) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + allocator.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
-  async parse_nth_allocation_pool(index: number): Promise<{ pool?: GstBufferPool; size?: number; min_buffers?: number; max_buffers?: number }> {
+  async parse_nth_allocation_pool(index: number, pool?: GstBufferPool): Promise<{ size?: number; min_buffers?: number; max_buffers?: number }> {
+    // Increment ref for parameters with full transfer ownership
+    if (pool && typeof pool === 'object' && 'ptr' in pool) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + pool.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_nth_allocation_pool`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('index', String(index));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
+    // Object with explode=false: serialize as comma-separated
+    if (pool !== undefined && typeof pool === 'object' && 'ptr' in pool) {
+      url.searchParams.append('pool', 'ptr,' + pool.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (pool && typeof pool === 'object' && 'ptr' in pool) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + pool.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (pool && typeof pool === 'object' && 'ptr' in pool) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + pool.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
   async parse_nth_buffering_range(index: number): Promise<boolean> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_nth_buffering_range`, apiConfig.baseUrl);
@@ -15035,14 +16594,14 @@ export class GstQuery {
     const data = await response.json();
     return data.return;
   }
-  async parse_nth_format(nth: number): Promise<{ format?: GstFormatValue }> {
+  async parse_nth_format(nth: number, format: GstFormatValue): Promise<void> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_nth_format`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('nth', String(nth));
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async parse_nth_scheduling_mode(index: number): Promise<GstPadModeValue> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_nth_scheduling_mode`, apiConfig.baseUrl);
@@ -15053,29 +16612,37 @@ export class GstQuery {
     const data = await response.json();
     return data.return;
   }
-  async parse_position(): Promise<{ format?: GstFormatValue; cur?: number }> {
+  async parse_position(format: GstFormatValue): Promise<{ cur?: number }> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_position`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_scheduling(): Promise<{ flags?: GstSchedulingFlags; minsize?: number; maxsize?: number; align?: number }> {
+  async parse_scheduling(flags: GstSchedulingFlags): Promise<{ minsize?: number; maxsize?: number; align?: number }> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_scheduling`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_seeking(): Promise<{ format?: GstFormatValue; seekable?: boolean; segment_start?: number; segment_end?: number }> {
+  async parse_seeking(format: GstFormatValue): Promise<{ seekable?: boolean; segment_start?: number; segment_end?: number }> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_seeking`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data;
   }
-  async parse_segment(): Promise<{ rate?: number; format?: GstFormatValue; start_value?: number; stop_value?: number }> {
+  async parse_segment(format: GstFormatValue): Promise<{ rate?: number; start_value?: number; stop_value?: number }> {
     const url = new URL(`/Gst/Query/ptr,${this.ptr}/parse_segment`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -15352,6 +16919,11 @@ export class GstQuery {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -15392,6 +16964,11 @@ export class GstReferenceTimestampMeta {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -15417,6 +16994,11 @@ export class GstRegistry extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstRegistry(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async add_feature(feature: GstPluginFeature): Promise<boolean> {
@@ -15478,6 +17060,11 @@ export class GstRegistry extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPluginFeature(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async find_plugin(name: string): Promise<GstPlugin> {
@@ -15487,6 +17074,11 @@ export class GstRegistry extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPlugin(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_feature_list(type_: Pointer): Promise<Pointer> {
@@ -15528,6 +17120,11 @@ export class GstRegistry extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPlugin(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async lookup_feature(name: string): Promise<GstPluginFeature> {
@@ -15537,6 +17134,11 @@ export class GstRegistry extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPluginFeature(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async plugin_filter(first: boolean, filter: (plugin: GstPlugin, user_data: Pointer) => boolean): Promise<Pointer> {
@@ -15633,6 +17235,11 @@ export class GstSample {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBuffer(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_buffer_list(): Promise<GstBufferList> {
@@ -15640,6 +17247,11 @@ export class GstSample {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBufferList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_caps(): Promise<GstCaps> {
@@ -15647,6 +17259,11 @@ export class GstSample {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_info(): Promise<GstStructure> {
@@ -15654,6 +17271,11 @@ export class GstSample {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_segment(): Promise<GstSegment> {
@@ -15661,6 +17283,11 @@ export class GstSample {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstSegment(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async set_buffer(buffer: GstBuffer): Promise<void> {
@@ -15761,6 +17388,11 @@ export class GstSegment {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstSegment(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async copy_into(dest: GstSegment): Promise<void> {
@@ -16046,6 +17678,11 @@ export class GstStaticCaps {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -16086,6 +17723,11 @@ export class GstStaticPadTemplate {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstPadTemplate(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_caps(): Promise<GstCaps> {
@@ -16093,6 +17735,11 @@ export class GstStaticPadTemplate {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
 }
@@ -16123,6 +17770,11 @@ export class GstStream extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_stream_flags(): Promise<GstStreamFlags> {
@@ -16151,6 +17803,11 @@ export class GstStream extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstTagList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async set_caps(caps?: GstCaps): Promise<void> {
@@ -16243,6 +17900,11 @@ export class GstStreamCollection extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStream(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_upstream_id(): Promise<string> {
@@ -16336,6 +17998,11 @@ export class GstStructure {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async filter_and_map_in_place(func: (field_id: number, value_: GObjectValue, user_data: Pointer) => boolean): Promise<{ func?: number }> {
@@ -16431,14 +18098,36 @@ export class GstStructure {
     }
     return data.return;
   }
-  async get_array(fieldname: string): Promise<boolean> {
+  async get_array(fieldname: string, array: GObjectValueArray): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    if (array && typeof array === 'object' && 'ptr' in array) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + array.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Structure/ptr,${this.ptr}/get_array`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('fieldname', String(fieldname));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
+    // Object with explode=false: serialize as comma-separated
+    if (array && typeof array === 'object' && 'ptr' in array) {
+      url.searchParams.append('array', 'ptr,' + array.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (array && typeof array === 'object' && 'ptr' in array) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.return;
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (array && typeof array === 'object' && 'ptr' in array) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
   async get_boolean(fieldname: string): Promise<boolean> {
     const url = new URL(`/Gst/Structure/ptr,${this.ptr}/get_boolean`, apiConfig.baseUrl);
@@ -16458,19 +18147,27 @@ export class GstStructure {
     const data = await response.json();
     return data.return;
   }
-  async get_date(fieldname: string): Promise<boolean> {
+  async get_date(fieldname: string, value_: GLibDate): Promise<boolean> {
     const url = new URL(`/Gst/Structure/ptr,${this.ptr}/get_date`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('fieldname', String(fieldname));
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  async get_date_time(fieldname: string): Promise<boolean> {
+  async get_date_time(fieldname: string, value_: GstDateTime): Promise<boolean> {
     const url = new URL(`/Gst/Structure/ptr,${this.ptr}/get_date_time`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('fieldname', String(fieldname));
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -16552,14 +18249,36 @@ export class GstStructure {
     const data = await response.json();
     return data.return;
   }
-  async get_list(fieldname: string): Promise<boolean> {
+  async get_list(fieldname: string, array: GObjectValueArray): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    if (array && typeof array === 'object' && 'ptr' in array) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + array.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/Structure/ptr,${this.ptr}/get_list`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('fieldname', String(fieldname));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
+    // Object with explode=false: serialize as comma-separated
+    if (array && typeof array === 'object' && 'ptr' in array) {
+      url.searchParams.append('array', 'ptr,' + array.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (array && typeof array === 'object' && 'ptr' in array) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.return;
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (array && typeof array === 'object' && 'ptr' in array) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
   async get_name(): Promise<string> {
     const url = new URL(`/Gst/Structure/ptr,${this.ptr}/get_name`, apiConfig.baseUrl);
@@ -16609,6 +18328,11 @@ export class GstStructure {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async has_field(fieldname: string): Promise<boolean> {
@@ -16647,6 +18371,11 @@ export class GstStructure {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async id_has_field(field: number): Promise<boolean> {
@@ -16718,6 +18447,11 @@ export class GstStructure {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async is_equal(structure2: GstStructure): Promise<boolean> {
@@ -16908,6 +18642,11 @@ export class GstSystemClock extends GstClock {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstClock(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async set_default(new_clock?: GstClock): Promise<void> {
@@ -16981,6 +18720,11 @@ export class GstTagList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstTagList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async foreach(func: (list: GstTagList, tag: string, user_data: Pointer) => void): Promise<{ func?: number }> {
@@ -17014,41 +18758,57 @@ export class GstTagList {
     const data = await response.json();
     return data.return;
   }
-  async get_date(tag: string): Promise<boolean> {
+  async get_date(tag: string, value_: GLibDate): Promise<boolean> {
     const url = new URL(`/Gst/TagList/ptr,${this.ptr}/get_date`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('tag', String(tag));
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  async get_date_index(tag: string, index: number): Promise<boolean> {
+  async get_date_index(tag: string, index: number, value_: GLibDate): Promise<boolean> {
     const url = new URL(`/Gst/TagList/ptr,${this.ptr}/get_date_index`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('tag', String(tag));
     // Primitive parameter
     url.searchParams.append('index', String(index));
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  async get_date_time(tag: string): Promise<boolean> {
+  async get_date_time(tag: string, value_: GstDateTime): Promise<boolean> {
     const url = new URL(`/Gst/TagList/ptr,${this.ptr}/get_date_time`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('tag', String(tag));
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  async get_date_time_index(tag: string, index: number): Promise<boolean> {
+  async get_date_time_index(tag: string, index: number, value_: GstDateTime): Promise<boolean> {
     const url = new URL(`/Gst/TagList/ptr,${this.ptr}/get_date_time_index`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('tag', String(tag));
     // Primitive parameter
     url.searchParams.append('index', String(index));
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -17154,21 +18914,29 @@ export class GstTagList {
     const data = await response.json();
     return data.return;
   }
-  async get_sample(tag: string): Promise<boolean> {
+  async get_sample(tag: string, sample: GstSample): Promise<boolean> {
     const url = new URL(`/Gst/TagList/ptr,${this.ptr}/get_sample`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('tag', String(tag));
+    // Object with explode=false: serialize as comma-separated
+    if (sample && typeof sample === 'object' && 'ptr' in sample) {
+      url.searchParams.append('sample', 'ptr,' + sample.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  async get_sample_index(tag: string, index: number): Promise<boolean> {
+  async get_sample_index(tag: string, index: number, sample: GstSample): Promise<boolean> {
     const url = new URL(`/Gst/TagList/ptr,${this.ptr}/get_sample_index`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('tag', String(tag));
     // Primitive parameter
     url.searchParams.append('index', String(index));
+    // Object with explode=false: serialize as comma-separated
+    if (sample && typeof sample === 'object' && 'ptr' in sample) {
+      url.searchParams.append('sample', 'ptr,' + sample.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -17259,6 +19027,11 @@ export class GstTagList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async insert(from: GstTagList, mode: GstTagMergeMode): Promise<void> {
@@ -17301,6 +19074,11 @@ export class GstTagList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstTagList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async n_tags(): Promise<number> {
@@ -17351,8 +19129,12 @@ export class GstTagList {
     const data = await response.json();
     return data.return;
   }
-  async copy_value(list: GstTagList, tag: string): Promise<boolean> {
+  async copy_value(dest: GObjectValue, list: GstTagList, tag: string): Promise<boolean> {
     const url = new URL(`/Gst/TagList/copy_value`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
     // Object with explode=false: serialize as comma-separated
     if (list && typeof list === 'object' && 'ptr' in list) {
       url.searchParams.append('list', 'ptr,' + list.ptr);
@@ -17391,6 +19173,11 @@ export class GstTask extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstTaskPool(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_state(): Promise<GstTaskState> {
@@ -17540,6 +19327,11 @@ export class GstToc {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstTocEntry(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_entries(): Promise<Pointer> {
@@ -17561,6 +19353,11 @@ export class GstToc {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstTagList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async merge_tags(mode: GstTagMergeMode, tags?: GstTagList): Promise<void> {
@@ -17636,8 +19433,10 @@ export class GstTocEntry {
     const data = await response.json();
     return data.return;
   }
-  async get_loop(): Promise<boolean> {
+  async get_loop(loop_type: GstTocLoopType): Promise<boolean> {
     const url = new URL(`/Gst/TocEntry/ptr,${this.ptr}/get_loop`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('loop_type', String(loop_type));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -17648,6 +19447,11 @@ export class GstTocEntry {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstTocEntry(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_start_stop_times(): Promise<boolean> {
@@ -17669,6 +19473,11 @@ export class GstTocEntry {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstTagList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_toc(): Promise<GstToc> {
@@ -17676,6 +19485,11 @@ export class GstTocEntry {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstToc(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_uid(): Promise<string> {
@@ -17895,6 +19709,11 @@ export class GstTypeFindFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_extensions(): Promise<Pointer> {
@@ -17994,6 +19813,11 @@ export class GstUri {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstUri(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_fragment(): Promise<string> {
@@ -18121,6 +19945,11 @@ export class GstUri {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstUri(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async make_writable(): Promise<GstUri> {
@@ -18128,6 +19957,11 @@ export class GstUri {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstUri(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async new_with_base(port: number, scheme?: string, userinfo?: string, host?: string, path?: string, query?: string, fragment?: string): Promise<GstUri> {
@@ -18149,6 +19983,11 @@ export class GstUri {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstUri(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async normalize(): Promise<boolean> {
@@ -18311,6 +20150,11 @@ export class GstUri {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstUri(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async from_string_escaped(uri: string): Promise<GstUri> {
@@ -18320,6 +20164,11 @@ export class GstUri {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstUri(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_location(uri: string): Promise<string> {
@@ -18463,6 +20312,11 @@ export class GstValueArray {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async init(value_: GObjectValue, prealloc: number): Promise<GObjectValue> {
@@ -18476,6 +20330,11 @@ export class GstValueArray {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async prepend_value(value_: GObjectValue, prepend_value: GObjectValue): Promise<void> {
@@ -18541,8 +20400,12 @@ export class GstValueList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async concat(value1: GObjectValue, value2: GObjectValue): Promise<{ dest?: GObjectValue }> {
+  async concat(dest: GObjectValue, value1: GObjectValue, value2: GObjectValue): Promise<void> {
     const url = new URL(`/Gst/ValueList/concat`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
     // Object with explode=false: serialize as comma-separated
     if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
       url.searchParams.append('value1', 'ptr,' + value1.ptr);
@@ -18553,8 +20416,6 @@ export class GstValueList {
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async get_size(value_: GObjectValue): Promise<number> {
     const url = new URL(`/Gst/ValueList/get_size`, apiConfig.baseUrl);
@@ -18578,6 +20439,11 @@ export class GstValueList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async init(value_: GObjectValue, prealloc: number): Promise<GObjectValue> {
@@ -18591,10 +20457,19 @@ export class GstValueList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
-  async merge(value1: GObjectValue, value2: GObjectValue): Promise<{ dest?: GObjectValue }> {
+  async merge(dest: GObjectValue, value1: GObjectValue, value2: GObjectValue): Promise<void> {
     const url = new URL(`/Gst/ValueList/merge`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
     // Object with explode=false: serialize as comma-separated
     if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
       url.searchParams.append('value1', 'ptr,' + value1.ptr);
@@ -18605,8 +20480,6 @@ export class GstValueList {
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   async prepend_value(value_: GObjectValue, prepend_value: GObjectValue): Promise<void> {
     const url = new URL(`/Gst/ValueList/prepend_value`, apiConfig.baseUrl);
@@ -18639,6 +20512,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCapsFeatures(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function caps_from_string(string: string): Promise<GstCaps> {
@@ -18648,6 +20526,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function core_error_quark(): Promise<number> {
@@ -19102,6 +20985,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function format_register(nick: string, description: string): Promise<GstFormatValue> {
@@ -19247,6 +21135,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMeta(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function meta_get_info(impl: string): Promise<GstMetaInfo> {
@@ -19256,6 +21149,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function meta_register_custom(name: string, tags: Pointer, transform_func: (transbuf: GstBuffer, meta: GstCustomMeta, buffer: GstBuffer, type_: number, data_: Pointer, user_data: Pointer) => boolean): Promise<GstMetaInfo> {
@@ -19271,6 +21169,11 @@ export namespace Gst {
     if (data.transform_func !== undefined) {
       callbackDispatcher.set(data.transform_func.toString(), transform_func);
     }
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function meta_register_custom_simple(name: string): Promise<GstMetaInfo> {
@@ -19280,6 +21183,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function mini_object_replace(olddata?: GstMiniObject, newdata?: GstMiniObject): Promise<boolean> {
@@ -19338,6 +21246,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectParamSpec(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function param_spec_fraction(name: string, nick: string, blurb: string, min_num: number, min_denom: number, max_num: number, max_denom: number, default_num: number, default_denom: number, flags: GObjectParamFlags): Promise<GObjectParamSpec> {
@@ -19365,6 +21278,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectParamSpec(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function parent_buffer_meta_api_get_type(): Promise<Pointer> {
@@ -19379,6 +21297,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function parse_bin_from_description(bin_description: string, ghost_unlinked_pads: boolean): Promise<GstBin> {
@@ -19390,6 +21313,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstBin(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function parse_bin_from_description_full(bin_description: string, ghost_unlinked_pads: boolean, flags: GstParseFlags, context?: GstParseContext): Promise<GstElement> {
@@ -19407,6 +21335,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function parse_error_quark(): Promise<number> {
@@ -19423,6 +21356,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function parse_launch_full(pipeline_description: string, flags: GstParseFlags, context?: GstParseContext): Promise<GstElement> {
@@ -19438,6 +21376,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function parse_launchv(argv: Pointer): Promise<GstElement> {
@@ -19447,6 +21390,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function parse_launchv_full(argv: Pointer, flags: GstParseFlags, context?: GstParseContext): Promise<GstElement> {
@@ -19462,6 +21410,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstElement(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function plugin_error_quark(): Promise<number> {
@@ -19508,6 +21461,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function protection_select_system(system_identifiers: Pointer): Promise<string> {
@@ -19558,6 +21516,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstMetaInfo(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function resource_error_quark(): Promise<number> {
@@ -19689,8 +21652,12 @@ export namespace Gst {
     const data = await response.json();
     return data.return;
   }
-  export async function tag_list_copy_value(list: GstTagList, tag: string): Promise<boolean> {
+  export async function tag_list_copy_value(dest: GObjectValue, list: GstTagList, tag: string): Promise<boolean> {
     const url = new URL(`/Gst/tag_list_copy_value`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
     // Object with explode=false: serialize as comma-separated
     if (list && typeof list === 'object' && 'ptr' in list) {
       url.searchParams.append('list', 'ptr,' + list.ptr);
@@ -19702,27 +21669,31 @@ export namespace Gst {
     const data = await response.json();
     return data.return;
   }
-  export async function tag_merge_strings_with_comma(src: GObjectValue): Promise<{ dest?: GObjectValue }> {
+  export async function tag_merge_strings_with_comma(dest: GObjectValue, src: GObjectValue): Promise<void> {
     const url = new URL(`/Gst/tag_merge_strings_with_comma`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
-    if (src && typeof src === 'object' && 'ptr' in src) {
-      url.searchParams.append('src', 'ptr,' + src.ptr);
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
     }
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
-  }
-  export async function tag_merge_use_first(src: GObjectValue): Promise<{ dest?: GObjectValue }> {
-    const url = new URL(`/Gst/tag_merge_use_first`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (src && typeof src === 'object' && 'ptr' in src) {
       url.searchParams.append('src', 'ptr,' + src.ptr);
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
+  }
+  export async function tag_merge_use_first(dest: GObjectValue, src: GObjectValue): Promise<void> {
+    const url = new URL(`/Gst/tag_merge_use_first`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (src && typeof src === 'object' && 'ptr' in src) {
+      url.searchParams.append('src', 'ptr,' + src.ptr);
+    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function toc_entry_type_get_nick(type_: GstTocEntryTypeValue): Promise<string> {
     const url = new URL(`/Gst/toc_entry_type_get_nick`, apiConfig.baseUrl);
@@ -19789,10 +21760,12 @@ export namespace Gst {
     }
     return data.return;
   }
-  export async function type_is_plugin_api(type_: Pointer): Promise<boolean> {
+  export async function type_is_plugin_api(type_: Pointer, flags: GstPluginAPIFlags): Promise<boolean> {
     const url = new URL(`/Gst/type_is_plugin_api`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('type', String(type_));
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -19839,6 +21812,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstUri(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function uri_from_string_escaped(uri: string): Promise<GstUri> {
@@ -19848,6 +21826,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstUri(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function uri_get_location(uri: string): Promise<string> {
@@ -20048,7 +22031,11 @@ export namespace Gst {
     const data = await response.json();
     return data.return;
   }
-  export async function util_get_object_array(object: GObjectObject, name: string): Promise<boolean> {
+  export async function util_get_object_array(object: GObjectObject, name: string, array: GObjectValueArray): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    if (array && typeof array === 'object' && 'ptr' in array) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + array.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/util_get_object_array`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (object && typeof object === 'object' && 'ptr' in object) {
@@ -20056,10 +22043,28 @@ export namespace Gst {
     }
     // Primitive parameter
     url.searchParams.append('name', String(name));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
+    // Object with explode=false: serialize as comma-separated
+    if (array && typeof array === 'object' && 'ptr' in array) {
+      url.searchParams.append('array', 'ptr,' + array.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (array && typeof array === 'object' && 'ptr' in array) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.return;
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (array && typeof array === 'object' && 'ptr' in array) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
   export async function util_get_timestamp(): Promise<number> {
     const url = new URL(`/Gst/util_get_timestamp`, apiConfig.baseUrl);
@@ -20154,14 +22159,16 @@ export namespace Gst {
     const data = await response.json();
     return data.return;
   }
-  export async function util_set_value_from_string(value_str: string): Promise<{ value_?: GObjectValue }> {
+  export async function util_set_value_from_string(value_: GObjectValue, value_str: string): Promise<void> {
     const url = new URL(`/Gst/util_set_value_from_string`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
     // Primitive parameter
     url.searchParams.append('value_str', String(value_str));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
   export async function util_simplify_fraction(numerator: number, denominator: number, n_terms: number, threshold: number): Promise<void> {
     const url = new URL(`/Gst/util_simplify_fraction`, apiConfig.baseUrl);
@@ -20329,8 +22336,12 @@ export namespace Gst {
     const data = await response.json();
     return data.return;
   }
-  export async function value_deserialize(src: string): Promise<boolean> {
+  export async function value_deserialize(dest: GObjectValue, src: string): Promise<boolean> {
     const url = new URL(`/Gst/value_deserialize`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
     // Primitive parameter
     url.searchParams.append('src', String(src));
     const response = await fetch(url.toString());
@@ -20338,8 +22349,12 @@ export namespace Gst {
     const data = await response.json();
     return data.return;
   }
-  export async function value_deserialize_with_pspec(src: string, pspec?: GObjectParamSpec): Promise<boolean> {
+  export async function value_deserialize_with_pspec(dest: GObjectValue, src: string, pspec?: GObjectParamSpec): Promise<boolean> {
     const url = new URL(`/Gst/value_deserialize_with_pspec`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
     // Primitive parameter
     url.searchParams.append('src', String(src));
     // Object with explode=false: serialize as comma-separated
@@ -20424,6 +22439,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCaps(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function value_get_caps_features(value_: GObjectValue): Promise<GstCapsFeatures> {
@@ -20435,6 +22455,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstCapsFeatures(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function value_get_double_range_max(value_: GObjectValue): Promise<number> {
@@ -20512,6 +22537,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function value_get_fraction_range_min(value_: GObjectValue): Promise<GObjectValue> {
@@ -20523,6 +22553,11 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GObjectValue(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function value_get_int64_range_max(value_: GObjectValue): Promise<number> {
@@ -20600,21 +22635,36 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstStructure(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
-  export async function value_init_and_copy(src: GObjectValue): Promise<{ dest?: GObjectValue }> {
+  export async function value_init_and_copy(dest: GObjectValue, src: GObjectValue): Promise<void> {
     const url = new URL(`/Gst/value_init_and_copy`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
     // Object with explode=false: serialize as comma-separated
     if (src && typeof src === 'object' && 'ptr' in src) {
       url.searchParams.append('src', 'ptr,' + src.ptr);
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data;
   }
-  export async function value_intersect(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
+  export async function value_intersect(dest: GObjectValue, value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      await fetch(apiConfig.baseUrl + '/GObject/Object/' + dest.ptr + '/ref').catch(() => {});
+    }
     const url = new URL(`/Gst/value_intersect`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
     // Object with explode=false: serialize as comma-separated
     if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
       url.searchParams.append('value1', 'ptr,' + value1.ptr);
@@ -20623,10 +22673,24 @@ export namespace Gst {
     if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
       url.searchParams.append('value2', 'ptr,' + value2.ptr);
     }
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        if (dest && typeof dest === 'object' && 'ptr' in dest) {
+          await fetch(apiConfig.baseUrl + '/GObject/Object/' + dest.ptr + '/unref').catch(() => {});
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.return;
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      if (dest && typeof dest === 'object' && 'ptr' in dest) {
+        await fetch(apiConfig.baseUrl + '/GObject/Object/' + dest.ptr + '/unref').catch(() => {});
+      }
+      throw error;
+    }
   }
   export async function value_is_fixed(value_: GObjectValue): Promise<boolean> {
     const url = new URL(`/Gst/value_is_fixed`, apiConfig.baseUrl);
@@ -20853,8 +22917,12 @@ export namespace Gst {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function value_subtract(minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
+  export async function value_subtract(dest: GObjectValue, minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
     const url = new URL(`/Gst/value_subtract`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
     // Object with explode=false: serialize as comma-separated
     if (minuend && typeof minuend === 'object' && 'ptr' in minuend) {
       url.searchParams.append('minuend', 'ptr,' + minuend.ptr);
@@ -20868,8 +22936,12 @@ export namespace Gst {
     const data = await response.json();
     return data.return;
   }
-  export async function value_union(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
+  export async function value_union(dest: GObjectValue, value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
     const url = new URL(`/Gst/value_union`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
     // Object with explode=false: serialize as comma-separated
     if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
       url.searchParams.append('value1', 'ptr,' + value1.ptr);
