@@ -5,10 +5,14 @@ girest-frida - Development server for GIRest with Frida integration.
 This tool creates a development server that uses Frida to instrument a running
 process and expose its GObject introspection API as a REST API.
 """
+import logging
+
 import argparse
 import connexion
 import sys
 import os
+from uvicorn.config import LOGGING_CONFIG
+from uvicorn.logging import DefaultFormatter
 from starlette.responses import StreamingResponse
 
 # Add the girest module to the path
@@ -103,7 +107,16 @@ def main():
     )
     
     args = parser.parse_args()
-    
+
+    # Setup the log
+    # Use the same logger Uvicorn uses
+    handler = logging.StreamHandler()
+    handler.setFormatter(DefaultFormatter(fmt=LOGGING_CONFIG["formatters"]["default"]["fmt"]))
+    logger = logging.getLogger("girest")
+    logger.handlers = []  # Remove any existing handlers
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+
     # Patch Connexion's parameter decorator to handle complex schemas
     patch_connexion_parameter_decorator()
     
@@ -161,11 +174,11 @@ def main():
         
         # Register the pipelines endpoint at /GIRest/pipelines
         @app.route('/GIRest/pipelines', methods=['GET'])
-        async def get_pipelines():
+        async def get_pipelines(arg):
             """Endpoint for retrieving discovered GStreamer pipelines."""
             pipelines = girest.get_pipelines()
             return pipelines
-        
+
         # Run the server
         app.run(port=args.port)
     
