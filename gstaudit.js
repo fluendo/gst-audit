@@ -34,6 +34,14 @@ function base_type_to_size(t)
   }
 }
 
+function arg_size(a)
+{
+  if (a["type"] == "struct")
+    return a["struct_size"];
+  else
+    return base_type_to_size(a["type"]);
+}
+
 function base_type_read(t, p)
 {
   switch (t) {
@@ -72,6 +80,8 @@ function type_signature(type)
     } else if (type == "string") {
       return "pointer";
     } else if (type == "gtype") {
+      return "pointer";
+    } else if (type == "struct") {
       return "pointer";
     } else {
      return type;
@@ -152,14 +162,16 @@ function call(symbol, type, ...args)
       tx_args.push(NULL);
     } else if ([1, 2].includes(a["direction"])) {
       /* For an output only argument, create the memory to store it */
-      console.log(`Output arg ${a["name"]} allocated`);
-      tx_args.push(Memory.alloc(base_type_to_size(a["type"])));
+      const out_size = arg_size(a);
+      const out = Memory.alloc(out_size);
+      console.log(`Output arg ${a["name"]} allocated at ${out} of size ${out_size}`);
+      tx_args.push(out);
       /* TODO */
       /* If INOUT set the value from args and skip it */
       /* continue otherwise */
     } else if (a["skipped"]) {
       tx_args.push(NULL);
-    } else if (a["type"] == "pointer") {
+    } else if (type_signature(a["type"]) == "pointer") {
       tx_args.push(ptr(args[idx]));
       idx++;
     } else {
@@ -172,7 +184,8 @@ function call(symbol, type, ...args)
   var ret = {};
   console.log(`About to call ${symbol} with args ${tx_args}`);
   var nfr = nf(...tx_args);
-  ret["return"] = base_type_read(type["returns"], nfr);
+  if (type["returns"] != "void")
+    ret["return"] = nfr;
   /* Return the return value plus the output arguments */
   idx = 0;
   for (var a of type["arguments"]) {
