@@ -4349,6 +4349,7 @@ export class GObjectObject {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
   }
+
   static async newv(object_type: Pointer, n_parameters: number, parameters: Pointer): Promise<GObjectObject> {
     const url = new URL(`/GObject/Object/newv`, apiConfig.baseUrl);
     // Primitive parameter
@@ -4787,6 +4788,14 @@ export class GObjectInitiallyUnowned extends GObjectObject {
 }
 
 export class GObjectParamSpec {
+  ptr!: string;
+  
+  constructor(ptr?: string) {
+    if (ptr) {
+      this.ptr = ptr;
+    }
+  }
+
 
   async is_valid_name(name: string): Promise<boolean> {
     const url = new URL(`/GObject/ParamSpec/is_valid_name`, apiConfig.baseUrl);

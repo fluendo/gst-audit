@@ -579,7 +579,17 @@ class TypeScriptGenerator:
                     data["methods"].append(method_template.render(method_data))
         else:
             # Regular class
-            if schema and (not self.base_url or not extends_gobject):
+            # Add properties from schema in these cases:
+            # 1. Not using base_url (testing/interface generation)
+            # 2. Not a GObject type
+            # 3. GObject type without parent and without destructor (needs ptr field and constructor)
+            should_add_properties = (
+                not self.base_url or
+                not extends_gobject or
+                (extends_gobject and not parent_class and not has_destructor)
+            )
+            
+            if schema and should_add_properties:
                 # Add properties if not using GObjectBase
                 properties = schema.get("properties", {})
                 required = schema.get("required", [])
