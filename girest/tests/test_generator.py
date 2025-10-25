@@ -205,27 +205,19 @@ def test_typescript_interface_generation_for_structs_without_methods(gst_typescr
 
 def test_typescript_parameter_serialization(gst_typescript):
     """
-    Test that TypeScript generator properly serializes parameters using serializeParam.
+    Test that TypeScript generator properly serializes parameters inline.
     
     Verifies that:
-    - serializeParam function is generated
-    - All parameters (both objects and primitives) use serializeParam
-    - Style and explode settings are correctly applied
+    - Object parameters are serialized inline based on style/explode settings
+    - Path parameters with objects use the format `ptr,${this.ptr}` (explode=false)
+    - Query parameters with objects use the format `'ptr,' + param.ptr` (explode=false)
+    - Primitive parameters use String() conversion
     """
     typescript = gst_typescript
     
-    # Verify serializeParam function exists
-    assert 'function serializeParam(' in typescript, \
-        "serializeParam function should be generated"
-    
-    # Verify it handles ptr property
-    assert "'ptr' in value" in typescript or '"ptr" in value' in typescript, \
-        "serializeParam should check for 'ptr' property"
-    
-    # Verify it handles style parameter
-    assert "style === 'simple' || style === 'form'" in typescript or \
-           'style === "simple" || style === "form"' in typescript, \
-        "serializeParam should handle 'simple' and 'form' styles"
+    # Verify no serializeParam function exists (serialization is done inline)
+    assert 'function serializeParam(' not in typescript, \
+        "serializeParam function should NOT be generated - serialization should be inline"
     
     # Find a method with object parameter (days_between has GLibDate object parameter)
     import re
@@ -234,13 +226,13 @@ def test_typescript_parameter_serialization(gst_typescript):
         start_pos = match.start()
         method_section = typescript[start_pos:start_pos + 500]
         
-        # Check that path parameter uses serializeParam with style=simple, explode=false
-        assert "serializeParam(this, 'simple', false)" in method_section, \
-            "Path parameter 'self' should use serializeParam with style='simple', explode=false"
+        # Check that path parameter is serialized inline for objects (explode=false)
+        assert "ptr,${this.ptr}" in method_section, \
+            "Path parameter 'self' should be serialized inline as 'ptr,${this.ptr}'"
         
-        # Check that query parameter uses serializeParam with style=form, explode=false
-        assert "serializeParam(date2, 'form', false)" in method_section, \
-            "Query parameter 'date2' should use serializeParam with style='form', explode=false"
+        # Check that query parameter is serialized inline for objects (explode=false)
+        assert "'ptr,' + date2.ptr" in method_section or '"ptr," + date2.ptr' in method_section, \
+            "Query parameter 'date2' should be serialized inline as 'ptr,' + date2.ptr"
     
     # Find a method with primitive parameter (set_day has number parameter)
     match = re.search(r'async set_day\(day: number\)', typescript)
@@ -248,8 +240,12 @@ def test_typescript_parameter_serialization(gst_typescript):
         start_pos = match.start()
         method_section = typescript[start_pos:start_pos + 500]
         
-        # Primitive parameters should also use serializeParam (which will call String internally)
-        assert "serializeParam(day, 'form', false)" in method_section, \
-            "Primitive parameter 'day' should also use serializeParam"
+        # Primitive parameters should use String() conversion
+        assert "String(day)" in method_section, \
+            "Primitive parameter 'day' should use String() conversion"
+        
+        # Path parameter should still be serialized for object
+        assert "ptr,${this.ptr}" in method_section, \
+            "Path parameter 'self' should be serialized inline even for methods with primitive query params"
     
-    print("✓ TypeScript generator uses serializeParam for all parameters with correct style/explode")
+    print("✓ TypeScript generator serializes parameters inline with correct style/explode")

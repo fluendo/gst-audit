@@ -368,11 +368,16 @@ class TypeScriptGenerator:
             
             # Check if this parameter is a GObject type (needs ref counting)
             is_gobject_param = False
+            is_object_param = False
             if "$ref" in param_schema:
                 ref_path = param_schema["$ref"]
                 if ref_path.startswith("#/components/schemas/"):
                     type_name = ref_path.split("/")[-1]
                     is_gobject_param = type_name in self.gobject_types
+                    # Check if this is an object type that needs serialization
+                    schema_def = self.schemas.get(type_name, {})
+                    if schema_def.get("type") == "object" or "allOf" in schema_def:
+                        is_object_param = True
             
             if param_in == "path":
                 path_params.append((param_name, param_schema, param_style, param_explode))
@@ -383,6 +388,7 @@ class TypeScriptGenerator:
                     "required": param_required,
                     "transfer": param_transfer,
                     "is_gobject": is_gobject_param,
+                    "is_object": is_object_param,
                     "style": param_style,
                     "explode": param_explode
                 })
@@ -424,18 +430,48 @@ class TypeScriptGenerator:
                 else:
                     return_type = "void"
         
-        # Build URL path - use serializeParam for all path parameters
+        # Build URL path - serialize parameters based on style/explode
         url_path = path
         for param_tuple in path_params:
             param_name = param_tuple[0]
+            param_schema = param_tuple[1]
             param_style = param_tuple[2] if len(param_tuple) > 2 else "simple"
             param_explode = param_tuple[3] if len(param_tuple) > 3 else False
             
+            # Check if this is an object type (has $ref to a schema with type=object or allOf)
+            is_object = False
+            if "$ref" in param_schema:
+                ref_path = param_schema["$ref"]
+                if ref_path.startswith("#/components/schemas/"):
+                    type_name = ref_path.split("/")[-1]
+                    schema_def = self.schemas.get(type_name, {})
+                    if schema_def.get("type") == "object" or "allOf" in schema_def:
+                        is_object = True
+            
             if param_name == "self":
-                # Use serializeParam with style and explode settings
-                url_path = url_path.replace("{self}", f"${{serializeParam(this, '{param_style}', {str(param_explode).lower()})}}")
+                if is_object:
+                    # For objects, serialize based on style/explode
+                    if param_explode:
+                        # explode=true: ptr=${this.ptr}
+                        url_path = url_path.replace("{self}", "ptr=${this.ptr}")
+                    else:
+                        # explode=false (default): ptr,${this.ptr}
+                        url_path = url_path.replace("{self}", "ptr,${this.ptr}")
+                else:
+                    # For primitives, just use the value
+                    url_path = url_path.replace("{self}", "${this.ptr}")
             else:
-                url_path = url_path.replace(f"{{{param_name}}}", f"${{serializeParam({param_name}, '{param_style}', {str(param_explode).lower()})}}")
+                if is_object:
+                    # For objects, serialize based on style/explode
+                    if param_explode:
+                        # explode=true: ptr=${param.ptr}
+                        url_path = url_path.replace(f"{{{param_name}}}", f"ptr=${{{param_name}.ptr}}")
+                    else:
+                        # explode=false (default): ptr,${param.ptr}
+                        url_path = url_path.replace(f"{{{param_name}}}", f"ptr,${{{param_name}.ptr}}")
+                else:
+                    # For primitives, just use the value
+                    url_path = url_path.replace(f"{{{param_name}}}", f"${{{param_name}}}")
         
         is_enum = class_name in self.enum_schemas
         

@@ -106,45 +106,6 @@ function initializeCallbackSource(): void {
 
 // Initialize on module load
 initializeCallbackSource();
-
-/**
- * Serialize a parameter value according to OpenAPI style and explode settings.
- * This function handles both objects and primitives, serializing them according
- * to the OpenAPI 3.0 specification based on style and explode settings.
- * 
- * @param value The value to serialize (can be object, array, or primitive)
- * @param style The serialization style ('simple', 'form', etc.)
- * @param explode Whether to use exploded format
- * @returns Serialized string value
- */
-function serializeParam(value: any, style: string, explode: boolean): string {
-  // Handle null/undefined
-  if (value === null || value === undefined) {
-    return String(value);
-  }
-  
-  // Handle objects (including those with ptr property)
-  if (typeof value === 'object' && !Array.isArray(value)) {
-    if ('ptr' in value) {
-      // For objects with ptr property, serialize according to style/explode
-      if (style === 'simple' || style === 'form') {
-        if (explode) {
-          // explode=true: ptr=value (for form style with explode)
-          return `ptr=${value.ptr}`;
-        } else {
-          // explode=false: ptr,value (comma-separated key-value pairs)
-          // This is the default for path params (simple) and common for query (form)
-          return `ptr,${value.ptr}`;
-        }
-      }
-    }
-    // For other objects without ptr, serialize as JSON (fallback)
-    return JSON.stringify(value);
-  }
-  
-  // For arrays and primitives, use String conversion
-  return String(value);
-}
 {% if interfaces %}
 
 {{ interfaces | join('\n') }}
