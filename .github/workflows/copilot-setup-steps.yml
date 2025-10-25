@@ -22,7 +22,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             libgirepository1.0-dev libgstreamer1.0-dev libcairo2-dev \
-            python3-poetry
+            gstreamer1.0-tools python3-poetry
 
       - name: Disable ptrace restrictions
         run: "echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope"
