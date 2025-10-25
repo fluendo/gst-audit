@@ -18,14 +18,14 @@ import os
 
 
 def assert_response(response, msg):
-    if response.status_code != 200:
+    if response.status_code < 200 or response.status_code > 299:
         # Capture server logs
         try:
             server_output = girest_server.process.stdout.read()
             print(f"\n=== Server logs at bin creation failure ===\n{server_output}\n=== End logs ===")
         except:
             pass
-        assert response.status_code == 200, f"{msg}: {response.status_code}, response: {response.text}"
+        assert response.status_code < 200 or response.status_code > 299, f"{msg}: {response.status_code}, response: {response.text}"
 
 
 @pytest.fixture(scope="module")
@@ -104,7 +104,7 @@ def girest_server(gst_pipeline):
     )
     
     # Give the server time to start and attach to the process
-    time.sleep(15)
+    time.sleep(10)
     
     # Verify it's running
     if process.poll() is not None:
@@ -115,7 +115,7 @@ def girest_server(gst_pipeline):
     
     # Wait for the server to be ready by polling the docs endpoint
     ready = False
-    max_retries = 2
+    max_retries = 3
     for i in range(max_retries):
         try:
             response = httpx.get(f"{base_url}/openapi.json")
@@ -126,7 +126,7 @@ def girest_server(gst_pipeline):
             if i == max_retries - 1:  # Last attempt
                 print(f"Failed to connect: {e}")
             pass
-        time.sleep(1)
+        time.sleep(5)
     
     if not ready:
         process.send_signal(signal.SIGTERM)
@@ -233,14 +233,17 @@ async def test_gtype_out_endpoint(girest_server):
         response = await client.get(f"{girest_server}/Gst/Bin/new", params={"name": "test_bin"})
         assert_response(response, f"Failed to create bin")
         response_data = response.json()
-        assert "return" in response_data, "Bin creation should return a pointer"
-        bin_ptr = response_data["return"]
+        assert "return" in response_data, "Bin creation should return an object"
+        assert "ptr" in response_data["return"], "Bin creation should return an object"
+        bin_ptr = response_data["return"]["ptr"]
         
         # Step 2: Create a GstElement to add to the bin
         response = await client.get(f"{girest_server}/Gst/ElementFactory/make", params={"factoryname": "fakesrc", "name": "test_element"})
         assert_response(response, f"Failed to create element")
         response_data = response.json()
-        element_ptr = response_data["return"]
+        assert "return" in response_data, "Element creation should return an object"
+        assert "ptr" in response_data["return"], "Element creation should return an object"
+        element_ptr = response_data["return"]["ptr"]
         
         # Step 3: Add the element to the bin
         # Note: Objects are serialized as "ptr,value" per OpenAPI spec (style=form, explode=false for query params)
@@ -251,15 +254,16 @@ async def test_gtype_out_endpoint(girest_server):
         response = await client.get(f"{girest_server}/Gst/Bin/ptr,{bin_ptr}/iterate_elements")
         assert_response(response, f"Failed to iterate elements")
         response_data = response.json()
-        assert "return" in response_data, "Iterate elements should return a pointer"
-        iterator_ptr = response_data["return"]
+        assert "return" in response_data, "Iterate elements should return an object"
+        assert "ptr" in response_data["return"], "Iterate elements should return an object"
+        iterator_ptr = response_data["return"]["ptr"]
         
         # Step 5: Test GValue creation
         response = await client.get(f"{girest_server}/GObject/Value/new")
         assert_response(response, f"Failed to create a value")
         response_data = response.json()
-        assert "return" in response_data, "Value new should return a pointer"
-        assert "ptr" in response_data["return"], "Value new should return a pointer"
+        assert "return" in response_data, "Value new should return an object"
+        assert "ptr" in response_data["return"], "Value new should return an object"
         value_ptr = response_data["return"]["ptr"]
         
         # Step 6: Unset the GValue

@@ -130,7 +130,7 @@ def main():
         specd = spec.to_dict()
         
         # Create the resolver with Frida
-        resolver = FridaResolver(girest, args.pid)
+        resolver = FridaResolver(specd, girest, args.pid)
         
         # Create custom validator map with our enhanced parameter validator
         custom_validator_map = {

@@ -52,8 +52,9 @@ class FridaResolver(connexion.resolver.Resolver):
         "returns": "int32"
     }
     """
-    def __init__(self, girest: "GIRest", pid: int):
+    def __init__(self, spec: dict, girest: "GIRest", pid: int):
         self.girest = girest
+        self.spec = spec
         self.pid = pid
         self.script = None
         self.session = None
@@ -344,7 +345,12 @@ class FridaResolver(connexion.resolver.Resolver):
         """Create handler that calls Frida with the method JSON, converting enum strings to integers,
            objects to pointers, etc.
         """
-        async def frida_resolver_handler(_method=None, _type=None, *args, **kwargs):
+        async def frida_resolver_handler(_method=None, _type=None, _endpoint=None, *args, **kwargs):
+            """Call Frida to the actual call the symbol
+               The method receives the GI's BaseInfo (_method)
+               The JSON representation of the GI information (_type)
+               The OpenAPI endpoint entry
+            """
             # Get the symbol from the method info
             symbol = GIRepository.function_info_get_symbol(_method)
             
@@ -401,7 +407,21 @@ class FridaResolver(connexion.resolver.Resolver):
             result = await asyncio.to_thread(
                 self.script.exports_sync.call, symbol, _type, *converted_kwargs.values()
             )
-            # TODO check _type for the response type and convert from ptr to {"ptr": ptr}
+
+            if not result:
+                return
+
+            # Ok, now we have a response, check the spec about the response type to see if
+            # there are any structs or objects
+            for k,v in result.items():
+                k_def = _endpoint["responses"]["200"]["content"]["application/json"]["schema"]["properties"][k]
+                if "type" in k_def and k_def["type"] == "object":
+                    result[k] = {"ptr": v}
+                # TODO for now assume references to be objects
+                if "$ref" in k_def:
+                    result[k] = {"ptr": v}
+
+            print(result)
             return result
 
         return frida_resolver_handler
@@ -413,12 +433,15 @@ class FridaResolver(connexion.resolver.Resolver):
 
         method_info = self._find_function_info(operation_id)
         if method_info:
+            # Get the OpenAPI endpoint definition
+            endpoint = [e["get"] for e in self.spec["paths"].values() if e["get"]["operationId"] == operation_id][0]
+
             # Generate the JSON representation
             method_json = self._method_to_json(method_info)
 
             # Create and return the handler with method_info and method_json as defaults
             ret = self.create_frida_handler()
-            ret.__defaults__ = (method_info, method_json)
+            ret.__defaults__ = (method_info, method_json, endpoint)
             return ret
         else:
             # It might be an artificial method
