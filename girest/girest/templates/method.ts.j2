@@ -25,10 +25,37 @@
 {% endif %}
     const url = new URL(`{{ path }}`, apiConfig.baseUrl);
 {% for param in query_params %}
+{% if param.is_object %}
+{% if param.explode %}
+    // Object with explode=true: add each property as separate parameter
+{% if param.required %}
+    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      url.searchParams.append('ptr', {{ param.name }}.ptr);
+    }
+{% else %}
+    if ({{ param.name }} !== undefined && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      url.searchParams.append('ptr', {{ param.name }}.ptr);
+    }
+{% endif %}
+{% else %}
+    // Object with explode=false: serialize as comma-separated
+{% if param.required %}
+    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', 'ptr,' + {{ param.name }}.ptr);
+    }
+{% else %}
+    if ({{ param.name }} !== undefined && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', 'ptr,' + {{ param.name }}.ptr);
+    }
+{% endif %}
+{% endif %}
+{% else %}
+    // Primitive parameter
 {% if param.required %}
     url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
 {% else %}
     if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
+{% endif %}
 {% endif %}
 {% endfor %}
 {% if has_full_transfer %}
@@ -134,10 +161,37 @@
 {% endif %}
     const url = new URL(`{{ path }}`, apiConfig.baseUrl);
 {% for param in query_params %}
+{% if param.is_object %}
+{% if param.explode %}
+    // Object with explode=true: add each property as separate parameter
+{% if param.required %}
+    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      url.searchParams.append('ptr', {{ param.name }}.ptr);
+    }
+{% else %}
+    if ({{ param.name }} !== undefined && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      url.searchParams.append('ptr', {{ param.name }}.ptr);
+    }
+{% endif %}
+{% else %}
+    // Object with explode=false: serialize as comma-separated
+{% if param.required %}
+    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', 'ptr,' + {{ param.name }}.ptr);
+    }
+{% else %}
+    if ({{ param.name }} !== undefined && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', 'ptr,' + {{ param.name }}.ptr);
+    }
+{% endif %}
+{% endif %}
+{% else %}
+    // Primitive parameter
 {% if param.required %}
     url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
 {% else %}
     if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
+{% endif %}
 {% endif %}
 {% endfor %}
 {% if has_full_transfer %}

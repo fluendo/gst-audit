@@ -201,3 +201,51 @@ def test_typescript_interface_generation_for_structs_without_methods(gst_typescr
         "GstAllocatorPrivate should not be generated as a class"
     
     print("✓ TypeScript generator creates interface for struct without methods")
+
+
+def test_typescript_parameter_serialization(gst_typescript):
+    """
+    Test that TypeScript generator properly serializes parameters inline.
+    
+    Verifies that:
+    - Object parameters are serialized inline based on style/explode settings
+    - Path parameters with objects use the format `ptr,${this.ptr}` (explode=false)
+    - Query parameters with objects use the format `'ptr,' + param.ptr` (explode=false)
+    - Primitive parameters use String() conversion
+    """
+    typescript = gst_typescript
+    
+    # Verify no serializeParam function exists (serialization is done inline)
+    assert 'function serializeParam(' not in typescript, \
+        "serializeParam function should NOT be generated - serialization should be inline"
+    
+    # Find a method with object parameter (days_between has GLibDate object parameter)
+    import re
+    match = re.search(r'async days_between\(date2: GLibDate\)', typescript)
+    if match:
+        start_pos = match.start()
+        method_section = typescript[start_pos:start_pos + 500]
+        
+        # Check that path parameter is serialized inline for objects (explode=false)
+        assert "ptr,${this.ptr}" in method_section, \
+            "Path parameter 'self' should be serialized inline as 'ptr,${this.ptr}'"
+        
+        # Check that query parameter is serialized inline for objects (explode=false)
+        assert "'ptr,' + date2.ptr" in method_section or '"ptr," + date2.ptr' in method_section, \
+            "Query parameter 'date2' should be serialized inline as 'ptr,' + date2.ptr"
+    
+    # Find a method with primitive parameter (set_day has number parameter)
+    match = re.search(r'async set_day\(day: number\)', typescript)
+    if match:
+        start_pos = match.start()
+        method_section = typescript[start_pos:start_pos + 500]
+        
+        # Primitive parameters should use String() conversion
+        assert "String(day)" in method_section, \
+            "Primitive parameter 'day' should use String() conversion"
+        
+        # Path parameter should still be serialized for object
+        assert "ptr,${this.ptr}" in method_section, \
+            "Path parameter 'self' should be serialized inline even for methods with primitive query params"
+    
+    print("✓ TypeScript generator serializes parameters inline with correct style/explode")

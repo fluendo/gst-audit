@@ -344,10 +344,13 @@ class TypeScriptGenerator:
             param_required = param.get("required", False)
             param_in = param.get("in", "query")
             param_transfer = param.get("x-gi-transfer", "none")
+            # Get style and explode settings from OpenAPI spec
+            param_style = param.get("style", "form" if param_in == "query" else "simple")
+            param_explode = param.get("explode", True if param_style == "form" else False)
             
             if param_name == "self":
                 has_self_param = True
-                path_params.append((param_name, param_schema))
+                path_params.append((param_name, param_schema, param_style, param_explode))
                 continue
             
             # Use safe property name to handle reserved keywords
@@ -365,21 +368,29 @@ class TypeScriptGenerator:
             
             # Check if this parameter is a GObject type (needs ref counting)
             is_gobject_param = False
+            is_object_param = False
             if "$ref" in param_schema:
                 ref_path = param_schema["$ref"]
                 if ref_path.startswith("#/components/schemas/"):
                     type_name = ref_path.split("/")[-1]
                     is_gobject_param = type_name in self.gobject_types
+                    # Check if this is an object type that needs serialization
+                    schema_def = self.schemas.get(type_name, {})
+                    if schema_def.get("type") == "object" or "allOf" in schema_def:
+                        is_object_param = True
             
             if param_in == "path":
-                path_params.append((param_name, param_schema))
+                path_params.append((param_name, param_schema, param_style, param_explode))
             elif param_in == "query":
                 query_params.append({
                     "name": ts_param_name,  # Use renamed parameter
                     "api_name": param_name,  # Original name for API call
                     "required": param_required,
                     "transfer": param_transfer,
-                    "is_gobject": is_gobject_param
+                    "is_gobject": is_gobject_param,
+                    "is_object": is_object_param,
+                    "style": param_style,
+                    "explode": param_explode
                 })
         
         # Add callback parameters to method signature
@@ -419,13 +430,48 @@ class TypeScriptGenerator:
                 else:
                     return_type = "void"
         
-        # Build URL path
+        # Build URL path - serialize parameters based on style/explode
         url_path = path
-        for param_name, param_schema in path_params:
+        for param_tuple in path_params:
+            param_name = param_tuple[0]
+            param_schema = param_tuple[1]
+            param_style = param_tuple[2] if len(param_tuple) > 2 else "simple"
+            param_explode = param_tuple[3] if len(param_tuple) > 3 else False
+            
+            # Check if this is an object type (has $ref to a schema with type=object or allOf)
+            is_object = False
+            if "$ref" in param_schema:
+                ref_path = param_schema["$ref"]
+                if ref_path.startswith("#/components/schemas/"):
+                    type_name = ref_path.split("/")[-1]
+                    schema_def = self.schemas.get(type_name, {})
+                    if schema_def.get("type") == "object" or "allOf" in schema_def:
+                        is_object = True
+            
             if param_name == "self":
-                url_path = url_path.replace("{self}", "${this.ptr}")
+                if is_object:
+                    # For objects, serialize based on style/explode
+                    if param_explode:
+                        # explode=true: ptr=${this.ptr}
+                        url_path = url_path.replace("{self}", "ptr=${this.ptr}")
+                    else:
+                        # explode=false (default): ptr,${this.ptr}
+                        url_path = url_path.replace("{self}", "ptr,${this.ptr}")
+                else:
+                    # For primitives, just use the value
+                    url_path = url_path.replace("{self}", "${this.ptr}")
             else:
-                url_path = url_path.replace(f"{{{param_name}}}", f"${{{param_name}}}")
+                if is_object:
+                    # For objects, serialize based on style/explode
+                    if param_explode:
+                        # explode=true: ptr=${param.ptr}
+                        url_path = url_path.replace(f"{{{param_name}}}", f"ptr=${{{param_name}.ptr}}")
+                    else:
+                        # explode=false (default): ptr,${param.ptr}
+                        url_path = url_path.replace(f"{{{param_name}}}", f"ptr,${{{param_name}.ptr}}")
+                else:
+                    # For primitives, just use the value
+                    url_path = url_path.replace(f"{{{param_name}}}", f"${{{param_name}}}")
         
         is_enum = class_name in self.enum_schemas
         
