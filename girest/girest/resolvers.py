@@ -135,6 +135,8 @@ class FridaResolver(connexion.resolver.Resolver):
                     gtype = GIRepository.registered_type_info_get_g_type(interface)
                     if gtype != 0:
                         return "gtype"
+                    else:
+                        return "struct"
         
         # Map GIRepository type tags to JSON type strings
         type_map = {
@@ -174,6 +176,13 @@ class FridaResolver(connexion.resolver.Resolver):
         if ret["type"] == "callback":
             callback = GIRepository.type_info_get_interface(arg_type)
             ret["subtype"] = self._callable_to_json(callback)
+
+        # Handle structs
+        if ret["type"] == "struct":
+            struct_info = GIRepository.type_info_get_interface(arg_type)
+            ret["struct_size"] = GIRepository.struct_info_get_size(struct_info)
+            if ret["direction"] == GIRepository.Direction.OUT and GIRepository.arg_info_is_caller_allocates(arg):
+                ret["direction"] = GIRepository.Direction.IN
 
         # Handle gtypes
         if ret["type"] == "gtype":
@@ -352,7 +361,7 @@ class FridaResolver(connexion.resolver.Resolver):
                                     converted_kwargs[arg_name] = enum_mapping[value]
                                 else:
                                     converted_kwargs[arg_name] = value
-                            elif info_type == GIRepository.InfoType.OBJECT:
+                            elif info_type in [GIRepository.InfoType.OBJECT, GIRepository.InfoType.STRUCT]:
                                 # For GObject types, extract the 'ptr' field from the JSON object
                                 # Our URI parser deserializes "ptr,value" into {"ptr": "value"}
                                 # but Frida expects just the pointer value
