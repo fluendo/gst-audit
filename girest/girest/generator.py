@@ -410,6 +410,8 @@ class TypeScriptGenerator:
         # Determine return type
         return_type = "void"
         response_has_return = False
+        return_is_object = False  # Track if return type is an object/struct that needs instantiation
+        return_class_name = None  # The class name to instantiate if return_is_object is True
         responses = operation.get("responses", {})
         
         if "200" in responses:
@@ -422,8 +424,23 @@ class TypeScriptGenerator:
                 if "return" in props:
                     if is_constructor:
                         return_type = class_name
+                        return_is_object = True
+                        return_class_name = class_name
                     else:
                         return_type = self._openapi_type_to_ts(props["return"])
+                        # Check if the return type is a class that needs instantiation
+                        if "$ref" in props["return"]:
+                            ref_path = props["return"]["$ref"]
+                            if ref_path.startswith("#/components/schemas/"):
+                                type_name = ref_path.split("/")[-1]
+                                schema_def = self.schemas.get(type_name, {})
+                                # Check if this is an object type (class) or struct with methods
+                                # Objects/structs have type=object or allOf (inheritance)
+                                # Also check if it's in class_methods (has methods, so it's a class)
+                                if (schema_def.get("type") == "object" or "allOf" in schema_def) and \
+                                   type_name in self.class_methods:
+                                    return_is_object = True
+                                    return_class_name = type_name
                     response_has_return = True
                 elif props:
                     return_type = self._openapi_type_to_ts(schema)
@@ -489,6 +506,8 @@ class TypeScriptGenerator:
             "callback_params": callback_params,
             "is_constructor": is_constructor,
             "has_return": response_has_return,
+            "return_is_object": return_is_object,
+            "return_class_name": return_class_name,
             "class_name": class_name
         }
     
@@ -512,7 +531,7 @@ class TypeScriptGenerator:
         
         # Get the direct parent for inheritance
         parent_class = None
-        if extends_gobject and self.base_url:
+        if extends_gobject:
             parent_class = self._get_direct_parent(class_name)
         
         # Check if this struct has a destructor
@@ -560,7 +579,19 @@ class TypeScriptGenerator:
                     data["methods"].append(method_template.render(method_data))
         else:
             # Regular class
-            if schema and (not self.base_url or not extends_gobject):
+            # Add properties from schema in these cases:
+            # 1. Not a GObject type  
+            # 2. GObject type without parent and without destructor (needs ptr field and constructor)
+            # 
+            # Why case 2? GObject types with parents inherit the ptr field from their parent.
+            # GObject types with destructors get ptr field from the destructor template section.
+            # But GObject types without either (like GObjectParamSpec) need properties from schema.
+            should_add_properties = (
+                not extends_gobject or
+                (extends_gobject and not parent_class and not has_destructor)
+            )
+            
+            if schema and should_add_properties:
                 # Add properties if not using GObjectBase
                 properties = schema.get("properties", {})
                 required = schema.get("required", [])
