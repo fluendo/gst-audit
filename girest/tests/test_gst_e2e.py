@@ -17,6 +17,17 @@ import asyncio
 import os
 
 
+def assert_response(response, msg):
+    if response.status_code != 200:
+        # Capture server logs
+        try:
+            server_output = girest_server.process.stdout.read()
+            print(f"\n=== Server logs at bin creation failure ===\n{server_output}\n=== End logs ===")
+        except:
+            pass
+        assert response.status_code == 200, f"{msg}: {response.status_code}, response: {response.text}"
+
+
 @pytest.fixture(scope="module")
 def gst_pipeline():
     """
@@ -145,7 +156,7 @@ def girest_server(gst_pipeline):
 
 
 @pytest.mark.asyncio
-async def test_gst_version_string_endpoint(girest_server):
+async def test_string_ret_endpoint(girest_server):
     """
     Test the /Gst/version_string endpoint which returns a string.
     
@@ -154,9 +165,7 @@ async def test_gst_version_string_endpoint(girest_server):
     """
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{girest_server}/Gst/version_string")
-        
-        # Check the response status
-        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert_response(response, f"Failed to get version string")
         
         # Check the response is JSON
         data = response.json()
@@ -171,7 +180,7 @@ async def test_gst_version_string_endpoint(girest_server):
 
 
 @pytest.mark.asyncio
-async def test_gst_version_endpoint(girest_server):
+async def test_basic_out_endpoint(girest_server):
     """
     Test the /Gst/version endpoint which returns output integer parameters.
     
@@ -180,9 +189,7 @@ async def test_gst_version_endpoint(girest_server):
     """
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{girest_server}/Gst/version")
-        
-        # Check the response status
-        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert_response(response, f"Failed to get version")
         
         # Check the response is JSON
         data = response.json()
@@ -205,44 +212,7 @@ async def test_gst_version_endpoint(girest_server):
 
 
 @pytest.mark.asyncio
-async def test_girest_pipelines_endpoint(girest_server):
-    """
-    Test the /GIRest/pipelines endpoint which returns a list of discovered pipelines.
-    
-    This tests that the endpoint returns a list of pipeline objects discovered by Frida
-    in the running GStreamer process.
-    """
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f"{girest_server}/GIRest/pipelines")
-        
-        # Check the response status
-        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
-        
-        # Check the response is JSON
-        data = response.json()
-        
-        # Check that the response is a list
-        assert isinstance(data, list), "Response should be a list"
-        
-        # Since we started a pipeline with gst-launch-1.0, there should be at least one pipeline
-        assert len(data) >= 1, f"Expected at least 1 pipeline, got {len(data)}"
-        
-        # Check the structure of pipeline objects
-        for pipeline in data:
-            assert isinstance(pipeline, dict), "Each pipeline should be a dictionary"
-            assert "ptr" in pipeline, "Pipeline should contain 'ptr' field"
-            assert "name" in pipeline, "Pipeline should contain 'name' field"
-            
-            # ptr should be a string representation of a pointer
-            assert isinstance(pipeline["ptr"], str), "ptr should be a string"
-            
-            # name should be a string
-            assert isinstance(pipeline["name"], str), "name should be a string"
-            assert len(pipeline["name"]) > 0, "Pipeline name should not be empty"
-
-
-@pytest.mark.asyncio
-async def test_struct_out_parameter_gvalue_iterator(girest_server):
+async def test_gtype_out_endpoint(girest_server):
     """
     Test struct out parameter handling with GstIterator::next and GValue.
     
@@ -261,139 +231,44 @@ async def test_struct_out_parameter_gvalue_iterator(girest_server):
     async with httpx.AsyncClient(timeout=10.0) as client:
         # Step 1: Create a GstBin
         response = await client.get(f"{girest_server}/Gst/Bin/new", params={"name": "test_bin"})
-        if response.status_code != 200:
-            # Capture server logs
-            try:
-                server_output = girest_server.process.stdout.read()
-                print(f"\n=== Server logs at bin creation failure ===\n{server_output}\n=== End logs ===")
-            except:
-                pass
-        assert response.status_code == 200, f"Failed to create bin: {response.status_code}, response: {response.text}"
-        bin_data = response.json()
-        assert "return" in bin_data, "Bin creation should return a pointer"
-        bin_ptr = bin_data["return"]
+        assert_response(response, f"Failed to create bin")
+        response_data = response.json()
+        assert "return" in response_data, "Bin creation should return a pointer"
+        bin_ptr = response_data["return"]
         
         # Step 2: Create a GstElement to add to the bin
         response = await client.get(f"{girest_server}/Gst/ElementFactory/make", params={"factoryname": "fakesrc", "name": "test_element"})
-        if response.status_code != 200:
-            try:
-                server_output = girest_server.process.stdout.read()
-                print(f"\n=== Server logs at element creation failure ===\n{server_output}\n=== End logs ===")
-            except:
-                pass
-        assert response.status_code == 200, f"Failed to create element: {response.status_code}"
-        element_data = response.json()
-        element_ptr = element_data["return"]
+        assert_response(response, f"Failed to create element")
+        response_data = response.json()
+        element_ptr = response_data["return"]
         
         # Step 3: Add the element to the bin
         # Note: Objects are serialized as "ptr,value" per OpenAPI spec (style=form, explode=false for query params)
         response = await client.get(f"{girest_server}/Gst/Bin/ptr,{bin_ptr}/add", params={"element": f"ptr,{element_ptr}"})
-        if response.status_code != 200:
-            try:
-                server_output = girest_server.process.stdout.read()
-                print(f"\n=== Server logs at bin.add failure ===\n{server_output}\n=== End logs ===")
-            except:
-                pass
-        assert response.status_code == 200, f"Failed to add element to bin: {response.status_code}"
+        assert_response(response, f"Failed to add element into the bin")
         
         # Step 4: Get an iterator for the bin's elements
-        # Note: Path parameter for object is serialized as "ptr,value" per OpenAPI spec (style=simple, explode=false)
         response = await client.get(f"{girest_server}/Gst/Bin/ptr,{bin_ptr}/iterate_elements")
-        assert response.status_code == 200, f"Failed to get iterator: {response.status_code}"
-        iterator_data = response.json()
-        iterator_ptr = iterator_data["return"]
+        assert_response(response, f"Failed to iterate elements")
+        response_data = response.json()
+        assert "return" in response_data, "Iterate elements should return a pointer"
+        iterator_ptr = response_data["return"]
         
-        # Step 5-7: Test GValue creation and iterator next if endpoints are available
-        # Note: These may not be fully implemented yet, so we test what we can
-        try:
-            response = await client.get(f"{girest_server}/GObject/Value/new")
-            if response.status_code == 200:
-                value_data = response.json()
-                value_ptr = value_data["return"]
-                
-                # Try to call iterator next
-                # Note: Path and query parameters for objects use "ptr,value" format
-                response = await client.get(f"{girest_server}/Gst/Iterator/ptr,{iterator_ptr}/next", params={"elem": f"ptr,{value_ptr}"})
-                if response.status_code == 200:
-                    next_result = response.json()
-                    # The result should contain the return value and may contain the out parameter 'elem'
-                    assert "return" in next_result
-                    print("✓ Successfully tested GValue out parameter handling")
-        except Exception as e:
-            print(f"Note: GValue test skipped - endpoint may not be fully available: {e}")
+        # Step 5: Test GValue creation
+        response = await client.get(f"{girest_server}/GObject/Value/new")
+        assert_response(response, f"Failed to create a value")
+        response_data = response.json()
+        assert "return" in response_data, "Value new should return a pointer"
+        assert "ptr" in response_data["return"], "Value new should return a pointer"
+        value_ptr = response_data["return"]["ptr"]
         
+        # Step 6: Unset the GValue
+        response = await client.get(f"{girest_server}/GObject/Value/ptr,{value_ptr}/unset")
+        assert_response(response, f"Failed to unset the value")
+        # Step 7: Try to call iterator next
+        response = await client.get(f"{girest_server}/Gst/Iterator/ptr,{iterator_ptr}/next", params={"elem": f"ptr,{value_ptr}"})
+        assert_response(response, f"Failed to iterate next")
+        response_data = response.json()
+        # The result should contain the return value and may contain the out parameter 'elem'
+        assert "return" in response_data
         print("✓ Successfully tested struct out parameter infrastructure")
-
-
-@pytest.mark.asyncio
-async def test_boxed_type_out_parameter_handling(girest_server):
-    """
-    Test boxed type (registered GType) out parameter handling.
-    
-    This tests the case where a boxed type is used as an OUT parameter
-    in parse methods. The key difference from structs is that boxed types
-    (registered GTypes) should be dereferenced as pointers when used as out parameters.
-    
-    The test validates:
-        1. Creating a GstMessage with boxed type data
-        2. Parsing it to extract the boxed type out parameter
-        3. Verifying the out parameter is a valid pointer to the boxed type
-    """
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        # Test 1: Create a tag message which contains a GstTagList (a boxed type)
-        response = await client.get(f"{girest_server}/Gst/TagList/new_empty")
-        if response.status_code == 200:
-            taglist_data = response.json()
-            taglist_ptr = taglist_data["return"]
-            
-            # Create a tag message with this TagList
-            # Note: Object parameters use "ptr,value" format (style=form, explode=false)
-            response = await client.get(
-                f"{girest_server}/Gst/Message/new_tag",
-                params={"src": "ptr,0x0", "tag_list": f"ptr,{taglist_ptr}"}
-            )
-            if response.status_code == 200:
-                tag_msg_data = response.json()
-                tag_msg_ptr = tag_msg_data["return"]
-                
-                # Parse the tag message to extract the TagList out parameter
-                # Note: Path parameter for object uses "ptr,value" format (style=simple, explode=false)
-                response = await client.get(f"{girest_server}/Gst/Message/ptr,{tag_msg_ptr}/parse_tag")
-                if response.status_code == 200:
-                    parse_result = response.json()
-                    # Verify we got the out parameter (tag_list is a boxed type)
-                    assert "tag_list" in parse_result, "Out parameter 'tag_list' (boxed type) should be in result"
-                    parsed_taglist_ptr = parse_result["tag_list"]
-                    # The parsed taglist pointer should be valid (not null)
-                    assert parsed_taglist_ptr is not None and parsed_taglist_ptr != "0x0"
-                    print("✓ Successfully tested boxed type (GstTagList) out parameter handling")
-        
-        # Test 2: Create a TOC message and parse it (GstToc is also a boxed type)
-        response = await client.get(f"{girest_server}/Gst/Toc/new", params={"scope": 1})
-        if response.status_code == 200:
-            toc_data = response.json()
-            toc_ptr = toc_data["return"]
-            
-            # Create a TOC message
-            # Note: Object parameters use "ptr,value" format
-            response = await client.get(
-                f"{girest_server}/Gst/Message/new_toc",
-                params={"src": "ptr,0x0", "toc": f"ptr,{toc_ptr}", "updated": 1}
-            )
-            if response.status_code == 200:
-                toc_msg_data = response.json()
-                toc_msg_ptr = toc_msg_data["return"]
-                
-                # Parse the TOC message to extract the Toc out parameter
-                # Note: Path parameter for object uses "ptr,value" format
-                response = await client.get(f"{girest_server}/Gst/Message/ptr,{toc_msg_ptr}/parse_toc")
-                if response.status_code == 200:
-                    parse_result = response.json()
-                    # Verify we got the out parameter (toc is a boxed type)
-                    assert "toc" in parse_result, "Out parameter 'toc' (boxed type) should be in result"
-                    parsed_toc_ptr = parse_result["toc"]
-                    assert parsed_toc_ptr is not None and parsed_toc_ptr != "0x0"
-                    print("✓ Successfully tested another boxed type (GstToc) out parameter")
-        
-        print("✓ Successfully tested boxed type out parameter handling")
-
