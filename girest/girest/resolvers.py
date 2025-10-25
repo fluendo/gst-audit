@@ -1,3 +1,5 @@
+import logging
+
 import asyncio
 import connexion
 import gi
@@ -15,6 +17,7 @@ except ImportError:
     # Fallback for when module is imported directly (e.g., in tests)
     from utils import parse_operation_id
 
+logger = logging.getLogger("girest")
 
 class FridaResolver(connexion.resolver.Resolver):
     """
@@ -93,11 +96,22 @@ class FridaResolver(connexion.resolver.Resolver):
         
         # Set up message handler
         self.script.on('message', self._on_message)
-        
+        self.script.set_log_handler(self._on_log)
+ 
         # Load and initialize the script
         self.script.load()
         self.script.exports_sync.init()
-    
+
+    def _on_log(self, level, message):
+        """Handle the console from js"""
+        levels = {
+            "debug": logging.DEBUG,
+            "info": logging.INFO,
+            "warn": logging.WARNING,
+            "error": logging.ERROR,
+        }
+        logger.log(levels[level], message)
+
     def _on_message(self, message, data):
         """Handle messages from the Frida script"""
         if message["type"] != "send":
@@ -113,7 +127,7 @@ class FridaResolver(connexion.resolver.Resolver):
             self.girest.add_pipeline(payload["data"])
         else:
             # For now, just log other messages
-            print(f"Message from Frida: {message}")
+            logger.debug(f"Message from Frida: {message}")
     
     def _type_to_json(self, t):
         """Convert GIRepository type to JSON type string"""
