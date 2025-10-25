@@ -172,8 +172,14 @@ class FridaResolver(connexion.resolver.Resolver):
         
         # Handle callbacks
         if ret["type"] == "callback":
-            interface = GIRepository.type_info_get_interface(arg_type)
-            ret["subtype"] = self._callable_to_json(interface)
+            callback = GIRepository.type_info_get_interface(arg_type)
+            ret["subtype"] = self._callable_to_json(callback)
+
+        # Handle gtypes
+        if ret["type"] == "gtype":
+            struct_info = GIRepository.type_info_get_interface(arg_type)
+            if ret["direction"] == GIRepository.Direction.OUT and GIRepository.arg_info_is_caller_allocates(arg):
+                ret["direction"] = GIRepository.Direction.IN
         
         return ret
     
@@ -217,7 +223,7 @@ class FridaResolver(connexion.resolver.Resolver):
                 ret["arguments"][r["destroy"]]["is_destroy"] = True
             if r["direction"] == GIRepository.Direction.OUT:
                 r["skipped"] = True
-        
+
         return ret
     
     def _method_to_json(self, method):

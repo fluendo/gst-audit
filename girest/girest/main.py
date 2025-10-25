@@ -184,10 +184,12 @@ class GIRest():
             
             # Handle output parameters - they go in the response
             if arg_direction == GIRepository.Direction.OUT:
-                schema = self._type_to_schema(arg_type)
-                if schema:
-                    response_props[arg_name] = schema
-                continue
+                # unless the caller allocates and is not a struct or an object
+                if tag != "interface" or (interface.get_type() in [GIRepository.InfoType.STRUCT, GIRepository.InfoType.OBJECT] and not GIRepository.arg_info_is_caller_allocates):
+                    schema = self._type_to_schema(arg_type)
+                    if schema:
+                        response_props[arg_name] = schema
+                    continue
             
             # Handle input and inout parameters
             schema = self._type_to_schema(arg_type)
