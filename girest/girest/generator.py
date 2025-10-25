@@ -531,7 +531,7 @@ class TypeScriptGenerator:
         
         # Get the direct parent for inheritance
         parent_class = None
-        if extends_gobject and self.base_url:
+        if extends_gobject:
             parent_class = self._get_direct_parent(class_name)
         
         # Check if this struct has a destructor
@@ -580,15 +580,13 @@ class TypeScriptGenerator:
         else:
             # Regular class
             # Add properties from schema in these cases:
-            # 1. Not using base_url (testing/interface generation)
-            # 2. Not a GObject type  
-            # 3. GObject type without parent and without destructor (needs ptr field and constructor)
+            # 1. Not a GObject type  
+            # 2. GObject type without parent and without destructor (needs ptr field and constructor)
             # 
-            # Why case 3? GObject types with parents inherit the ptr field from their parent.
+            # Why case 2? GObject types with parents inherit the ptr field from their parent.
             # GObject types with destructors get ptr field from the destructor template section.
             # But GObject types without either (like GObjectParamSpec) need properties from schema.
             should_add_properties = (
-                not self.base_url or
                 not extends_gobject or
                 (extends_gobject and not parent_class and not has_destructor)
             )
