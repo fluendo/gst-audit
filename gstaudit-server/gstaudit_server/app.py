@@ -113,6 +113,7 @@ app.add_api(
     specd,
     resolver=resolver,
     uri_parser_class=URITemplateParser,
+    base_path="/girest"
 )
 
 # Create our own API for fetching the pipelines
@@ -146,7 +147,7 @@ operation = {
 
 }
 gstaudit_spec.path(path="/GstAudit/pipelines", operations={"get": operation})
-app.add_api(gstaudit_spec.to_dict(), resolver=GstAuditResolver(), base_path="/foo")
+app.add_api(gstaudit_spec.to_dict(), resolver=GstAuditResolver(), base_path="/gstaudit")
 
 # Run the server
 app.run(port=args.port)

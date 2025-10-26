@@ -36,8 +36,8 @@ Get the PID of the GStreamer process and start the girest-frida server:
 
 ```bash
 # From the repository root
-cd girest
-python3 girest-frida.py Gst 1.0 --pid <PID> --port 9000
+cd gstaudit-server
+poetry run python gstaudit_server/app.py --pid <PID>
 ```
 
 ### 3. Run the Development Server
