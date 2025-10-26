@@ -172,14 +172,6 @@ def main():
                 }
             )
         
-        # Register the pipelines endpoint at /GIRest/pipelines
-        @app.route('/GIRest/pipelines', methods=['GET'])
-        async def get_pipelines(arg):
-            """Endpoint for retrieving discovered GStreamer pipelines."""
-            pipelines = girest.get_pipelines()
-            return pipelines
-
-        # Run the server
         app.run(port=args.port)
     
     except Exception as e:

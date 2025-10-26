@@ -44,9 +44,6 @@ class GIRest():
         self._event_counter = 0
         self._buffer_lock = threading.Lock()
         
-        # Pipeline tracking
-        self.pipelines: list = []  # List of discovered pipelines
-        self._pipelines_lock = threading.Lock()
 
     def _type_to_schema(self, t):
         """Convert GIRepository type to OpenAPI schema"""
@@ -653,31 +650,3 @@ class GIRest():
                 yield message
         
         return event_stream()
-    
-    def add_pipeline(self, pipeline_data: dict):
-        """
-        Add a pipeline to the list of discovered pipelines.
-        
-        This is thread-safe and can be called from any thread (e.g., Frida's message handler).
-        
-        Args:
-            pipeline_data: Dictionary containing pipeline data (ptr, name, etc.)
-        """
-        with self._pipelines_lock:
-            # Check if pipeline is already in the list (by ptr)
-            ptr = pipeline_data.get("ptr")
-            if ptr and not any(p.get("ptr") == ptr for p in self.pipelines):
-                self.pipelines.append(pipeline_data)
-    
-    def get_pipelines(self) -> list:
-        """
-        Get the current list of discovered pipelines.
-        
-        Returns:
-            List of pipeline dictionaries
-        """
-        with self._pipelines_lock:
-            # Return a copy to avoid external modifications
-            return list(self.pipelines)
-
-

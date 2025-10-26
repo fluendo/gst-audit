@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "girestt"
+name = "girest"
 version = "0.0.1"
 description = "GObject introspection to REST API generator"
 authors = ["Fluendo S.A. <support@fluendo.com>"]

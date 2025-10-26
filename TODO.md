@@ -5,6 +5,3 @@
   to be renamed
 
 ## GStreamer
-* `gst_iterator_next` the parameter `elem` must be inout. The function expects the value
-  to have been initialized or at least zeroed with `g_value_unset` therefore it requires
-  the value to have a specific state

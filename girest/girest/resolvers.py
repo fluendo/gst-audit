@@ -24,11 +24,11 @@ class FridaResolver(connexion.resolver.Resolver):
     Resolver for Connexion that uses Frida to call functions in a remote process.
     
     This resolver generates JSON representations of GIRepository function/method
-    definitions that are compatible with the gstaudit.js Frida script.
+    definitions that are compatible with the girest.js Frida script.
     
     The resolver:
     1. Connects to a target process via Frida
-    2. Loads the gstaudit.js script
+    2. Loads the girest.js script
     3. For each API operation, finds the corresponding GIRepository function
     4. Generates a JSON representation of the function signature
     5. Creates a handler that calls the Frida script with the JSON and arguments
@@ -52,17 +52,19 @@ class FridaResolver(connexion.resolver.Resolver):
         "returns": "int32"
     }
     """
-    def __init__(self, spec: dict, girest: "GIRest", pid: int):
+    def __init__(self, spec: dict, girest: "GIRest", pid: int, scripts=None, on_log=None, on_message=None):
         self.girest = girest
         self.spec = spec
         self.pid = pid
-        self.script = None
         self.session = None
+        if not scripts:
+            scripts = []
+        self.scripts = []
         # Build enum value mappings for converting string names to integers
         self.enum_mappings = {}
         self._build_enum_mappings()
         # Connect to the corresponding process
-        self._connect_frida()
+        self._connect_frida(scripts, on_log, on_message)
         super().__init__()
  
     def _build_enum_mappings(self):
@@ -79,28 +81,34 @@ class FridaResolver(connexion.resolver.Resolver):
                     mapping[value_info.get_name()] = GIRepository.value_info_get_value(value_info)
                 self.enum_mappings[full_name] = mapping
 
+    def _load_script(self, script_path, on_log, on_message):
+        s = None
+        with open(script_path, 'r') as f:
+            s = self.session.create_script(f.read())
+        
+        # Set up message handler
+        s.on('message', on_message)
+        s.set_log_handler(on_log)
  
-    def _connect_frida(self):
+        # Load and initialize the script
+        s.load()
+        s.exports_sync.init()
+        self.scripts.append(s)
+
+    def _connect_frida(self, scripts, on_log, on_message):
         """Connect to the target process using Frida"""
         import frida
         import os
-        
+
         # Attach to the process
         self.session = frida.attach(self.pid)
         
-        # Load the JavaScript file (same as in gstaudit/main.py)
-        # We need to find the gstaudit.js file
-        script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'gstaudit.js')
-        with open(script_path, 'r') as f:
-            self.script = self.session.create_script(f.read())
-        
-        # Set up message handler
-        self.script.on('message', self._on_message)
-        self.script.set_log_handler(self._on_log)
- 
-        # Load and initialize the script
-        self.script.load()
-        self.script.exports_sync.init()
+        # We need to find the girest.js file
+        script_path = os.path.join(os.path.dirname((os.path.dirname(__file__))), 'girest.js')
+        self._load_script(script_path, self._on_log, self._on_message)
+        # Now load every passed in script and register the on_log and on_message
+        for s in scripts:
+            self._load_script(s, on_log, on_message)
 
     def _on_log(self, level, message):
         """Handle the console from js"""
@@ -122,9 +130,6 @@ class FridaResolver(connexion.resolver.Resolver):
         # Handle callbacks by pushing them to the SSE buffer
         if kind == "callback":
             self.girest.push_sse_event(payload["data"])
-        # Handle pipeline discovery messages
-        elif kind == "pipeline":
-            self.girest.add_pipeline(payload["data"])
         else:
             # For now, just log other messages
             logger.debug(f"Message from Frida: {message}")
@@ -316,7 +321,7 @@ class FridaResolver(connexion.resolver.Resolver):
         async def generic_new_handler(*args, **kwargs):
             # Call the Frida script's generic alloc function
             result = await asyncio.to_thread(
-                self.script.exports_sync.alloc, size
+                self.scripts[0].exports_sync.alloc, size
             )
             return {"return": {"ptr": result}}
         
@@ -334,7 +339,7 @@ class FridaResolver(connexion.resolver.Resolver):
 
             # Call the Frida script's generic free function
             await asyncio.to_thread(
-                self.script.exports_sync.free, obj["ptr"]
+                self.scripts[0].exports_sync.free, obj["ptr"]
             )
             return None
         
@@ -405,7 +410,7 @@ class FridaResolver(connexion.resolver.Resolver):
             # Call the Frida script with the symbol and method JSON
             # Use asyncio.to_thread to avoid blocking the event loop with the sync Frida call
             result = await asyncio.to_thread(
-                self.script.exports_sync.call, symbol, _type, *converted_kwargs.values()
+                self.scripts[0].exports_sync.call, symbol, _type, *converted_kwargs.values()
             )
 
             if not result:
