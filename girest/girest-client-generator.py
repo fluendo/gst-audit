@@ -54,6 +54,11 @@ def main():
         default=9000,
         help="Port for REST API calls (default: 9000)"
     )
+    parser.add_argument(
+        "--base-path",
+        default="",
+        help="Base path for REST API calls (default: '')"
+    )
     
     args = parser.parse_args()
     
@@ -64,7 +69,7 @@ def main():
         openapi_schema = spec.to_dict()
         
         # Generate TypeScript bindings using Jinja2-based generator
-        ts_gen = TypeScriptGenerator(openapi_schema, host=args.host, port=args.port)
+        ts_gen = TypeScriptGenerator(openapi_schema, host=args.host, port=args.port, base_path=args.base_path)
         output = ts_gen.generate()
         
         # Write to file or stdout

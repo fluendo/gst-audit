@@ -11,24 +11,28 @@ export type Pointer = string;
 let apiConfig = {
   host: '{{ host }}',
   port: {{ port }},
+  basePath: '{{ base_path }}',
   get baseUrl(): string {
-    return `http://${this.host}:${this.port}`;
+    return `http://${this.host}:${this.port}${this.basePath}`;
   }
 };
 
 /**
  * Update the API server configuration
- * @param config New configuration with host and/or port
+ * @param config New configuration with host, port, and/or basePath
  */
-export function setApiConfig(config: { host?: string; port?: number }): void {
+export function setApiConfig(config: { host?: string; port?: number; basePath?: string }): void {
   if (config.host !== undefined) {
     apiConfig.host = config.host;
   }
   if (config.port !== undefined) {
     apiConfig.port = config.port;
   }
+  if (config.basePath !== undefined) {
+    apiConfig.basePath = config.basePath;
+  }
   // Reinitialize callback EventSource with new URL
-  if (typeof EventSource !== 'undefined' && (config.host !== undefined || config.port !== undefined)) {
+  if (typeof EventSource !== 'undefined' && (config.host !== undefined || config.port !== undefined || config.basePath !== undefined)) {
     initializeCallbackSource();
   }
 }
@@ -36,10 +40,11 @@ export function setApiConfig(config: { host?: string; port?: number }): void {
 /**
  * Get the current API server configuration
  */
-export function getApiConfig(): { host: string; port: number; baseUrl: string } {
+export function getApiConfig(): { host: string; port: number; basePath: string; baseUrl: string } {
   return {
     host: apiConfig.host,
     port: apiConfig.port,
+    basePath: apiConfig.basePath,
     baseUrl: apiConfig.baseUrl
   };
 }
