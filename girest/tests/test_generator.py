@@ -300,3 +300,56 @@ def test_typescript_object_return_value_instantiation(gst_typescript):
             "Method returning primitive should not access data.return.ptr"
     
     print("✓ TypeScript generator instantiates object return values correctly")
+
+
+def test_typescript_duplicate_method_names_in_inheritance_chain(gst_typescript):
+    """
+    Test that TypeScript generator handles duplicate method names in inheritance chain.
+    
+    Verifies that:
+    - When a child class has a method with the same name as a parent class method,
+      the child method gets a suffix (_2, _3, etc.)
+    - The suffix is applied recursively to handle multiple conflicts
+    - GstObject has get_g_value_array method
+    - GstControlBinding (which extends GstObject) has get_g_value_array_2 method
+    """
+    typescript = gst_typescript
+    import re
+    
+    # Find GstObject class and verify it has get_g_value_array method
+    gst_object_match = re.search(
+        r'export class GstObject extends.*?(?=export class|export namespace|$)',
+        typescript,
+        re.DOTALL
+    )
+    assert gst_object_match, "GstObject class not found in generated TypeScript"
+    
+    gst_object_class = gst_object_match.group(0)
+    
+    # Verify GstObject has get_g_value_array method (without suffix)
+    assert re.search(r'async get_g_value_array\(', gst_object_class), \
+        "GstObject should have get_g_value_array method"
+    
+    # Verify GstObject doesn't have get_g_value_array_2 (it's the parent)
+    assert not re.search(r'async get_g_value_array_2\(', gst_object_class), \
+        "GstObject should not have get_g_value_array_2 method (it's the parent)"
+    
+    # Find GstControlBinding class and verify it has get_g_value_array_2 method
+    control_binding_match = re.search(
+        r'export class GstControlBinding extends.*?(?=export class|export namespace|$)',
+        typescript,
+        re.DOTALL
+    )
+    assert control_binding_match, "GstControlBinding class not found in generated TypeScript"
+    
+    control_binding_class = control_binding_match.group(0)
+    
+    # Verify GstControlBinding has get_g_value_array_2 method (with suffix)
+    assert re.search(r'async get_g_value_array_2\(', control_binding_class), \
+        "GstControlBinding should have get_g_value_array_2 method (renamed to avoid conflict with parent)"
+    
+    # Verify GstControlBinding doesn't have get_g_value_array (without suffix)
+    assert not re.search(r'async get_g_value_array\([^_]', control_binding_class), \
+        "GstControlBinding should not have get_g_value_array method (conflicts with parent)"
+    
+    print("✓ TypeScript generator handles duplicate method names in inheritance chain correctly")
