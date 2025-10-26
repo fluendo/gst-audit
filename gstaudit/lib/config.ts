@@ -10,17 +10,19 @@ export interface GstAuditConfig {
   baseUrl: string;
 }
 
+/**
+ * Normalize base path to ensure it starts with / if non-empty
+ */
+function normalizeBasePath(basePath: string): string {
+  return basePath && !basePath.startsWith('/') ? `/${basePath}` : basePath;
+}
+
 let config: GstAuditConfig = {
   host: process.env.NEXT_PUBLIC_API_HOST || 'localhost',
   port: parseInt(process.env.NEXT_PUBLIC_API_PORT || '9000'),
-  basePath: process.env.NEXT_PUBLIC_API_BASE_PATH || '',
+  basePath: normalizeBasePath(process.env.NEXT_PUBLIC_API_BASE_PATH || ''),
   baseUrl: '',
 };
-
-// Normalize basePath to ensure it starts with / if non-empty
-if (config.basePath && !config.basePath.startsWith('/')) {
-  config.basePath = `/${config.basePath}`;
-}
 
 // Initialize baseUrl
 config.baseUrl = `http://${config.host}:${config.port}${config.basePath}`;
@@ -41,9 +43,9 @@ export function updateConfig(newConfig: Partial<Omit<GstAuditConfig, 'baseUrl'>>
     ...config,
     ...newConfig,
   };
-  // Normalize basePath to ensure it starts with / if non-empty
-  if (config.basePath && !config.basePath.startsWith('/')) {
-    config.basePath = `/${config.basePath}`;
+  // Normalize basePath if it was updated
+  if (newConfig.basePath !== undefined) {
+    config.basePath = normalizeBasePath(config.basePath);
   }
   config.baseUrl = `http://${config.host}:${config.port}${config.basePath}`;
 }
