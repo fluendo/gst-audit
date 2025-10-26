@@ -17,6 +17,11 @@ let config: GstAuditConfig = {
   baseUrl: '',
 };
 
+// Normalize basePath to ensure it starts with / if non-empty
+if (config.basePath && !config.basePath.startsWith('/')) {
+  config.basePath = `/${config.basePath}`;
+}
+
 // Initialize baseUrl
 config.baseUrl = `http://${config.host}:${config.port}${config.basePath}`;
 

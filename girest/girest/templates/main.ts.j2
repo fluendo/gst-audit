@@ -7,14 +7,18 @@
 // Base types
 export type Pointer = string;
 
+// Utility function to normalize base path
+function normalizeBasePath(basePath: string): string {
+  return basePath && !basePath.startsWith('/') ? `/${basePath}` : basePath;
+}
+
 // Configuration for API server location
 let apiConfig = {
   host: '{{ host }}',
   port: {{ port }},
   basePath: '{{ base_path }}',
   get baseUrl(): string {
-    const normalizedBasePath = this.basePath && !this.basePath.startsWith('/') ? `/${this.basePath}` : this.basePath;
-    return `http://${this.host}:${this.port}${normalizedBasePath}`;
+    return `http://${this.host}:${this.port}${normalizeBasePath(this.basePath)}`;
   }
 };
 
@@ -30,8 +34,7 @@ export function setApiConfig(config: { host?: string; port?: number; basePath?: 
     apiConfig.port = config.port;
   }
   if (config.basePath !== undefined) {
-    // Normalize basePath to ensure it starts with / if non-empty
-    apiConfig.basePath = config.basePath && !config.basePath.startsWith('/') ? `/${config.basePath}` : config.basePath;
+    apiConfig.basePath = normalizeBasePath(config.basePath);
   }
   // Reinitialize callback EventSource with new URL
   if (typeof EventSource !== 'undefined' && (config.host !== undefined || config.port !== undefined || config.basePath !== undefined)) {
