@@ -13,6 +13,7 @@ from connexion import AsyncApp
 
 from connexion.datastructures import MediaTypeDict
 from connexion.resolver import Resolver
+from starlette.middleware.cors import CORSMiddleware
 
 class GstAuditResolver(Resolver):
     def resolve_function_from_operation_id(self, operation_id):
@@ -148,6 +149,15 @@ operation = {
 }
 gstaudit_spec.path(path="/GstAudit/pipelines", operations={"get": operation})
 app.add_api(gstaudit_spec.to_dict(), resolver=GstAuditResolver(), base_path="/gstaudit")
+
+# Add the CORS middleware to let the React app connect
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3001"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Run the server
 app.run(port=args.port)
