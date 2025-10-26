@@ -11,13 +11,19 @@ A Next.js + TypeScript + React + React Flow application for auditing and visuali
 
 ## Components
 
-This project consists of two main components:
+This project consists of three main components:
 
 ### [GstAudit Web Application](gstaudit/)
 
 The main web application for visualizing and interacting with GStreamer pipelines. Built with Next.js, TypeScript, React, and React Flow.
 
 See [gstaudit/README.md](gstaudit/README.md) for detailed documentation.
+
+### [GstAudit Server Application](gstaudit-server/)
+
+The server exposing the REST API of your running pipeline
+
+See [gstaudit-server/README.md](gstaudit-server/README.md) for detailed documentation.
 
 ### [GIRest](girest/)
 
