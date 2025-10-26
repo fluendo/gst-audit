@@ -6060,7 +6060,7 @@ export class GstObject extends GObjectInitiallyUnowned {
     const data = await response.json();
     return data.return;
   }
-  async ref(): Promise<GstObject> {
+  async ref_2(): Promise<GstObject> {
     const url = new URL(`/Gst/Object/ptr,${this.ptr}/ref`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6147,7 +6147,7 @@ export class GstObject extends GObjectInitiallyUnowned {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async unref(): Promise<void> {
+  async unref_2(): Promise<void> {
     const url = new URL(`/Gst/Object/ptr,${this.ptr}/unref`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9733,7 +9733,7 @@ export class GstContext {
 
 export class GstControlBinding extends GstObject {
 
-  async get_g_value_array(timestamp: number, interval: number, n_values: number, values: Pointer): Promise<boolean> {
+  async get_g_value_array_2(timestamp: number, interval: number, n_values: number, values: Pointer): Promise<boolean> {
     const url = new URL(`/Gst/ControlBinding/ptr,${this.ptr}/get_g_value_array`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('timestamp', String(timestamp));
@@ -9748,7 +9748,7 @@ export class GstControlBinding extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async get_value(timestamp: number): Promise<GObjectValue> {
+  async get_value_2(timestamp: number): Promise<GObjectValue> {
     const url = new URL(`/Gst/ControlBinding/ptr,${this.ptr}/get_value`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('timestamp', String(timestamp));
@@ -9776,7 +9776,7 @@ export class GstControlBinding extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async sync_values(object: GstObject, timestamp: number, last_sync: number): Promise<boolean> {
+  async sync_values_2(object: GstObject, timestamp: number, last_sync: number): Promise<boolean> {
     const url = new URL(`/Gst/ControlBinding/ptr,${this.ptr}/sync_values`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (object && typeof object === 'object' && 'ptr' in object) {
@@ -10814,7 +10814,7 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
 
 export class GstDynamicTypeFactory extends GstPluginFeature {
 
-  async load(factoryname: string): Promise<Pointer> {
+  async load_2(factoryname: string): Promise<Pointer> {
     const url = new URL(`/Gst/DynamicTypeFactory/load`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('factoryname', String(factoryname));
@@ -12778,7 +12778,7 @@ export class GstProxyPad extends GstPad {
     const data = await response.json();
     return data.return;
   }
-  async iterate_internal_links_default(pad: GstPad, parent?: GstObject): Promise<GstIterator> {
+  async iterate_internal_links_default_2(pad: GstPad, parent?: GstObject): Promise<GstIterator> {
     const url = new URL(`/Gst/ProxyPad/iterate_internal_links_default`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (pad && typeof pad === 'object' && 'ptr' in pad) {
@@ -12813,7 +12813,7 @@ export class GstProxyPad extends GstPad {
 }
 
 export class GstGhostPad extends GstProxyPad {
-  static async new(target: GstPad, name?: string): Promise<GstGhostPad> {
+  static async new_2(target: GstPad, name?: string): Promise<GstGhostPad> {
     const url = new URL(`/Gst/GhostPad/new`, apiConfig.baseUrl);
     // Primitive parameter
     if (name !== undefined) url.searchParams.append('name', String(name));
@@ -12828,7 +12828,7 @@ export class GstGhostPad extends GstProxyPad {
     Object.assign(instance, data.return || data);
     return instance;
   }
-  static async new_from_template(target: GstPad, templ: GstPadTemplate, name?: string): Promise<GstGhostPad> {
+  static async new_from_template_2(target: GstPad, templ: GstPadTemplate, name?: string): Promise<GstGhostPad> {
     const url = new URL(`/Gst/GhostPad/new_from_template`, apiConfig.baseUrl);
     // Primitive parameter
     if (name !== undefined) url.searchParams.append('name', String(name));
@@ -15281,7 +15281,7 @@ export class GstParseContext {
 }
 
 export class GstPipeline extends GstBin {
-  static async new(name?: string): Promise<GstPipeline> {
+  static async new_2(name?: string): Promise<GstPipeline> {
     const url = new URL(`/Gst/Pipeline/new`, apiConfig.baseUrl);
     // Primitive parameter
     if (name !== undefined) url.searchParams.append('name', String(name));
@@ -15305,7 +15305,7 @@ export class GstPipeline extends GstBin {
     const data = await response.json();
     return data.return;
   }
-  async get_bus(): Promise<GstBus> {
+  async get_bus_2(): Promise<GstBus> {
     const url = new URL(`/Gst/Pipeline/ptr,${this.ptr}/get_bus`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -15564,7 +15564,7 @@ export class GstPlugin extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async get_name(): Promise<string> {
+  async get_name_2(): Promise<string> {
     const url = new URL(`/Gst/Plugin/ptr,${this.ptr}/get_name`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17620,7 +17620,7 @@ export class GstTaskPool extends GstObject {
 }
 
 export class GstSharedTaskPool extends GstTaskPool {
-  static async new(): Promise<GstSharedTaskPool> {
+  static async new_2(): Promise<GstSharedTaskPool> {
     const url = new URL(`/Gst/SharedTaskPool/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

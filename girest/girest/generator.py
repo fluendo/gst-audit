@@ -560,6 +560,32 @@ class TypeScriptGenerator:
         
         return method_names
     
+    def _get_parent_constructor_names(self, class_name: str) -> Set[str]:
+        """
+        Get all constructor names from the entire parent chain.
+        
+        Args:
+            class_name: The class name to start from
+            
+        Returns:
+            Set of all constructor names defined in parent classes
+        """
+        constructor_names = set()
+        parent = self._get_direct_parent(class_name)
+        
+        while parent:
+            # Add constructors from this parent
+            if parent in self.class_constructors:
+                for constructor_info in self.class_constructors[parent]:
+                    path = constructor_info.get("path", "")
+                    constructor_name = self._extract_method_name_from_path(path)
+                    constructor_names.add(constructor_name)
+            
+            # Move up the chain
+            parent = self._get_direct_parent(parent)
+        
+        return constructor_names
+    
     def _find_unique_method_name(self, base_name: str, existing_names: Set[str]) -> str:
         """
         Find a unique method name by appending a suffix number if needed.
@@ -678,8 +704,24 @@ class TypeScriptGenerator:
             # Add constructors
             if class_name in self.class_constructors:
                 method_template = self.jinja_env.get_template('method.ts.j2')
+                
+                # Get all constructor names from parent chain to avoid conflicts
+                parent_constructor_names = self._get_parent_constructor_names(class_name)
+                current_constructor_names = set()
+                
                 for constructor_info in self.class_constructors[class_name]:
                     constructor_data = self._prepare_method_data(constructor_info, class_name, is_constructor=True)
+                    original_name = constructor_data.get("name")
+                    
+                    # Check if constructor name conflicts with parent chain
+                    if original_name in parent_constructor_names:
+                        # Find unique name by appending suffix
+                        unique_name = self._find_unique_method_name(original_name, parent_constructor_names | current_constructor_names)
+                        constructor_data["name"] = unique_name
+                    
+                    # Track this constructor name for potential conflicts with subsequent constructors
+                    current_constructor_names.add(constructor_data["name"])
+                    
                     data["constructors"].append(method_template.render(constructor_data).rstrip())
             
             # Add methods

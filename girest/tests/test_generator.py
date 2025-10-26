@@ -355,3 +355,87 @@ def test_typescript_duplicate_method_names_in_inheritance_chain(gst_typescript):
         "GstControlBinding should not have get_g_value_array method (conflicts with parent)"
     
     print("✓ TypeScript generator handles duplicate method names in inheritance chain correctly")
+
+
+def test_typescript_duplicate_constructor_names_in_inheritance_chain(gst_typescript):
+    """
+    Test that TypeScript generator handles duplicate constructor names in inheritance chain.
+    
+    Verifies that:
+    - When a child class has a constructor with the same name as a parent class constructor,
+      the child constructor gets a suffix (_2, _3, etc.)
+    - GstBin has new constructor
+    - GstPipeline (which extends GstBin) has new_2 constructor
+    - GstTaskPool has new constructor
+    - GstSharedTaskPool (which extends GstTaskPool) has new_2 constructor
+    """
+    typescript = gst_typescript
+    import re
+    
+    # Find GstBin class and verify it has new constructor
+    bin_match = re.search(
+        r'export class GstBin extends GstElement \{(.*?)(?=export class)',
+        typescript,
+        re.DOTALL
+    )
+    assert bin_match, "GstBin class not found in generated TypeScript"
+    
+    bin_class = bin_match.group(0)
+    
+    # Verify GstBin has new constructor (without suffix)
+    assert re.search(r'static async new\(', bin_class), \
+        "GstBin should have new constructor"
+    
+    # Find GstPipeline class and verify it has new_2 constructor
+    pipeline_match = re.search(
+        r'export class GstPipeline extends GstBin \{(.*?)(?=export class|export namespace|$)',
+        typescript,
+        re.DOTALL
+    )
+    assert pipeline_match, "GstPipeline class not found in generated TypeScript"
+    
+    pipeline_class = pipeline_match.group(0)
+    
+    # Verify GstPipeline has new_2 constructor (with suffix)
+    assert re.search(r'static async new_2\(', pipeline_class), \
+        "GstPipeline should have new_2 constructor (renamed to avoid conflict with parent)"
+    
+    # Verify GstPipeline doesn't have plain new constructor
+    assert 'static async new(' not in pipeline_class or \
+           'static async new_' in pipeline_class, \
+        "GstPipeline should not have plain new constructor (conflicts with parent)"
+    
+    # Find GstTaskPool class and verify it has new constructor
+    task_pool_match = re.search(
+        r'export class GstTaskPool extends GstObject \{(.*?)(?=export class)',
+        typescript,
+        re.DOTALL
+    )
+    assert task_pool_match, "GstTaskPool class not found in generated TypeScript"
+    
+    task_pool_class = task_pool_match.group(0)
+    
+    # Verify GstTaskPool has new constructor (without suffix)
+    assert re.search(r'static async new\(', task_pool_class), \
+        "GstTaskPool should have new constructor"
+    
+    # Find GstSharedTaskPool class and verify it has new_2 constructor
+    shared_task_pool_match = re.search(
+        r'export class GstSharedTaskPool extends GstTaskPool \{(.*?)(?=export class|export namespace|$)',
+        typescript,
+        re.DOTALL
+    )
+    assert shared_task_pool_match, "GstSharedTaskPool class not found in generated TypeScript"
+    
+    shared_task_pool_class = shared_task_pool_match.group(0)
+    
+    # Verify GstSharedTaskPool has new_2 constructor (with suffix)
+    assert re.search(r'static async new_2\(', shared_task_pool_class), \
+        "GstSharedTaskPool should have new_2 constructor (renamed to avoid conflict with parent)"
+    
+    # Verify GstSharedTaskPool doesn't have plain new constructor
+    assert 'static async new(' not in shared_task_pool_class or \
+           'static async new_' in shared_task_pool_class, \
+        "GstSharedTaskPool should not have plain new constructor (conflicts with parent)"
+    
+    print("✓ TypeScript generator handles duplicate method names in inheritance chain correctly")
