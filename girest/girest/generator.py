@@ -323,8 +323,8 @@ class TypeScriptGenerator:
         operation = method_info["operation"]
         path = method_info["path"]
         
-        # Extract method name from path
-        method_name = path.split("/")[-1].replace("{", "").replace("}", "")
+        # Extract method name from path using helper method
+        method_name = self._extract_method_name_from_path(path)
         
         # Build parameter list
         params = operation.get("parameters", [])
@@ -522,6 +522,95 @@ class TypeScriptGenerator:
                         return ref_path.split("/")[-1]
         return None
     
+    def _extract_method_name_from_path(self, path: str) -> str:
+        """
+        Extract method name from a path.
+        
+        Args:
+            path: The path string from which to extract the method name
+            
+        Returns:
+            The method name extracted from the path
+        """
+        return path.split("/")[-1].replace("{", "").replace("}", "")
+    
+    def _get_parent_method_names(self, class_name: str) -> Set[str]:
+        """
+        Get all method names from the entire parent chain.
+        
+        Args:
+            class_name: The class name to start from
+            
+        Returns:
+            Set of all method names defined in parent classes
+        """
+        method_names = set()
+        parent = self._get_direct_parent(class_name)
+        
+        while parent:
+            # Add methods from this parent
+            if parent in self.class_methods:
+                for method_info in self.class_methods[parent]:
+                    path = method_info.get("path", "")
+                    method_name = self._extract_method_name_from_path(path)
+                    method_names.add(method_name)
+            
+            # Move up the chain
+            parent = self._get_direct_parent(parent)
+        
+        return method_names
+    
+    def _get_parent_constructor_names(self, class_name: str) -> Set[str]:
+        """
+        Get all constructor names from the entire parent chain.
+        
+        Args:
+            class_name: The class name to start from
+            
+        Returns:
+            Set of all constructor names defined in parent classes
+        """
+        constructor_names = set()
+        parent = self._get_direct_parent(class_name)
+        
+        while parent:
+            # Add constructors from this parent
+            if parent in self.class_constructors:
+                for constructor_info in self.class_constructors[parent]:
+                    path = constructor_info.get("path", "")
+                    constructor_name = self._extract_method_name_from_path(path)
+                    constructor_names.add(constructor_name)
+            
+            # Move up the chain
+            parent = self._get_direct_parent(parent)
+        
+        return constructor_names
+    
+    def _find_unique_method_name(self, base_name: str, existing_names: Set[str]) -> str:
+        """
+        Find a unique method name by appending a suffix number if needed.
+        
+        This method recursively tries to find a unique name by appending _2, _3, etc.
+        until a name is found that doesn't exist in the existing_names set.
+        
+        Args:
+            base_name: The original method name
+            existing_names: Set of method names that already exist
+            
+        Returns:
+            A unique method name (either base_name or base_name with suffix)
+        """
+        if base_name not in existing_names:
+            return base_name
+        
+        # Try appending numbers until we find a unique name
+        suffix = 2
+        while True:
+            candidate = f"{base_name}_{suffix}"
+            if candidate not in existing_names:
+                return candidate
+            suffix += 1
+    
     def _prepare_class_data(self, class_name: str) -> Dict[str, Any]:
         """Prepare data for class template."""
         is_enum = class_name in self.enum_schemas
@@ -615,21 +704,54 @@ class TypeScriptGenerator:
             # Add constructors
             if class_name in self.class_constructors:
                 method_template = self.jinja_env.get_template('method.ts.j2')
+                
+                # Get all constructor names from parent chain to avoid conflicts
+                parent_constructor_names = self._get_parent_constructor_names(class_name)
+                current_constructor_names = set()
+                
                 for constructor_info in self.class_constructors[class_name]:
                     constructor_data = self._prepare_method_data(constructor_info, class_name, is_constructor=True)
+                    original_name = constructor_data.get("name")
+                    
+                    # Check if constructor name conflicts with parent chain
+                    if original_name in parent_constructor_names:
+                        # Find unique name by appending suffix
+                        unique_name = self._find_unique_method_name(original_name, parent_constructor_names | current_constructor_names)
+                        constructor_data["name"] = unique_name
+                    
+                    # Track this constructor name for potential conflicts with subsequent constructors
+                    current_constructor_names.add(constructor_data["name"])
+                    
                     data["constructors"].append(method_template.render(constructor_data).rstrip())
             
             # Add methods
             if class_name in self.class_methods:
                 method_template = self.jinja_env.get_template('method.ts.j2')
+                
+                # Get all method names from parent chain to avoid conflicts
+                parent_method_names = self._get_parent_method_names(class_name)
+                current_method_names = set()
+                
                 for method_info in self.class_methods[class_name]:
                     method_data = self._prepare_method_data(method_info, class_name)
+                    original_name = method_data.get("name")
+                    
                     # Skip 'unref' method for GObjectObject as it's provided by the base class
-                    if class_name == "GObjectObject" and method_data.get("name") == "unref":
+                    if class_name == "GObjectObject" and original_name == "unref":
                         continue
                     # Skip destructor method for structs as it's provided by the class constructor
-                    if has_destructor and method_data.get("name") == destructor_method_name:
+                    if has_destructor and original_name == destructor_method_name:
                         continue
+                    
+                    # Check if method name conflicts with parent chain
+                    if original_name in parent_method_names:
+                        # Find unique name by appending suffix
+                        unique_name = self._find_unique_method_name(original_name, parent_method_names | current_method_names)
+                        method_data["name"] = unique_name
+                    
+                    # Track this method name for potential conflicts with subsequent methods
+                    current_method_names.add(method_data["name"])
+                    
                     data["methods"].append(method_template.render(method_data).rstrip())
         
         return data
