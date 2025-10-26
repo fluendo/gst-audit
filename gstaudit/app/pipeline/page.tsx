@@ -57,7 +57,7 @@ export default function PipelinePage() {
   const fetchPipelines = async () => {
     try {
       setStatus('Fetching pipelines...');
-      const response = await fetch(`${config.baseUrl}/GIRest/pipelines`);
+      const response = await fetch(`${config.baseUrl}/GstAudit/pipelines`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
