@@ -17,7 +17,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import Link from 'next/link';
 import { getConfig } from '@/lib/config';
-import { GAPipeline } from '@/lib/gstaudit-components';
+import { Pipeline } from '@/components';
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -26,6 +26,7 @@ export default function PipelinePage() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [status, setStatus] = useState<string>('Disconnected');
+  const [pipelinePtr, setPipelinePtr] = useState<string | null>(null);
   const config = getConfig();
 
   const onConnect = useCallback(
@@ -44,28 +45,10 @@ export default function PipelinePage() {
       setStatus(`Found ${pipelines.length} pipeline(s)`);
       console.log('Pipelines:', pipelines);
       
-      // Convert pipeline data to nodes/edges
+      // Set the first pipeline pointer to trigger rendering
       if (pipelines.length > 0) {
         setStatus('Loading pipeline structure...');
-        
-        // Get the first pipeline from the array
-        const pipelinePtr = pipelines[0];
-        
-        // Create a GAPipeline from the pointer
-        const gaPipeline = GAPipeline.fromPointer(pipelinePtr);
-        
-        // Get the pipeline name
-        const pipelineName = await gaPipeline.getName();
-        setStatus(`Loaded pipeline: ${pipelineName}`);
-        
-        // Get nodes and edges from the pipeline
-        const { nodes: pipelineNodes, edges: pipelineEdges } = await gaPipeline.toNodesAndEdges();
-        
-        // Update the React Flow state
-        setNodes(pipelineNodes);
-        setEdges(pipelineEdges);
-        
-        setStatus(`Successfully loaded ${pipelineNodes.length} elements from pipeline: ${pipelineName}`);
+        setPipelinePtr(pipelines[0]);
       } else {
         setStatus('No pipelines found');
       }
@@ -73,6 +56,12 @@ export default function PipelinePage() {
       console.error('Error fetching pipelines:', error);
       setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  };
+
+  const handlePipelineReady = (name: string, pipelineNodes: Node[], pipelineEdges: Edge[]) => {
+    setNodes(pipelineNodes);
+    setEdges(pipelineEdges);
+    setStatus(`Successfully loaded ${pipelineNodes.length} elements from pipeline: ${name}`);
   };
 
   return (
@@ -102,6 +91,14 @@ export default function PipelinePage() {
         </div>
         <p className="mt-2 text-sm">Status: <span className="font-mono">{status}</span></p>
       </header>
+
+      {/* Render Pipeline component when pipelinePtr is available */}
+      {pipelinePtr && (
+        <Pipeline 
+          pipelinePtr={pipelinePtr} 
+          onPipelineReady={handlePipelineReady} 
+        />
+      )}
 
       <div className="flex-1">
         <ReactFlow
