@@ -20,23 +20,24 @@ TypeScript bindings generator for GIRest schemas.
 - **REST API implementation**: When `--base-url` is provided, generates complete method implementations with fetch calls
 - **Template-based generation**: Uses Jinja2 templates for cleaner and more maintainable code generation
 - **Type safety**: All parameters and return types are properly typed
-- **Configurable API location**: Generated code supports runtime configuration of host and port, allowing dynamic server location changes
+- **Configurable API location**: Generated code supports runtime configuration of host, port, and base path, allowing dynamic server location changes
 
 ## Configurable API Server Location
 
-The generated TypeScript bindings include a configurable API server location system. Instead of hardcoding the host and port in all API calls, the generated code uses a configuration object that can be updated at runtime.
+The generated TypeScript bindings include a configurable API server location system. Instead of hardcoding the host, port, and base path in all API calls, the generated code uses a configuration object that can be updated at runtime.
 
 ### Default Configuration
 
-The `--host` and `--port` parameters become the default configuration:
+The `--host`, `--port`, and `--base-path` parameters become the default configuration:
 
 ```typescript
 // Generated code includes:
 let apiConfig = {
   host: 'localhost',
   port: 9000,
+  basePath: '/api/v1',
   get baseUrl(): string {
-    return `http://${this.host}:${this.port}`;
+    return `http://${this.host}:${this.port}${this.basePath}`;
   }
 };
 ```
@@ -49,11 +50,11 @@ The generated code exports functions to manage the API configuration:
 import { setApiConfig, getApiConfig } from './gst';
 
 // Update the server location
-setApiConfig({ host: '192.168.1.100', port: 8080 });
+setApiConfig({ host: '192.168.1.100', port: 8080, basePath: '/foo' });
 
 // Get current configuration
 const config = getApiConfig();
-console.log(config.baseUrl); // 'http://192.168.1.100:8080'
+console.log(config.baseUrl); // 'http://192.168.1.100:8080/foo'
 ```
 
 ### EventSource Auto-Reinitialization
@@ -67,14 +68,14 @@ import { setApiConfig } from './lib/gst';
 import { updateConfig, getConfig } from './lib/config';
 
 // Sync with application config
-function updateServerConfig(host: string, port: number) {
-  updateConfig({ host, port });
-  setApiConfig({ host, port });
+function updateServerConfig(host: string, port: number, basePath: string) {
+  updateConfig({ host, port, basePath });
+  setApiConfig({ host, port, basePath });
 }
 
 // Initialize on app startup
 const config = getConfig();
-setApiConfig({ host: config.host, port: config.port });
+setApiConfig({ host: config.host, port: config.port, basePath: config.basePath });
 ```
 
 ## Usage
@@ -84,7 +85,7 @@ setApiConfig({ host: config.host, port: config.port });
 Generate TypeScript client bindings for a namespace:
 
 ```bash
-python3 girest-client-generator.py <namespace> <version> [--host HOST] [--port PORT]
+python3 girest-client-generator.py <namespace> <version> [--host HOST] [--port PORT] [--base-path BASE_PATH]
 ```
 
 ### Examples
@@ -95,16 +96,16 @@ Generate TypeScript client bindings for GLib 2.0:
 python3 girest-client-generator.py GLib 2.0 --host localhost --port 9000 > glib.ts
 ```
 
-Generate TypeScript client bindings for GStreamer:
+Generate TypeScript client bindings for GStreamer with a base path:
 
 ```bash
-python3 girest-client-generator.py Gst 1.0 --host localhost --port 9000 -o gst.ts
+python3 girest-client-generator.py Gst 1.0 --host localhost --port 9000 --base-path /api/v1 -o gst.ts
 ```
 
 ### Command-line Options
 
 ```
-usage: girest-client-generator.py [-h] [-o OUTPUT] [--host HOST] [--port PORT] namespace version
+usage: girest-client-generator.py [-h] [-o OUTPUT] [--host HOST] [--port PORT] [--base-path BASE_PATH] namespace version
 
 positional arguments:
   namespace             GObject namespace (e.g., 'Gst', 'GLib', 'Gtk')
@@ -116,6 +117,8 @@ options:
                         Output file path (default: stdout)
   --host HOST           Host for REST API calls (default: localhost)
   --port PORT           Port for REST API calls (default: 9000)
+  --base-path BASE_PATH
+                        Base path for REST API calls (default: '')
 ```
 
 ### Dumping OpenAPI Schema
