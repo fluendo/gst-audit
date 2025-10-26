@@ -39,14 +39,16 @@ export function getConfig(): GstAuditConfig {
  * @param newConfig Partial configuration to update
  */
 export function updateConfig(newConfig: Partial<Omit<GstAuditConfig, 'baseUrl'>>): void {
+  // Normalize basePath if provided
+  const normalizedConfig = {
+    ...newConfig,
+    ...(newConfig.basePath !== undefined && { basePath: normalizeBasePath(newConfig.basePath) })
+  };
+  
   config = {
     ...config,
-    ...newConfig,
+    ...normalizedConfig,
   };
-  // Normalize basePath if it was updated
-  if (newConfig.basePath !== undefined) {
-    config.basePath = normalizeBasePath(config.basePath);
-  }
   config.baseUrl = `http://${config.host}:${config.port}${config.basePath}`;
 }
 
