@@ -17,31 +17,10 @@ import {
 import '@xyflow/react/dist/style.css';
 import Link from 'next/link';
 import { getConfig } from '@/lib/config';
+import { GAPipeline } from '@/lib/gstaudit-components';
 
-const initialNodes: Node[] = [
-  {
-    id: '1',
-    type: 'input',
-    data: { label: 'videotestsrc' },
-    position: { x: 250, y: 5 },
-  },
-  {
-    id: '2',
-    data: { label: 'videoconvert' },
-    position: { x: 250, y: 100 },
-  },
-  {
-    id: '3',
-    type: 'output',
-    data: { label: 'fakesink' },
-    position: { x: 250, y: 200 },
-  },
-];
-
-const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2' },
-  { id: 'e2-3', source: '2', target: '3' },
-];
+const initialNodes: Node[] = [];
+const initialEdges: Edge[] = [];
 
 export default function PipelinePage() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -64,7 +43,32 @@ export default function PipelinePage() {
       const pipelines = await response.json();
       setStatus(`Found ${pipelines.length} pipeline(s)`);
       console.log('Pipelines:', pipelines);
-      // TODO: Convert pipeline data to nodes/edges
+      
+      // Convert pipeline data to nodes/edges
+      if (pipelines.length > 0) {
+        setStatus('Loading pipeline structure...');
+        
+        // Get the first pipeline from the array
+        const pipelinePtr = pipelines[0];
+        
+        // Create a GAPipeline from the pointer
+        const gaPipeline = GAPipeline.fromPointer(pipelinePtr);
+        
+        // Get the pipeline name
+        const pipelineName = await gaPipeline.getName();
+        setStatus(`Loaded pipeline: ${pipelineName}`);
+        
+        // Get nodes and edges from the pipeline
+        const { nodes: pipelineNodes, edges: pipelineEdges } = await gaPipeline.toNodesAndEdges();
+        
+        // Update the React Flow state
+        setNodes(pipelineNodes);
+        setEdges(pipelineEdges);
+        
+        setStatus(`Successfully loaded ${pipelineNodes.length} elements from pipeline: ${pipelineName}`);
+      } else {
+        setStatus('No pipelines found');
+      }
     } catch (error) {
       console.error('Error fetching pipelines:', error);
       setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
