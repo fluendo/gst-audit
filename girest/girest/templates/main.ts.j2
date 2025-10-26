@@ -13,7 +13,8 @@ let apiConfig = {
   port: {{ port }},
   basePath: '{{ base_path }}',
   get baseUrl(): string {
-    return `http://${this.host}:${this.port}${this.basePath}`;
+    const normalizedBasePath = this.basePath && !this.basePath.startsWith('/') ? `/${this.basePath}` : this.basePath;
+    return `http://${this.host}:${this.port}${normalizedBasePath}`;
   }
 };
 
@@ -29,7 +30,8 @@ export function setApiConfig(config: { host?: string; port?: number; basePath?: 
     apiConfig.port = config.port;
   }
   if (config.basePath !== undefined) {
-    apiConfig.basePath = config.basePath;
+    // Normalize basePath to ensure it starts with / if non-empty
+    apiConfig.basePath = config.basePath && !config.basePath.startsWith('/') ? `/${config.basePath}` : config.basePath;
   }
   // Reinitialize callback EventSource with new URL
   if (typeof EventSource !== 'undefined' && (config.host !== undefined || config.port !== undefined || config.basePath !== undefined)) {

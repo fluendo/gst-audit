@@ -36,6 +36,10 @@ export function updateConfig(newConfig: Partial<Omit<GstAuditConfig, 'baseUrl'>>
     ...config,
     ...newConfig,
   };
+  // Normalize basePath to ensure it starts with / if non-empty
+  if (config.basePath && !config.basePath.startsWith('/')) {
+    config.basePath = `/${config.basePath}`;
+  }
   config.baseUrl = `http://${config.host}:${config.port}${config.basePath}`;
 }
 
