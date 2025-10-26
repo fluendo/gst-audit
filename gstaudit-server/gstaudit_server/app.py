@@ -1,9 +1,29 @@
 #!/usr/bin/env python3
+import logging
+import os
+
+import argparse
+import threading
+from apispec import APISpec
+
+from girest.uri_parser import URITemplateParser
 from girest.main import GIRest
 from girest.resolvers import FridaResolver
 from connexion import AsyncApp
 
-def add_pipeline(self, pipeline_data: dict):
+from connexion.datastructures import MediaTypeDict
+from connexion.resolver import Resolver
+
+class GstAuditResolver(Resolver):
+    def resolve_function_from_operation_id(self, operation_id):
+        async def get_pipelines(*args, **kwargs):
+            """Endpoint for retrieving discovered GStreamer pipelines."""
+            pipelines = _get_pipelines()
+            return [p for p in pipelines if p["name"].isascii()]
+
+        return get_pipelines
+
+def _add_pipeline(pipeline_data: dict):
     """
     Add a pipeline to the list of discovered pipelines.
     
@@ -12,24 +32,24 @@ def add_pipeline(self, pipeline_data: dict):
     Args:
         pipeline_data: Dictionary containing pipeline data (ptr, name, etc.)
     """
-    with self._pipelines_lock:
+    with pipelines_lock:
         # Check if pipeline is already in the list (by ptr)
         ptr = pipeline_data.get("ptr")
-        if ptr and not any(p.get("ptr") == ptr for p in self.pipelines):
-            self.pipelines.append(pipeline_data)
+        if ptr and not any(p.get("ptr") == ptr for p in pipelines):
+            pipelines.append(pipeline_data)
 
-def get_pipelines(self) -> list:
+def _get_pipelines() -> list:
     """
     Get the current list of discovered pipelines.
     
     Returns:
         List of pipeline dictionaries
     """
-    with self._pipelines_lock:
+    with pipelines_lock:
         # Return a copy to avoid external modifications
-        return list(self.pipelines)
+        return list(pipelines)
 
-def _on_log(self, level, message):
+def _on_log(level, message):
     """Handle the console from js"""
     levels = {
         "debug": logging.DEBUG,
@@ -39,7 +59,7 @@ def _on_log(self, level, message):
     }
     logger.log(levels[level], message)
 
-def _on_message(self, message, data):
+def _on_message(message, data):
     """Handle messages from the Frida script"""
     if message["type"] != "send":
         return
@@ -48,39 +68,85 @@ def _on_message(self, message, data):
     
     # Handle pipeline discovery messages
     if kind == "pipeline":
-        self.girest.add_pipeline(payload["data"])
+        _add_pipeline(payload["data"])
     else:
         # For now, just log other messages
         logger.debug(f"Message from Frida: {message}")
 
+# Parsing of arguments
+parser = argparse.ArgumentParser(
+    description="GstAudit server"
+)
+parser.add_argument(
+    "--pid",
+    type=int,
+    required=True,
+    help="Process ID to instrument"
+)
+parser.add_argument(
+    "--port",
+    type=int,
+    default=9000,
+    help="Port to run the server on (default: 9000)"
+)
+args = parser.parse_args()
+
+# Logger
+logger = logging.getLogger("gstaudit")
 
 # Pipeline tracking
-self.pipelines: list = []  # List of discovered pipelines
-self._pipelines_lock = threading.Lock()
+pipelines = []  # List of discovered pipelines
+pipelines_lock = threading.Lock()
 
 girest = GIRest("Gst", "1.0")
 spec = girest.generate()
    
 # Create the connexion AsyncApp
-app = connexion.AsyncApp(__name__)
+app = AsyncApp(__name__)
 specd = spec.to_dict()
 
 # Create the resolver with Frida
-resolver = FridaResolver(scripts=[], specd, girest, args.pid)
+script_path = os.path.join((os.path.dirname(__file__)), 'script.js')
+resolver = FridaResolver(specd, girest, args.pid, scripts=[script_path], on_message=_on_message, on_log=_on_log)
 # Add the API with custom URI parser and validator
 app.add_api(
     specd,
     resolver=resolver,
     uri_parser_class=URITemplateParser,
-    validator_map=custom_validator_map,
 )
 
-# Register the pipelines endpoint at /GIRest/pipelines
-@app.route('/GstAudit/pipelines', methods=['GET'])
-async def get_pipelines(arg):
-    """Endpoint for retrieving discovered GStreamer pipelines."""
-    pipelines = girest.get_pipelines()
-    return pipelines
+# Create our own API for fetching the pipelines
+gstaudit_spec = APISpec(
+    title="GstAudit REST API",
+    version="0.1",
+    openapi_version="3.0.2",
+)
+
+operation = {
+    "summary": "",
+    "description": "",
+    "operationId": "get_pipelines",
+    "tags": ["GstAudit"],
+    "parameters": [],
+    "responses": {
+        "200": {
+            "description": "Get the GstPipelines available in the process",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+gstaudit_spec.path(path="/GstAudit/pipelines", operations={"get": operation})
+app.add_api(gstaudit_spec.to_dict(), resolver=GstAuditResolver(), base_path="/foo")
 
 # Run the server
 app.run(port=args.port)
