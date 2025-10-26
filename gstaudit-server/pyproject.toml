@@ -4,11 +4,12 @@ version = "0.0.1"
 description = "GStreamer auditing sever"
 authors = ["Fluendo S.A. <support@fluendo.com>"]
 readme = "README.md"
-package-mode = false
+include = ["script.js"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 connexion = { version = "^3.3.0", extras = ["flask", "swagger-ui","uvicorn"] }
+girest = {path = "../girest", develop = true}
 
 [build-system]
 requires = ["poetry-core"]
