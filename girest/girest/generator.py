@@ -323,8 +323,8 @@ class TypeScriptGenerator:
         operation = method_info["operation"]
         path = method_info["path"]
         
-        # Extract method name from path
-        method_name = path.split("/")[-1].replace("{", "").replace("}", "")
+        # Extract method name from path using helper method
+        method_name = self._extract_method_name_from_path(path)
         
         # Build parameter list
         params = operation.get("parameters", [])
@@ -522,6 +522,18 @@ class TypeScriptGenerator:
                         return ref_path.split("/")[-1]
         return None
     
+    def _extract_method_name_from_path(self, path: str) -> str:
+        """
+        Extract method name from a path.
+        
+        Args:
+            path: The path string from which to extract the method name
+            
+        Returns:
+            The method name extracted from the path
+        """
+        return path.split("/")[-1].replace("{", "").replace("}", "")
+    
     def _get_parent_method_names(self, class_name: str) -> Set[str]:
         """
         Get all method names from the entire parent chain.
@@ -539,9 +551,8 @@ class TypeScriptGenerator:
             # Add methods from this parent
             if parent in self.class_methods:
                 for method_info in self.class_methods[parent]:
-                    operation = method_info.get("operation", {})
                     path = method_info.get("path", "")
-                    method_name = path.split("/")[-1].replace("{", "").replace("}", "")
+                    method_name = self._extract_method_name_from_path(path)
                     method_names.add(method_name)
             
             # Move up the chain

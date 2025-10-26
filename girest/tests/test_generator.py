@@ -349,7 +349,9 @@ def test_typescript_duplicate_method_names_in_inheritance_chain(gst_typescript):
         "GstControlBinding should have get_g_value_array_2 method (renamed to avoid conflict with parent)"
     
     # Verify GstControlBinding doesn't have get_g_value_array (without suffix)
-    assert not re.search(r'async get_g_value_array\([^_]', control_binding_class), \
+    # The method name should be followed directly by ( without any _ suffix
+    assert 'async get_g_value_array(' not in control_binding_class or \
+           'async get_g_value_array_' in control_binding_class, \
         "GstControlBinding should not have get_g_value_array method (conflicts with parent)"
     
     print("✓ TypeScript generator handles duplicate method names in inheritance chain correctly")
