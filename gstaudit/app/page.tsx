@@ -8,9 +8,10 @@ export default function Home() {
   const config = getConfig();
   const [host, setHost] = useState(config.host);
   const [port, setPort] = useState(config.port.toString());
+  const [basePath, setBasePath] = useState(config.basePath);
 
   const handleSave = () => {
-    updateConfig({ host, port: parseInt(port) });
+    updateConfig({ host, port: parseInt(port), basePath });
     alert('Configuration saved! API will now use: ' + getConfig().baseUrl);
   };
 
@@ -46,6 +47,19 @@ export default function Home() {
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-900"
                 placeholder="9000"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Base Path</label>
+              <input
+                type="text"
+                value={basePath}
+                onChange={(e) => setBasePath(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-900"
+                placeholder="/foo"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Optional base path for the API (e.g., /foo for gstaudit-server&apos;s GstAudit API)
+              </p>
             </div>
             <button
               onClick={handleSave}
