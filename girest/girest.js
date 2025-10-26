@@ -42,6 +42,16 @@ function arg_size(a)
     return base_type_to_size(a["type"]);
 }
 
+function base_type_convert(t, p)
+{
+  switch (t) {
+    case "string":
+      return p.readCString();
+    default:
+      return p;
+  }
+}
+
 function base_type_read(t, p)
 {
   switch (t) {
@@ -184,8 +194,9 @@ function call(symbol, type, ...args)
   var ret = {};
   console.log(`About to call ${symbol} with args ${tx_args}`);
   var nfr = nf(...tx_args);
-  if (type["returns"] != "void")
-    ret["return"] = nfr;
+  if (type["returns"] != "void") {
+    ret["return"] = base_type_convert(type["returns"], nfr);
+  }
   /* Return the return value plus the output arguments */
   idx = 0;
   for (var a of type["arguments"]) {
@@ -200,6 +211,7 @@ function call(symbol, type, ...args)
     }
     idx++;
   }
+  console.log(`Returned values are ${JSON.stringify(ret)}`);
   return ret;
 }
 
