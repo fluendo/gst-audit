@@ -7,7 +7,7 @@ import threading
 from apispec import APISpec
 
 from girest.uri_parser import URITemplateParser
-from girest.main import GIRest
+from girest.app import GIApp
 from girest.resolvers import FridaResolver
 from connexion import AsyncApp
 
@@ -99,24 +99,12 @@ logger = logging.getLogger("gstaudit")
 pipelines = []  # List of discovered pipelines
 pipelines_lock = threading.Lock()
 
-girest = GIRest("Gst", "1.0")
-spec = girest.generate()
-   
-# Create the connexion AsyncApp
-app = AsyncApp(__name__)
-specd = spec.to_dict()
-
 # Create the resolver with Frida
 script_path = os.path.join((os.path.dirname(__file__)), 'script.js')
-resolver = FridaResolver(specd, girest, args.pid, scripts=[script_path], on_message=_on_message, on_log=_on_log)
-# Add the API with custom URI parser and validator
-app.add_api(
-    specd,
-    resolver=resolver,
-    uri_parser_class=URITemplateParser,
-    base_path="/girest"
-)
+resolver = FridaResolver("Gst", "1.0", args.pid, scripts=[script_path], on_message=_on_message, on_log=_on_log)
 
+# Create the girest GIApp
+app = GIApp(__name__, "Gst", "1.0", resolver, default_base_path="/girest")
 # Create our own API for fetching the pipelines
 gstaudit_spec = APISpec(
     title="GstAudit REST API",
@@ -145,8 +133,8 @@ operation = {
             }
         }
     }
-
 }
+
 gstaudit_spec.path(path="/GstAudit/pipelines", operations={"get": operation})
 app.add_api(gstaudit_spec.to_dict(), resolver=GstAuditResolver(), base_path="/gstaudit")
 

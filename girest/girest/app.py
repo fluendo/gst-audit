@@ -7,10 +7,6 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 girest_dir = os.path.join(current_dir, 'girest')
 sys.path.insert(0, girest_dir)
 
-from main import GIRest
-from resolvers import GIResolver
-from uri_parser import URITemplateParser
-from validators import GIRestParameterValidator
 from connexion import AsyncApp
 from connexion.resolver import Resolver
 from connexion.datastructures import MediaTypeDict
@@ -21,6 +17,11 @@ from connexion.validators import (
     JSONResponseBodyValidator,
     TextResponseBodyValidator,
 )
+
+from .main import GIRest
+from .resolvers import GIResolver
+from .uri_parser import URITemplateParser
+from .validators import GIRestParameterValidator
 
 def patch_connexion_parameter_decorator():
     """

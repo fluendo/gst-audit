@@ -14,13 +14,8 @@ import os
 from uvicorn.config import LOGGING_CONFIG
 from uvicorn.logging import DefaultFormatter
 
-# Add the girest module to the path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-girest_dir = os.path.join(current_dir, 'girest')
-sys.path.insert(0, girest_dir)
-
-from app import GIApp
-from resolvers import FridaResolver
+from girest.app import GIApp
+from girest.resolvers import FridaResolver
 
 def main():
     """Main entry point for girest-frida tool."""
