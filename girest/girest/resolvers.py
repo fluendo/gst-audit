@@ -8,7 +8,7 @@ import asyncio
 import threading
 from collections import deque
 
-import connexion
+from connexion.resolver import Resolver, Resolution
 import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
@@ -27,7 +27,7 @@ except ImportError:
 logger = logging.getLogger("girest")
 
 
-class GIResolver(connexion.resolver.Resolver):
+class GIResolver(Resolver):
     def __init__(self, sse_buffer_size: int = 100):
         # SSE event buffer (ring buffer using deque with maxlen)
         self.sse_buffer_size = sse_buffer_size
@@ -38,6 +38,7 @@ class GIResolver(connexion.resolver.Resolver):
         # Lock protects both the counter and the deque during event push
         self._event_counter = 0
         self._buffer_lock = threading.Lock()
+        super().__init__()
 
     # Register the SSE endpoint at /GIRest/callbacks
     async def sse_callback():
@@ -180,7 +181,6 @@ class FridaResolver(GIResolver):
             self,
             namespace: str,
             version: str,
-            spec: dict,
             pid: int,
             *,
             scripts=None,
@@ -192,7 +192,6 @@ class FridaResolver(GIResolver):
         self.repo = GIRepository.Repository()
         self.repo.require(namespace, version, 0)
         self.ns = namespace
-        self.spec = spec
         self.pid = pid
         self.session = None
         if not scripts:
@@ -548,7 +547,8 @@ class FridaResolver(GIResolver):
             # Ok, now we have a response, check the spec about the response type to see if
             # there are any structs or objects
             for k,v in result.items():
-                k_def = _endpoint["responses"]["200"]["content"]["application/json"]["schema"]["properties"][k]
+                responses = _endpoint.responses
+                k_def = responses["200"]["content"]["application/json"]["schema"]["properties"][k]
                 if "type" in k_def and k_def["type"] == "object":
                     result[k] = {"ptr": v}
                 # TODO for now assume references to be objects
@@ -560,8 +560,16 @@ class FridaResolver(GIResolver):
 
         return frida_resolver_handler
 
-    def resolve_function_from_operation_id(self, operation_id):
+    def resolve(self, operation):
+        """We overwrite the resolve method to have access to the path schema"""
+        return Resolution(
+            self._get_function_from_operation(operation), operation.operation_id
+        )
+
+    def _get_function_from_operation(self, operation):
         """Resolve function from operation_id and return handler"""
+        operation_id = operation.operation_id
+
         if not operation_id:
             return None
 
@@ -575,15 +583,12 @@ class FridaResolver(GIResolver):
 
         method_info = self._find_function_info(namespace, class_name, method_name)
         if method_info:
-            # Get the OpenAPI endpoint definition
-            endpoint = [e["get"] for e in self.spec["paths"].values() if e["get"]["operationId"] == operation_id][0]
-
             # Generate the JSON representation
             method_json = self._method_to_json(method_info)
 
             # Create and return the handler with method_info and method_json as defaults
             ret = self.create_frida_handler()
-            ret.__defaults__ = (method_info, method_json, endpoint)
+            ret.__defaults__ = (method_info, method_json, operation)
             return ret
         else:
             # Check for the artificial methods

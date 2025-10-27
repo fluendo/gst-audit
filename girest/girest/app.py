@@ -45,7 +45,7 @@ class GIApp(AsyncApp):
         # TODO we can avoid passing the specd by using
         # resolve_operation_id which receives the operation and then get
         # the actual defition by calling, for example, operation.parameters
-        resolver = FridaResolver(namespace, version, specd, pid, sse_buffer_size=sse_buffer_size)
+        resolver = FridaResolver(namespace, version, pid, sse_buffer_size=sse_buffer_size)
         super().__init__(import_name, resolver=resolver)
         
         # Create custom validator map with our enhanced parameter validator
