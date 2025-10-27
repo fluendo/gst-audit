@@ -8,9 +8,10 @@ process and expose its GObject introspection API as a REST API.
 import logging
 
 import argparse
-import connexion
 import sys
 import os
+
+import connexion
 from uvicorn.config import LOGGING_CONFIG
 from uvicorn.logging import DefaultFormatter
 from starlette.responses import StreamingResponse
@@ -20,18 +21,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 girest_dir = os.path.join(current_dir, 'girest')
 sys.path.insert(0, girest_dir)
 
-from main import GIRest
-from resolvers import FridaResolver
-from uri_parser import URITemplateParser
-from validators import GIRestParameterValidator
-from connexion.datastructures import MediaTypeDict
-from connexion.validators import (
-    JSONRequestBodyValidator,
-    FormDataValidator,
-    MultiPartFormDataValidator,
-    JSONResponseBodyValidator,
-    TextResponseBodyValidator,
-)
+from app import GIApp
 
 
 def patch_connexion_parameter_decorator():
@@ -121,56 +111,10 @@ def main():
     patch_connexion_parameter_decorator()
     
     try:
-        # Generate the OpenAPI schema with specified buffer size
-        girest = GIRest(args.namespace, args.version, sse_buffer_size=args.sse_buffer_size)
-        spec = girest.generate()
         
         # Create the connexion AsyncApp
-        app = connexion.AsyncApp(__name__)
-        specd = spec.to_dict()
+        app = GIApp(__name__, args.namespace, args.version, args.pid, sse_buffer_size=args.sse_buffer_size)
         
-        # Create the resolver with Frida
-        resolver = FridaResolver(specd, girest, args.pid)
-        
-        # Create custom validator map with our enhanced parameter validator
-        custom_validator_map = {
-            "parameter": GIRestParameterValidator,
-            "body": MediaTypeDict(
-                {
-                    "*/*json": JSONRequestBodyValidator,
-                    "application/x-www-form-urlencoded": FormDataValidator,
-                    "multipart/form-data": MultiPartFormDataValidator,
-                }
-            ),
-            "response": MediaTypeDict(
-                {
-                    "*/*json": JSONResponseBodyValidator,
-                    "text/plain": TextResponseBodyValidator,
-                }
-            ),
-        }
-        
-        # Add the API with custom URI parser and validator
-        app.add_api(
-            specd,
-            resolver=resolver,
-            uri_parser_class=URITemplateParser,
-            validator_map=custom_validator_map,
-        )
-        
-        # Register the SSE endpoint at /GIRest/callbacks
-        @app.route('/GIRest/callbacks', methods=['GET'])
-        async def sse_callbacks():
-            """SSE endpoint for callback events."""
-            return StreamingResponse(
-                girest.sse_callbacks_endpoint(),
-                media_type='text/event-stream',
-                headers={
-                    'Cache-Control': 'no-cache',
-                    'Connection': 'keep-alive',
-                    'X-Accel-Buffering': 'no'
-                }
-            )
         
         app.run(port=args.port)
     
