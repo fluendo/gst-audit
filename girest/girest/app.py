@@ -37,7 +37,7 @@ class GIApp(AsyncApp):
         default_base_path = None
     ):
         # Generate the OpenAPI schema with specified buffer size
-        girest = GIRest(namespace, version, sse_buffer_size=sse_buffer_size)
+        girest = GIRest(namespace, version)
         spec = girest.generate()
         specd = spec.to_dict()
 
@@ -45,7 +45,7 @@ class GIApp(AsyncApp):
         # TODO we can avoid passing the specd by using
         # resolve_operation_id which receives the operation and then get
         # the actual defition by calling, for example, operation.parameters
-        resolver = FridaResolver(specd, girest, pid)
+        resolver = FridaResolver(namespace, version, specd, pid, sse_buffer_size=sse_buffer_size)
         super().__init__(import_name, resolver=resolver)
         
         # Create custom validator map with our enhanced parameter validator
@@ -74,18 +74,3 @@ class GIApp(AsyncApp):
             validator_map=custom_validator_map,
             base_path=default_base_path
         )
-        
-        # Register the SSE endpoint at /GIRest/callbacks
-        @self.route('/GIRest/callbacks', methods=['GET'])
-        async def sse_callbacks():
-            """SSE endpoint for callback events."""
-            return StreamingResponse(
-                girest.sse_callbacks_endpoint(),
-                media_type='text/event-stream',
-                headers={
-                    'Cache-Control': 'no-cache',
-                    'Connection': 'keep-alive',
-                    'X-Accel-Buffering': 'no'
-                }
-            )
-

@@ -1,6 +1,13 @@
-import logging
+# TODO
+# We need to get rid of passing the namespace/version, it should be fetched
+# based on the actual operation information
 
+import logging
+import json
 import asyncio
+import threading
+from collections import deque
+
 import connexion
 import gi
 gi.require_version("GIRepository", "2.0")
@@ -19,7 +26,124 @@ except ImportError:
 
 logger = logging.getLogger("girest")
 
-class FridaResolver(connexion.resolver.Resolver):
+
+class GIResolver(connexion.resolver.Resolver):
+    def __init__(self, sse_buffer_size: int = 100):
+        # SSE event buffer (ring buffer using deque with maxlen)
+        self.sse_buffer_size = sse_buffer_size
+        self.sse_events: deque = deque(maxlen=sse_buffer_size)
+        self.sse_event = None  # Will be created in event loop
+        self._event_loop = None  # Reference to the event loop
+        # Counter for assigning unique IDs to events
+        # Lock protects both the counter and the deque during event push
+        self._event_counter = 0
+        self._buffer_lock = threading.Lock()
+
+    # Register the SSE endpoint at /GIRest/callbacks
+    async def sse_callback():
+        """SSE endpoint for callback events."""
+        return StreamingResponse(
+            girest.sse_callbacks_endpoint(),
+            media_type='text/event-stream',
+            headers={
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'X-Accel-Buffering': 'no'
+            }
+        )
+
+    def push_sse_event(self, event_data: dict):
+        """
+        Push an event to the SSE buffer. This is thread-safe and non-blocking.
+        
+        If the buffer is full, the oldest event will be discarded to make room.
+        Can be safely called from any thread (e.g., Frida's message handler).
+        
+        Args:
+            event_data: Dictionary containing event data to be sent to SSE clients
+        """
+        # Assign a unique sequential ID and append to buffer atomically
+        # Lock protects both operations to ensure consistency
+        with self._buffer_lock:
+            event_id = self._event_counter
+            self._event_counter += 1
+            
+            # Wrap the event data with an ID
+            event_wrapper = {
+                "_sse_id": event_id,
+                "data": event_data
+            }
+            
+            self.sse_events.append(event_wrapper)
+        
+        # Set the event to notify waiting clients (outside lock)
+        # Use call_soon_threadsafe if called from a different thread
+        if self.sse_event is not None and self._event_loop is not None:
+            self._event_loop.call_soon_threadsafe(self.sse_event.set)
+    
+    async def sse_event_generator(self):
+        """
+        Async generator that yields SSE events from the buffer.
+        
+        Yields events from the current position in the buffer and then waits
+        for new events to be pushed. Each generator instance tracks its own
+        position independently using sequential event IDs.
+        
+        Note: If the buffer rotates (oldest events are discarded) while a client
+        is connected, the client may miss events. This is acceptable for the
+        use case as it prevents unbounded memory growth.
+        """
+        # Initialize event loop and event on first call
+        if self.sse_event is None:
+            self._event_loop = asyncio.get_running_loop()
+            self.sse_event = asyncio.Event()
+        
+        # Track the last event ID we've sent
+        last_sent_id = -1
+        
+        while True:
+            has_new_events = False
+            
+            # Take an atomic snapshot to avoid mutation during iteration
+            with self._buffer_lock:
+                snapshot = list(self.sse_events)
+            
+            # Iterate over the snapshot
+            for event_wrapper in snapshot:
+                event_id = event_wrapper["_sse_id"]
+                if event_id > last_sent_id:
+                    last_sent_id = event_id
+                    has_new_events = True
+                    # Yield only the data, not the wrapper
+                    yield event_wrapper["data"]
+            
+            # If we yielded events, check again for more before waiting
+            if has_new_events:
+                continue
+            
+            # Wait for new events
+            await self.sse_event.wait()
+            self.sse_event.clear()
+    
+    async def sse_callbacks_endpoint(self):
+        """
+        SSE endpoint that streams callback events.
+        
+        This endpoint is registered at /GIRest/callbacks and streams events
+        in Server-Sent Events format.
+        
+        Returns:
+            Async generator yielding SSE-formatted messages
+        """
+        async def event_stream():
+            async for event_data in self.sse_event_generator():
+                # Format as SSE
+                message = f'data: {json.dumps(event_data)}\n\n'
+                yield message
+        
+        return event_stream()
+
+class FridaResolver(GIResolver):
     """
     Resolver for Connexion that uses Frida to call functions in a remote process.
     
@@ -52,8 +176,22 @@ class FridaResolver(connexion.resolver.Resolver):
         "returns": "int32"
     }
     """
-    def __init__(self, spec: dict, girest: "GIRest", pid: int, scripts=None, on_log=None, on_message=None):
-        self.girest = girest
+    def __init__(
+            self,
+            namespace: str,
+            version: str,
+            spec: dict,
+            pid: int,
+            *,
+            scripts=None,
+            on_log=None,
+            on_message=None,
+            sse_buffer_size=100
+        ):
+        # Load the corresponding Gir file
+        self.repo = GIRepository.Repository()
+        self.repo.require(namespace, version, 0)
+        self.ns = namespace
         self.spec = spec
         self.pid = pid
         self.session = None
@@ -65,12 +203,12 @@ class FridaResolver(connexion.resolver.Resolver):
         self._build_enum_mappings()
         # Connect to the corresponding process
         self._connect_frida(scripts, on_log, on_message)
-        super().__init__()
+        super().__init__(sse_buffer_size)
  
     def _build_enum_mappings(self):
         """Build mappings from enum string names to integer values"""
-        for i in range(0, self.girest.repo.get_n_infos(self.girest.ns)):
-            info = self.girest.repo.get_info(self.girest.ns, i)
+        for i in range(0, self.repo.get_n_infos(self.ns)):
+            info = self.repo.get_info(self.ns, i)
             info_type = info.get_type()
             if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
                 full_name = f"{info.get_namespace()}{info.get_name()}"
@@ -260,24 +398,15 @@ class FridaResolver(connexion.resolver.Resolver):
         is_method = bool(flags & GIRepository.FunctionInfoFlags.IS_METHOD)
         return self._callable_to_json(method, is_method=is_method)
     
-    def _find_function_info(self, operation_id):
+    def _find_function_info(self, namespace, class_name, method_name):
         """Find function info from operation_id"""
         # operation_id format: {namespace}_{object_name}_{method_name}
         # or {namespace}__{function_name} for standalone functions
         
-        if not operation_id:
-            return None
-
-        parsed = parse_operation_id(operation_id)
-        if not parsed:
-            return None
-        
-        namespace, class_name, method_name = parsed
-        
         # Search through the repository
-        n_infos = self.girest.repo.get_n_infos(namespace)
+        n_infos = self.repo.get_n_infos(namespace)
         for i in range(n_infos):
-            info = self.girest.repo.get_info(namespace, i)
+            info = self.repo.get_info(namespace, i)
             info_type = info.get_type()
             
             if info_type == GIRepository.InfoType.FUNCTION:
@@ -436,7 +565,15 @@ class FridaResolver(connexion.resolver.Resolver):
         if not operation_id:
             return None
 
-        method_info = self._find_function_info(operation_id)
+        parsed = parse_operation_id(operation_id)
+        if not parsed:
+            return None
+
+        namespace, class_name, method_name = parsed
+        if namespace == "GIRest" and method_name == "callbacks" and not class_name:
+            return self.sse_callback
+
+        method_info = self._find_function_info(namespace, class_name, method_name)
         if method_info:
             # Get the OpenAPI endpoint definition
             endpoint = [e["get"] for e in self.spec["paths"].values() if e["get"]["operationId"] == operation_id][0]
@@ -449,36 +586,23 @@ class FridaResolver(connexion.resolver.Resolver):
             ret.__defaults__ = (method_info, method_json, endpoint)
             return ret
         else:
-            # It might be an artificial method
-            parsed = parse_operation_id(operation_id)
-            if not parsed:
-                return None
-
-            namespace, obj_name, operation = parsed
-            if operation not in ['new', 'free']:
+            # Check for the artificial methods
+            if method_name not in ['new', 'free']:
                 return None
 
             # Try to find the struct info
             struct_info = None
-            n_infos = self.girest.repo.get_n_infos(namespace)
+            n_infos = self.repo.get_n_infos(namespace)
             for i in range(n_infos):
-                info = self.girest.repo.get_info(namespace, i)
-                if info.get_type() == GIRepository.InfoType.STRUCT and info.get_name() == obj_name:
+                info = self.repo.get_info(namespace, i)
+                if info.get_type() == GIRepository.InfoType.STRUCT and info.get_name() == class_name:
                     struct_info = info
                     break
 
             if struct_info:
-                if operation == 'new':
+                if method_name == 'new':
                     return self._create_generic_new_handler(struct_info)
-                elif operation == 'free':
+                elif method_name == 'free':
                     return self._create_generic_free_handler(struct_info)
         
             return None
-
-
-class DummyResolver(connexion.resolver.Resolver):
-    def resolve_function_from_operation_id(self, operation_id):
-        async def dummy_resolver_handler(*args, **kwargs):
-            return {"received": kwargs}
-
-        return dummy_resolver_handler
