@@ -22,6 +22,7 @@ export function Pipeline({ pipelinePtr, onPipelineReady }: PipelineProps) {
         const gstPipeline = new GstPipeline(pipelinePtr);
         setPipeline(gstPipeline);
         
+	console.error("About to get name in pipeline");
         const name = await gstPipeline.get_name();
         setPipelineName(name);
       } catch (error) {

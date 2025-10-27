@@ -41,19 +41,6 @@ class GIResolver(Resolver):
         self._buffer_lock = threading.Lock()
         super().__init__()
 
-    # Register the SSE endpoint at /GIRest/callbacks
-    async def sse_callback():
-        """SSE endpoint for callback events."""
-        return StreamingResponse(
-            girest.sse_callbacks_endpoint(),
-            media_type='text/event-stream',
-            headers={
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-                'X-Accel-Buffering': 'no'
-            }
-        )
-
     def push_sse_event(self, event_data: dict):
         """
         Push an event to the SSE buffer. This is thread-safe and non-blocking.
@@ -144,6 +131,38 @@ class GIResolver(Resolver):
                 yield message
         
         return event_stream()
+
+    def resolve(self, operation):
+        """We overwrite the resolve method to have access to the path schema"""
+        return Resolution(
+            self.get_function_from_operation(operation), operation.operation_id
+        )
+
+    def get_function_from_operation(self, operation):
+        async def sse_callback():
+            """SSE endpoint for callback events."""
+            return StreamingResponse(
+                self.sse_callbacks_endpoint(),
+                media_type='text/event-stream',
+                headers={
+                    'Cache-Control': 'no-cache',
+                    'Connection': 'keep-alive',
+                    'X-Accel-Buffering': 'no'
+                }
+            )
+        operation_id = operation.operation_id
+
+        if not operation_id:
+            return None
+
+        parsed = parse_operation_id(operation_id)
+        if not parsed:
+            return None
+
+        namespace, class_name, method_name = parsed
+        if namespace == "GIRest" and method_name == "callbacks" and not class_name:
+            return sse_callback
+
 
 class FridaResolver(GIResolver):
     """
@@ -267,7 +286,7 @@ class FridaResolver(GIResolver):
         
         # Handle callbacks by pushing them to the SSE buffer
         if kind == "callback":
-            self.girest.push_sse_event(payload["data"])
+            self.push_sse_event(payload["data"])
         else:
             # For now, just log other messages
             logger.debug(f"Message from Frida: {message}")
@@ -561,14 +580,12 @@ class FridaResolver(GIResolver):
 
         return frida_resolver_handler
 
-    def resolve(self, operation):
-        """We overwrite the resolve method to have access to the path schema"""
-        return Resolution(
-            self._get_function_from_operation(operation), operation.operation_id
-        )
-
-    def _get_function_from_operation(self, operation):
+    def get_function_from_operation(self, operation):
         """Resolve function from operation_id and return handler"""
+        ret = super().get_function_from_operation(operation)
+        if ret:
+            return ret
+
         operation_id = operation.operation_id
 
         if not operation_id:
@@ -579,9 +596,6 @@ class FridaResolver(GIResolver):
             return None
 
         namespace, class_name, method_name = parsed
-        if namespace == "GIRest" and method_name == "callbacks" and not class_name:
-            return self.sse_callback
-
         method_info = self._find_function_info(namespace, class_name, method_name)
         if method_info:
             # Generate the JSON representation

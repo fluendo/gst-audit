@@ -55,6 +55,7 @@ export function Bin({ bin, onNodesReady }: BinProps) {
         };
         
         try {
+	  console.error("About to get name in bin");
           const name = await element.get_name();
           const node: Node = {
             id: element.ptr,

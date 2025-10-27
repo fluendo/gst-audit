@@ -21,7 +21,7 @@ export class {{ name }}{% if extends_gobject and parent_class %} extends {{ pare
   unref(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     objectRegistry.unregister(this);
-    return fetch(apiConfig.baseUrl + '/GObject/Object/' + this.ptr + '/unref')
+    return fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + this.ptr + '/unref')
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
@@ -40,7 +40,7 @@ export class {{ name }}{% if extends_gobject and parent_class %} extends {{ pare
   {{ destructor_method_name }}(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     {{ destructor_registry }}.unregister(this);
-    const url = new URL(`{{ destructor_path }}`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}{{ destructor_path }}`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

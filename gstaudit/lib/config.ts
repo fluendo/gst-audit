@@ -1,31 +1,29 @@
 /**
  * Configuration for GstAudit application
- * Manages API host, port, and base path settings
+ * Manages API host, port settings
  */
+import { setApiConfig } from '@/lib/gst'; 
 
 export interface GstAuditConfig {
   host: string;
   port: number;
-  basePath: string;
-  baseUrl: string;
-}
-
-/**
- * Normalize base path to ensure it starts with / if non-empty
- */
-function normalizeBasePath(basePath: string): string {
-  return basePath && !basePath.startsWith('/') ? `/${basePath}` : basePath;
+  gstauditBasePath: string;
+  gstauditBaseUrl: string;
+  girestBasePath: string;
+  girestBaseUrl: string;
 }
 
 let config: GstAuditConfig = {
   host: process.env.NEXT_PUBLIC_API_HOST || 'localhost',
   port: parseInt(process.env.NEXT_PUBLIC_API_PORT || '9000'),
-  basePath: normalizeBasePath(process.env.NEXT_PUBLIC_API_BASE_PATH || ''),
-  baseUrl: '',
+  gstauditBasePath: '/gstaudit',
+  girestBasePath: '/girest',
 };
 
-// Initialize baseUrl
-config.baseUrl = `http://${config.host}:${config.port}${config.basePath}`;
+// Initialize the baseUrls
+config.gstauditBaseUrl = `http://${config.host}:${config.port}${config.gstauditBasePath}`;
+config.giresttBaseUrl = `http://${config.host}:${config.port}${config.girestBasePath}`;
+setApiConfig({host: config.host, port: config.port, basePath: config.girestBasePath});
 
 /**
  * Get the current configuration
@@ -38,19 +36,15 @@ export function getConfig(): GstAuditConfig {
  * Update the configuration
  * @param newConfig Partial configuration to update
  */
-export function updateConfig(newConfig: Partial<Omit<GstAuditConfig, 'baseUrl'>>): void {
-  // Normalize basePath before updating config
-  const updatedConfig = { ...newConfig };
-  if (updatedConfig.basePath !== undefined) {
-    updatedConfig.basePath = normalizeBasePath(updatedConfig.basePath);
-  }
-  
+export function updateConfig(newConfig: Partial<Omit<GstAuditConfig, 'gstauditBasePath' | 'gstauditBaseUrl' | 'girestBasePath' | 'girestBaseUrl'>>): void {
   config = {
     ...config,
-    ...updatedConfig,
+    ...newConfig,
   };
   
-  config.baseUrl = `http://${config.host}:${config.port}${config.basePath}`;
+  config.gstauditBaseUrl = `http://${config.host}:${config.port}${config.gstauditBasePath}`;
+  config.girestBaseUrl = `http://${config.host}:${config.port}${config.girestBasePath}`;
+  setApiConfig({host: config.host, port: config.port, basePath: config.girestBasePath});
 }
 
 export default config;

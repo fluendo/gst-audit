@@ -7,19 +7,20 @@
 // Base types
 export type Pointer = string;
 
-// Utility function to normalize base path
-function normalizeBasePath(basePath: string): string {
-  return basePath && !basePath.startsWith('/') ? `/${basePath}` : basePath;
-}
-
 // Configuration for API server location
 let apiConfig = {
   host: '{{ host }}',
   port: {{ port }},
   basePath: '{{ base_path }}',
   get baseUrl(): string {
-    return `http://${this.host}:${this.port}${normalizeBasePath(this.basePath)}`;
-  }
+    return `http://${this.host}:${this.port}`;
+  },
+  get normalizedBasePath(): string {
+    return this.basePath && !this.basePath.startsWith('/') ? `/${this.basePath}` : this.basePath;
+  },
+  get fullBaseUrl(): string {
+    return `http://${this.host}:${this.port}${this.normalizedBasePath}`;
+  },
 };
 
 /**
@@ -34,8 +35,9 @@ export function setApiConfig(config: { host?: string; port?: number; basePath?: 
     apiConfig.port = config.port;
   }
   if (config.basePath !== undefined) {
-    apiConfig.basePath = normalizeBasePath(config.basePath);
+    apiConfig.basePath = config.basePath;
   }
+
   // Reinitialize callback EventSource with new URL
   if (typeof EventSource !== 'undefined' && (config.host !== undefined || config.port !== undefined || config.basePath !== undefined)) {
     initializeCallbackSource();
@@ -56,7 +58,7 @@ export function getApiConfig(): { host: string; port: number; basePath: string; 
 
 // FinalizationRegistry for automatic cleanup of GObject instances
 const objectRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.baseUrl + '/GObject/Object/' + ptr + '/unref')
+  fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + ptr + '/unref')
     .catch(err => console.error('Failed to unref object:', ptr, err));
 });
 {% if struct_registries %}
@@ -64,7 +66,7 @@ const objectRegistry = new FinalizationRegistry((ptr: string) => {
 // FinalizationRegistry for automatic cleanup of struct instances
 {% for registry in struct_registries %}
 const {{ registry.name }} = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.baseUrl + '{{ registry.path }}')
+  fetch(apiConfig.fullBaseUrl + '{{ registry.path }}')
     .catch(err => console.error('Failed to free {{ registry.class_name }}:', ptr, err));
 });
 {% endfor %}
@@ -91,7 +93,7 @@ function initializeCallbackSource(): void {
   
   // Initialize callback dispatcher with EventSource
   if (typeof EventSource !== 'undefined') {
-    callbackSource = new EventSource(apiConfig.baseUrl + '/GIRest/callbacks');
+    callbackSource = new EventSource(apiConfig.fullBaseUrl + '/GIRest/callbacks');
     callbackSource.onmessage = (ev) => {
       try {
         const json = JSON.parse(ev.data);
@@ -114,8 +116,6 @@ function initializeCallbackSource(): void {
   }
 }
 
-// Initialize on module load
-initializeCallbackSource();
 {% if interfaces %}
 
 {{ interfaces | join('\n') }}

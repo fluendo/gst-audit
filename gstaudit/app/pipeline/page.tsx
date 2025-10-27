@@ -37,7 +37,7 @@ export default function PipelinePage() {
   const fetchPipelines = async () => {
     try {
       setStatus('Fetching pipelines...');
-      const response = await fetch(`${config.baseUrl}/gstaudit/GstAudit/pipelines`);
+      const response = await fetch(`${config.gstauditBaseUrl}/GstAudit/pipelines`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -48,7 +48,7 @@ export default function PipelinePage() {
       // Set the first pipeline pointer to trigger rendering
       if (pipelines.length > 0) {
         setStatus('Loading pipeline structure...');
-        setPipelinePtr(pipelines[0]);
+        setPipelinePtr(pipelines[0].ptr);
       } else {
         setStatus('No pipelines found');
       }

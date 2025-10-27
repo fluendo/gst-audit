@@ -16,6 +16,7 @@ export function Element({ element, position, onNodeReady }: ElementProps) {
   useEffect(() => {
     const loadElement = async () => {
       try {
+	console.error("About to get name in element");
         const elementName = await element.get_name();
         
         // Create ReactFlow node

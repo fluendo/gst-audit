@@ -236,6 +236,9 @@ async def test_gtype_out_endpoint(girest_server):
         assert "return" in response_data, "Bin creation should return an object"
         assert "ptr" in response_data["return"], "Bin creation should return an object"
         bin_ptr = response_data["return"]["ptr"]
+
+        response = await client.get(f"{girest_server}/Gst/Object/ptr,{bin_ptr}/get_name")
+        assert_response(response, f"Failed to get bin's name")
         
         # Step 2: Create a GstElement to add to the bin
         response = await client.get(f"{girest_server}/Gst/ElementFactory/make", params={"factoryname": "fakesrc", "name": "test_element"})
