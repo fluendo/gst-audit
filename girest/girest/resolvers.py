@@ -575,7 +575,6 @@ class FridaResolver(GIResolver):
                 if "type" in k_def and k_def["type"] == "object":
                     result[k] = {"ptr": v}
 
-            print(result)
             return result
 
         return frida_resolver_handler
