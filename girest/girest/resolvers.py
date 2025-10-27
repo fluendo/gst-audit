@@ -12,6 +12,7 @@ from connexion.resolver import Resolver, Resolution
 import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
+from starlette.responses import StreamingResponse
 
 # Import for type hints
 from typing import TYPE_CHECKING
@@ -548,11 +549,11 @@ class FridaResolver(GIResolver):
             # there are any structs or objects
             for k,v in result.items():
                 responses = _endpoint.responses
+                # Take into account that the endpoint is already resolved
                 k_def = responses["200"]["content"]["application/json"]["schema"]["properties"][k]
-                if "type" in k_def and k_def["type"] == "object":
+                if "x-gi-type" in k_def and k_def["x-gi-type"] in ["object", "struct", "gtype"]:
                     result[k] = {"ptr": v}
-                # TODO for now assume references to be objects
-                if "$ref" in k_def:
+                if "type" in k_def and k_def["type"] == "object":
                     result[k] = {"ptr": v}
 
             print(result)
