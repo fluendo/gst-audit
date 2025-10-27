@@ -58,7 +58,7 @@ export function getApiConfig(): { host: string; port: number; basePath: string; 
 
 // FinalizationRegistry for automatic cleanup of GObject instances
 const objectRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + ptr + '/unref')
+  fetch(apiConfig.fullBaseUrl + '/GObject/Object/ptr,' + ptr + '/unref')
     .catch(err => console.error('Failed to unref object:', ptr, err));
 });
 {% if struct_registries %}

@@ -249,6 +249,30 @@ class TypeScriptGenerator:
         
         return "any" + (" | null" if nullable else "")
     
+    def _convert_method_path_to_registry_path(self, method_path: str) -> str:
+        """
+        Convert a method path (for instance methods) to a registry path (for FinalizationRegistry).
+        
+        Method paths use template literals like ${this.ptr}, but registry paths need
+        string concatenation like ' + ptr + '.
+        
+        Args:
+            method_path: Path from _prepare_method_data with ${this.ptr} format
+            
+        Returns:
+            Path suitable for FinalizationRegistry with ' + ptr + ' format
+        """
+        # Convert ${this.ptr} to ' + ptr + '
+        registry_path = method_path.replace("${this.ptr}", "' + ptr + '")
+        
+        # Convert ${param.ptr} to ' + ptr + ' (for multi-parameter destructors)
+        # This is a simplification - for complex destructors with multiple params,
+        # we'd need the actual parameter values, but most destructors only use self
+        import re
+        registry_path = re.sub(r'\$\{[^}]*\.ptr\}', "' + ptr + '", registry_path)
+        
+        return registry_path
+    
     def _prepare_interface_data(self, name: str, schema: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare data for interface template."""
         data = {"name": name}
@@ -634,14 +658,10 @@ class TypeScriptGenerator:
         destructor_registry = ""
         
         if has_destructor:
-            # Get the destructor path and method name
-            destructor_path = destructor_info.get("path", "")
-            operation = destructor_info.get("operation", {})
-            operation_id = operation.get("operationId", "")
-            # Extract method name from operation ID using shared utility
-            parsed = parse_operation_id(operation_id)
-            if parsed and parsed[2]:
-                destructor_method_name = parsed[2]
+            # Process destructor as a regular method to get the properly formatted path
+            destructor_method_data = self._prepare_method_data(destructor_info, class_name)
+            destructor_path = destructor_method_data["path"]
+            destructor_method_name = destructor_method_data["name"]
             destructor_registry = f"{class_name.lower()}Registry"
         
         data = {
@@ -879,11 +899,17 @@ class TypeScriptGenerator:
         # Prepare struct registries for finalization
         struct_registries = []
         for class_name, destructor_info in self.struct_destructors.items():
-            destructor_path = destructor_info.get("path", "")
+            # Process destructor as a regular method to get the properly formatted path
+            destructor_method_data = self._prepare_method_data(destructor_info, class_name)
+            method_path = destructor_method_data["path"]
+            
+            # Convert method path format to registry path format
+            registry_path = self._convert_method_path_to_registry_path(method_path)
+            
             struct_registries.append({
                 "name": f"{class_name.lower()}Registry",
                 "class_name": class_name,
-                "path": destructor_path
+                "path": registry_path
             })
         
         # Generate main file

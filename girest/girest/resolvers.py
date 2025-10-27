@@ -124,13 +124,10 @@ class GIResolver(Resolver):
         Returns:
             Async generator yielding SSE-formatted messages
         """
-        async def event_stream():
-            async for event_data in self.sse_event_generator():
-                # Format as SSE
-                message = f'data: {json.dumps(event_data)}\n\n'
-                yield message
-        
-        return event_stream()
+        async for event_data in self.sse_event_generator():
+            # Format as SSE
+            message = f'data: {json.dumps(event_data)}\n\n'
+            yield message
 
     def resolve(self, operation):
         """We overwrite the resolve method to have access to the path schema"""

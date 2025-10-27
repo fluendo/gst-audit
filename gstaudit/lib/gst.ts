@@ -58,229 +58,229 @@ export function getApiConfig(): { host: string; port: number; basePath: string; 
 
 // FinalizationRegistry for automatic cleanup of GObject instances
 const objectRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + ptr + '/unref')
+  fetch(apiConfig.fullBaseUrl + '/GObject/Object/ptr,' + ptr + '/unref')
     .catch(err => console.error('Failed to unref object:', ptr, err));
 });
 
 // FinalizationRegistry for automatic cleanup of struct instances
 const gstallocationparamsRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/AllocationParams/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/AllocationParams/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstAllocationParams:', ptr, err));
 });
 const gobjecttypeinterfaceRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GObject/TypeInterface/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GObject/TypeInterface/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GObjectTypeInterface:', ptr, err));
 });
 const gobjecttypeclassRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GObject/TypeClass/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GObject/TypeClass/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GObjectTypeClass:', ptr, err));
 });
 const gobjectvalueRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GObject/Value/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GObject/Value/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GObjectValue:', ptr, err));
 });
 const glibvariantRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/Variant/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/Variant/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibVariant:', ptr, err));
 });
 const glibvarianttypeRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/VariantType/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/VariantType/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibVariantType:', ptr, err));
 });
 const glibbytesRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/Bytes/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/Bytes/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibBytes:', ptr, err));
 });
 const gobjecttypeinstanceRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GObject/TypeInstance/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GObject/TypeInstance/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GObjectTypeInstance:', ptr, err));
 });
 const gobjectclosureRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GObject/Closure/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GObject/Closure/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GObjectClosure:', ptr, err));
 });
 const gstmemoryRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Memory/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Memory/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstMemory:', ptr, err));
 });
 const gstatomicqueueRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/AtomicQueue/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/AtomicQueue/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstAtomicQueue:', ptr, err));
 });
 const gststructureRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Structure/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Structure/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstStructure:', ptr, err));
 });
 const gobjectvaluearrayRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GObject/ValueArray/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GObject/ValueArray/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GObjectValueArray:', ptr, err));
 });
 const glibdateRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/Date/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/Date/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibDate:', ptr, err));
 });
 const glibtimevalRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/TimeVal/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/TimeVal/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibTimeVal:', ptr, err));
 });
 const gstdatetimeRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/DateTime/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/DateTime/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstDateTime:', ptr, err));
 });
 const glibdatetimeRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/DateTime/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/DateTime/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibDateTime:', ptr, err));
 });
 const glibtimezoneRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/TimeZone/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/TimeZone/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibTimeZone:', ptr, err));
 });
 const gststaticpadtemplateRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/StaticPadTemplate/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/StaticPadTemplate/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstStaticPadTemplate:', ptr, err));
 });
 const gstcapsRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Caps/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Caps/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstCaps:', ptr, err));
 });
 const gstcapsfeaturesRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/CapsFeatures/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/CapsFeatures/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstCapsFeatures:', ptr, err));
 });
 const gstpadprobeinfoRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/PadProbeInfo/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/PadProbeInfo/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstPadProbeInfo:', ptr, err));
 });
 const gstbufferRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Buffer/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Buffer/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstBuffer:', ptr, err));
 });
 const gstcustommetaRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/CustomMeta/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/CustomMeta/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstCustomMeta:', ptr, err));
 });
 const gstmetainfoRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/MetaInfo/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/MetaInfo/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstMetaInfo:', ptr, err));
 });
 const gstmetaRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Meta/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Meta/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstMeta:', ptr, err));
 });
 const gstparentbuffermetaRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/ParentBufferMeta/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/ParentBufferMeta/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstParentBufferMeta:', ptr, err));
 });
 const gstprotectionmetaRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/ProtectionMeta/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/ProtectionMeta/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstProtectionMeta:', ptr, err));
 });
 const gstreferencetimestampmetaRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/ReferenceTimestampMeta/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/ReferenceTimestampMeta/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstReferenceTimestampMeta:', ptr, err));
 });
 const gstbufferlistRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/BufferList/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/BufferList/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstBufferList:', ptr, err));
 });
 const gsteventRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Event/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Event/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstEvent:', ptr, err));
 });
 const gstiteratorRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Iterator/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Iterator/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstIterator:', ptr, err));
 });
 const gstsegmentRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Segment/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Segment/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstSegment:', ptr, err));
 });
 const gstmessageRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Message/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Message/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstMessage:', ptr, err));
 });
 const gstcontextRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Context/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Context/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstContext:', ptr, err));
 });
 const gsttaglistRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/TagList/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/TagList/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstTagList:', ptr, err));
 });
 const gstsampleRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Sample/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Sample/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstSample:', ptr, err));
 });
 const gsttocRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Toc/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Toc/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstToc:', ptr, err));
 });
 const gsttocentryRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/TocEntry/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/TocEntry/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstTocEntry:', ptr, err));
 });
 const gstqueryRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Query/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Query/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstQuery:', ptr, err));
 });
 const glibsourceRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/Source/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/Source/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibSource:', ptr, err));
 });
 const glibmaincontextRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/MainContext/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/MainContext/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibMainContext:', ptr, err));
 });
 const glibcondRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/Cond/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/Cond/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibCond:', ptr, err));
 });
 const gstdebugcategoryRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/DebugCategory/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/DebugCategory/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstDebugCategory:', ptr, err));
 });
 const gstdebugmessageRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/DebugMessage/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/DebugMessage/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstDebugMessage:', ptr, err));
 });
 const gstminiobjectRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/MiniObject/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/MiniObject/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstMiniObject:', ptr, err));
 });
 const gstparsecontextRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/ParseContext/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/ParseContext/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstParseContext:', ptr, err));
 });
 const gstpollfdRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/PollFD/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/PollFD/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstPollFD:', ptr, err));
 });
 const gstpollRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Poll/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Poll/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstPoll:', ptr, err));
 });
 const gstpromiseRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Promise/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Promise/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstPromise:', ptr, err));
 });
 const gststaticcapsRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/StaticCaps/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/StaticCaps/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstStaticCaps:', ptr, err));
 });
 const glibthreadRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/Thread/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/Thread/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibThread:', ptr, err));
 });
 const glibrecmutexRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/RecMutex/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/GLib/RecMutex/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibRecMutex:', ptr, err));
 });
 const gsttypefindRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/TypeFind/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/TypeFind/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstTypeFind:', ptr, err));
 });
 const gsturiRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/Uri/{self}/free')
+  fetch(apiConfig.fullBaseUrl + '/Gst/Uri/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstUri:', ptr, err));
 });
 
@@ -327,6 +327,7 @@ function initializeCallbackSource(): void {
     isReinitializing = false;
   }
 }
+
 
 export type GLibVariantClass = "boolean" | "byte" | "int16" | "uint16" | "int32" | "uint32" | "int64" | "uint64" | "handle" | "double" | "string" | "object_path" | "signature" | "variant" | "maybe" | "array" | "tuple" | "dict_entry";
 export type GObjectBindingFlags = "default" | "bidirectional" | "sync_create" | "invert_boolean";
@@ -1016,7 +1017,7 @@ export class GLibBytes {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibbytesRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Bytes/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Bytes/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1167,7 +1168,7 @@ export class GLibCond {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibcondRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cond/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cond/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1238,7 +1239,7 @@ export class GLibDate {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibdateRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1673,7 +1674,7 @@ export class GLibDateTime {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibdatetimeRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2278,7 +2279,7 @@ export class GLibMainContext {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibmaincontextRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MainContext/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MainContext/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2549,7 +2550,7 @@ export class GLibRecMutex {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibrecmutexRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RecMutex/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RecMutex/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2609,7 +2610,7 @@ export class GLibSource {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibsourceRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2915,7 +2916,7 @@ export class GLibThread {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibthreadRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3020,7 +3021,7 @@ export class GLibTimeVal {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibtimevalRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TimeVal/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TimeVal/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3080,7 +3081,7 @@ export class GLibTimeZone {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibtimezoneRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TimeZone/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TimeZone/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3228,7 +3229,7 @@ export class GLibVariant {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibvariantRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Variant/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Variant/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4050,7 +4051,7 @@ export class GLibVariantType {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     glibvarianttypeRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/VariantType/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/VariantType/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4725,7 +4726,7 @@ export class GObjectClosure {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gobjectclosureRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4918,7 +4919,7 @@ export class GObjectTypeClass {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gobjecttypeclassRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeClass/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeClass/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5030,7 +5031,7 @@ export class GObjectTypeInstance {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gobjecttypeinstanceRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInstance/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInstance/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5069,7 +5070,7 @@ export class GObjectTypeInterface {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gobjecttypeinterfaceRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInterface/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInterface/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5169,7 +5170,7 @@ export class GObjectValue {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gobjectvalueRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5697,7 +5698,7 @@ export class GObjectValueArray {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gobjectvaluearrayRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ValueArray/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ValueArray/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -5837,7 +5838,7 @@ export class GstAllocationParams {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstallocationparamsRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -6265,7 +6266,7 @@ export class GstAtomicQueue {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstatomicqueueRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AtomicQueue/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AtomicQueue/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -7364,7 +7365,7 @@ export class GstBuffer {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstbufferRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -8088,7 +8089,7 @@ export class GstBufferList {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstbufferlistRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferList/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferList/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -8678,7 +8679,7 @@ export class GstCaps {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstcapsRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9201,7 +9202,7 @@ export class GstCapsFeatures {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstcapsfeaturesRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CapsFeatures/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CapsFeatures/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9679,7 +9680,7 @@ export class GstContext {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstcontextRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Context/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Context/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9853,7 +9854,7 @@ export class GstCustomMeta {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstcustommetaRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CustomMeta/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CustomMeta/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9907,7 +9908,7 @@ export class GstDateTime {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstdatetimeRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -10227,7 +10228,7 @@ export class GstDebugCategory {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstdebugcategoryRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugCategory/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugCategory/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -10300,7 +10301,7 @@ export class GstDebugMessage {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstdebugmessageRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugMessage/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugMessage/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -11091,7 +11092,7 @@ export class GstEvent {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gsteventRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -12978,7 +12979,7 @@ export class GstIterator {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstiteratorRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -13115,7 +13116,7 @@ export class GstMemory {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstmemoryRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -13270,7 +13271,7 @@ export class GstMessage {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstmessageRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -14680,7 +14681,7 @@ export class GstMeta {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstmetaRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Meta/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Meta/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -14850,7 +14851,7 @@ export class GstMetaInfo {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstmetainfoRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -14902,7 +14903,7 @@ export class GstMiniObject {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstminiobjectRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -15033,7 +15034,7 @@ export class GstPadProbeInfo {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstpadprobeinfoRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -15215,7 +15216,7 @@ export class GstParentBufferMeta {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstparentbuffermetaRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParentBufferMeta/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParentBufferMeta/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -15260,7 +15261,7 @@ export class GstParseContext {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstparsecontextRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseContext/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseContext/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -15689,7 +15690,7 @@ export class GstPoll {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstpollRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Poll/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Poll/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -15900,7 +15901,7 @@ export class GstPollFD {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstpollfdRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PollFD/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PollFD/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -15938,7 +15939,7 @@ export class GstPromise {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstpromiseRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Promise/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Promise/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -16022,7 +16023,7 @@ export class GstProtectionMeta {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstprotectionmetaRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ProtectionMeta/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ProtectionMeta/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -16067,7 +16068,7 @@ export class GstQuery {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstqueryRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Query/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Query/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -16969,7 +16970,7 @@ export class GstReferenceTimestampMeta {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstreferencetimestampmetaRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17224,7 +17225,7 @@ export class GstSample {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstsampleRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Sample/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Sample/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17380,7 +17381,7 @@ export class GstSegment {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gstsegmentRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17678,7 +17679,7 @@ export class GstStaticCaps {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gststaticcapsRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticCaps/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticCaps/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17728,7 +17729,7 @@ export class GstStaticPadTemplate {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gststaticpadtemplateRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17957,7 +17958,7 @@ export class GstStructure {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gststructureRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -18701,7 +18702,7 @@ export class GstTagList {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gsttaglistRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagList/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagList/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -19314,7 +19315,7 @@ export class GstToc {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gsttocRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Toc/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Toc/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -19423,7 +19424,7 @@ export class GstTocEntry {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gsttocentryRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocEntry/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocEntry/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -19631,7 +19632,7 @@ export class GstTypeFind {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gsttypefindRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -19773,7 +19774,7 @@ export class GstUri {
   free(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
     gsturiRegistry.unregister(this);
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/{self}/free`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     return fetch(url.toString())
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
