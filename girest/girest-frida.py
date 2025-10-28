@@ -5,14 +5,9 @@ girest-frida - Development server for GIRest with Frida integration.
 This tool creates a development server that uses Frida to instrument a running
 process and expose its GObject introspection API as a REST API.
 """
-import logging
-
 import argparse
 import sys
 import os
-
-from uvicorn.config import LOGGING_CONFIG
-from uvicorn.logging import DefaultFormatter
 
 from girest.app import GIApp
 from girest.resolvers import FridaResolver
@@ -50,15 +45,6 @@ def main():
     )
     
     args = parser.parse_args()
-
-    # Setup the log
-    # Use the same logger Uvicorn uses
-    handler = logging.StreamHandler()
-    handler.setFormatter(DefaultFormatter(fmt=LOGGING_CONFIG["formatters"]["default"]["fmt"]))
-    logger = logging.getLogger("girest")
-    logger.handlers = []  # Remove any existing handlers
-    logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
 
     try:
         
