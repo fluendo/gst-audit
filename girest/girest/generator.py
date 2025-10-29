@@ -58,9 +58,9 @@ class TypeScriptGenerator:
         self.struct_destructors: Dict[str, Dict] = {}  # Track structs with destructors (free methods)
         
         # Setup Jinja2 environment
-        template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+        self.template_dir = os.path.join(os.path.dirname(__file__), 'templates')
         self.jinja_env = Environment(
-            loader=FileSystemLoader(template_dir),
+            loader=FileSystemLoader(self.template_dir),
             trim_blocks=True,
             lstrip_blocks=True
         )
@@ -749,13 +749,8 @@ class TypeScriptGenerator:
         data = {
             "name": class_name,
             "is_enum": is_enum,
-            "base_url": self.base_url,
-            "host": self.host,
-            "port": self.port,
-            "base_path": self.base_path,
             "extends_gobject": extends_gobject,
             "parent_class": parent_class,
-            "has_interface": has_interface,
             "has_destructor": has_destructor,
             "destructor_path": destructor_path,
             "destructor_method_name": destructor_method_name,
@@ -876,6 +871,154 @@ class TypeScriptGenerator:
         
         return data
     
+    def _get_template_for_schema(self, schema_name: str, schema_def: Dict[str, Any]) -> Template:
+        """
+        Get the appropriate template for a schema.
+        
+        First tries to find a specific template by name (e.g., GObjectObject.ts.j2),
+        then falls back to type-based templates (e.g., object.ts.j2).
+        
+        Args:
+            schema_name: The name of the schema
+            schema_def: The schema definition
+            
+        Returns:
+            Jinja2 Template object
+        """
+        # First try to find a specific template by name
+        specific_template_name = f"{schema_name}.ts.j2"
+        if os.path.exists(os.path.join(self.template_dir, specific_template_name)):
+            return self.jinja_env.get_template(specific_template_name)
+        
+        # Fall back to type-based templates
+        gi_type = schema_def.get("x-gi-type", "")
+        
+        # Map x-gi-type to template names
+        type_template_map = {
+            "enum": "enum.ts.j2",
+            "flags": "flags.ts.j2", 
+            "struct": "struct.ts.j2",
+            "object": "object.ts.j2",
+            "callback": "callback.ts.j2"
+        }
+        
+        template_name = type_template_map.get(gi_type)
+        if template_name:
+            return self.jinja_env.get_template(template_name)
+        
+        # Default fallback (should not happen in normal cases)
+        if "enum" in schema_def and schema_def.get("type") == "string":
+            return self.jinja_env.get_template("enum.ts.j2")
+        
+        # For unknown types, use object template as fallback
+        return self.jinja_env.get_template("object.ts.j2")
+    
+    def _generate_schemas(self) -> Dict[str, str]:
+        """
+        Generate TypeScript code for all schemas based on their types.
+        
+        Returns:
+            Dictionary mapping schema names to generated TypeScript code
+        """
+        generated_schemas = {}
+        
+        # Collect all schema names that need to be generated
+        # Include classes with methods and all parent classes in the inheritance chain
+        schemas_to_generate = set()
+        
+        for schema_name, schema_def in self.schemas.items():
+            gi_type = schema_def.get("x-gi-type", "")
+            
+            # Always generate enums, flags, and callbacks as interfaces/types
+            if gi_type in ["enum", "flags", "callback"]:
+                schemas_to_generate.add(schema_name)
+            
+            # Generate structs as classes (whether they have methods or not)
+            elif gi_type == "struct":
+                schemas_to_generate.add(schema_name)
+                # Add parent classes in inheritance chain
+                parent = self._get_direct_parent(schema_name)
+                while parent:
+                    if parent in self.schemas:
+                        schemas_to_generate.add(parent)
+                    parent = self._get_direct_parent(parent)
+            
+            # Generate objects as classes if they have methods
+            elif gi_type == "object":
+                if schema_name in self.class_methods or schema_name in self.class_constructors:
+                    schemas_to_generate.add(schema_name)
+                    # Add parent classes in inheritance chain
+                    parent = self._get_direct_parent(schema_name)
+                    while parent:
+                        if parent in self.schemas:
+                            schemas_to_generate.add(parent)
+                        parent = self._get_direct_parent(parent)
+                else:
+                    # Object without methods - generate as interface
+                    schemas_to_generate.add(schema_name)
+        
+        # Generate schemas in dependency order (parents before children)
+        generated = set()
+        
+        def generate_schema_with_parents(schema_name: str):
+            """Recursively generate a schema and its parents."""
+            if schema_name in generated:
+                return
+            
+            # First generate the parent
+            parent = self._get_direct_parent(schema_name)
+            if parent and parent in schemas_to_generate:
+                generate_schema_with_parents(parent)
+            
+            # Then generate this schema
+            schema_def = self.schemas.get(schema_name, {})
+            gi_type = schema_def.get("x-gi-type", "")
+            
+            # Determine how to generate this schema
+            is_enum = schema_name in self.enum_schemas
+            has_methods = schema_name in self.class_methods or schema_name in self.class_constructors
+            
+            if gi_type == "callback":
+                # Generate callback as type alias
+                template = self._get_template_for_schema(schema_name, schema_def)
+                # Generate callback signature
+                callback_signature = self._get_callback_type_signature(f"#/components/schemas/{schema_name}")
+                data = {"name": schema_name, "callback_signature": callback_signature}
+                
+            elif is_enum and has_methods:
+                # Enum with methods - use enum template
+                template = self._get_template_for_schema(schema_name, schema_def)
+                data = self._prepare_interface_data(schema_name, schema_def)
+                
+                # Add methods to enum namespace
+                method_template = self.jinja_env.get_template('method.ts.j2')
+                methods = []
+                for method_info in self.class_methods.get(schema_name, []):
+                    method_data = self._prepare_method_data(method_info, schema_name)
+                    # In namespaces, we don't use the static keyword
+                    method_data["is_namespace_function"] = True
+                    methods.append(method_template.render(method_data).rstrip())
+                data["methods"] = methods
+                
+            elif gi_type in ["struct", "object"] and (has_methods or gi_type == "struct"):
+                # Generate as class (all structs are classes, objects with methods are classes)
+                template = self._get_template_for_schema(schema_name, schema_def)
+                data = self._prepare_class_data(schema_name)
+                
+            else:
+                # Generate as interface/type
+                template = self._get_template_for_schema(schema_name, schema_def)
+                data = self._prepare_interface_data(schema_name, schema_def)
+            
+            generated_schemas[schema_name] = template.render(data).rstrip()
+            generated.add(schema_name)
+        
+        # Generate all schemas
+        for schema_name in sorted(schemas_to_generate):
+            generate_schema_with_parents(schema_name)
+        
+        return generated_schemas
+    
     def generate(self) -> str:
         """
         Generate complete TypeScript bindings.
@@ -886,91 +1029,23 @@ class TypeScriptGenerator:
         title = self.schema.get("info", {}).get("title", "API")
         version = self.schema.get("info", {}).get("version", "1.0")
         
-        # Generate type aliases (only for enums)
-        interface_template = self.jinja_env.get_template('interface.ts.j2')
+        # Generate all schemas using the new schema-based approach
+        generated_schemas = self._generate_schemas()
+        
+        # Split generated schemas into interfaces and classes
         interfaces = []
-        
-        for schema_name, schema_def in self.schemas.items():
-            gi_type = schema_def.get("x-gi-type", "")
-            
-            # Generate type definitions for enums, flags, and structs
-            # Skip object types - they will have classes
-            if gi_type not in ["enum", "flags", "struct"]:
-                continue
-            
-            # Skip structs with methods - they will be generated as classes
-            if gi_type == "struct" and schema_name in self.class_methods:
-                continue
-            
-            interface_data = self._prepare_interface_data(schema_name, schema_def)
-            interface_code = interface_template.render(interface_data).rstrip()
-            
-            # If this is an enum with methods, append the methods
-            if schema_name in self.enum_schemas and schema_name in self.class_methods:
-                method_template = self.jinja_env.get_template('method.ts.j2')
-                methods = []
-                for method_info in self.class_methods[schema_name]:
-                    method_data = self._prepare_method_data(method_info, schema_name)
-                    # In namespaces, we don't use the static keyword
-                    method_data["is_namespace_function"] = True
-                    methods.append(method_template.render(method_data).rstrip())
-                
-                # Insert methods into the namespace
-                lines = interface_code.split("\n")
-                namespace_end_idx = -1
-                for i, line in enumerate(lines):
-                    if line.strip() == "}":
-                        namespace_end_idx = i
-                        break
-                
-                if namespace_end_idx >= 0:
-                    output_lines = lines[:namespace_end_idx]
-                    output_lines.extend(methods)
-                    output_lines.extend(lines[namespace_end_idx:])
-                    interface_code = "\n".join(output_lines)
-            
-            interfaces.append(interface_code)
-        
-        # Generate classes
-        class_template = self.jinja_env.get_template('class.ts.j2')
         classes = []
         
-        # Collect all class names that need to be generated
-        # Include classes with methods and all parent classes in the inheritance chain
-        classes_to_generate = set()
-        for class_name in self.class_methods.keys():
-            if class_name not in self.enum_schemas:
-                classes_to_generate.add(class_name)
-                # Add all parent classes in the inheritance chain
-                parent = self._get_direct_parent(class_name)
-                while parent:
-                    # Add parent if it has a schema (meaning it's a valid class to generate)
-                    if parent in self.schemas:
-                        classes_to_generate.add(parent)
-                    parent = self._get_direct_parent(parent)
-        
-        # Generate classes in dependency order (parents before children)
-        # We need to ensure parent classes are defined before child classes
-        generated = set()
-        
-        def generate_class_with_parents(class_name: str):
-            """Recursively generate a class and its parents."""
-            if class_name in generated:
-                return
+        for schema_name, code in generated_schemas.items():
+            schema_def = self.schemas.get(schema_name, {})
+            gi_type = schema_def.get("x-gi-type", "")
+            has_methods = schema_name in self.class_methods or schema_name in self.class_constructors
             
-            # First generate the parent
-            parent = self._get_direct_parent(class_name)
-            if parent and parent in classes_to_generate:
-                generate_class_with_parents(parent)
-            
-            # Then generate this class
-            class_data = self._prepare_class_data(class_name)
-            classes.append(class_template.render(class_data))
-            generated.add(class_name)
-        
-        # Generate all classes
-        for class_name in sorted(classes_to_generate):
-            generate_class_with_parents(class_name)
+            # Determine if this is an interface or class based on content
+            if code.strip().startswith("export class"):
+                classes.append(code)
+            else:
+                interfaces.append(code)
         
         # Generate standalone functions namespace
         standalone_namespace = ""

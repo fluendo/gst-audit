@@ -1,0 +1,14 @@
+{# Flags template - handles flag/bitfield types (same as enum but semantic distinction) #}
+{% if is_enum_with_methods %}
+export namespace {{ name }} {
+{% for value in enum_values %}
+  export const {{ value.const_name }}: '{{ value.value }}' = '{{ value.value }}';
+{% endfor %}
+{% for method in methods %}
+{{ method }}
+{% endfor %}
+}
+export type {{ name }}Value = {{ enum_value_union }};
+{% else %}
+export type {{ name }} = {{ enum_value_union }};
+{% endif %}

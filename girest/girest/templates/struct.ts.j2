@@ -1,0 +1,36 @@
+{# Struct template - handles struct types #}
+export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif %} {
+{% if has_destructor %}
+  ptr!: string;
+  
+  constructor(ptr?: string) {
+    if (ptr) {
+      this.ptr = ptr;
+      {{ destructor_registry }}.register(this, ptr);
+    }
+  }
+  
+  // Manual cleanup method
+  {{ destructor_method_name }}(): Promise<void> {
+    if (!this.ptr) return Promise.resolve();
+    {{ destructor_registry }}.unregister(this);
+    const url = new URL(`${apiConfig.normalizedBasePath}{{ destructor_path }}`, apiConfig.baseUrl);
+    return fetch(url.toString())
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      });
+  }
+{% else %}
+{% for prop in properties %}
+  {{ prop.name }}{{ prop.assertion }}: {{ prop.type }};
+{% endfor %}
+{% endif %}
+{% if properties and (constructors or methods) %}
+
+{% endif %}
+{{ constructors | join('\n') }}
+{% if constructors and methods %}
+
+{% endif %}
+{{ methods | join('\n') }}
+}

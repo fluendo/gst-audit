@@ -29,7 +29,8 @@ def test_gst_inheritance_chain(gst_typescript):
     
     # Define expected inheritance relationships
     expected_classes = [
-        ('GObjectObject', None),  # Base class with no parent
+        ('GObjectTypeInstance', None),  # Base class with no parent
+        ('GObjectObject', 'GObjectTypeInstance'),  # GObjectObject extends GObjectTypeInstance
         ('GObjectInitiallyUnowned', 'GObjectObject'),
         ('GstObject', 'GObjectInitiallyUnowned'),
         ('GstElement', 'GstObject'),
@@ -57,37 +58,39 @@ def test_gst_inheritance_chain(gst_typescript):
 
 def test_gobject_base_class_structure(gst_typescript):
     """
-    Test that GObjectObject has the correct structure as a base class.
+    Test that GObjectObject has the correct structure.
     
     Verifies that GObjectObject includes:
-    - ptr property
-    - constructor
+    - Extends GObjectTypeInstance
+    - constructor with super() call
+    - castTo method
     - unref method
     """
     output = gst_typescript
     
     # Find the GObjectObject class definition
     match = re.search(
-        r'export class GObjectObject \{(.*?)(?=\nexport )',
+        r'export class GObjectObject extends GObjectTypeInstance \{(.*?)(?=\nexport )',
         output,
         re.DOTALL
     )
-    assert match, "GObjectObject class not found in generated TypeScript"
+    assert match, "GObjectObject class extending GObjectTypeInstance not found in generated TypeScript"
     
     gobject_class = match.group(0)
     
     # Verify it has the required structure
-    assert 'ptr!: string;' in gobject_class, "GObjectObject should have ptr property"
     assert 'constructor(ptr?: string)' in gobject_class, "GObjectObject should have constructor"
+    assert 'super(ptr)' in gobject_class, "GObjectObject constructor should call super(ptr)"
+    assert 'castTo<T extends GObjectObject>' in gobject_class, "GObjectObject should have castTo method"
     assert 'unref():' in gobject_class, "GObjectObject should have unref method"
 
 
 def test_intermediate_classes_generated(gst_typescript):
     """
-    Test that intermediate classes without methods are still generated.
+    Test that intermediate classes without instance methods are still generated.
     
-    Verifies that GObjectInitiallyUnowned (which has no methods) is generated
-    as a class in the inheritance chain, not just as an interface.
+    Verifies that GObjectInitiallyUnowned is generated as a class in the 
+    inheritance chain with only a static get_type method.
     """
     output = gst_typescript
     
@@ -96,19 +99,24 @@ def test_intermediate_classes_generated(gst_typescript):
         "GObjectInitiallyUnowned should be generated as a class extending GObjectObject"
     )
     
-    # It should be an empty class (no methods)
+    # It should be a class with only static methods (like get_type)
     match = re.search(
-        r'export class GObjectInitiallyUnowned extends GObjectObject \{(.*?)\}',
+        r'export class GObjectInitiallyUnowned extends GObjectObject \{(.*?)(?=\nexport )',
         output,
         re.DOTALL
     )
     assert match, "GObjectInitiallyUnowned class structure not found"
     
     class_body = match.group(1).strip()
-    # Class body should be empty or contain only whitespace
-    assert len(class_body) == 0, (
-        "GObjectInitiallyUnowned should be an empty class "
-        f"(no methods or properties), but found: {class_body}"
+    # Class body should contain only static methods, no instance methods
+    assert 'static async get_type():' in class_body, (
+        "GObjectInitiallyUnowned should have static get_type method"
+    )
+    # Should not have instance methods (no 'async ' without 'static async')
+    lines = class_body.split('\n')
+    instance_methods = [line for line in lines if 'async ' in line and 'static async' not in line]
+    assert len(instance_methods) == 0, (
+        f"GObjectInitiallyUnowned should not have instance methods, but found: {instance_methods}"
     )
 
 
@@ -184,23 +192,19 @@ def test_typescript_class_generation_for_structs(gst_typescript):
     print("✓ TypeScript generator creates class for struct with methods")
 
 
-def test_typescript_interface_generation_for_structs_without_methods(gst_typescript):
+def test_typescript_class_generation_for_structs_without_methods(gst_typescript):
     """
-    Test that TypeScript generator creates interfaces for structs without methods.
-    
+    Test that TypeScript generator creates classes for structs without methods.
+
     Uses GstAllocatorPrivate as a test case.
     """
     typescript = gst_typescript
+
+    # Verify GstAllocatorPrivate is generated as a class
+    assert 'export class GstAllocatorPrivate {' in typescript, \
+        "GstAllocatorPrivate should be generated as a class"
     
-    # Verify GstAllocatorPrivate is generated as an interface
-    assert 'export interface GstAllocatorPrivate {' in typescript, \
-        "GstAllocatorPrivate should be generated as an interface"
-    
-    # Verify it's not generated as a class
-    assert 'export class GstAllocatorPrivate {' not in typescript, \
-        "GstAllocatorPrivate should not be generated as a class"
-    
-    print("✓ TypeScript generator creates interface for struct without methods")
+    print("✓ TypeScript generator creates class for struct without methods")
 
 
 def test_typescript_parameter_serialization(gst_typescript):
