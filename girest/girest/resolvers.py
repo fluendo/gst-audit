@@ -1,10 +1,18 @@
-import logging
+# TODO
+# We need to get rid of passing the namespace/version, it should be fetched
+# based on the actual operation information
 
+import logging
+import json
 import asyncio
-import connexion
+import threading
+from collections import deque
+
+from connexion.resolver import Resolver, Resolution
 import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
+from starlette.responses import StreamingResponse
 
 # Import for type hints
 from typing import TYPE_CHECKING
@@ -19,7 +27,141 @@ except ImportError:
 
 logger = logging.getLogger("girest")
 
-class FridaResolver(connexion.resolver.Resolver):
+
+class GIResolver(Resolver):
+    def __init__(self, sse_buffer_size: int = 100):
+        # SSE event buffer (ring buffer using deque with maxlen)
+        self.sse_buffer_size = sse_buffer_size
+        self.sse_events: deque = deque(maxlen=sse_buffer_size)
+        self.sse_event = None  # Will be created in event loop
+        self._event_loop = None  # Reference to the event loop
+        # Counter for assigning unique IDs to events
+        # Lock protects both the counter and the deque during event push
+        self._event_counter = 0
+        self._buffer_lock = threading.Lock()
+        super().__init__()
+
+    def push_sse_event(self, event_data: dict):
+        """
+        Push an event to the SSE buffer. This is thread-safe and non-blocking.
+        
+        If the buffer is full, the oldest event will be discarded to make room.
+        Can be safely called from any thread (e.g., Frida's message handler).
+        
+        Args:
+            event_data: Dictionary containing event data to be sent to SSE clients
+        """
+        # Assign a unique sequential ID and append to buffer atomically
+        # Lock protects both operations to ensure consistency
+        with self._buffer_lock:
+            event_id = self._event_counter
+            self._event_counter += 1
+            
+            # Wrap the event data with an ID
+            event_wrapper = {
+                "_sse_id": event_id,
+                "data": event_data
+            }
+            
+            self.sse_events.append(event_wrapper)
+        
+        # Set the event to notify waiting clients (outside lock)
+        # Use call_soon_threadsafe if called from a different thread
+        if self.sse_event is not None and self._event_loop is not None:
+            self._event_loop.call_soon_threadsafe(self.sse_event.set)
+    
+    async def sse_event_generator(self):
+        """
+        Async generator that yields SSE events from the buffer.
+        
+        Yields events from the current position in the buffer and then waits
+        for new events to be pushed. Each generator instance tracks its own
+        position independently using sequential event IDs.
+        
+        Note: If the buffer rotates (oldest events are discarded) while a client
+        is connected, the client may miss events. This is acceptable for the
+        use case as it prevents unbounded memory growth.
+        """
+        # Initialize event loop and event on first call
+        if self.sse_event is None:
+            self._event_loop = asyncio.get_running_loop()
+            self.sse_event = asyncio.Event()
+        
+        # Track the last event ID we've sent
+        last_sent_id = -1
+        
+        while True:
+            has_new_events = False
+            
+            # Take an atomic snapshot to avoid mutation during iteration
+            with self._buffer_lock:
+                snapshot = list(self.sse_events)
+            
+            # Iterate over the snapshot
+            for event_wrapper in snapshot:
+                event_id = event_wrapper["_sse_id"]
+                if event_id > last_sent_id:
+                    last_sent_id = event_id
+                    has_new_events = True
+                    # Yield only the data, not the wrapper
+                    yield event_wrapper["data"]
+            
+            # If we yielded events, check again for more before waiting
+            if has_new_events:
+                continue
+            
+            # Wait for new events
+            await self.sse_event.wait()
+            self.sse_event.clear()
+    
+    async def sse_callbacks_endpoint(self):
+        """
+        SSE endpoint that streams callback events.
+        
+        This endpoint is registered at /GIRest/callbacks and streams events
+        in Server-Sent Events format.
+        
+        Returns:
+            Async generator yielding SSE-formatted messages
+        """
+        async for event_data in self.sse_event_generator():
+            # Format as SSE
+            message = f'data: {json.dumps(event_data)}\n\n'
+            yield message
+
+    def resolve(self, operation):
+        """We overwrite the resolve method to have access to the path schema"""
+        return Resolution(
+            self.get_function_from_operation(operation), operation.operation_id
+        )
+
+    def get_function_from_operation(self, operation):
+        async def sse_callback():
+            """SSE endpoint for callback events."""
+            return StreamingResponse(
+                self.sse_callbacks_endpoint(),
+                media_type='text/event-stream',
+                headers={
+                    'Cache-Control': 'no-cache',
+                    'Connection': 'keep-alive',
+                    'X-Accel-Buffering': 'no'
+                }
+            )
+        operation_id = operation.operation_id
+
+        if not operation_id:
+            return None
+
+        parsed = parse_operation_id(operation_id)
+        if not parsed:
+            return None
+
+        namespace, class_name, method_name = parsed
+        if namespace == "GIRest" and method_name == "callbacks" and not class_name:
+            return sse_callback
+
+
+class FridaResolver(GIResolver):
     """
     Resolver for Connexion that uses Frida to call functions in a remote process.
     
@@ -52,9 +194,21 @@ class FridaResolver(connexion.resolver.Resolver):
         "returns": "int32"
     }
     """
-    def __init__(self, spec: dict, girest: "GIRest", pid: int, scripts=None, on_log=None, on_message=None):
-        self.girest = girest
-        self.spec = spec
+    def __init__(
+            self,
+            namespace: str,
+            version: str,
+            pid: int,
+            *,
+            scripts=None,
+            on_log=None,
+            on_message=None,
+            sse_buffer_size=100
+        ):
+        # Load the corresponding Gir file
+        self.repo = GIRepository.Repository()
+        self.repo.require(namespace, version, 0)
+        self.ns = namespace
         self.pid = pid
         self.session = None
         if not scripts:
@@ -65,12 +219,12 @@ class FridaResolver(connexion.resolver.Resolver):
         self._build_enum_mappings()
         # Connect to the corresponding process
         self._connect_frida(scripts, on_log, on_message)
-        super().__init__()
+        super().__init__(sse_buffer_size)
  
     def _build_enum_mappings(self):
         """Build mappings from enum string names to integer values"""
-        for i in range(0, self.girest.repo.get_n_infos(self.girest.ns)):
-            info = self.girest.repo.get_info(self.girest.ns, i)
+        for i in range(0, self.repo.get_n_infos(self.ns)):
+            info = self.repo.get_info(self.ns, i)
             info_type = info.get_type()
             if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
                 full_name = f"{info.get_namespace()}{info.get_name()}"
@@ -129,7 +283,7 @@ class FridaResolver(connexion.resolver.Resolver):
         
         # Handle callbacks by pushing them to the SSE buffer
         if kind == "callback":
-            self.girest.push_sse_event(payload["data"])
+            self.push_sse_event(payload["data"])
         else:
             # For now, just log other messages
             logger.debug(f"Message from Frida: {message}")
@@ -171,6 +325,7 @@ class FridaResolver(connexion.resolver.Resolver):
             "utf8": "string",
             "gfloat": "float",
             "gdouble": "double",
+            "GType": "int64", # FIXME beware of this
             "void": "void"
         }
 
@@ -260,24 +415,15 @@ class FridaResolver(connexion.resolver.Resolver):
         is_method = bool(flags & GIRepository.FunctionInfoFlags.IS_METHOD)
         return self._callable_to_json(method, is_method=is_method)
     
-    def _find_function_info(self, operation_id):
+    def _find_function_info(self, namespace, class_name, method_name):
         """Find function info from operation_id"""
         # operation_id format: {namespace}_{object_name}_{method_name}
         # or {namespace}__{function_name} for standalone functions
         
-        if not operation_id:
-            return None
-
-        parsed = parse_operation_id(operation_id)
-        if not parsed:
-            return None
-        
-        namespace, class_name, method_name = parsed
-        
         # Search through the repository
-        n_infos = self.girest.repo.get_n_infos(namespace)
+        n_infos = self.repo.get_n_infos(namespace)
         for i in range(n_infos):
-            info = self.girest.repo.get_info(namespace, i)
+            info = self.repo.get_info(namespace, i)
             info_type = info.get_type()
             
             if info_type == GIRepository.InfoType.FUNCTION:
@@ -314,9 +460,32 @@ class FridaResolver(connexion.resolver.Resolver):
         
         return None
 
-    def _create_generic_new_handler(self, struct_info):
+    def _create_get_type_handler(self, type_info):
+        symbol = GIRepository.registered_type_info_get_type_init(type_info)
+        _type = {
+            "arguments": [],
+            "is_method": False,
+            "returns": "int64" # FIXME beware of this
+        }
+
+        async def get_type_handler(*args, **kwargs):
+            # Call the Frida script's generic alloc function
+            result = await asyncio.to_thread(
+                self.scripts[0].exports_sync.call, symbol, _type
+            )
+            return result
+
+        return get_type_handler
+
+    def _create_generic_new_handler(self, type_info):
         """Create handler for generic struct allocation"""
-        size = GIRepository.struct_info_get_size(struct_info)
+        # Only structs have size, for other types we may need different handling
+        if type_info.get_type() == GIRepository.InfoType.STRUCT:
+            size = GIRepository.struct_info_get_size(type_info)
+        else:
+            # For non-struct types, we might need a different approach
+            # For now, assume a default size or handle differently
+            size = 0  # This might need specific handling per type
         
         async def generic_new_handler(*args, **kwargs):
             # Call the Frida script's generic alloc function
@@ -327,8 +496,8 @@ class FridaResolver(connexion.resolver.Resolver):
         
         return generic_new_handler
     
-    def _create_generic_free_handler(self, struct_info):
-        """Create handler for generic struct deallocation"""
+    def _create_generic_free_handler(self, type_info):
+        """Create handler for generic struct/object deallocation"""
         async def generic_free_handler(*args, **kwargs):
             # Extract the self parameter (pointer to free)
             obj = kwargs.get('self')
@@ -419,66 +588,68 @@ class FridaResolver(connexion.resolver.Resolver):
             # Ok, now we have a response, check the spec about the response type to see if
             # there are any structs or objects
             for k,v in result.items():
-                k_def = _endpoint["responses"]["200"]["content"]["application/json"]["schema"]["properties"][k]
+                responses = _endpoint.responses
+                # Take into account that the endpoint is already resolved
+                k_def = responses["200"]["content"]["application/json"]["schema"]["properties"][k]
+                if "x-gi-type" in k_def and k_def["x-gi-type"] in ["object", "struct", "gtype"]:
+                    result[k] = {"ptr": v}
                 if "type" in k_def and k_def["type"] == "object":
                     result[k] = {"ptr": v}
-                # TODO for now assume references to be objects
-                if "$ref" in k_def:
-                    result[k] = {"ptr": v}
 
-            print(result)
             return result
 
         return frida_resolver_handler
 
-    def resolve_function_from_operation_id(self, operation_id):
+    def get_function_from_operation(self, operation):
         """Resolve function from operation_id and return handler"""
+        ret = super().get_function_from_operation(operation)
+        if ret:
+            return ret
+
+        operation_id = operation.operation_id
+
         if not operation_id:
             return None
 
-        method_info = self._find_function_info(operation_id)
-        if method_info:
-            # Get the OpenAPI endpoint definition
-            endpoint = [e["get"] for e in self.spec["paths"].values() if e["get"]["operationId"] == operation_id][0]
+        parsed = parse_operation_id(operation_id)
+        if not parsed:
+            return None
 
+        namespace, class_name, method_name = parsed
+        method_info = self._find_function_info(namespace, class_name, method_name)
+        if method_info:
             # Generate the JSON representation
             method_json = self._method_to_json(method_info)
 
             # Create and return the handler with method_info and method_json as defaults
             ret = self.create_frida_handler()
-            ret.__defaults__ = (method_info, method_json, endpoint)
+            ret.__defaults__ = (method_info, method_json, operation)
             return ret
-        else:
-            # It might be an artificial method
-            parsed = parse_operation_id(operation_id)
-            if not parsed:
-                return None
-
-            namespace, obj_name, operation = parsed
-            if operation not in ['new', 'free']:
-                return None
-
-            # Try to find the struct info
-            struct_info = None
-            n_infos = self.girest.repo.get_n_infos(namespace)
+        # Check for the artificial methods
+        elif method_name in ['new', 'free', "get_type"]:
+            # Try to find the info (struct, object, enum, or flags)
+            type_info = None
+            n_infos = self.repo.get_n_infos(namespace)
             for i in range(n_infos):
-                info = self.girest.repo.get_info(namespace, i)
-                if info.get_type() == GIRepository.InfoType.STRUCT and info.get_name() == obj_name:
-                    struct_info = info
+                info = self.repo.get_info(namespace, i)
+                info_type = info.get_type()
+                # Check for struct, object, enum, or flags that match the class name
+                if (info_type in [GIRepository.InfoType.STRUCT, 
+                                  GIRepository.InfoType.OBJECT,
+                                  GIRepository.InfoType.ENUM,
+                                  GIRepository.InfoType.FLAGS] and 
+                    info.get_name() == class_name):
+                    type_info = info
                     break
 
-            if struct_info:
-                if operation == 'new':
-                    return self._create_generic_new_handler(struct_info)
-                elif operation == 'free':
-                    return self._create_generic_free_handler(struct_info)
+            if type_info:
+                if method_name == 'new':
+                    return self._create_generic_new_handler(type_info)
+                elif method_name == 'free':
+                    return self._create_generic_free_handler(type_info)
+                elif method_name == 'get_type':
+                    return self._create_get_type_handler(type_info)
         
             return None
-
-
-class DummyResolver(connexion.resolver.Resolver):
-    def resolve_function_from_operation_id(self, operation_id):
-        async def dummy_resolver_handler(*args, **kwargs):
-            return {"received": kwargs}
-
-        return dummy_resolver_handler
+        else:
+            return None

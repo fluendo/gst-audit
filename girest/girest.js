@@ -128,7 +128,7 @@ function call(symbol, type, ...args)
       var rsig = type_signature(type["returns"]);
       /* Arguments */
       var sig = callable_signature(type);
-      console.log(`Signature is [${sig}] => ${rsig}`);
+      console.debug(`Signature is [${sig}] => ${rsig}`);
       nf = new NativeFunction(s, rsig, sig);
       functions["symbol"] = nf;
       return true;
@@ -141,13 +141,19 @@ function call(symbol, type, ...args)
     if (a["type"] == "string") {
       tx_args.push(Memory.allocUtf8String(args[idx]));
       idx++;
+    } else if (a["type"] == "int64") {
+      tx_args.push(int64(args[idx]));
+      idx++;
+    } else if (a["type"] == "uint64") {
+      tx_args.push(uint64(args[idx]));
+      idx++;
     } else if (a["type"] == "callback" && !a["is_destroy"]) {
       /* For callbacks, create a new NativeCallback */
       var cb_id = callbacks.size;
       var cb_sig = callable_signature(a["subtype"]);
       var cb_def = a["subtype"]["arguments"];
       var cb = new NativeCallback((...args) => {
-        console.log(`Callback ${cb_id} received with signature ${cb_sig}`);
+        console.debug(`Callback ${cb_id} received with signature ${cb_sig}`);
         /* Serialize the data */
         var data = {};
         var cb_idx = 0;
@@ -158,7 +164,7 @@ function call(symbol, type, ...args)
             data[cb_a["name"]] = args[cb_idx];
           cb_idx++;
         }
-        console.log(`Callback ${cb_id} received with args ${data}`);
+        console.debug(`Callback ${cb_id} received with args ${data}`);
         send({
           "kind": "callback",
           "data": {"id": cb_id, "data": data}
@@ -174,7 +180,7 @@ function call(symbol, type, ...args)
       /* For an output only argument, create the memory to store it */
       const out_size = arg_size(a);
       const out = Memory.alloc(out_size);
-      console.log(`Output arg ${a["name"]} allocated at ${out} of size ${out_size}`);
+      console.debug(`Output arg ${a["name"]} allocated at ${out} of size ${out_size}`);
       tx_args.push(out);
       /* TODO */
       /* If INOUT set the value from args and skip it */
@@ -192,7 +198,7 @@ function call(symbol, type, ...args)
 
   /* Call the function */
   var ret = {};
-  console.log(`About to call ${symbol} with args ${tx_args}`);
+  console.info(`About to call ${symbol} with args ${tx_args}`);
   var nfr = nf(...tx_args);
   if (type["returns"] != "void") {
     ret["return"] = base_type_convert(type["returns"], nfr);
@@ -211,20 +217,20 @@ function call(symbol, type, ...args)
     }
     idx++;
   }
-  console.log(`Returned values are ${JSON.stringify(ret)}`);
+  console.info(`Returned values are ${JSON.stringify(ret)}`);
   return ret;
 }
 
 function init()
 {
-  console.log("Init");
-  console.log("Init done");
+  console.debug("Init");
+  console.debug("Init done");
 }
 
 function shutdown()
 {
-  console.log("Shutdown");
-  console.log("Shutdown done");
+  console.debug("Shutdown");
+  console.debug("Shutdown done");
 }
 
 // Keep track of allocated pointers to prevent garbage collection
