@@ -104,7 +104,7 @@ def girest_server(gst_pipeline):
     )
     
     # Give the server time to start and attach to the process
-    time.sleep(10)
+    time.sleep(12)
     
     # Verify it's running
     if process.poll() is not None:
@@ -130,7 +130,7 @@ def girest_server(gst_pipeline):
     
     if not ready:
         process.send_signal(signal.SIGTERM)
-        stdout, stderr = process.communicate(timeout=5)
+        stdout, stderr = process.communicate(timeout=6)
         raise RuntimeError(f"GIRest server did not become ready in time. output: {stdout}")
     
     # Store process for access in tests
@@ -414,3 +414,60 @@ async def test_callbacks_endpoint_with_foreach_pad(girest_server):
             print("✓ However, foreach_pad call succeeded and returned a callback ID, indicating the callback system is working")
         
         print(f"✓ Successfully tested callbacks endpoint with foreach_pad - API call succeeded with callback ID {callback_id}")
+
+
+@pytest.mark.asyncio
+async def test_gst_bin_get_type_endpoint(girest_server):
+    """
+    Test the /Gst/Bin/get_type endpoint which returns the GType for GstBin.
+    
+    This tests that get_type static methods work correctly and return a valid GType.
+    The get_type endpoint should return a pointer value representing the GType for GstBin.
+    GTypes are fundamental identifiers in GObject that represent registered types.
+    """
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{girest_server}/Gst/Bin/get_type")
+        assert_response(response, "Failed to get GstBin GType")
+        
+        # Check the response is JSON
+        data = response.json()
+        
+        # Check that the response contains a 'return' field with a numeric value
+        assert "return" in data, "Response should contain 'return' field"
+        
+        # GType should be a numeric value (represented as integer or hex string)
+        gtype_value = data["return"]
+        assert gtype_value is not None, "GType should not be null"
+        
+        # GType can be returned as integer or as a string representing a pointer
+        # Validate that it's a reasonable value (positive number or valid hex string)
+        if isinstance(gtype_value, int):
+            assert gtype_value > 0, f"GType should be positive integer, got: {gtype_value}"
+        elif isinstance(gtype_value, str):
+            # Could be a hex string like "0x12345" or decimal string
+            if gtype_value.startswith("0x"):
+                # Hex string
+                try:
+                    hex_value = int(gtype_value, 16)
+                    assert hex_value > 0, f"GType hex value should be positive, got: {gtype_value}"
+                except ValueError:
+                    assert False, f"Invalid hex GType value: {gtype_value}"
+            else:
+                # Decimal string
+                try:
+                    int_value = int(gtype_value)
+                    assert int_value > 0, f"GType decimal string should be positive, got: {gtype_value}"
+                except ValueError:
+                    assert False, f"Invalid decimal GType value: {gtype_value}"
+        else:
+            assert False, f"GType should be integer or string, got type {type(gtype_value)}: {gtype_value}"
+        
+        print(f"✓ Successfully tested /Gst/Bin/get_type endpoint - returned GType: {gtype_value}")
+        
+        # Additional validation: ensure the GType is consistent across calls
+        response2 = await client.get(f"{girest_server}/Gst/Bin/get_type")
+        assert_response(response2, "Failed to get GstBin GType on second call")
+        data2 = response2.json()
+        
+        assert data2["return"] == gtype_value, f"GType should be consistent across calls: {gtype_value} != {data2['return']}"
+        print(f"✓ GType consistency verified across multiple calls")

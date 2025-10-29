@@ -18,11 +18,13 @@ let config: GstAuditConfig = {
   port: parseInt(process.env.NEXT_PUBLIC_API_PORT || '9000'),
   gstauditBasePath: '/gstaudit',
   girestBasePath: '/girest',
+  gstauditBaseUrl: '',
+  girestBaseUrl: '',
 };
 
 // Initialize the baseUrls
 config.gstauditBaseUrl = `http://${config.host}:${config.port}${config.gstauditBasePath}`;
-config.giresttBaseUrl = `http://${config.host}:${config.port}${config.girestBasePath}`;
+config.girestBaseUrl = `http://${config.host}:${config.port}${config.girestBasePath}`;
 setApiConfig({host: config.host, port: config.port, basePath: config.girestBasePath});
 
 /**

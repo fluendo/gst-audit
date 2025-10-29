@@ -37,6 +37,16 @@ class GIRest():
         # Load the corresponding Gir file
         self.repo = GIRepository.Repository()
         self.repo.require(ns, ns_version, 0)
+        
+        # Discover and load namespace dependencies
+        self.namespaces = []
+        # Start with the dependencies
+        dependencies = self.repo.get_immediate_dependencies(ns)
+        for dep in dependencies:
+            dep_ns, dep_version = dep.split('-', 1)
+            self.repo.require(dep_ns, dep_version, 0)
+            self.namespaces.append((dep_ns, dep_version))
+        self.namespaces.append((ns, ns_version))
         # Generate the generic callback endpoint
         # TODO define all callbacks as events as defined in 
         # https://spec.openapis.org/oas/v3.2.0.html#server-sent-event-streams
@@ -121,6 +131,8 @@ class GIRest():
             "utf8": {"type": "string"},
             "gfloat": {"type": "number", "format": "float"},
             "gdouble": {"type": "number", "format": "double"},
+            "gsize": {"type": "number", "format": "int64"},
+            "GType": {"type": "string"}, # FIXME beware ot this
             "void": None
         }
         
@@ -302,9 +314,12 @@ class GIRest():
         self.schemas[full_name] = True
         
         # Generate the type for every parent
-        parent = GIRepository.object_info_get_parent(bi)
+        # In of GObject, use GTypeInstance as parent
+        if bi.get_name() == "Object" and bi.get_namespace() == "GObject":
+            parent = self.repo.find_by_name("GObject", "TypeInstance")
+        else:
+            parent = GIRepository.object_info_get_parent(bi)
         if parent:
-            self._generate_object(parent)
             full_parent_name = f"{parent.get_namespace()}{parent.get_name()}"
             self.spec.components.schema(
                 full_name,
@@ -334,6 +349,8 @@ class GIRest():
         for i in range(0, GIRepository.object_info_get_n_methods(bi)):
             bim = GIRepository.object_info_get_method(bi, i)
             self._generate_function(bim, bi)
+        # Finally the g_foo_get_type
+        self._generate_get_type_function(bi)
 
     def _generate_struct(self, bi):
         if GIRepository.struct_info_is_gtype_struct(bi):
@@ -372,7 +389,7 @@ class GIRest():
         
         # Check existing methods for constructors/free
         has_constructor = False
-        has_free = False
+        has_destructor = False
         for i in range(0, n_methods):
             bim = GIRepository.struct_info_get_method(bi, i)
             flags = GIRepository.function_info_get_flags(bim)
@@ -382,19 +399,24 @@ class GIRest():
             if is_constructor or method_name == 'new':
                 has_constructor = True
             if method_name == 'free':
-                has_free = True
-        
-        # Generate generic new/free endpoints if struct doesn't have constructor/free
-        if not has_constructor:
-            self._generate_generic_struct_new(bi)
-        
-        if not has_free:
-            self._generate_generic_struct_free(bi)
-        
+                has_destructor = True
+
+        # Avoid the Type types
+        if bi.get_name() not in ["TypeInstance", "TypeClass"]:
+            # Generate generic new/free endpoints if struct doesn't have constructor/free
+            if not has_constructor:
+                self._generate_generic_struct_new(bi)
+            
+            if not has_destructor:
+                self._generate_generic_struct_free(bi)
+            
         # Generate endpoints for struct methods
         for i in range(0, n_methods):
             bim = GIRepository.struct_info_get_method(bi, i)
             self._generate_function(bim, bi)
+        
+        # Generate get_type function if the struct has a registered GType
+        self._generate_get_type_function(bi)
 
     def _generate_callback(self, bi):
         """Generate OpenAPI schema for a callback"""
@@ -523,6 +545,42 @@ class GIRest():
         
         self.spec.path(path=api, operations={"get": operation})
 
+    def _generate_get_type_function(self, bi):
+        """Generate get_type function for registered types (objects, structs, enums)"""
+        # Get the type init function name (e.g., "gst_bin_get_type")
+        type_init_func = GIRepository.registered_type_info_get_type_init(bi)
+        if not type_init_func:
+            return
+            
+        namespace = bi.get_namespace()
+        # Build the API path (e.g., "/Gst/bin_get_type")
+        api = f"/{namespace}/{bi.get_name()}/get_type"      
+        # Build operation definition
+        operation = {
+            "summary": f"Get GType for {bi.get_name()}",
+            "description": f"Returns the GType for {bi.get_name()}",
+            "operationId": f"{namespace}-{bi.get_name()}-get_type",
+            "tags": [f"{bi.get_namespace()}{bi.get_name()}"],
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Success",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "return": {"type": "string" }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+        }
+        
+        self.spec.path(path=api, operations={"get": operation})
+
     def _generate_enum(self, bi):
         """Generate OpenAPI schema for an enum"""
         full_name = f"{bi.get_namespace()}{bi.get_name()}"
@@ -559,20 +617,24 @@ class GIRest():
         for i in range(0, GIRepository.enum_info_get_n_methods(bi)):
             bim = GIRepository.enum_info_get_method(bi, i)
             self._generate_function(bim, bi)
+        
+        # Generate get_type function for the enum
+        self._generate_get_type_function(bi)
 
     def generate(self):
-        # Generate the types
-        for i in range(0, self.repo.get_n_infos(self.ns)):
-            info = self.repo.get_info(self.ns, i)
-            info_type = info.get_type()
-            if info_type == GIRepository.InfoType.OBJECT:
-                self._generate_object(info)
-            elif info_type == GIRepository.InfoType.STRUCT:
-                self._generate_struct(info)
-            elif info_type == GIRepository.InfoType.ENUM:
-                self._generate_enum(info)
-            elif info_type == GIRepository.InfoType.FLAGS:
-                self._generate_enum(info)
-            elif info_type == GIRepository.InfoType.FUNCTION:
-                self._generate_function(info)
+        # Generate the types for all namespaces (primary + dependencies)
+        for namespace, version in self.namespaces:
+            for i in range(0, self.repo.get_n_infos(namespace)):
+                info = self.repo.get_info(namespace, i)
+                info_type = info.get_type()
+                if info_type == GIRepository.InfoType.OBJECT:
+                    self._generate_object(info)
+                elif info_type == GIRepository.InfoType.STRUCT:
+                    self._generate_struct(info)
+                elif info_type == GIRepository.InfoType.ENUM:
+                    self._generate_enum(info)
+                elif info_type == GIRepository.InfoType.FLAGS:
+                    self._generate_enum(info)
+                elif info_type == GIRepository.InfoType.FUNCTION:
+                    self._generate_function(info)
         return self.spec

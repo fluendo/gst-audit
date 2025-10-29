@@ -3,6 +3,4 @@
  * React components for visualizing GStreamer pipelines
  */
 
-export { Element } from './Element';
-export { Bin } from './Bin';
-export { Pipeline } from './Pipeline';
+// Components removed - pipeline visualization now handled directly in pipeline page

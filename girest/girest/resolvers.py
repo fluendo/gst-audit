@@ -325,6 +325,7 @@ class FridaResolver(GIResolver):
             "utf8": "string",
             "gfloat": "float",
             "gdouble": "double",
+            "GType": "int64", # FIXME beware of this
             "void": "void"
         }
 
@@ -459,9 +460,32 @@ class FridaResolver(GIResolver):
         
         return None
 
-    def _create_generic_new_handler(self, struct_info):
+    def _create_get_type_handler(self, type_info):
+        symbol = GIRepository.registered_type_info_get_type_init(type_info)
+        _type = {
+            "arguments": [],
+            "is_method": False,
+            "returns": "int64" # FIXME beware of this
+        }
+
+        async def get_type_handler(*args, **kwargs):
+            # Call the Frida script's generic alloc function
+            result = await asyncio.to_thread(
+                self.scripts[0].exports_sync.call, symbol, _type
+            )
+            return result
+
+        return get_type_handler
+
+    def _create_generic_new_handler(self, type_info):
         """Create handler for generic struct allocation"""
-        size = GIRepository.struct_info_get_size(struct_info)
+        # Only structs have size, for other types we may need different handling
+        if type_info.get_type() == GIRepository.InfoType.STRUCT:
+            size = GIRepository.struct_info_get_size(type_info)
+        else:
+            # For non-struct types, we might need a different approach
+            # For now, assume a default size or handle differently
+            size = 0  # This might need specific handling per type
         
         async def generic_new_handler(*args, **kwargs):
             # Call the Frida script's generic alloc function
@@ -472,8 +496,8 @@ class FridaResolver(GIResolver):
         
         return generic_new_handler
     
-    def _create_generic_free_handler(self, struct_info):
-        """Create handler for generic struct deallocation"""
+    def _create_generic_free_handler(self, type_info):
+        """Create handler for generic struct/object deallocation"""
         async def generic_free_handler(*args, **kwargs):
             # Extract the self parameter (pointer to free)
             obj = kwargs.get('self')
@@ -601,24 +625,31 @@ class FridaResolver(GIResolver):
             ret = self.create_frida_handler()
             ret.__defaults__ = (method_info, method_json, operation)
             return ret
-        else:
-            # Check for the artificial methods
-            if method_name not in ['new', 'free']:
-                return None
-
-            # Try to find the struct info
-            struct_info = None
+        # Check for the artificial methods
+        elif method_name in ['new', 'free', "get_type"]:
+            # Try to find the info (struct, object, enum, or flags)
+            type_info = None
             n_infos = self.repo.get_n_infos(namespace)
             for i in range(n_infos):
                 info = self.repo.get_info(namespace, i)
-                if info.get_type() == GIRepository.InfoType.STRUCT and info.get_name() == class_name:
-                    struct_info = info
+                info_type = info.get_type()
+                # Check for struct, object, enum, or flags that match the class name
+                if (info_type in [GIRepository.InfoType.STRUCT, 
+                                  GIRepository.InfoType.OBJECT,
+                                  GIRepository.InfoType.ENUM,
+                                  GIRepository.InfoType.FLAGS] and 
+                    info.get_name() == class_name):
+                    type_info = info
                     break
 
-            if struct_info:
+            if type_info:
                 if method_name == 'new':
-                    return self._create_generic_new_handler(struct_info)
+                    return self._create_generic_new_handler(type_info)
                 elif method_name == 'free':
-                    return self._create_generic_free_handler(struct_info)
+                    return self._create_generic_free_handler(type_info)
+                elif method_name == 'get_type':
+                    return self._create_get_type_handler(type_info)
         
+            return None
+        else:
             return None

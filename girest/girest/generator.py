@@ -26,6 +26,7 @@ class TypeScriptGenerator:
         "finally", "for", "if", "in", "instanceof", "new", "return", "switch",
         "this", "throw", "try", "typeof", "void", "while", "with", "yield",
         "package", "implements", "private", "public", "protected", "static",
+        "eval", "arguments",
         # Common variable names that might conflict
         "data", "response", "error", "result", "value", "url"
     }
@@ -522,7 +523,7 @@ class TypeScriptGenerator:
             "name": method_name,
             "params": ", ".join(method_params),
             "return_type": return_type,
-            "is_static": is_constructor or is_enum,
+            "is_static": is_constructor or is_enum or not has_self_param,
             "with_impl": True,
             "base_url": self.base_url,
             "host": self.host,
@@ -587,7 +588,67 @@ class TypeScriptGenerator:
         
         return method_names
     
-    def _get_parent_constructor_names(self, class_name: str) -> Set[str]:
+    def _get_parent_method_signatures(self, class_name: str) -> Dict[str, str]:
+        """
+        Get all method signatures from the entire parent chain.
+        
+        Args:
+            class_name: The class name to start from
+            
+        Returns:
+            Dict mapping method names to their full signatures from parent classes
+        """
+        method_signatures = {}
+        parent = self._get_direct_parent(class_name)
+        
+        while parent:
+            # Add methods from this parent
+            if parent in self.class_methods:
+                for method_info in self.class_methods[parent]:
+                    method_data = self._prepare_method_data(method_info, parent)
+                    method_name = method_data.get("name")
+                    signature = self._get_method_signature(method_data)
+                    
+                    # Only track the first occurrence (closest parent wins)
+                    if method_name not in method_signatures:
+                        method_signatures[method_name] = signature
+            
+            # Move up the chain
+            parent = self._get_direct_parent(parent)
+        
+        return method_signatures
+    
+    def _get_parent_constructor_signatures(self, class_name: str) -> Dict[str, str]:
+        """
+        Get all constructor signatures from the entire parent chain.
+        
+        Args:
+            class_name: The class name to start from
+            
+        Returns:
+            Dict mapping constructor names to their full signatures from parent classes
+        """
+        constructor_signatures = {}
+        parent = self._get_direct_parent(class_name)
+        
+        while parent:
+            # Add constructors from this parent
+            if parent in self.class_constructors:
+                for constructor_info in self.class_constructors[parent]:
+                    constructor_data = self._prepare_method_data(constructor_info, parent, is_constructor=True)
+                    constructor_name = constructor_data.get("name")
+                    signature = self._get_method_signature(constructor_data)
+                    
+                    # Only track the first occurrence (closest parent wins)
+                    if constructor_name not in constructor_signatures:
+                        constructor_signatures[constructor_name] = signature
+            
+            # Move up the chain
+            parent = self._get_direct_parent(parent)
+        
+        return constructor_signatures
+    
+    def _get_parent_method_names(self, class_name: str) -> Set[str]:
         """
         Get all constructor names from the entire parent chain.
         
@@ -612,6 +673,25 @@ class TypeScriptGenerator:
             parent = self._get_direct_parent(parent)
         
         return constructor_names
+    
+    def _get_method_signature(self, method_data: Dict[str, Any]) -> str:
+        """
+        Generate a method signature for comparison purposes.
+        
+        Args:
+            method_data: Method data from _prepare_method_data
+            
+        Returns:
+            String representation of method signature (name + params + return_type)
+        """
+        name = method_data.get("name", "")
+        params = method_data.get("params", "")
+        return_type = method_data.get("return_type", "void")
+        is_static = method_data.get("is_static", False)
+        
+        # Include static modifier in signature to distinguish static vs instance methods
+        static_prefix = "static " if is_static else ""
+        return f"{static_prefix}{name}({params}): {return_type}"
     
     def _find_unique_method_name(self, base_name: str, existing_names: Set[str]) -> str:
         """
@@ -646,8 +726,10 @@ class TypeScriptGenerator:
         has_interface = class_name in self.schemas and not is_enum
         
         # Get the direct parent for inheritance
-        parent_class = None
-        if extends_gobject:
+        parent_class = self._get_direct_parent(class_name)
+        
+        # For GObject types, use the gobject logic, for others, use general inheritance
+        if extends_gobject and not parent_class:
             parent_class = self._get_direct_parent(class_name)
         
         # Check if this struct has a destructor
@@ -729,19 +811,26 @@ class TypeScriptGenerator:
             if class_name in self.class_constructors:
                 method_template = self.jinja_env.get_template('method.ts.j2')
                 
-                # Get all constructor names from parent chain to avoid conflicts
-                parent_constructor_names = self._get_parent_constructor_names(class_name)
+                # Get all constructor signatures from parent chain to check for overrides
+                parent_constructor_signatures = self._get_parent_constructor_signatures(class_name)
                 current_constructor_names = set()
                 
                 for constructor_info in self.class_constructors[class_name]:
                     constructor_data = self._prepare_method_data(constructor_info, class_name, is_constructor=True)
                     original_name = constructor_data.get("name")
+                    current_signature = self._get_method_signature(constructor_data)
                     
                     # Check if constructor name conflicts with parent chain
-                    if original_name in parent_constructor_names:
-                        # Find unique name by appending suffix
-                        unique_name = self._find_unique_method_name(original_name, parent_constructor_names | current_constructor_names)
-                        constructor_data["name"] = unique_name
+                    if original_name in parent_constructor_signatures:
+                        parent_signature = parent_constructor_signatures[original_name]
+                        if current_signature == parent_signature:
+                            # Same signature - allow override (keep original name)
+                            pass
+                        else:
+                            # Different signature - find unique name by appending suffix
+                            parent_constructor_names = set(parent_constructor_signatures.keys())
+                            unique_name = self._find_unique_method_name(original_name, parent_constructor_names | current_constructor_names)
+                            constructor_data["name"] = unique_name
                     
                     # Track this constructor name for potential conflicts with subsequent constructors
                     current_constructor_names.add(constructor_data["name"])
@@ -752,13 +841,14 @@ class TypeScriptGenerator:
             if class_name in self.class_methods:
                 method_template = self.jinja_env.get_template('method.ts.j2')
                 
-                # Get all method names from parent chain to avoid conflicts
-                parent_method_names = self._get_parent_method_names(class_name)
+                # Get all method signatures from parent chain to check for overrides
+                parent_method_signatures = self._get_parent_method_signatures(class_name)
                 current_method_names = set()
                 
                 for method_info in self.class_methods[class_name]:
                     method_data = self._prepare_method_data(method_info, class_name)
                     original_name = method_data.get("name")
+                    current_signature = self._get_method_signature(method_data)
                     
                     # Skip 'unref' method for GObjectObject as it's provided by the base class
                     if class_name == "GObjectObject" and original_name == "unref":
@@ -768,10 +858,16 @@ class TypeScriptGenerator:
                         continue
                     
                     # Check if method name conflicts with parent chain
-                    if original_name in parent_method_names:
-                        # Find unique name by appending suffix
-                        unique_name = self._find_unique_method_name(original_name, parent_method_names | current_method_names)
-                        method_data["name"] = unique_name
+                    if original_name in parent_method_signatures:
+                        parent_signature = parent_method_signatures[original_name]
+                        if current_signature == parent_signature:
+                            # Same signature - allow override (keep original name)
+                            pass
+                        else:
+                            # Different signature - find unique name by appending suffix
+                            parent_method_names = set(parent_method_signatures.keys())
+                            unique_name = self._find_unique_method_name(original_name, parent_method_names | current_method_names)
+                            method_data["name"] = unique_name
                     
                     # Track this method name for potential conflicts with subsequent methods
                     current_method_names.add(method_data["name"])
@@ -840,7 +936,7 @@ class TypeScriptGenerator:
         classes = []
         
         # Collect all class names that need to be generated
-        # Include classes with methods and all GObject types in the inheritance chain
+        # Include classes with methods and all parent classes in the inheritance chain
         classes_to_generate = set()
         for class_name in self.class_methods.keys():
             if class_name not in self.enum_schemas:
@@ -848,7 +944,8 @@ class TypeScriptGenerator:
                 # Add all parent classes in the inheritance chain
                 parent = self._get_direct_parent(class_name)
                 while parent:
-                    if parent in self.gobject_types:
+                    # Add parent if it has a schema (meaning it's a valid class to generate)
+                    if parent in self.schemas:
                         classes_to_generate.add(parent)
                     parent = self._get_direct_parent(parent)
         
