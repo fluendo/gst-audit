@@ -1,19 +1,25 @@
 {# GObjectObject template - specific template for GObject.Object class #}
 export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif %} {
-  constructor(ptr?: string) {
+  constructor(ptr?: string, transfer: boolean = false) {
 {% if parent_class %}
-    super(ptr);
+    super(ptr, transfer);
 {% endif %}
     if (ptr) {
+      this.ptr = ptr;
       objectRegistry.register(this, ptr);
+      // If transfer is true, we need to ref the object
+      if (transfer) {
+        this.ref().catch(() => {});
+      }
     }
   }
 
   async castTo<T extends GObjectObject>(t: T): Promise<T> {
     const type = await t.get_type();
     const is_type = await GObject.type_check_instance_is_a(this, type);
-    objectRegistry.unregister(this);
-    const instance = new t(this.ptr);
+    // Don't set transfer=true here as it would cause ref() to be called in constructor
+    // The object is already referenced properly
+    const instance = new t(this.ptr, false);
     return instance;
   }
   

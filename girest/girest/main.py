@@ -256,7 +256,22 @@ class GIRest():
         return_type = GIRepository.callable_info_get_return_type(bim)
         return_schema = self._type_to_schema(return_type)
         if return_schema:
-            response_props["return"] = return_schema
+            # Get return value transfer ownership information
+            return_transfer = GIRepository.callable_info_get_caller_owns(bim)
+            if return_transfer == GIRepository.Transfer.NOTHING:
+                return_transfer_str = "none"
+            elif return_transfer == GIRepository.Transfer.CONTAINER:
+                return_transfer_str = "container"
+            elif return_transfer == GIRepository.Transfer.EVERYTHING:
+                return_transfer_str = "full"
+            else:
+                return_transfer_str = "none"
+            
+            # Add transfer information to return schema
+            response_props["return"] = {
+                **return_schema,
+                "x-gi-transfer": return_transfer_str
+            }
         
         # Build response schema
         responses = {}

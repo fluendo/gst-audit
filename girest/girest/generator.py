@@ -106,7 +106,13 @@ class TypeScriptGenerator:
     
     def _is_gobject_type(self, schema_name: str, schema_def: Dict[str, Any]) -> bool:
         """Check if a type is derived from GObject."""
-        if schema_name.startswith("GObject"):
+        # Only types with x-gi-type: "object" are actual GObject types
+        # Structs like GObjectTypeInstance should not be considered GObject types
+        if schema_def.get("x-gi-type") != "object":
+            return False
+            
+        # Check if this is GObject.Object itself or inherits from it
+        if schema_name == "GObjectObject":
             return True
         
         if "allOf" in schema_def:
@@ -115,8 +121,6 @@ class TypeScriptGenerator:
                     ref_path = item["$ref"]
                     if ref_path.startswith("#/components/schemas/"):
                         parent_name = ref_path.split("/")[-1]
-                        if parent_name.startswith("GObject"):
-                            return True
                         parent_schema = self.schemas.get(parent_name, {})
                         if self._is_gobject_type(parent_name, parent_schema):
                             return True
@@ -453,6 +457,8 @@ class TypeScriptGenerator:
         response_has_return = False
         return_is_object = False  # Track if return type is an object/struct that needs instantiation
         return_class_name = None  # The class name to instantiate if return_is_object is True
+        return_transfer = "none"  # Default transfer mode
+        return_is_gobject = False  # Track if return type is a GObject type
         responses = operation.get("responses", {})
         
         if "200" in responses:
@@ -463,18 +469,26 @@ class TypeScriptGenerator:
             if schema:
                 props = schema.get("properties", {})
                 if "return" in props:
+                    return_props = props["return"]
+                    
+                    # Extract transfer information
+                    return_transfer = return_props.get("x-gi-transfer", "none")
+                    
                     if is_constructor:
                         return_type = class_name
                         return_is_object = True
                         return_class_name = class_name
+                        return_is_gobject = class_name in self.gobject_types
                     else:
-                        return_type = self._openapi_type_to_ts(props["return"])
+                        return_type = self._openapi_type_to_ts(return_props)
                         # Check if the return type is a class that needs instantiation
-                        if "$ref" in props["return"]:
-                            ref_path = props["return"]["$ref"]
+                        if "$ref" in return_props:
+                            ref_path = return_props["$ref"]
                             if ref_path.startswith("#/components/schemas/"):
                                 type_name = ref_path.split("/")[-1]
                                 schema_def = self.schemas.get(type_name, {})
+                                # Check if this is a GObject type
+                                return_is_gobject = type_name in self.gobject_types
                                 # Check if this is an object type (class) or struct with methods
                                 # Objects/structs have type=object or allOf (inheritance)
                                 # Also check if it's in class_methods (has methods, so it's a class)
@@ -550,6 +564,8 @@ class TypeScriptGenerator:
             "has_return": response_has_return,
             "return_is_object": return_is_object,
             "return_class_name": return_class_name,
+            "return_transfer": return_transfer,
+            "return_is_gobject": return_is_gobject,
             "class_name": class_name
         }
     
@@ -742,10 +758,6 @@ class TypeScriptGenerator:
         # Get the direct parent for inheritance
         parent_class = self._get_direct_parent(class_name)
         
-        # For GObject types, use the gobject logic, for others, use general inheritance
-        if extends_gobject and not parent_class:
-            parent_class = self._get_direct_parent(class_name)
-        
         # Check if this struct has a destructor
         has_destructor = class_name in self.struct_destructors
         destructor_info = self.struct_destructors.get(class_name, {})
@@ -818,8 +830,6 @@ class TypeScriptGenerator:
             
             # Add constructors
             if class_name in self.class_constructors:
-                method_template = self.jinja_env.get_template('method.ts.j2')
-                
                 # Get all constructor signatures from parent chain to check for overrides
                 parent_constructor_signatures = self._get_parent_constructor_signatures(class_name)
                 current_constructor_names = set()
@@ -844,12 +854,12 @@ class TypeScriptGenerator:
                     # Track this constructor name for potential conflicts with subsequent constructors
                     current_constructor_names.add(constructor_data["name"])
                     
+                    # Try to find method-specific template first, fallback to default method template
+                    method_template = self._get_method_template(class_name, original_name)
                     data["constructors"].append(method_template.render(constructor_data).rstrip())
             
             # Add methods
             if class_name in self.class_methods:
-                method_template = self.jinja_env.get_template('method.ts.j2')
-                
                 # Get all method signatures from parent chain to check for overrides
                 parent_method_signatures = self._get_parent_method_signatures(class_name)
                 current_method_names = set()
@@ -881,10 +891,34 @@ class TypeScriptGenerator:
                     # Track this method name for potential conflicts with subsequent methods
                     current_method_names.add(method_data["name"])
                     
+                    # Try to find method-specific template first, fallback to default method template
+                    method_template = self._get_method_template(class_name, original_name)
                     data["methods"].append(method_template.render(method_data).rstrip())
         
         return data
     
+    def _get_method_template(self, class_name: str, method_name: str) -> Template:
+        """
+        Get the appropriate template for a method.
+        
+        First tries to find a method-specific template (e.g., GObjectObjectref.ts.j2),
+        then falls back to the default method template (method.ts.j2).
+        
+        Args:
+            class_name: The name of the class
+            method_name: The name of the method
+            
+        Returns:
+            Jinja2 Template object
+        """
+        # Try method-specific template first: {basename}{object}{method}.ts.j2
+        method_template_name = f"{class_name}{method_name}.ts.j2"
+        if os.path.exists(os.path.join(self.template_dir, method_template_name)):
+            return self.jinja_env.get_template(method_template_name)
+        
+        # Fall back to default method template
+        return self.jinja_env.get_template('method.ts.j2')
+
     def _get_template_for_schema(self, schema_name: str, schema_def: Dict[str, Any]) -> Template:
         """
         Get the appropriate template for a schema.

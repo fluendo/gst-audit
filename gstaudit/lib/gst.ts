@@ -553,101 +553,34 @@ function initializeCallbackSource(): void {
 }
 
 
-export type GLibVariantClass = "boolean" | "byte" | "int16" | "uint16" | "int32" | "uint32" | "int64" | "uint64" | "handle" | "double" | "string" | "object_path" | "signature" | "variant" | "maybe" | "array" | "tuple" | "dict_entry";
-export namespace GObjectBindingFlags {
-  export const DEFAULT: 'default' = 'default';
-  export const BIDIRECTIONAL: 'bidirectional' = 'bidirectional';
-  export const SYNC_CREATE: 'sync_create' = 'sync_create';
-  export const INVERT_BOOLEAN: 'invert_boolean' = 'invert_boolean';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/BindingFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GObjectBindingFlagsValue = "default" | "bidirectional" | "sync_create" | "invert_boolean";
-export interface GObjectClosureNotifyData {
-  ptr: Pointer;
-}
-export type GObjectConnectFlags = "default" | "after" | "swapped";
-export interface GObjectEnumClass {
-  ptr: Pointer;
-}
-export interface GObjectEnumValue {
-  ptr: Pointer;
-}
-export interface GObjectFlagsClass {
-  ptr: Pointer;
-}
-export interface GObjectFlagsValue {
-  ptr: Pointer;
-}
-export namespace GObjectIOCondition {
-  export const IN: 'in' = 'in';
-  export const OUT: 'out' = 'out';
-  export const PRI: 'pri' = 'pri';
-  export const ERR: 'err' = 'err';
-  export const HUP: 'hup' = 'hup';
-  export const NVAL: 'nval' = 'nval';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/IOCondition/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GObjectIOConditionValue = "in" | "out" | "pri" | "err" | "hup" | "nval";
-export interface GObjectInterfaceInfo {
-  ptr: Pointer;
-}
-export interface GObjectObjectConstructParam {
-  ptr: Pointer;
-}
-export type GObjectParamFlags = "readable" | "writable" | "readwrite" | "construct" | "construct_only" | "lax_validation" | "static_name" | "private" | "static_nick" | "static_blurb" | "explicit_notify" | "deprecated";
-export interface GObjectParamSpecTypeInfo {
-  ptr: Pointer;
-}
-export interface GObjectParameter {
-  ptr: Pointer;
-}
-export type GObjectSignalFlags = "run_first" | "run_last" | "run_cleanup" | "no_recurse" | "detailed" | "action" | "no_hooks" | "must_collect" | "deprecated" | "accumulator_first_run";
-export interface GObjectSignalInvocationHint {
-  ptr: Pointer;
-}
-export type GObjectSignalMatchType = "id" | "detail" | "closure" | "func" | "data" | "unblocked";
-export interface GObjectSignalQuery {
-  ptr: Pointer;
-}
-export type GObjectTypeDebugFlags = "none" | "objects" | "signals" | "instance_count" | "mask";
-export type GObjectTypeFlags = "none" | "abstract" | "value_abstract" | "final" | "deprecated";
-export type GObjectTypeFundamentalFlags = "classed" | "instantiatable" | "derivable" | "deep_derivable";
-export interface GObjectTypeFundamentalInfo {
-  ptr: Pointer;
-}
-export interface GObjectTypeInfo {
-  ptr: Pointer;
-}
-export interface GObjectTypePluginClass {
-  ptr: Pointer;
-}
-export interface GObjectTypeQuery {
-  ptr: Pointer;
-}
-export interface GObjectTypeValueTable {
-  ptr: Pointer;
-}
-export interface GObjectWeakRef {
-  ptr: Pointer;
-}
-export interface GLibSourceFuncs {
-  ptr: Pointer;
-}
-export interface GLibPollFD {
-  ptr: Pointer;
-}
+export type GLibAsciiType = "alnum" | "alpha" | "cntrl" | "digit" | "graph" | "lower" | "print" | "punct" | "space" | "upper" | "xdigit";
+export type GLibBookmarkFileError = "invalid_uri" | "invalid_value" | "app_not_registered" | "uri_not_found" | "read" | "unknown_encoding" | "write" | "file_not_found";
+export type GLibChecksumType = "md5" | "sha1" | "sha256" | "sha512" | "sha384";
+export type GLibChildWatchFunc = (pid: number, wait_status: number, user_data: Pointer) => void;
+export type GLibCompareDataFunc = (a: Pointer, b: Pointer, user_data: Pointer) => number;
+export type GLibCompareFunc = (a: Pointer, b: Pointer) => number;
+export type GLibConvertError = "no_conversion" | "illegal_sequence" | "failed" | "partial_input" | "bad_uri" | "not_absolute_path" | "no_memory" | "embedded_nul";
+export type GLibDataForeachFunc = (key_id: number, data_: Pointer, user_data: Pointer) => void;
+export type GLibDateDMY = "day" | "month" | "year";
+export type GLibDateMonth = "bad_month" | "january" | "february" | "march" | "april" | "may" | "june" | "july" | "august" | "september" | "october" | "november" | "december";
+export type GLibDateWeekday = "bad_weekday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+export type GLibDestroyNotify = (data_: Pointer) => void;
+export type GLibErrorClearFunc = (error_: Pointer) => void;
+export type GLibErrorCopyFunc = (src_error: Pointer, dest_error: Pointer) => void;
+export type GLibErrorInitFunc = (error_: Pointer) => void;
+export type GLibErrorType = "unknown" | "unexp_eof" | "unexp_eof_in_string" | "unexp_eof_in_comment" | "non_digit_in_const" | "digit_radix" | "float_radix" | "float_malformed";
+export type GLibFileError = "exist" | "isdir" | "acces" | "nametoolong" | "noent" | "notdir" | "nxio" | "nodev" | "rofs" | "txtbsy" | "fault" | "loop" | "nospc" | "nomem" | "mfile" | "nfile" | "badf" | "inval" | "pipe" | "again" | "intr" | "io" | "perm" | "nosys" | "failed";
+export type GLibFileSetContentsFlags = "none" | "consistent" | "durable" | "only_existing";
+export type GLibFileTest = "is_regular" | "is_symlink" | "is_dir" | "is_executable" | "exists";
+export type GLibFormatSizeFlags = "default" | "long_format" | "iec_units" | "bits" | "only_value" | "only_unit";
+export type GLibFunc = (data_: Pointer, user_data: Pointer) => void;
+export type GLibHFunc = (key: Pointer, value_: Pointer, user_data: Pointer) => void;
+export type GLibHRFunc = (key: Pointer, value_: Pointer, user_data: Pointer) => boolean;
+export type GLibHookCheckMarshaller = (hook: GLibHook, marshal_data: Pointer) => boolean;
+export type GLibHookCompareFunc = (new_hook: GLibHook, sibling: GLibHook) => number;
+export type GLibHookFlagMask = "active" | "in_call" | "mask";
+export type GLibHookMarshaller = (hook: GLibHook, marshal_data: Pointer) => void;
+export type GLibIOChannelError = "fbig" | "inval" | "io" | "isdir" | "nospc" | "nxio" | "overflow" | "pipe" | "failed";
 export namespace GLibIOCondition {
   export const IN: 'in' = 'in';
   export const OUT: 'out' = 'out';
@@ -664,63 +597,21 @@ export namespace GLibIOCondition {
   }
 }
 export type GLibIOConditionValue = "in" | "out" | "pri" | "err" | "hup" | "nval";
-export type GLibMainContextFlags = "none" | "ownerless_polling";
-export interface GLibSourceCallbackFuncs {
-  ptr: Pointer;
-}
-export type GModuleModuleError = "failed" | "check_failed";
-export type GModuleModuleFlags = "lazy" | "local" | "mask";
-export interface GLibArray {
-  ptr: Pointer;
-}
-export type GLibAsciiType = "alnum" | "alpha" | "cntrl" | "digit" | "graph" | "lower" | "print" | "punct" | "space" | "upper" | "xdigit";
-export type GLibTimeType = "standard" | "daylight" | "universal";
-export type GLibBookmarkFileError = "invalid_uri" | "invalid_value" | "app_not_registered" | "uri_not_found" | "read" | "unknown_encoding" | "write" | "file_not_found";
-export type GLibChecksumType = "md5" | "sha1" | "sha256" | "sha512" | "sha384";
-export type GLibConvertError = "no_conversion" | "illegal_sequence" | "failed" | "partial_input" | "bad_uri" | "not_absolute_path" | "no_memory" | "embedded_nul";
-export interface GLibData {
-  ptr: Pointer;
-}
-export type GLibDateMonth = "bad_month" | "january" | "february" | "march" | "april" | "may" | "june" | "july" | "august" | "september" | "october" | "november" | "december";
-export type GLibDateWeekday = "bad_weekday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
-export type GLibDateDMY = "day" | "month" | "year";
-export interface GLibDebugKey {
-  ptr: Pointer;
-}
-export type GLibErrorType = "unknown" | "unexp_eof" | "unexp_eof_in_string" | "unexp_eof_in_comment" | "non_digit_in_const" | "digit_radix" | "float_radix" | "float_malformed";
-export type GLibFileError = "exist" | "isdir" | "acces" | "nametoolong" | "noent" | "notdir" | "nxio" | "nodev" | "rofs" | "txtbsy" | "fault" | "loop" | "nospc" | "nomem" | "mfile" | "nfile" | "badf" | "inval" | "pipe" | "again" | "intr" | "io" | "perm" | "nosys" | "failed";
-export type GLibFileSetContentsFlags = "none" | "consistent" | "durable" | "only_existing";
-export type GLibFileTest = "is_regular" | "is_symlink" | "is_dir" | "is_executable" | "exists";
-export type GLibFormatSizeFlags = "default" | "long_format" | "iec_units" | "bits" | "only_value" | "only_unit";
-export type GLibHookFlagMask = "active" | "in_call" | "mask";
-export type GLibIOStatus = "error" | "normal" | "eof" | "again";
-export type GLibIOFlags = "none" | "append" | "nonblock" | "is_readable" | "is_writable" | "is_writeable" | "is_seekable" | "mask" | "get_mask" | "set_mask";
 export type GLibIOError = "none" | "again" | "inval" | "unknown";
-export type GLibSeekType = "cur" | "set" | "end";
-export type GLibIOChannelError = "fbig" | "inval" | "io" | "isdir" | "nospc" | "nxio" | "overflow" | "pipe" | "failed";
-export interface GLibIOFuncs {
-  ptr: Pointer;
-}
-export type GLibKeyFileFlags = "none" | "keep_comments" | "keep_translations";
+export type GLibIOFlags = "none" | "append" | "nonblock" | "is_readable" | "is_writable" | "is_writeable" | "is_seekable" | "mask" | "get_mask" | "set_mask";
+export type GLibIOFunc = (source: GLibIOChannel, condition: GLibIOConditionValue, data_: Pointer) => boolean;
+export type GLibIOStatus = "error" | "normal" | "eof" | "again";
 export type GLibKeyFileError = "unknown_encoding" | "parse" | "not_found" | "key_not_found" | "group_not_found" | "invalid_value";
-export interface GLibLogField {
-  ptr: Pointer;
-}
+export type GLibKeyFileFlags = "none" | "keep_comments" | "keep_translations";
+export type GLibLogFunc = (log_domain: string, log_level: GLibLogLevelFlags, message: string, user_data: Pointer) => void;
 export type GLibLogLevelFlags = "flag_recursion" | "flag_fatal" | "level_error" | "level_critical" | "level_warning" | "level_message" | "level_info" | "level_debug" | "level_mask";
 export type GLibLogWriterOutput = "handled" | "unhandled";
+export type GLibMainContextFlags = "none" | "ownerless_polling";
 export type GLibMarkupCollectType = "invalid" | "string" | "strdup" | "boolean" | "tristate" | "optional";
 export type GLibMarkupError = "bad_utf8" | "empty" | "parse" | "unknown_element" | "unknown_attribute" | "invalid_content" | "missing_attribute";
-export interface GLibMarkupParser {
-  ptr: Pointer;
-}
 export type GLibMarkupParseFlags = "default_flags" | "do_not_use_this_unsupported_flag" | "treat_cdata_as_text" | "prefix_error_position" | "ignore_qualified";
-export type GLibRegexCompileFlags = "default" | "caseless" | "multiline" | "dotall" | "extended" | "anchored" | "dollar_endonly" | "ungreedy" | "raw" | "no_auto_capture" | "optimize" | "firstline" | "dupnames" | "newline_cr" | "newline_lf" | "newline_crlf" | "newline_anycrlf" | "bsr_anycrlf" | "javascript_compat";
-export type GLibRegexMatchFlags = "default" | "anchored" | "notbol" | "noteol" | "notempty" | "partial" | "newline_cr" | "newline_lf" | "newline_crlf" | "newline_any" | "newline_anycrlf" | "bsr_anycrlf" | "bsr_any" | "partial_soft" | "partial_hard" | "notempty_atstart";
-export interface GLibMemVTable {
-  ptr: Pointer;
-}
-export type GLibTraverseFlags = "leaves" | "non_leaves" | "all" | "mask" | "leafs" | "non_leafs";
-export type GLibTraverseType = "in_order" | "pre_order" | "post_order" | "level_order";
+export type GLibNodeForeachFunc = (node: GLibNode, data_: Pointer) => void;
+export type GLibNodeTraverseFunc = (node: GLibNode, data_: Pointer) => boolean;
 export namespace GLibNormalizeMode {
   export const DEFAULT: 'default' = 'default';
   export const NFD: 'nfd' = 'nfd';
@@ -742,38 +633,36 @@ export type GLibNormalizeModeValue = "default" | "nfd" | "default_compose" | "nf
 export type GLibNumberParserError = "invalid" | "out_of_bounds";
 export type GLibOnceStatus = "notcalled" | "progress" | "ready";
 export type GLibOptionArg = "none" | "string" | "int" | "callback" | "filename" | "string_array" | "filename_array" | "double" | "int64";
-export interface GLibOptionEntry {
-  ptr: Pointer;
-}
 export type GLibOptionError = "unknown_option" | "bad_value" | "failed";
 export type GLibOptionFlags = "none" | "hidden" | "in_main" | "reverse" | "no_arg" | "filename" | "optional_arg" | "noalias";
-export interface GLibPtrArray {
-  ptr: Pointer;
-}
+export type GLibRegexCompileFlags = "default" | "caseless" | "multiline" | "dotall" | "extended" | "anchored" | "dollar_endonly" | "ungreedy" | "raw" | "no_auto_capture" | "optimize" | "firstline" | "dupnames" | "newline_cr" | "newline_lf" | "newline_crlf" | "newline_anycrlf" | "bsr_anycrlf" | "javascript_compat";
 export type GLibRegexError = "compile" | "optimize" | "replace" | "match" | "internal" | "stray_backslash" | "missing_control_char" | "unrecognized_escape" | "quantifiers_out_of_order" | "quantifier_too_big" | "unterminated_character_class" | "invalid_escape_in_character_class" | "range_out_of_order" | "nothing_to_repeat" | "unrecognized_character" | "posix_named_class_outside_class" | "unmatched_parenthesis" | "inexistent_subpattern_reference" | "unterminated_comment" | "expression_too_large" | "memory_error" | "variable_length_lookbehind" | "malformed_condition" | "too_many_conditional_branches" | "assertion_expected" | "unknown_posix_class_name" | "posix_collating_elements_not_supported" | "hex_code_too_large" | "invalid_condition" | "single_byte_match_in_lookbehind" | "infinite_loop" | "missing_subpattern_name_terminator" | "duplicate_subpattern_name" | "malformed_property" | "unknown_property" | "subpattern_name_too_long" | "too_many_subpatterns" | "invalid_octal_value" | "too_many_branches_in_define" | "define_repetion" | "inconsistent_newline_options" | "missing_back_reference" | "invalid_relative_reference" | "backtracking_control_verb_argument_forbidden" | "unknown_backtracking_control_verb" | "number_too_big" | "missing_subpattern_name" | "missing_digit" | "invalid_data_character" | "extra_subpattern_name" | "backtracking_control_verb_argument_required" | "invalid_control_char" | "missing_name" | "not_supported_in_class" | "too_many_forward_references" | "name_too_long" | "character_value_too_large";
-export type GLibTokenType = "eof" | "left_paren" | "right_paren" | "left_curly" | "right_curly" | "left_brace" | "right_brace" | "equal_sign" | "comma" | "none" | "error" | "char" | "binary" | "octal" | "int" | "hex" | "float" | "string" | "symbol" | "identifier" | "identifier_null" | "comment_single" | "comment_multi";
-export interface GLibScannerConfig {
-  ptr: Pointer;
-}
+export type GLibRegexEvalCallback = (match_info: GLibMatchInfo, result_: GLibString, user_data: Pointer) => boolean;
+export type GLibRegexMatchFlags = "default" | "anchored" | "notbol" | "noteol" | "notempty" | "partial" | "newline_cr" | "newline_lf" | "newline_crlf" | "newline_any" | "newline_anycrlf" | "bsr_anycrlf" | "bsr_any" | "partial_soft" | "partial_hard" | "notempty_atstart";
+export type GLibSeekType = "cur" | "set" | "end";
+export type GLibSequenceIterCompareFunc = (a: GLibSequenceIter, b: GLibSequenceIter, data_: Pointer) => number;
 export type GLibShellError = "bad_quoting" | "empty_string" | "failed";
 export type GLibSliceConfig = "always_malloc" | "bypass_magazines" | "working_set_msecs" | "color_increment" | "chunk_sizes" | "contention_counter";
-export interface GLibSourcePrivate {
-  ptr: Pointer;
-}
+export type GLibSourceFunc = (user_data: Pointer) => boolean;
+export type GLibSpawnChildSetupFunc = (data_: Pointer) => void;
 export type GLibSpawnError = "fork" | "read" | "chdir" | "acces" | "perm" | "too_big" | "2big" | "noexec" | "nametoolong" | "noent" | "nomem" | "notdir" | "loop" | "txtbusy" | "io" | "nfile" | "mfile" | "inval" | "isdir" | "libbad" | "failed";
 export type GLibSpawnFlags = "default" | "leave_descriptors_open" | "do_not_reap_child" | "search_path" | "stdout_to_dev_null" | "stderr_to_dev_null" | "child_inherits_stdin" | "file_and_argv_zero" | "search_path_from_envp" | "cloexec_pipes" | "child_inherits_stdout" | "child_inherits_stderr" | "stdin_from_dev_null";
-export interface GLibStatBuf {
-  ptr: Pointer;
-}
-export interface GLibTestConfig {
-  ptr: Pointer;
-}
+export type GLibTestDataFunc = (user_data: Pointer) => void;
 export type GLibTestFileType = "dist" | "built";
+export type GLibTestFunc = () => void;
 export type GLibTestLogType = "none" | "error" | "start_binary" | "list_case" | "skip_case" | "start_case" | "stop_case" | "min_result" | "max_result" | "message" | "start_suite" | "stop_suite";
 export type GLibTestResult = "success" | "skipped" | "failure" | "incomplete";
 export type GLibTestSubprocessFlags = "default" | "inherit_stdin" | "inherit_stdout" | "inherit_stderr";
 export type GLibTestTrapFlags = "default" | "silence_stdout" | "silence_stderr" | "inherit_stdin";
 export type GLibThreadError = "thread_error_again";
+export type GLibThreadFunc = (data_: Pointer) => void;
+export type GLibTimeType = "standard" | "daylight" | "universal";
+export type GLibTokenType = "eof" | "left_paren" | "right_paren" | "left_curly" | "right_curly" | "left_brace" | "right_brace" | "equal_sign" | "comma" | "none" | "error" | "char" | "binary" | "octal" | "int" | "hex" | "float" | "string" | "symbol" | "identifier" | "identifier_null" | "comment_single" | "comment_multi";
+export type GLibTranslateFunc = (str: string, data_: Pointer) => string;
+export type GLibTraverseFlags = "leaves" | "non_leaves" | "all" | "mask" | "leafs" | "non_leafs";
+export type GLibTraverseFunc = (key: Pointer, value_: Pointer, data_: Pointer) => boolean;
+export type GLibTraverseNodeFunc = (node: GLibTreeNode, data_: Pointer) => boolean;
+export type GLibTraverseType = "in_order" | "pre_order" | "post_order" | "level_order";
 export namespace GLibUnicodeBreakType {
   export const MANDATORY: 'mandatory' = 'mandatory';
   export const CARRIAGE_RETURN: 'carriage_return' = 'carriage_return';
@@ -1067,49 +956,61 @@ export namespace GLibUnicodeType {
   }
 }
 export type GLibUnicodeTypeValue = "control" | "format" | "unassigned" | "private_use" | "surrogate" | "lowercase_letter" | "modifier_letter" | "other_letter" | "titlecase_letter" | "uppercase_letter" | "spacing_mark" | "enclosing_mark" | "non_spacing_mark" | "decimal_number" | "letter_number" | "other_number" | "connect_punctuation" | "dash_punctuation" | "close_punctuation" | "final_punctuation" | "initial_punctuation" | "other_punctuation" | "open_punctuation" | "currency_symbol" | "modifier_symbol" | "math_symbol" | "other_symbol" | "line_separator" | "paragraph_separator" | "space_separator";
-export interface GLibUnixPipe {
-  ptr: Pointer;
-}
+export type GLibUnixFDSourceFunc = (fd: number, condition: GLibIOConditionValue, user_data: Pointer) => boolean;
 export type GLibUnixPipeEnd = "read" | "write";
+export type GLibUriError = "failed" | "bad_scheme" | "bad_user" | "bad_password" | "bad_auth_params" | "bad_host" | "bad_port" | "bad_path" | "bad_query" | "bad_fragment";
 export type GLibUriFlags = "none" | "parse_relaxed" | "has_password" | "has_auth_params" | "encoded" | "non_dns" | "encoded_query" | "encoded_path" | "encoded_fragment" | "scheme_normalize";
 export type GLibUriHideFlags = "none" | "userinfo" | "password" | "auth_params" | "query" | "fragment";
 export type GLibUriParamsFlags = "none" | "case_insensitive" | "www_form" | "parse_relaxed";
-export type GLibUriError = "failed" | "bad_scheme" | "bad_user" | "bad_password" | "bad_auth_params" | "bad_host" | "bad_port" | "bad_path" | "bad_query" | "bad_fragment";
 export type GLibUserDirectory = "directory_desktop" | "directory_documents" | "directory_download" | "directory_music" | "directory_pictures" | "directory_public_share" | "directory_templates" | "directory_videos" | "n_directories";
+export type GLibVariantClass = "boolean" | "byte" | "int16" | "uint16" | "int32" | "uint32" | "int64" | "uint64" | "handle" | "double" | "string" | "object_path" | "signature" | "variant" | "maybe" | "array" | "tuple" | "dict_entry";
 export type GLibVariantParseError = "failed" | "basic_type_expected" | "cannot_infer_type" | "definite_type_expected" | "input_not_at_end" | "invalid_character" | "invalid_format_string" | "invalid_object_path" | "invalid_signature" | "invalid_type_string" | "no_common_type" | "number_out_of_range" | "number_too_big" | "type_error" | "unexpected_token" | "unknown_keyword" | "unterminated_string_constant" | "value_expected" | "recursion";
-export namespace GstMemoryFlags {
-  export const READONLY: 'readonly' = 'readonly';
-  export const NO_SHARE: 'no_share' = 'no_share';
-  export const ZERO_PREFIXED: 'zero_prefixed' = 'zero_prefixed';
-  export const ZERO_PADDED: 'zero_padded' = 'zero_padded';
-  export const PHYSICALLY_CONTIGUOUS: 'physically_contiguous' = 'physically_contiguous';
-  export const NOT_MAPPABLE: 'not_mappable' = 'not_mappable';
-  export const LAST: 'last' = 'last';
+export type GLibVoidFunc = () => void;
+export type GModuleModuleError = "failed" | "check_failed";
+export type GModuleModuleFlags = "lazy" | "local" | "mask";
+export namespace GObjectBindingFlags {
+  export const DEFAULT: 'default' = 'default';
+  export const BIDIRECTIONAL: 'bidirectional' = 'bidirectional';
+  export const SYNC_CREATE: 'sync_create' = 'sync_create';
+  export const INVERT_BOOLEAN: 'invert_boolean' = 'invert_boolean';
   export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MemoryFlags/get_type`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/BindingFlags/get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
 }
-export type GstMemoryFlagsValue = "readonly" | "no_share" | "zero_prefixed" | "zero_padded" | "physically_contiguous" | "not_mappable" | "last";
-export interface GstMapInfo {
-  ptr: Pointer;
-}
-export namespace GstMapFlags {
-  export const READ: 'read' = 'read';
-  export const WRITE: 'write' = 'write';
-  export const FLAG_LAST: 'flag_last' = 'flag_last';
+export type GObjectBindingFlagsValue = "default" | "bidirectional" | "sync_create" | "invert_boolean";
+export type GObjectBoxedCopyFunc = (boxed: Pointer) => void;
+export type GObjectBoxedFreeFunc = (boxed: Pointer) => void;
+export type GObjectCallback = () => void;
+export type GObjectClosureMarshal = (closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: Pointer, invocation_hint: Pointer, marshal_data: Pointer) => void;
+export type GObjectConnectFlags = "default" | "after" | "swapped";
+export namespace GObjectIOCondition {
+  export const IN: 'in' = 'in';
+  export const OUT: 'out' = 'out';
+  export const PRI: 'pri' = 'pri';
+  export const ERR: 'err' = 'err';
+  export const HUP: 'hup' = 'hup';
+  export const NVAL: 'nval' = 'nval';
   export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MapFlags/get_type`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/IOCondition/get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
 }
-export type GstMapFlagsValue = "read" | "write" | "flag_last";
+export type GObjectIOConditionValue = "in" | "out" | "pri" | "err" | "hup" | "nval";
+export type GObjectParamFlags = "readable" | "writable" | "readwrite" | "construct" | "construct_only" | "lax_validation" | "static_name" | "private" | "static_nick" | "static_blurb" | "explicit_notify" | "deprecated";
+export type GObjectSignalAccumulator = (ihint: GObjectSignalInvocationHint, return_accu: GObjectValue, handler_return: GObjectValue, data_: Pointer) => boolean;
+export type GObjectSignalEmissionHook = (ihint: GObjectSignalInvocationHint, n_param_values: number, param_values: Pointer, data_: Pointer) => boolean;
+export type GObjectSignalFlags = "run_first" | "run_last" | "run_cleanup" | "no_recurse" | "detailed" | "action" | "no_hooks" | "must_collect" | "deprecated" | "accumulator_first_run";
+export type GObjectSignalMatchType = "id" | "detail" | "closure" | "func" | "data" | "unblocked";
+export type GObjectTypeDebugFlags = "none" | "objects" | "signals" | "instance_count" | "mask";
+export type GObjectTypeFlags = "none" | "abstract" | "value_abstract" | "final" | "deprecated";
+export type GObjectTypeFundamentalFlags = "classed" | "instantiatable" | "derivable" | "deep_derivable";
 export namespace GstAllocatorFlags {
   export const CUSTOM_ALLOC: 'custom_alloc' = 'custom_alloc';
   export const NO_COPY: 'no_copy' = 'no_copy';
@@ -1123,192 +1024,19 @@ export namespace GstAllocatorFlags {
   }
 }
 export type GstAllocatorFlagsValue = "custom_alloc" | "no_copy" | "last";
-export interface GstAllocatorPrivate {
-  ptr: Pointer;
-}
-export namespace GstURIType {
-  export const UNKNOWN: 'unknown' = 'unknown';
-  export const SINK: 'sink' = 'sink';
-  export const SRC: 'src' = 'src';
+export namespace GstBinFlags {
+  export const NO_RESYNC: 'no_resync' = 'no_resync';
+  export const STREAMS_AWARE: 'streams_aware' = 'streams_aware';
+  export const LAST: 'last' = 'last';
   export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/URIType/get_type`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BinFlags/get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
 }
-export type GstURITypeValue = "unknown" | "sink" | "src";
-export namespace GstPluginDependencyFlags {
-  export const NONE: 'none' = 'none';
-  export const RECURSE: 'recurse' = 'recurse';
-  export const PATHS_ARE_DEFAULT_ONLY: 'paths_are_default_only' = 'paths_are_default_only';
-  export const FILE_NAME_IS_SUFFIX: 'file_name_is_suffix' = 'file_name_is_suffix';
-  export const FILE_NAME_IS_PREFIX: 'file_name_is_prefix' = 'file_name_is_prefix';
-  export const PATHS_ARE_RELATIVE_TO_EXE: 'paths_are_relative_to_exe' = 'paths_are_relative_to_exe';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginDependencyFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPluginDependencyFlagsValue = "none" | "recurse" | "paths_are_default_only" | "file_name_is_suffix" | "file_name_is_prefix" | "paths_are_relative_to_exe";
-export namespace GstSerializeFlags {
-  export const NONE: 'none' = 'none';
-  export const BACKWARD_COMPAT: 'backward_compat' = 'backward_compat';
-  export const STRICT: 'strict' = 'strict';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SerializeFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstSerializeFlagsValue = "none" | "backward_compat" | "strict";
-export namespace GstStateChangeReturn {
-  export const FAILURE: 'failure' = 'failure';
-  export const SUCCESS: 'success' = 'success';
-  export const ASYNC: 'async' = 'async';
-  export const NO_PREROLL: 'no_preroll' = 'no_preroll';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StateChangeReturn/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstStateChangeReturnValue = "failure" | "success" | "async" | "no_preroll";
-export namespace GstState {
-  export const VOID_PENDING: 'void_pending' = 'void_pending';
-  export const NULL: 'null' = 'null';
-  export const READY: 'ready' = 'ready';
-  export const PAUSED: 'paused' = 'paused';
-  export const PLAYING: 'playing' = 'playing';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/State/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstStateValue = "void_pending" | "null" | "ready" | "paused" | "playing";
-export namespace GstPadDirection {
-  export const UNKNOWN: 'unknown' = 'unknown';
-  export const SRC: 'src' = 'src';
-  export const SINK: 'sink' = 'sink';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadDirection/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPadDirectionValue = "unknown" | "src" | "sink";
-export namespace GstPadPresence {
-  export const ALWAYS: 'always' = 'always';
-  export const SOMETIMES: 'sometimes' = 'sometimes';
-  export const REQUEST: 'request' = 'request';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadPresence/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPadPresenceValue = "always" | "sometimes" | "request";
-export namespace GstCapsIntersectMode {
-  export const ZIG_ZAG: 'zig_zag' = 'zig_zag';
-  export const FIRST: 'first' = 'first';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CapsIntersectMode/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstCapsIntersectModeValue = "zig_zag" | "first";
-export namespace GstPadLinkReturn {
-  export const OK: 'ok' = 'ok';
-  export const WRONG_HIERARCHY: 'wrong_hierarchy' = 'wrong_hierarchy';
-  export const WAS_LINKED: 'was_linked' = 'was_linked';
-  export const WRONG_DIRECTION: 'wrong_direction' = 'wrong_direction';
-  export const NOFORMAT: 'noformat' = 'noformat';
-  export const NOSCHED: 'nosched' = 'nosched';
-  export const REFUSED: 'refused' = 'refused';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadLinkReturn/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPadLinkReturnValue = "ok" | "wrong_hierarchy" | "was_linked" | "wrong_direction" | "noformat" | "nosched" | "refused";
-export namespace GstPadMode {
-  export const NONE: 'none' = 'none';
-  export const PUSH: 'push' = 'push';
-  export const PULL: 'pull' = 'pull';
-  export async function get_name(mode: GstPadModeValue): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadMode/get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('mode', String(mode));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadMode/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPadModeValue = "none" | "push" | "pull";
-export namespace GstPadProbeType {
-  export const INVALID: 'invalid' = 'invalid';
-  export const IDLE: 'idle' = 'idle';
-  export const BLOCK: 'block' = 'block';
-  export const BUFFER: 'buffer' = 'buffer';
-  export const BUFFER_LIST: 'buffer_list' = 'buffer_list';
-  export const EVENT_DOWNSTREAM: 'event_downstream' = 'event_downstream';
-  export const EVENT_UPSTREAM: 'event_upstream' = 'event_upstream';
-  export const EVENT_FLUSH: 'event_flush' = 'event_flush';
-  export const QUERY_DOWNSTREAM: 'query_downstream' = 'query_downstream';
-  export const QUERY_UPSTREAM: 'query_upstream' = 'query_upstream';
-  export const PUSH: 'push' = 'push';
-  export const PULL: 'pull' = 'pull';
-  export const BLOCKING: 'blocking' = 'blocking';
-  export const DATA_DOWNSTREAM: 'data_downstream' = 'data_downstream';
-  export const DATA_UPSTREAM: 'data_upstream' = 'data_upstream';
-  export const DATA_BOTH: 'data_both' = 'data_both';
-  export const BLOCK_DOWNSTREAM: 'block_downstream' = 'block_downstream';
-  export const BLOCK_UPSTREAM: 'block_upstream' = 'block_upstream';
-  export const EVENT_BOTH: 'event_both' = 'event_both';
-  export const QUERY_BOTH: 'query_both' = 'query_both';
-  export const ALL_BOTH: 'all_both' = 'all_both';
-  export const SCHEDULING: 'scheduling' = 'scheduling';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeType/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPadProbeTypeValue = "invalid" | "idle" | "block" | "buffer" | "buffer_list" | "event_downstream" | "event_upstream" | "event_flush" | "query_downstream" | "query_upstream" | "push" | "pull" | "blocking" | "data_downstream" | "data_upstream" | "data_both" | "block_downstream" | "block_upstream" | "event_both" | "query_both" | "all_both" | "scheduling";
-export interface GstByteArrayInterface {
-  ptr: Pointer;
-}
+export type GstBinFlagsValue = "no_resync" | "streams_aware" | "last";
 export namespace GstBufferCopyFlags {
   export const NONE: 'none' = 'none';
   export const FLAGS: 'flags' = 'flags';
@@ -1350,98 +1078,292 @@ export namespace GstBufferFlags {
   }
 }
 export type GstBufferFlagsValue = "live" | "decode_only" | "discont" | "resync" | "corrupted" | "marker" | "header" | "gap" | "droppable" | "delta_unit" | "tag_memory" | "sync_after" | "non_droppable" | "last";
-export namespace GstFormat {
-  export const UNDEFINED: 'undefined' = 'undefined';
-  export const DEFAULT: 'default' = 'default';
-  export const BYTES: 'bytes' = 'bytes';
-  export const TIME: 'time' = 'time';
-  export const BUFFERS: 'buffers' = 'buffers';
-  export const PERCENT: 'percent' = 'percent';
-  export async function get_by_nick(nick: string): Promise<GstFormatValue> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/get_by_nick`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('nick', String(nick));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_details(format: GstFormatValue): Promise<GstFormatDefinition> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/get_details`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('format', String(format));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_name(format: GstFormatValue): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('format', String(format));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function iterate_definitions(): Promise<GstIterator> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/iterate_definitions`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    // Return value is an object/struct, instantiate it from the ptr
-    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstIterator(data.return.ptr);
-      return instance;
-    }
-    return data.return;
-  }
-  export async function register(nick: string, description: string): Promise<GstFormatValue> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/register`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('nick', String(nick));
-    // Primitive parameter
-    url.searchParams.append('description', String(description));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function to_quark(format: GstFormatValue): Promise<number> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/to_quark`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('format', String(format));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
+export type GstBufferForeachMetaFunc = (buffer: GstBuffer, meta: GstMeta, user_data: Pointer) => boolean;
+export type GstBufferListFunc = (buffer: GstBuffer, idx: number, user_data: Pointer) => boolean;
+export namespace GstBufferPoolAcquireFlags {
+  export const NONE: 'none' = 'none';
+  export const KEY_UNIT: 'key_unit' = 'key_unit';
+  export const DONTWAIT: 'dontwait' = 'dontwait';
+  export const DISCONT: 'discont' = 'discont';
+  export const LAST: 'last' = 'last';
   export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/get_type`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferPoolAcquireFlags/get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
 }
-export type GstFormatValue = "undefined" | "default" | "bytes" | "time" | "buffers" | "percent";
-export interface GstFormatDefinition {
-  ptr: Pointer;
+export type GstBufferPoolAcquireFlagsValue = "none" | "key_unit" | "dontwait" | "discont" | "last";
+export namespace GstBufferingMode {
+  export const STREAM: 'stream' = 'stream';
+  export const DOWNLOAD: 'download' = 'download';
+  export const TIMESHIFT: 'timeshift' = 'timeshift';
+  export const LIVE: 'live' = 'live';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferingMode/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
-export namespace GstIteratorResult {
-  export const DONE: 'done' = 'done';
+export type GstBufferingModeValue = "stream" | "download" | "timeshift" | "live";
+export namespace GstBusFlags {
+  export const FLUSHING: 'flushing' = 'flushing';
+  export const FLAG_LAST: 'flag_last' = 'flag_last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BusFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstBusFlagsValue = "flushing" | "flag_last";
+export type GstBusFunc = (bus: GstBus, message: GstMessage, user_data: Pointer) => boolean;
+export type GstBusSyncHandler = (bus: GstBus, message: GstMessage, user_data: Pointer) => GstBusSyncReplyValue;
+export namespace GstBusSyncReply {
+  export const DROP: 'drop' = 'drop';
+  export const PASS: 'pass' = 'pass';
+  export const ASYNC: 'async' = 'async';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BusSyncReply/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstBusSyncReplyValue = "drop" | "pass" | "async";
+export type GstCapsFilterMapFunc = (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean;
+export namespace GstCapsFlags {
+  export const ANY: 'any' = 'any';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CapsFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstCapsFlagsValue = "any";
+export type GstCapsForeachFunc = (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean;
+export namespace GstCapsIntersectMode {
+  export const ZIG_ZAG: 'zig_zag' = 'zig_zag';
+  export const FIRST: 'first' = 'first';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CapsIntersectMode/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstCapsIntersectModeValue = "zig_zag" | "first";
+export type GstCapsMapFunc = (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean;
+export type GstClockCallback = (clock: GstClock, time: number, id: Pointer, user_data: Pointer) => boolean;
+export namespace GstClockEntryType {
+  export const SINGLE: 'single' = 'single';
+  export const PERIODIC: 'periodic' = 'periodic';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ClockEntryType/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstClockEntryTypeValue = "single" | "periodic";
+export namespace GstClockFlags {
+  export const CAN_DO_SINGLE_SYNC: 'can_do_single_sync' = 'can_do_single_sync';
+  export const CAN_DO_SINGLE_ASYNC: 'can_do_single_async' = 'can_do_single_async';
+  export const CAN_DO_PERIODIC_SYNC: 'can_do_periodic_sync' = 'can_do_periodic_sync';
+  export const CAN_DO_PERIODIC_ASYNC: 'can_do_periodic_async' = 'can_do_periodic_async';
+  export const CAN_SET_RESOLUTION: 'can_set_resolution' = 'can_set_resolution';
+  export const CAN_SET_MASTER: 'can_set_master' = 'can_set_master';
+  export const NEEDS_STARTUP_SYNC: 'needs_startup_sync' = 'needs_startup_sync';
+  export const LAST: 'last' = 'last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ClockFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstClockFlagsValue = "can_do_single_sync" | "can_do_single_async" | "can_do_periodic_sync" | "can_do_periodic_async" | "can_set_resolution" | "can_set_master" | "needs_startup_sync" | "last";
+export namespace GstClockReturn {
   export const OK: 'ok' = 'ok';
-  export const RESYNC: 'resync' = 'resync';
+  export const EARLY: 'early' = 'early';
+  export const UNSCHEDULED: 'unscheduled' = 'unscheduled';
+  export const BUSY: 'busy' = 'busy';
+  export const BADTIME: 'badtime' = 'badtime';
   export const ERROR: 'error' = 'error';
+  export const UNSUPPORTED: 'unsupported' = 'unsupported';
+  export const DONE: 'done' = 'done';
   export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/IteratorResult/get_type`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ClockReturn/get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
 }
-export type GstIteratorResultValue = "done" | "ok" | "resync" | "error";
+export type GstClockReturnValue = "ok" | "early" | "unscheduled" | "busy" | "badtime" | "error" | "unsupported" | "done";
+export namespace GstClockType {
+  export const REALTIME: 'realtime' = 'realtime';
+  export const MONOTONIC: 'monotonic' = 'monotonic';
+  export const OTHER: 'other' = 'other';
+  export const TAI: 'tai' = 'tai';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ClockType/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstClockTypeValue = "realtime" | "monotonic" | "other" | "tai";
+export namespace GstCoreError {
+  export const FAILED: 'failed' = 'failed';
+  export const TOO_LAZY: 'too_lazy' = 'too_lazy';
+  export const NOT_IMPLEMENTED: 'not_implemented' = 'not_implemented';
+  export const STATE_CHANGE: 'state_change' = 'state_change';
+  export const PAD: 'pad' = 'pad';
+  export const THREAD: 'thread' = 'thread';
+  export const NEGOTIATION: 'negotiation' = 'negotiation';
+  export const EVENT: 'event' = 'event';
+  export const SEEK: 'seek' = 'seek';
+  export const CAPS: 'caps' = 'caps';
+  export const TAG: 'tag' = 'tag';
+  export const MISSING_PLUGIN: 'missing_plugin' = 'missing_plugin';
+  export const CLOCK: 'clock' = 'clock';
+  export const DISABLED: 'disabled' = 'disabled';
+  export const NUM_ERRORS: 'num_errors' = 'num_errors';
+  export async function quark(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CoreError/quark`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CoreError/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstCoreErrorValue = "failed" | "too_lazy" | "not_implemented" | "state_change" | "pad" | "thread" | "negotiation" | "event" | "seek" | "caps" | "tag" | "missing_plugin" | "clock" | "disabled" | "num_errors";
+export type GstCustomMetaTransformFunction = (transbuf: GstBuffer, meta: GstCustomMeta, buffer: GstBuffer, type_: number, data_: Pointer, user_data: Pointer) => boolean;
+export namespace GstDebugColorFlags {
+  export const FG_BLACK: 'fg_black' = 'fg_black';
+  export const FG_RED: 'fg_red' = 'fg_red';
+  export const FG_GREEN: 'fg_green' = 'fg_green';
+  export const FG_YELLOW: 'fg_yellow' = 'fg_yellow';
+  export const FG_BLUE: 'fg_blue' = 'fg_blue';
+  export const FG_MAGENTA: 'fg_magenta' = 'fg_magenta';
+  export const FG_CYAN: 'fg_cyan' = 'fg_cyan';
+  export const FG_WHITE: 'fg_white' = 'fg_white';
+  export const BG_BLACK: 'bg_black' = 'bg_black';
+  export const BG_RED: 'bg_red' = 'bg_red';
+  export const BG_GREEN: 'bg_green' = 'bg_green';
+  export const BG_YELLOW: 'bg_yellow' = 'bg_yellow';
+  export const BG_BLUE: 'bg_blue' = 'bg_blue';
+  export const BG_MAGENTA: 'bg_magenta' = 'bg_magenta';
+  export const BG_CYAN: 'bg_cyan' = 'bg_cyan';
+  export const BG_WHITE: 'bg_white' = 'bg_white';
+  export const BOLD: 'bold' = 'bold';
+  export const UNDERLINE: 'underline' = 'underline';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugColorFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstDebugColorFlagsValue = "fg_black" | "fg_red" | "fg_green" | "fg_yellow" | "fg_blue" | "fg_magenta" | "fg_cyan" | "fg_white" | "bg_black" | "bg_red" | "bg_green" | "bg_yellow" | "bg_blue" | "bg_magenta" | "bg_cyan" | "bg_white" | "bold" | "underline";
+export namespace GstDebugColorMode {
+  export const OFF: 'off' = 'off';
+  export const ON: 'on' = 'on';
+  export const UNIX: 'unix' = 'unix';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugColorMode/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstDebugColorModeValue = "off" | "on" | "unix";
+export namespace GstDebugGraphDetails {
+  export const MEDIA_TYPE: 'media_type' = 'media_type';
+  export const CAPS_DETAILS: 'caps_details' = 'caps_details';
+  export const NON_DEFAULT_PARAMS: 'non_default_params' = 'non_default_params';
+  export const STATES: 'states' = 'states';
+  export const FULL_PARAMS: 'full_params' = 'full_params';
+  export const ALL: 'all' = 'all';
+  export const VERBOSE: 'verbose' = 'verbose';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugGraphDetails/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstDebugGraphDetailsValue = "media_type" | "caps_details" | "non_default_params" | "states" | "full_params" | "all" | "verbose";
+export namespace GstDebugLevel {
+  export const NONE: 'none' = 'none';
+  export const ERROR: 'error' = 'error';
+  export const WARNING: 'warning' = 'warning';
+  export const FIXME: 'fixme' = 'fixme';
+  export const INFO: 'info' = 'info';
+  export const DEBUG: 'debug' = 'debug';
+  export const LOG: 'log' = 'log';
+  export const TRACE: 'trace' = 'trace';
+  export const MEMDUMP: 'memdump' = 'memdump';
+  export const COUNT: 'count' = 'count';
+  export async function get_name(level: GstDebugLevelValue): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugLevel/get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('level', String(level));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugLevel/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstDebugLevelValue = "none" | "error" | "warning" | "fixme" | "info" | "debug" | "log" | "trace" | "memdump" | "count";
+export type GstElementCallAsyncFunc = (element: GstElement, user_data: Pointer) => void;
+export namespace GstElementFlags {
+  export const LOCKED_STATE: 'locked_state' = 'locked_state';
+  export const SINK: 'sink' = 'sink';
+  export const SOURCE: 'source' = 'source';
+  export const PROVIDE_CLOCK: 'provide_clock' = 'provide_clock';
+  export const REQUIRE_CLOCK: 'require_clock' = 'require_clock';
+  export const INDEXABLE: 'indexable' = 'indexable';
+  export const LAST: 'last' = 'last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstElementFlagsValue = "locked_state" | "sink" | "source" | "provide_clock" | "require_clock" | "indexable" | "last";
+export type GstElementForeachPadFunc = (element: GstElement, pad: GstPad, user_data: Pointer) => boolean;
 export namespace GstEventType {
   export const UNKNOWN: 'unknown' = 'unknown';
   export const FLUSH_START: 'flush_start' = 'flush_start';
@@ -1535,92 +1457,213 @@ export namespace GstEventTypeFlags {
   }
 }
 export type GstEventTypeFlagsValue = "upstream" | "downstream" | "serialized" | "sticky" | "sticky_multi";
-export namespace GstSegmentFlags {
-  export const NONE: 'none' = 'none';
-  export const RESET: 'reset' = 'reset';
-  export const TRICKMODE: 'trickmode' = 'trickmode';
+export namespace GstFlowReturn {
+  export const CUSTOM_SUCCESS_2: 'custom_success_2' = 'custom_success_2';
+  export const CUSTOM_SUCCESS_1: 'custom_success_1' = 'custom_success_1';
+  export const CUSTOM_SUCCESS: 'custom_success' = 'custom_success';
+  export const OK: 'ok' = 'ok';
+  export const NOT_LINKED: 'not_linked' = 'not_linked';
+  export const FLUSHING: 'flushing' = 'flushing';
+  export const EOS: 'eos' = 'eos';
+  export const NOT_NEGOTIATED: 'not_negotiated' = 'not_negotiated';
+  export const ERROR: 'error' = 'error';
+  export const NOT_SUPPORTED: 'not_supported' = 'not_supported';
+  export const CUSTOM_ERROR: 'custom_error' = 'custom_error';
+  export const CUSTOM_ERROR_1: 'custom_error_1' = 'custom_error_1';
+  export const CUSTOM_ERROR_2: 'custom_error_2' = 'custom_error_2';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/FlowReturn/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstFlowReturnValue = "custom_success_2" | "custom_success_1" | "custom_success" | "ok" | "not_linked" | "flushing" | "eos" | "not_negotiated" | "error" | "not_supported" | "custom_error" | "custom_error_1" | "custom_error_2";
+export namespace GstFormat {
+  export const UNDEFINED: 'undefined' = 'undefined';
+  export const DEFAULT: 'default' = 'default';
+  export const BYTES: 'bytes' = 'bytes';
+  export const TIME: 'time' = 'time';
+  export const BUFFERS: 'buffers' = 'buffers';
+  export const PERCENT: 'percent' = 'percent';
+  export async function get_by_nick(nick: string): Promise<GstFormatValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/get_by_nick`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('nick', String(nick));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_details(format: GstFormatValue): Promise<GstFormatDefinition> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/get_details`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_name(format: GstFormatValue): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function iterate_definitions(): Promise<GstIterator> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/iterate_definitions`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GstIterator(data.return.ptr);
+      return instance;
+    }
+    return data.return;
+  }
+  export async function register(nick: string, description: string): Promise<GstFormatValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/register`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('nick', String(nick));
+    // Primitive parameter
+    url.searchParams.append('description', String(description));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function to_quark(format: GstFormatValue): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/to_quark`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstFormatValue = "undefined" | "default" | "bytes" | "time" | "buffers" | "percent";
+export namespace GstGapFlags {
+  export const DATA: 'data' = 'data';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/GapFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstGapFlagsValue = "data";
+export type GstIteratorFoldFunction = (item: GObjectValue, ret: GObjectValue, user_data: Pointer) => boolean;
+export type GstIteratorForeachFunction = (item: GObjectValue, user_data: Pointer) => void;
+export namespace GstIteratorItem {
   export const SKIP: 'skip' = 'skip';
-  export const SEGMENT: 'segment' = 'segment';
-  export const TRICKMODE_KEY_UNITS: 'trickmode_key_units' = 'trickmode_key_units';
-  export const TRICKMODE_FORWARD_PREDICTED: 'trickmode_forward_predicted' = 'trickmode_forward_predicted';
-  export const TRICKMODE_NO_AUDIO: 'trickmode_no_audio' = 'trickmode_no_audio';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SegmentFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstSegmentFlagsValue = "none" | "reset" | "trickmode" | "skip" | "segment" | "trickmode_key_units" | "trickmode_forward_predicted" | "trickmode_no_audio";
-export namespace GstQOSType {
-  export const OVERFLOW: 'overflow' = 'overflow';
-  export const UNDERFLOW: 'underflow' = 'underflow';
-  export const THROTTLE: 'throttle' = 'throttle';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/QOSType/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstQOSTypeValue = "overflow" | "underflow" | "throttle";
-export namespace GstSeekFlags {
-  export const NONE: 'none' = 'none';
-  export const FLUSH: 'flush' = 'flush';
-  export const ACCURATE: 'accurate' = 'accurate';
-  export const KEY_UNIT: 'key_unit' = 'key_unit';
-  export const SEGMENT: 'segment' = 'segment';
-  export const TRICKMODE: 'trickmode' = 'trickmode';
-  export const SKIP: 'skip' = 'skip';
-  export const SNAP_BEFORE: 'snap_before' = 'snap_before';
-  export const SNAP_AFTER: 'snap_after' = 'snap_after';
-  export const SNAP_NEAREST: 'snap_nearest' = 'snap_nearest';
-  export const TRICKMODE_KEY_UNITS: 'trickmode_key_units' = 'trickmode_key_units';
-  export const TRICKMODE_NO_AUDIO: 'trickmode_no_audio' = 'trickmode_no_audio';
-  export const TRICKMODE_FORWARD_PREDICTED: 'trickmode_forward_predicted' = 'trickmode_forward_predicted';
-  export const INSTANT_RATE_CHANGE: 'instant_rate_change' = 'instant_rate_change';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SeekFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstSeekFlagsValue = "none" | "flush" | "accurate" | "key_unit" | "segment" | "trickmode" | "skip" | "snap_before" | "snap_after" | "snap_nearest" | "trickmode_key_units" | "trickmode_no_audio" | "trickmode_forward_predicted" | "instant_rate_change";
-export namespace GstSeekType {
-  export const NONE: 'none' = 'none';
-  export const SET: 'set' = 'set';
+  export const PASS: 'pass' = 'pass';
   export const END: 'end' = 'end';
   export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SeekType/get_type`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/IteratorItem/get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
 }
-export type GstSeekTypeValue = "none" | "set" | "end";
-export namespace GstClockReturn {
-  export const OK: 'ok' = 'ok';
-  export const EARLY: 'early' = 'early';
-  export const UNSCHEDULED: 'unscheduled' = 'unscheduled';
-  export const BUSY: 'busy' = 'busy';
-  export const BADTIME: 'badtime' = 'badtime';
-  export const ERROR: 'error' = 'error';
-  export const UNSUPPORTED: 'unsupported' = 'unsupported';
+export type GstIteratorItemValue = "skip" | "pass" | "end";
+export namespace GstIteratorResult {
   export const DONE: 'done' = 'done';
+  export const OK: 'ok' = 'ok';
+  export const RESYNC: 'resync' = 'resync';
+  export const ERROR: 'error' = 'error';
   export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ClockReturn/get_type`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/IteratorResult/get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
 }
-export type GstClockReturnValue = "ok" | "early" | "unscheduled" | "busy" | "badtime" | "error" | "unsupported" | "done";
+export type GstIteratorResultValue = "done" | "ok" | "resync" | "error";
+export namespace GstLibraryError {
+  export const FAILED: 'failed' = 'failed';
+  export const TOO_LAZY: 'too_lazy' = 'too_lazy';
+  export const INIT: 'init' = 'init';
+  export const SHUTDOWN: 'shutdown' = 'shutdown';
+  export const SETTINGS: 'settings' = 'settings';
+  export const ENCODE: 'encode' = 'encode';
+  export const NUM_ERRORS: 'num_errors' = 'num_errors';
+  export async function quark(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/LibraryError/quark`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/LibraryError/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstLibraryErrorValue = "failed" | "too_lazy" | "init" | "shutdown" | "settings" | "encode" | "num_errors";
+export namespace GstLockFlags {
+  export const READ: 'read' = 'read';
+  export const WRITE: 'write' = 'write';
+  export const EXCLUSIVE: 'exclusive' = 'exclusive';
+  export const LAST: 'last' = 'last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/LockFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstLockFlagsValue = "read" | "write" | "exclusive" | "last";
+export type GstLogFunction = (category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, object: GObjectObject, message: GstDebugMessage, user_data: Pointer) => void;
+export namespace GstMapFlags {
+  export const READ: 'read' = 'read';
+  export const WRITE: 'write' = 'write';
+  export const FLAG_LAST: 'flag_last' = 'flag_last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MapFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstMapFlagsValue = "read" | "write" | "flag_last";
+export namespace GstMemoryFlags {
+  export const READONLY: 'readonly' = 'readonly';
+  export const NO_SHARE: 'no_share' = 'no_share';
+  export const ZERO_PREFIXED: 'zero_prefixed' = 'zero_prefixed';
+  export const ZERO_PADDED: 'zero_padded' = 'zero_padded';
+  export const PHYSICALLY_CONTIGUOUS: 'physically_contiguous' = 'physically_contiguous';
+  export const NOT_MAPPABLE: 'not_mappable' = 'not_mappable';
+  export const LAST: 'last' = 'last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MemoryFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstMemoryFlagsValue = "readonly" | "no_share" | "zero_prefixed" | "zero_padded" | "physically_contiguous" | "not_mappable" | "last";
 export namespace GstMessageType {
   export const UNKNOWN: 'unknown' = 'unknown';
   export const EOS: 'eos' = 'eos';
@@ -1691,6 +1734,339 @@ export namespace GstMessageType {
   }
 }
 export type GstMessageTypeValue = "unknown" | "eos" | "error" | "warning" | "info" | "tag" | "buffering" | "state_changed" | "state_dirty" | "step_done" | "clock_provide" | "clock_lost" | "new_clock" | "structure_change" | "stream_status" | "application" | "element" | "segment_start" | "segment_done" | "duration_changed" | "latency" | "async_start" | "async_done" | "request_state" | "step_start" | "qos" | "progress" | "toc" | "reset_time" | "stream_start" | "need_context" | "have_context" | "extended" | "device_added" | "device_removed" | "property_notify" | "stream_collection" | "streams_selected" | "redirect" | "device_changed" | "instant_rate_request" | "any";
+export namespace GstMetaFlags {
+  export const NONE: 'none' = 'none';
+  export const READONLY: 'readonly' = 'readonly';
+  export const POOLED: 'pooled' = 'pooled';
+  export const LOCKED: 'locked' = 'locked';
+  export const LAST: 'last' = 'last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstMetaFlagsValue = "none" | "readonly" | "pooled" | "locked" | "last";
+export namespace GstMiniObjectFlags {
+  export const LOCKABLE: 'lockable' = 'lockable';
+  export const LOCK_READONLY: 'lock_readonly' = 'lock_readonly';
+  export const MAY_BE_LEAKED: 'may_be_leaked' = 'may_be_leaked';
+  export const LAST: 'last' = 'last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObjectFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstMiniObjectFlagsValue = "lockable" | "lock_readonly" | "may_be_leaked" | "last";
+export namespace GstObjectFlags {
+  export const MAY_BE_LEAKED: 'may_be_leaked' = 'may_be_leaked';
+  export const CONSTRUCTED: 'constructed' = 'constructed';
+  export const LAST: 'last' = 'last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ObjectFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstObjectFlagsValue = "may_be_leaked" | "constructed" | "last";
+export type GstPadActivateFunction = (pad: GstPad, parent: GstObject) => boolean;
+export type GstPadActivateModeFunction = (pad: GstPad, parent: GstObject, mode: GstPadModeValue, active: boolean) => boolean;
+export type GstPadChainFunction = (pad: GstPad, parent: GstObject, buffer: GstBuffer) => GstFlowReturnValue;
+export type GstPadChainListFunction = (pad: GstPad, parent: GstObject, list: GstBufferList) => GstFlowReturnValue;
+export namespace GstPadDirection {
+  export const UNKNOWN: 'unknown' = 'unknown';
+  export const SRC: 'src' = 'src';
+  export const SINK: 'sink' = 'sink';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadDirection/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPadDirectionValue = "unknown" | "src" | "sink";
+export type GstPadEventFullFunction = (pad: GstPad, parent: GstObject, event: GstEvent) => GstFlowReturnValue;
+export type GstPadEventFunction = (pad: GstPad, parent: GstObject, event: GstEvent) => boolean;
+export namespace GstPadFlags {
+  export const BLOCKED: 'blocked' = 'blocked';
+  export const FLUSHING: 'flushing' = 'flushing';
+  export const EOS: 'eos' = 'eos';
+  export const BLOCKING: 'blocking' = 'blocking';
+  export const NEED_PARENT: 'need_parent' = 'need_parent';
+  export const NEED_RECONFIGURE: 'need_reconfigure' = 'need_reconfigure';
+  export const PENDING_EVENTS: 'pending_events' = 'pending_events';
+  export const FIXED_CAPS: 'fixed_caps' = 'fixed_caps';
+  export const PROXY_CAPS: 'proxy_caps' = 'proxy_caps';
+  export const PROXY_ALLOCATION: 'proxy_allocation' = 'proxy_allocation';
+  export const PROXY_SCHEDULING: 'proxy_scheduling' = 'proxy_scheduling';
+  export const ACCEPT_INTERSECT: 'accept_intersect' = 'accept_intersect';
+  export const ACCEPT_TEMPLATE: 'accept_template' = 'accept_template';
+  export const LAST: 'last' = 'last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPadFlagsValue = "blocked" | "flushing" | "eos" | "blocking" | "need_parent" | "need_reconfigure" | "pending_events" | "fixed_caps" | "proxy_caps" | "proxy_allocation" | "proxy_scheduling" | "accept_intersect" | "accept_template" | "last";
+export type GstPadForwardFunction = (pad: GstPad, user_data: Pointer) => boolean;
+export type GstPadGetRangeFunction = (pad: GstPad, parent: GstObject, offset: number, length: number, buffer: GstBuffer) => GstFlowReturnValue;
+export type GstPadIterIntLinkFunction = (pad: GstPad, parent: GstObject) => GstIterator;
+export namespace GstPadLinkCheck {
+  export const NOTHING: 'nothing' = 'nothing';
+  export const HIERARCHY: 'hierarchy' = 'hierarchy';
+  export const TEMPLATE_CAPS: 'template_caps' = 'template_caps';
+  export const CAPS: 'caps' = 'caps';
+  export const NO_RECONFIGURE: 'no_reconfigure' = 'no_reconfigure';
+  export const DEFAULT: 'default' = 'default';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadLinkCheck/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPadLinkCheckValue = "nothing" | "hierarchy" | "template_caps" | "caps" | "no_reconfigure" | "default";
+export type GstPadLinkFunction = (pad: GstPad, parent: GstObject, peer: GstPad) => GstPadLinkReturnValue;
+export namespace GstPadLinkReturn {
+  export const OK: 'ok' = 'ok';
+  export const WRONG_HIERARCHY: 'wrong_hierarchy' = 'wrong_hierarchy';
+  export const WAS_LINKED: 'was_linked' = 'was_linked';
+  export const WRONG_DIRECTION: 'wrong_direction' = 'wrong_direction';
+  export const NOFORMAT: 'noformat' = 'noformat';
+  export const NOSCHED: 'nosched' = 'nosched';
+  export const REFUSED: 'refused' = 'refused';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadLinkReturn/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPadLinkReturnValue = "ok" | "wrong_hierarchy" | "was_linked" | "wrong_direction" | "noformat" | "nosched" | "refused";
+export namespace GstPadMode {
+  export const NONE: 'none' = 'none';
+  export const PUSH: 'push' = 'push';
+  export const PULL: 'pull' = 'pull';
+  export async function get_name(mode: GstPadModeValue): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadMode/get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mode', String(mode));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadMode/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPadModeValue = "none" | "push" | "pull";
+export namespace GstPadPresence {
+  export const ALWAYS: 'always' = 'always';
+  export const SOMETIMES: 'sometimes' = 'sometimes';
+  export const REQUEST: 'request' = 'request';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadPresence/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPadPresenceValue = "always" | "sometimes" | "request";
+export type GstPadProbeCallback = (pad: GstPad, info: GstPadProbeInfo, user_data: Pointer) => GstPadProbeReturnValue;
+export namespace GstPadProbeReturn {
+  export const DROP: 'drop' = 'drop';
+  export const OK: 'ok' = 'ok';
+  export const REMOVE: 'remove' = 'remove';
+  export const PASS: 'pass' = 'pass';
+  export const HANDLED: 'handled' = 'handled';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeReturn/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPadProbeReturnValue = "drop" | "ok" | "remove" | "pass" | "handled";
+export namespace GstPadProbeType {
+  export const INVALID: 'invalid' = 'invalid';
+  export const IDLE: 'idle' = 'idle';
+  export const BLOCK: 'block' = 'block';
+  export const BUFFER: 'buffer' = 'buffer';
+  export const BUFFER_LIST: 'buffer_list' = 'buffer_list';
+  export const EVENT_DOWNSTREAM: 'event_downstream' = 'event_downstream';
+  export const EVENT_UPSTREAM: 'event_upstream' = 'event_upstream';
+  export const EVENT_FLUSH: 'event_flush' = 'event_flush';
+  export const QUERY_DOWNSTREAM: 'query_downstream' = 'query_downstream';
+  export const QUERY_UPSTREAM: 'query_upstream' = 'query_upstream';
+  export const PUSH: 'push' = 'push';
+  export const PULL: 'pull' = 'pull';
+  export const BLOCKING: 'blocking' = 'blocking';
+  export const DATA_DOWNSTREAM: 'data_downstream' = 'data_downstream';
+  export const DATA_UPSTREAM: 'data_upstream' = 'data_upstream';
+  export const DATA_BOTH: 'data_both' = 'data_both';
+  export const BLOCK_DOWNSTREAM: 'block_downstream' = 'block_downstream';
+  export const BLOCK_UPSTREAM: 'block_upstream' = 'block_upstream';
+  export const EVENT_BOTH: 'event_both' = 'event_both';
+  export const QUERY_BOTH: 'query_both' = 'query_both';
+  export const ALL_BOTH: 'all_both' = 'all_both';
+  export const SCHEDULING: 'scheduling' = 'scheduling';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeType/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPadProbeTypeValue = "invalid" | "idle" | "block" | "buffer" | "buffer_list" | "event_downstream" | "event_upstream" | "event_flush" | "query_downstream" | "query_upstream" | "push" | "pull" | "blocking" | "data_downstream" | "data_upstream" | "data_both" | "block_downstream" | "block_upstream" | "event_both" | "query_both" | "all_both" | "scheduling";
+export type GstPadQueryFunction = (pad: GstPad, parent: GstObject, query: GstQuery) => boolean;
+export type GstPadStickyEventsForeachFunction = (pad: GstPad, event: GstEvent, user_data: Pointer) => boolean;
+export namespace GstPadTemplateFlags {
+  export const LAST: 'last' = 'last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadTemplateFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPadTemplateFlagsValue = "last";
+export type GstPadUnlinkFunction = (pad: GstPad, parent: GstObject) => void;
+export namespace GstParseError {
+  export const SYNTAX: 'syntax' = 'syntax';
+  export const NO_SUCH_ELEMENT: 'no_such_element' = 'no_such_element';
+  export const NO_SUCH_PROPERTY: 'no_such_property' = 'no_such_property';
+  export const LINK: 'link' = 'link';
+  export const COULD_NOT_SET_PROPERTY: 'could_not_set_property' = 'could_not_set_property';
+  export const EMPTY_BIN: 'empty_bin' = 'empty_bin';
+  export const EMPTY: 'empty' = 'empty';
+  export const DELAYED_LINK: 'delayed_link' = 'delayed_link';
+  export async function quark(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseError/quark`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseError/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstParseErrorValue = "syntax" | "no_such_element" | "no_such_property" | "link" | "could_not_set_property" | "empty_bin" | "empty" | "delayed_link";
+export namespace GstParseFlags {
+  export const NONE: 'none' = 'none';
+  export const FATAL_ERRORS: 'fatal_errors' = 'fatal_errors';
+  export const NO_SINGLE_ELEMENT_BINS: 'no_single_element_bins' = 'no_single_element_bins';
+  export const PLACE_IN_BIN: 'place_in_bin' = 'place_in_bin';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstParseFlagsValue = "none" | "fatal_errors" | "no_single_element_bins" | "place_in_bin";
+export namespace GstPipelineFlags {
+  export const FIXED_CLOCK: 'fixed_clock' = 'fixed_clock';
+  export const LAST: 'last' = 'last';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PipelineFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPipelineFlagsValue = "fixed_clock" | "last";
+export namespace GstPluginAPIFlags {
+  export const MEMBERS: 'members' = 'members';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginAPIFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPluginAPIFlagsValue = "members";
+export namespace GstPluginDependencyFlags {
+  export const NONE: 'none' = 'none';
+  export const RECURSE: 'recurse' = 'recurse';
+  export const PATHS_ARE_DEFAULT_ONLY: 'paths_are_default_only' = 'paths_are_default_only';
+  export const FILE_NAME_IS_SUFFIX: 'file_name_is_suffix' = 'file_name_is_suffix';
+  export const FILE_NAME_IS_PREFIX: 'file_name_is_prefix' = 'file_name_is_prefix';
+  export const PATHS_ARE_RELATIVE_TO_EXE: 'paths_are_relative_to_exe' = 'paths_are_relative_to_exe';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginDependencyFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPluginDependencyFlagsValue = "none" | "recurse" | "paths_are_default_only" | "file_name_is_suffix" | "file_name_is_prefix" | "paths_are_relative_to_exe";
+export namespace GstPluginError {
+  export const MODULE: 'module' = 'module';
+  export const DEPENDENCIES: 'dependencies' = 'dependencies';
+  export const NAME_MISMATCH: 'name_mismatch' = 'name_mismatch';
+  export async function quark(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginError/quark`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginError/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPluginErrorValue = "module" | "dependencies" | "name_mismatch";
+export type GstPluginFeatureFilter = (feature: GstPluginFeature, user_data: Pointer) => boolean;
+export type GstPluginFilter = (plugin: GstPlugin, user_data: Pointer) => boolean;
+export namespace GstPluginFlags {
+  export const CACHED: 'cached' = 'cached';
+  export const BLACKLISTED: 'blacklisted' = 'blacklisted';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstPluginFlagsValue = "cached" | "blacklisted";
+export type GstPluginInitFullFunc = (plugin: GstPlugin, user_data: Pointer) => boolean;
+export type GstPluginInitFunc = (plugin: GstPlugin) => boolean;
 export namespace GstProgressType {
   export const START: 'start' = 'start';
   export const CONTINUE: 'continue' = 'continue';
@@ -1706,180 +2082,34 @@ export namespace GstProgressType {
   }
 }
 export type GstProgressTypeValue = "start" | "continue" | "complete" | "canceled" | "error";
-export namespace GstTagMergeMode {
-  export const UNDEFINED: 'undefined' = 'undefined';
-  export const REPLACE_ALL: 'replace_all' = 'replace_all';
-  export const REPLACE: 'replace' = 'replace';
-  export const APPEND: 'append' = 'append';
-  export const PREPEND: 'prepend' = 'prepend';
-  export const KEEP: 'keep' = 'keep';
-  export const KEEP_ALL: 'keep_all' = 'keep_all';
-  export const COUNT: 'count' = 'count';
+export type GstPromiseChangeFunc = (promise: GstPromise, user_data: Pointer) => void;
+export namespace GstPromiseResult {
+  export const PENDING: 'pending' = 'pending';
+  export const INTERRUPTED: 'interrupted' = 'interrupted';
+  export const REPLIED: 'replied' = 'replied';
+  export const EXPIRED: 'expired' = 'expired';
   export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagMergeMode/get_type`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PromiseResult/get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
 }
-export type GstTagMergeModeValue = "undefined" | "replace_all" | "replace" | "append" | "prepend" | "keep" | "keep_all" | "count";
-export namespace GstTagScope {
-  export const STREAM: 'stream' = 'stream';
-  export const GLOBAL: 'global' = 'global';
+export type GstPromiseResultValue = "pending" | "interrupted" | "replied" | "expired";
+export namespace GstQOSType {
+  export const OVERFLOW: 'overflow' = 'overflow';
+  export const UNDERFLOW: 'underflow' = 'underflow';
+  export const THROTTLE: 'throttle' = 'throttle';
   export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagScope/get_type`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/QOSType/get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
 }
-export type GstTagScopeValue = "stream" | "global";
-export namespace GstStreamType {
-  export const UNKNOWN: 'unknown' = 'unknown';
-  export const AUDIO: 'audio' = 'audio';
-  export const VIDEO: 'video' = 'video';
-  export const CONTAINER: 'container' = 'container';
-  export const TEXT: 'text' = 'text';
-  export async function get_name(stype: GstStreamTypeValue): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamType/get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('stype', String(stype));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamType/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstStreamTypeValue = "unknown" | "audio" | "video" | "container" | "text";
-export namespace GstStreamFlags {
-  export const NONE: 'none' = 'none';
-  export const SPARSE: 'sparse' = 'sparse';
-  export const SELECT: 'select' = 'select';
-  export const UNSELECT: 'unselect' = 'unselect';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstStreamFlagsValue = "none" | "sparse" | "select" | "unselect";
-export namespace GstStreamStatusType {
-  export const CREATE: 'create' = 'create';
-  export const ENTER: 'enter' = 'enter';
-  export const LEAVE: 'leave' = 'leave';
-  export const DESTROY: 'destroy' = 'destroy';
-  export const START: 'start' = 'start';
-  export const PAUSE: 'pause' = 'pause';
-  export const STOP: 'stop' = 'stop';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamStatusType/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstStreamStatusTypeValue = "create" | "enter" | "leave" | "destroy" | "start" | "pause" | "stop";
-export namespace GstStructureChangeType {
-  export const LINK: 'link' = 'link';
-  export const UNLINK: 'unlink' = 'unlink';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StructureChangeType/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstStructureChangeTypeValue = "link" | "unlink";
-export namespace GstTocScope {
-  export const GLOBAL: 'global' = 'global';
-  export const CURRENT: 'current' = 'current';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocScope/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstTocScopeValue = "global" | "current";
-export namespace GstTocEntryType {
-  export const ANGLE: 'angle' = 'angle';
-  export const VERSION: 'version' = 'version';
-  export const EDITION: 'edition' = 'edition';
-  export const INVALID: 'invalid' = 'invalid';
-  export const TITLE: 'title' = 'title';
-  export const TRACK: 'track' = 'track';
-  export const CHAPTER: 'chapter' = 'chapter';
-  export async function get_nick(type_: GstTocEntryTypeValue): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocEntryType/get_nick`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocEntryType/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstTocEntryTypeValue = "angle" | "version" | "edition" | "invalid" | "title" | "track" | "chapter";
-export namespace GstTocLoopType {
-  export const NONE: 'none' = 'none';
-  export const FORWARD: 'forward' = 'forward';
-  export const REVERSE: 'reverse' = 'reverse';
-  export const PING_PONG: 'ping_pong' = 'ping_pong';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocLoopType/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstTocLoopTypeValue = "none" | "forward" | "reverse" | "ping_pong";
-export namespace GstBufferingMode {
-  export const STREAM: 'stream' = 'stream';
-  export const DOWNLOAD: 'download' = 'download';
-  export const TIMESHIFT: 'timeshift' = 'timeshift';
-  export const LIVE: 'live' = 'live';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferingMode/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstBufferingModeValue = "stream" | "download" | "timeshift" | "live";
-export namespace GstGapFlags {
-  export const DATA: 'data' = 'data';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/GapFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstGapFlagsValue = "data";
+export type GstQOSTypeValue = "overflow" | "underflow" | "throttle";
 export namespace GstQueryType {
   export const UNKNOWN: 'unknown' = 'unknown';
   export const POSITION: 'position' = 'position';
@@ -1951,131 +2181,6 @@ export namespace GstQueryTypeFlags {
   }
 }
 export type GstQueryTypeFlagsValue = "upstream" | "downstream" | "serialized";
-export interface GstBufferPoolAcquireParams {
-  ptr: Pointer;
-}
-export namespace GstFlowReturn {
-  export const CUSTOM_SUCCESS_2: 'custom_success_2' = 'custom_success_2';
-  export const CUSTOM_SUCCESS_1: 'custom_success_1' = 'custom_success_1';
-  export const CUSTOM_SUCCESS: 'custom_success' = 'custom_success';
-  export const OK: 'ok' = 'ok';
-  export const NOT_LINKED: 'not_linked' = 'not_linked';
-  export const FLUSHING: 'flushing' = 'flushing';
-  export const EOS: 'eos' = 'eos';
-  export const NOT_NEGOTIATED: 'not_negotiated' = 'not_negotiated';
-  export const ERROR: 'error' = 'error';
-  export const NOT_SUPPORTED: 'not_supported' = 'not_supported';
-  export const CUSTOM_ERROR: 'custom_error' = 'custom_error';
-  export const CUSTOM_ERROR_1: 'custom_error_1' = 'custom_error_1';
-  export const CUSTOM_ERROR_2: 'custom_error_2' = 'custom_error_2';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/FlowReturn/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstFlowReturnValue = "custom_success_2" | "custom_success_1" | "custom_success" | "ok" | "not_linked" | "flushing" | "eos" | "not_negotiated" | "error" | "not_supported" | "custom_error" | "custom_error_1" | "custom_error_2";
-export namespace GstSchedulingFlags {
-  export const SEEKABLE: 'seekable' = 'seekable';
-  export const SEQUENTIAL: 'sequential' = 'sequential';
-  export const BANDWIDTH_LIMITED: 'bandwidth_limited' = 'bandwidth_limited';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SchedulingFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstSchedulingFlagsValue = "seekable" | "sequential" | "bandwidth_limited";
-export namespace GstPadProbeReturn {
-  export const DROP: 'drop' = 'drop';
-  export const OK: 'ok' = 'ok';
-  export const REMOVE: 'remove' = 'remove';
-  export const PASS: 'pass' = 'pass';
-  export const HANDLED: 'handled' = 'handled';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeReturn/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPadProbeReturnValue = "drop" | "ok" | "remove" | "pass" | "handled";
-export namespace GstTaskState {
-  export const STARTED: 'started' = 'started';
-  export const STOPPED: 'stopped' = 'stopped';
-  export const PAUSED: 'paused' = 'paused';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TaskState/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstTaskStateValue = "started" | "stopped" | "paused";
-export namespace GstPadLinkCheck {
-  export const NOTHING: 'nothing' = 'nothing';
-  export const HIERARCHY: 'hierarchy' = 'hierarchy';
-  export const TEMPLATE_CAPS: 'template_caps' = 'template_caps';
-  export const CAPS: 'caps' = 'caps';
-  export const NO_RECONFIGURE: 'no_reconfigure' = 'no_reconfigure';
-  export const DEFAULT: 'default' = 'default';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadLinkCheck/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPadLinkCheckValue = "nothing" | "hierarchy" | "template_caps" | "caps" | "no_reconfigure" | "default";
-export namespace GstStateChange {
-  export const NULL_TO_READY: 'null_to_ready' = 'null_to_ready';
-  export const READY_TO_PAUSED: 'ready_to_paused' = 'ready_to_paused';
-  export const PAUSED_TO_PLAYING: 'paused_to_playing' = 'paused_to_playing';
-  export const PLAYING_TO_PAUSED: 'playing_to_paused' = 'playing_to_paused';
-  export const PAUSED_TO_READY: 'paused_to_ready' = 'paused_to_ready';
-  export const READY_TO_NULL: 'ready_to_null' = 'ready_to_null';
-  export const NULL_TO_NULL: 'null_to_null' = 'null_to_null';
-  export const READY_TO_READY: 'ready_to_ready' = 'ready_to_ready';
-  export const PAUSED_TO_PAUSED: 'paused_to_paused' = 'paused_to_paused';
-  export const PLAYING_TO_PLAYING: 'playing_to_playing' = 'playing_to_playing';
-  export async function get_name(transition: GstStateChangeValue): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StateChange/get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('transition', String(transition));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StateChange/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstStateChangeValue = "null_to_ready" | "ready_to_paused" | "paused_to_playing" | "playing_to_paused" | "paused_to_ready" | "ready_to_null" | "null_to_null" | "ready_to_ready" | "paused_to_paused" | "playing_to_playing";
-export namespace GstBusSyncReply {
-  export const DROP: 'drop' = 'drop';
-  export const PASS: 'pass' = 'pass';
-  export const ASYNC: 'async' = 'async';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BusSyncReply/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstBusSyncReplyValue = "drop" | "pass" | "async";
 export namespace GstRank {
   export const NONE: 'none' = 'none';
   export const MARGINAL: 'marginal' = 'marginal';
@@ -2090,527 +2195,6 @@ export namespace GstRank {
   }
 }
 export type GstRankValue = "none" | "marginal" | "secondary" | "primary";
-export namespace GstElementFlags {
-  export const LOCKED_STATE: 'locked_state' = 'locked_state';
-  export const SINK: 'sink' = 'sink';
-  export const SOURCE: 'source' = 'source';
-  export const PROVIDE_CLOCK: 'provide_clock' = 'provide_clock';
-  export const REQUIRE_CLOCK: 'require_clock' = 'require_clock';
-  export const INDEXABLE: 'indexable' = 'indexable';
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstElementFlagsValue = "locked_state" | "sink" | "source" | "provide_clock" | "require_clock" | "indexable" | "last";
-export namespace GstBinFlags {
-  export const NO_RESYNC: 'no_resync' = 'no_resync';
-  export const STREAMS_AWARE: 'streams_aware' = 'streams_aware';
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BinFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstBinFlagsValue = "no_resync" | "streams_aware" | "last";
-export interface GstBinPrivate {
-  ptr: Pointer;
-}
-export namespace GstBufferPoolAcquireFlags {
-  export const NONE: 'none' = 'none';
-  export const KEY_UNIT: 'key_unit' = 'key_unit';
-  export const DONTWAIT: 'dontwait' = 'dontwait';
-  export const DISCONT: 'discont' = 'discont';
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferPoolAcquireFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstBufferPoolAcquireFlagsValue = "none" | "key_unit" | "dontwait" | "discont" | "last";
-export interface GstBufferPoolPrivate {
-  ptr: Pointer;
-}
-export namespace GstBusFlags {
-  export const FLUSHING: 'flushing' = 'flushing';
-  export const FLAG_LAST: 'flag_last' = 'flag_last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BusFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstBusFlagsValue = "flushing" | "flag_last";
-export interface GstBusPrivate {
-  ptr: Pointer;
-}
-export namespace GstCapsFlags {
-  export const ANY: 'any' = 'any';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CapsFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstCapsFlagsValue = "any";
-export interface GstClockEntry {
-  ptr: Pointer;
-}
-export namespace GstClockEntryType {
-  export const SINGLE: 'single' = 'single';
-  export const PERIODIC: 'periodic' = 'periodic';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ClockEntryType/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstClockEntryTypeValue = "single" | "periodic";
-export namespace GstClockFlags {
-  export const CAN_DO_SINGLE_SYNC: 'can_do_single_sync' = 'can_do_single_sync';
-  export const CAN_DO_SINGLE_ASYNC: 'can_do_single_async' = 'can_do_single_async';
-  export const CAN_DO_PERIODIC_SYNC: 'can_do_periodic_sync' = 'can_do_periodic_sync';
-  export const CAN_DO_PERIODIC_ASYNC: 'can_do_periodic_async' = 'can_do_periodic_async';
-  export const CAN_SET_RESOLUTION: 'can_set_resolution' = 'can_set_resolution';
-  export const CAN_SET_MASTER: 'can_set_master' = 'can_set_master';
-  export const NEEDS_STARTUP_SYNC: 'needs_startup_sync' = 'needs_startup_sync';
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ClockFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstClockFlagsValue = "can_do_single_sync" | "can_do_single_async" | "can_do_periodic_sync" | "can_do_periodic_async" | "can_set_resolution" | "can_set_master" | "needs_startup_sync" | "last";
-export interface GstClockPrivate {
-  ptr: Pointer;
-}
-export namespace GstClockType {
-  export const REALTIME: 'realtime' = 'realtime';
-  export const MONOTONIC: 'monotonic' = 'monotonic';
-  export const OTHER: 'other' = 'other';
-  export const TAI: 'tai' = 'tai';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ClockType/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstClockTypeValue = "realtime" | "monotonic" | "other" | "tai";
-export interface GstControlBindingPrivate {
-  ptr: Pointer;
-}
-export namespace GstCoreError {
-  export const FAILED: 'failed' = 'failed';
-  export const TOO_LAZY: 'too_lazy' = 'too_lazy';
-  export const NOT_IMPLEMENTED: 'not_implemented' = 'not_implemented';
-  export const STATE_CHANGE: 'state_change' = 'state_change';
-  export const PAD: 'pad' = 'pad';
-  export const THREAD: 'thread' = 'thread';
-  export const NEGOTIATION: 'negotiation' = 'negotiation';
-  export const EVENT: 'event' = 'event';
-  export const SEEK: 'seek' = 'seek';
-  export const CAPS: 'caps' = 'caps';
-  export const TAG: 'tag' = 'tag';
-  export const MISSING_PLUGIN: 'missing_plugin' = 'missing_plugin';
-  export const CLOCK: 'clock' = 'clock';
-  export const DISABLED: 'disabled' = 'disabled';
-  export const NUM_ERRORS: 'num_errors' = 'num_errors';
-  export async function quark(): Promise<number> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CoreError/quark`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CoreError/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstCoreErrorValue = "failed" | "too_lazy" | "not_implemented" | "state_change" | "pad" | "thread" | "negotiation" | "event" | "seek" | "caps" | "tag" | "missing_plugin" | "clock" | "disabled" | "num_errors";
-export namespace GstDebugLevel {
-  export const NONE: 'none' = 'none';
-  export const ERROR: 'error' = 'error';
-  export const WARNING: 'warning' = 'warning';
-  export const FIXME: 'fixme' = 'fixme';
-  export const INFO: 'info' = 'info';
-  export const DEBUG: 'debug' = 'debug';
-  export const LOG: 'log' = 'log';
-  export const TRACE: 'trace' = 'trace';
-  export const MEMDUMP: 'memdump' = 'memdump';
-  export const COUNT: 'count' = 'count';
-  export async function get_name(level: GstDebugLevelValue): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugLevel/get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('level', String(level));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugLevel/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstDebugLevelValue = "none" | "error" | "warning" | "fixme" | "info" | "debug" | "log" | "trace" | "memdump" | "count";
-export namespace GstDebugColorFlags {
-  export const FG_BLACK: 'fg_black' = 'fg_black';
-  export const FG_RED: 'fg_red' = 'fg_red';
-  export const FG_GREEN: 'fg_green' = 'fg_green';
-  export const FG_YELLOW: 'fg_yellow' = 'fg_yellow';
-  export const FG_BLUE: 'fg_blue' = 'fg_blue';
-  export const FG_MAGENTA: 'fg_magenta' = 'fg_magenta';
-  export const FG_CYAN: 'fg_cyan' = 'fg_cyan';
-  export const FG_WHITE: 'fg_white' = 'fg_white';
-  export const BG_BLACK: 'bg_black' = 'bg_black';
-  export const BG_RED: 'bg_red' = 'bg_red';
-  export const BG_GREEN: 'bg_green' = 'bg_green';
-  export const BG_YELLOW: 'bg_yellow' = 'bg_yellow';
-  export const BG_BLUE: 'bg_blue' = 'bg_blue';
-  export const BG_MAGENTA: 'bg_magenta' = 'bg_magenta';
-  export const BG_CYAN: 'bg_cyan' = 'bg_cyan';
-  export const BG_WHITE: 'bg_white' = 'bg_white';
-  export const BOLD: 'bold' = 'bold';
-  export const UNDERLINE: 'underline' = 'underline';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugColorFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstDebugColorFlagsValue = "fg_black" | "fg_red" | "fg_green" | "fg_yellow" | "fg_blue" | "fg_magenta" | "fg_cyan" | "fg_white" | "bg_black" | "bg_red" | "bg_green" | "bg_yellow" | "bg_blue" | "bg_magenta" | "bg_cyan" | "bg_white" | "bold" | "underline";
-export namespace GstDebugColorMode {
-  export const OFF: 'off' = 'off';
-  export const ON: 'on' = 'on';
-  export const UNIX: 'unix' = 'unix';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugColorMode/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstDebugColorModeValue = "off" | "on" | "unix";
-export namespace GstDebugGraphDetails {
-  export const MEDIA_TYPE: 'media_type' = 'media_type';
-  export const CAPS_DETAILS: 'caps_details' = 'caps_details';
-  export const NON_DEFAULT_PARAMS: 'non_default_params' = 'non_default_params';
-  export const STATES: 'states' = 'states';
-  export const FULL_PARAMS: 'full_params' = 'full_params';
-  export const ALL: 'all' = 'all';
-  export const VERBOSE: 'verbose' = 'verbose';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugGraphDetails/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstDebugGraphDetailsValue = "media_type" | "caps_details" | "non_default_params" | "states" | "full_params" | "all" | "verbose";
-export interface GstDeviceMonitorPrivate {
-  ptr: Pointer;
-}
-export interface GstDevicePrivate {
-  ptr: Pointer;
-}
-export interface GstDeviceProviderPrivate {
-  ptr: Pointer;
-}
-export interface GstGhostPadPrivate {
-  ptr: Pointer;
-}
-export namespace GstIteratorItem {
-  export const SKIP: 'skip' = 'skip';
-  export const PASS: 'pass' = 'pass';
-  export const END: 'end' = 'end';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/IteratorItem/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstIteratorItemValue = "skip" | "pass" | "end";
-export namespace GstLibraryError {
-  export const FAILED: 'failed' = 'failed';
-  export const TOO_LAZY: 'too_lazy' = 'too_lazy';
-  export const INIT: 'init' = 'init';
-  export const SHUTDOWN: 'shutdown' = 'shutdown';
-  export const SETTINGS: 'settings' = 'settings';
-  export const ENCODE: 'encode' = 'encode';
-  export const NUM_ERRORS: 'num_errors' = 'num_errors';
-  export async function quark(): Promise<number> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/LibraryError/quark`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/LibraryError/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstLibraryErrorValue = "failed" | "too_lazy" | "init" | "shutdown" | "settings" | "encode" | "num_errors";
-export namespace GstLockFlags {
-  export const READ: 'read' = 'read';
-  export const WRITE: 'write' = 'write';
-  export const EXCLUSIVE: 'exclusive' = 'exclusive';
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/LockFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstLockFlagsValue = "read" | "write" | "exclusive" | "last";
-export namespace GstMetaFlags {
-  export const NONE: 'none' = 'none';
-  export const READONLY: 'readonly' = 'readonly';
-  export const POOLED: 'pooled' = 'pooled';
-  export const LOCKED: 'locked' = 'locked';
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstMetaFlagsValue = "none" | "readonly" | "pooled" | "locked" | "last";
-export interface GstMetaTransformCopy {
-  ptr: Pointer;
-}
-export namespace GstMiniObjectFlags {
-  export const LOCKABLE: 'lockable' = 'lockable';
-  export const LOCK_READONLY: 'lock_readonly' = 'lock_readonly';
-  export const MAY_BE_LEAKED: 'may_be_leaked' = 'may_be_leaked';
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObjectFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstMiniObjectFlagsValue = "lockable" | "lock_readonly" | "may_be_leaked" | "last";
-export namespace GstObjectFlags {
-  export const MAY_BE_LEAKED: 'may_be_leaked' = 'may_be_leaked';
-  export const CONSTRUCTED: 'constructed' = 'constructed';
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ObjectFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstObjectFlagsValue = "may_be_leaked" | "constructed" | "last";
-export namespace GstPadFlags {
-  export const BLOCKED: 'blocked' = 'blocked';
-  export const FLUSHING: 'flushing' = 'flushing';
-  export const EOS: 'eos' = 'eos';
-  export const BLOCKING: 'blocking' = 'blocking';
-  export const NEED_PARENT: 'need_parent' = 'need_parent';
-  export const NEED_RECONFIGURE: 'need_reconfigure' = 'need_reconfigure';
-  export const PENDING_EVENTS: 'pending_events' = 'pending_events';
-  export const FIXED_CAPS: 'fixed_caps' = 'fixed_caps';
-  export const PROXY_CAPS: 'proxy_caps' = 'proxy_caps';
-  export const PROXY_ALLOCATION: 'proxy_allocation' = 'proxy_allocation';
-  export const PROXY_SCHEDULING: 'proxy_scheduling' = 'proxy_scheduling';
-  export const ACCEPT_INTERSECT: 'accept_intersect' = 'accept_intersect';
-  export const ACCEPT_TEMPLATE: 'accept_template' = 'accept_template';
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPadFlagsValue = "blocked" | "flushing" | "eos" | "blocking" | "need_parent" | "need_reconfigure" | "pending_events" | "fixed_caps" | "proxy_caps" | "proxy_allocation" | "proxy_scheduling" | "accept_intersect" | "accept_template" | "last";
-export interface GstPadPrivate {
-  ptr: Pointer;
-}
-export namespace GstPadTemplateFlags {
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadTemplateFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPadTemplateFlagsValue = "last";
-export interface GstParamSpecArray {
-  ptr: Pointer;
-}
-export interface GstParamSpecFraction {
-  ptr: Pointer;
-}
-export namespace GstParseError {
-  export const SYNTAX: 'syntax' = 'syntax';
-  export const NO_SUCH_ELEMENT: 'no_such_element' = 'no_such_element';
-  export const NO_SUCH_PROPERTY: 'no_such_property' = 'no_such_property';
-  export const LINK: 'link' = 'link';
-  export const COULD_NOT_SET_PROPERTY: 'could_not_set_property' = 'could_not_set_property';
-  export const EMPTY_BIN: 'empty_bin' = 'empty_bin';
-  export const EMPTY: 'empty' = 'empty';
-  export const DELAYED_LINK: 'delayed_link' = 'delayed_link';
-  export async function quark(): Promise<number> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseError/quark`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseError/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstParseErrorValue = "syntax" | "no_such_element" | "no_such_property" | "link" | "could_not_set_property" | "empty_bin" | "empty" | "delayed_link";
-export namespace GstParseFlags {
-  export const NONE: 'none' = 'none';
-  export const FATAL_ERRORS: 'fatal_errors' = 'fatal_errors';
-  export const NO_SINGLE_ELEMENT_BINS: 'no_single_element_bins' = 'no_single_element_bins';
-  export const PLACE_IN_BIN: 'place_in_bin' = 'place_in_bin';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstParseFlagsValue = "none" | "fatal_errors" | "no_single_element_bins" | "place_in_bin";
-export namespace GstPipelineFlags {
-  export const FIXED_CLOCK: 'fixed_clock' = 'fixed_clock';
-  export const LAST: 'last' = 'last';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PipelineFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPipelineFlagsValue = "fixed_clock" | "last";
-export interface GstPipelinePrivate {
-  ptr: Pointer;
-}
-export namespace GstPluginAPIFlags {
-  export const MEMBERS: 'members' = 'members';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginAPIFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPluginAPIFlagsValue = "members";
-export interface GstPluginDesc {
-  ptr: Pointer;
-}
-export namespace GstPluginError {
-  export const MODULE: 'module' = 'module';
-  export const DEPENDENCIES: 'dependencies' = 'dependencies';
-  export const NAME_MISMATCH: 'name_mismatch' = 'name_mismatch';
-  export async function quark(): Promise<number> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginError/quark`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginError/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPluginErrorValue = "module" | "dependencies" | "name_mismatch";
-export namespace GstPluginFlags {
-  export const CACHED: 'cached' = 'cached';
-  export const BLACKLISTED: 'blacklisted' = 'blacklisted';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginFlags/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPluginFlagsValue = "cached" | "blacklisted";
-export namespace GstPromiseResult {
-  export const PENDING: 'pending' = 'pending';
-  export const INTERRUPTED: 'interrupted' = 'interrupted';
-  export const REPLIED: 'replied' = 'replied';
-  export const EXPIRED: 'expired' = 'expired';
-  export async function get_type(): Promise<string> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PromiseResult/get_type`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-}
-export type GstPromiseResultValue = "pending" | "interrupted" | "replied" | "expired";
-export interface GstProxyPadPrivate {
-  ptr: Pointer;
-}
-export interface GstRegistryPrivate {
-  ptr: Pointer;
-}
 export namespace GstResourceError {
   export const FAILED: 'failed' = 'failed';
   export const TOO_LAZY: 'too_lazy' = 'too_lazy';
@@ -2644,6 +2228,19 @@ export namespace GstResourceError {
   }
 }
 export type GstResourceErrorValue = "failed" | "too_lazy" | "not_found" | "busy" | "open_read" | "open_write" | "open_read_write" | "close" | "read" | "write" | "seek" | "sync" | "settings" | "no_space_left" | "not_authorized" | "num_errors";
+export namespace GstSchedulingFlags {
+  export const SEEKABLE: 'seekable' = 'seekable';
+  export const SEQUENTIAL: 'sequential' = 'sequential';
+  export const BANDWIDTH_LIMITED: 'bandwidth_limited' = 'bandwidth_limited';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SchedulingFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstSchedulingFlagsValue = "seekable" | "sequential" | "bandwidth_limited";
 export namespace GstSearchMode {
   export const EXACT: 'exact' = 'exact';
   export const BEFORE: 'before' = 'before';
@@ -2657,9 +2254,74 @@ export namespace GstSearchMode {
   }
 }
 export type GstSearchModeValue = "exact" | "before" | "after";
-export interface GstSharedTaskPoolPrivate {
-  ptr: Pointer;
+export namespace GstSeekFlags {
+  export const NONE: 'none' = 'none';
+  export const FLUSH: 'flush' = 'flush';
+  export const ACCURATE: 'accurate' = 'accurate';
+  export const KEY_UNIT: 'key_unit' = 'key_unit';
+  export const SEGMENT: 'segment' = 'segment';
+  export const TRICKMODE: 'trickmode' = 'trickmode';
+  export const SKIP: 'skip' = 'skip';
+  export const SNAP_BEFORE: 'snap_before' = 'snap_before';
+  export const SNAP_AFTER: 'snap_after' = 'snap_after';
+  export const SNAP_NEAREST: 'snap_nearest' = 'snap_nearest';
+  export const TRICKMODE_KEY_UNITS: 'trickmode_key_units' = 'trickmode_key_units';
+  export const TRICKMODE_NO_AUDIO: 'trickmode_no_audio' = 'trickmode_no_audio';
+  export const TRICKMODE_FORWARD_PREDICTED: 'trickmode_forward_predicted' = 'trickmode_forward_predicted';
+  export const INSTANT_RATE_CHANGE: 'instant_rate_change' = 'instant_rate_change';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SeekFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
+export type GstSeekFlagsValue = "none" | "flush" | "accurate" | "key_unit" | "segment" | "trickmode" | "skip" | "snap_before" | "snap_after" | "snap_nearest" | "trickmode_key_units" | "trickmode_no_audio" | "trickmode_forward_predicted" | "instant_rate_change";
+export namespace GstSeekType {
+  export const NONE: 'none' = 'none';
+  export const SET: 'set' = 'set';
+  export const END: 'end' = 'end';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SeekType/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstSeekTypeValue = "none" | "set" | "end";
+export namespace GstSegmentFlags {
+  export const NONE: 'none' = 'none';
+  export const RESET: 'reset' = 'reset';
+  export const TRICKMODE: 'trickmode' = 'trickmode';
+  export const SKIP: 'skip' = 'skip';
+  export const SEGMENT: 'segment' = 'segment';
+  export const TRICKMODE_KEY_UNITS: 'trickmode_key_units' = 'trickmode_key_units';
+  export const TRICKMODE_FORWARD_PREDICTED: 'trickmode_forward_predicted' = 'trickmode_forward_predicted';
+  export const TRICKMODE_NO_AUDIO: 'trickmode_no_audio' = 'trickmode_no_audio';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SegmentFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstSegmentFlagsValue = "none" | "reset" | "trickmode" | "skip" | "segment" | "trickmode_key_units" | "trickmode_forward_predicted" | "trickmode_no_audio";
+export namespace GstSerializeFlags {
+  export const NONE: 'none' = 'none';
+  export const BACKWARD_COMPAT: 'backward_compat' = 'backward_compat';
+  export const STRICT: 'strict' = 'strict';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SerializeFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstSerializeFlagsValue = "none" | "backward_compat" | "strict";
 export namespace GstStackTraceFlags {
   export const NONE: 'none' = 'none';
   export const FULL: 'full' = 'full';
@@ -2672,9 +2334,64 @@ export namespace GstStackTraceFlags {
   }
 }
 export type GstStackTraceFlagsValue = "none" | "full";
-export interface GstStreamCollectionPrivate {
-  ptr: Pointer;
+export namespace GstState {
+  export const VOID_PENDING: 'void_pending' = 'void_pending';
+  export const NULL: 'null' = 'null';
+  export const READY: 'ready' = 'ready';
+  export const PAUSED: 'paused' = 'paused';
+  export const PLAYING: 'playing' = 'playing';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/State/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
+export type GstStateValue = "void_pending" | "null" | "ready" | "paused" | "playing";
+export namespace GstStateChange {
+  export const NULL_TO_READY: 'null_to_ready' = 'null_to_ready';
+  export const READY_TO_PAUSED: 'ready_to_paused' = 'ready_to_paused';
+  export const PAUSED_TO_PLAYING: 'paused_to_playing' = 'paused_to_playing';
+  export const PLAYING_TO_PAUSED: 'playing_to_paused' = 'playing_to_paused';
+  export const PAUSED_TO_READY: 'paused_to_ready' = 'paused_to_ready';
+  export const READY_TO_NULL: 'ready_to_null' = 'ready_to_null';
+  export const NULL_TO_NULL: 'null_to_null' = 'null_to_null';
+  export const READY_TO_READY: 'ready_to_ready' = 'ready_to_ready';
+  export const PAUSED_TO_PAUSED: 'paused_to_paused' = 'paused_to_paused';
+  export const PLAYING_TO_PLAYING: 'playing_to_playing' = 'playing_to_playing';
+  export async function get_name(transition: GstStateChangeValue): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StateChange/get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('transition', String(transition));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StateChange/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstStateChangeValue = "null_to_ready" | "ready_to_paused" | "paused_to_playing" | "playing_to_paused" | "paused_to_ready" | "ready_to_null" | "null_to_null" | "ready_to_ready" | "paused_to_paused" | "playing_to_playing";
+export namespace GstStateChangeReturn {
+  export const FAILURE: 'failure' = 'failure';
+  export const SUCCESS: 'success' = 'success';
+  export const ASYNC: 'async' = 'async';
+  export const NO_PREROLL: 'no_preroll' = 'no_preroll';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StateChangeReturn/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstStateChangeReturnValue = "failure" | "success" | "async" | "no_preroll";
 export namespace GstStreamError {
   export const FAILED: 'failed' = 'failed';
   export const TOO_LAZY: 'too_lazy' = 'too_lazy';
@@ -2706,12 +2423,76 @@ export namespace GstStreamError {
   }
 }
 export type GstStreamErrorValue = "failed" | "too_lazy" | "not_implemented" | "type_not_found" | "wrong_type" | "codec_not_found" | "decode" | "encode" | "demux" | "mux" | "format" | "decrypt" | "decrypt_nokey" | "num_errors";
-export interface GstStreamPrivate {
-  ptr: Pointer;
+export namespace GstStreamFlags {
+  export const NONE: 'none' = 'none';
+  export const SPARSE: 'sparse' = 'sparse';
+  export const SELECT: 'select' = 'select';
+  export const UNSELECT: 'unselect' = 'unselect';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamFlags/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
-export interface GstSystemClockPrivate {
-  ptr: Pointer;
+export type GstStreamFlagsValue = "none" | "sparse" | "select" | "unselect";
+export namespace GstStreamStatusType {
+  export const CREATE: 'create' = 'create';
+  export const ENTER: 'enter' = 'enter';
+  export const LEAVE: 'leave' = 'leave';
+  export const DESTROY: 'destroy' = 'destroy';
+  export const START: 'start' = 'start';
+  export const PAUSE: 'pause' = 'pause';
+  export const STOP: 'stop' = 'stop';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamStatusType/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
+export type GstStreamStatusTypeValue = "create" | "enter" | "leave" | "destroy" | "start" | "pause" | "stop";
+export namespace GstStreamType {
+  export const UNKNOWN: 'unknown' = 'unknown';
+  export const AUDIO: 'audio' = 'audio';
+  export const VIDEO: 'video' = 'video';
+  export const CONTAINER: 'container' = 'container';
+  export const TEXT: 'text' = 'text';
+  export async function get_name(stype: GstStreamTypeValue): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamType/get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('stype', String(stype));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamType/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstStreamTypeValue = "unknown" | "audio" | "video" | "container" | "text";
+export namespace GstStructureChangeType {
+  export const LINK: 'link' = 'link';
+  export const UNLINK: 'unlink' = 'unlink';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StructureChangeType/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstStructureChangeTypeValue = "link" | "unlink";
+export type GstStructureFilterMapFunc = (field_id: number, value_: GObjectValue, user_data: Pointer) => boolean;
+export type GstStructureForeachFunc = (field_id: number, value_: GObjectValue, user_data: Pointer) => boolean;
+export type GstStructureMapFunc = (field_id: number, value_: GObjectValue, user_data: Pointer) => boolean;
 export namespace GstTagFlag {
   export const UNDEFINED: 'undefined' = 'undefined';
   export const META: 'meta' = 'meta';
@@ -2727,15 +2508,105 @@ export namespace GstTagFlag {
   }
 }
 export type GstTagFlagValue = "undefined" | "meta" | "encoded" | "decoded" | "count";
-export interface GstTaskPrivate {
-  ptr: Pointer;
+export type GstTagForeachFunc = (list: GstTagList, tag: string, user_data: Pointer) => void;
+export namespace GstTagMergeMode {
+  export const UNDEFINED: 'undefined' = 'undefined';
+  export const REPLACE_ALL: 'replace_all' = 'replace_all';
+  export const REPLACE: 'replace' = 'replace';
+  export const APPEND: 'append' = 'append';
+  export const PREPEND: 'prepend' = 'prepend';
+  export const KEEP: 'keep' = 'keep';
+  export const KEEP_ALL: 'keep_all' = 'keep_all';
+  export const COUNT: 'count' = 'count';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagMergeMode/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
-export interface GstTimedValue {
-  ptr: Pointer;
+export type GstTagMergeModeValue = "undefined" | "replace_all" | "replace" | "append" | "prepend" | "keep" | "keep_all" | "count";
+export namespace GstTagScope {
+  export const STREAM: 'stream' = 'stream';
+  export const GLOBAL: 'global' = 'global';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagScope/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
-export interface GstTracerPrivate {
-  ptr: Pointer;
+export type GstTagScopeValue = "stream" | "global";
+export type GstTaskFunction = (user_data: Pointer) => void;
+export type GstTaskPoolFunction = (user_data: Pointer) => void;
+export namespace GstTaskState {
+  export const STARTED: 'started' = 'started';
+  export const STOPPED: 'stopped' = 'stopped';
+  export const PAUSED: 'paused' = 'paused';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TaskState/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
+export type GstTaskStateValue = "started" | "stopped" | "paused";
+export type GstTaskThreadFunc = (task: GstTask, thread: GLibThread, user_data: Pointer) => void;
+export namespace GstTocEntryType {
+  export const ANGLE: 'angle' = 'angle';
+  export const VERSION: 'version' = 'version';
+  export const EDITION: 'edition' = 'edition';
+  export const INVALID: 'invalid' = 'invalid';
+  export const TITLE: 'title' = 'title';
+  export const TRACK: 'track' = 'track';
+  export const CHAPTER: 'chapter' = 'chapter';
+  export async function get_nick(type_: GstTocEntryTypeValue): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocEntryType/get_nick`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocEntryType/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstTocEntryTypeValue = "angle" | "version" | "edition" | "invalid" | "title" | "track" | "chapter";
+export namespace GstTocLoopType {
+  export const NONE: 'none' = 'none';
+  export const FORWARD: 'forward' = 'forward';
+  export const REVERSE: 'reverse' = 'reverse';
+  export const PING_PONG: 'ping_pong' = 'ping_pong';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocLoopType/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstTocLoopTypeValue = "none" | "forward" | "reverse" | "ping_pong";
+export namespace GstTocScope {
+  export const GLOBAL: 'global' = 'global';
+  export const CURRENT: 'current' = 'current';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocScope/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+}
+export type GstTocScopeValue = "global" | "current";
 export namespace GstTracerValueFlags {
   export const NONE: 'none' = 'none';
   export const OPTIONAL: 'optional' = 'optional';
@@ -2763,6 +2634,7 @@ export namespace GstTracerValueScope {
   }
 }
 export type GstTracerValueScopeValue = "process" | "thread" | "element" | "pad";
+export type GstTypeFindFunction = (find: GstTypeFind, user_data: Pointer) => void;
 export namespace GstTypeFindProbability {
   export const NONE: 'none' = 'none';
   export const MINIMUM: 'minimum' = 'minimum';
@@ -2800,18 +2672,19 @@ export namespace GstURIError {
   }
 }
 export type GstURIErrorValue = "unsupported_protocol" | "bad_uri" | "bad_state" | "bad_reference";
-export interface GstValueTable {
-  ptr: Pointer;
-}
-
-export class GIRest {
-
-  static async callbacks(): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GIRest/callbacks`, apiConfig.baseUrl);
+export namespace GstURIType {
+  export const UNKNOWN: 'unknown' = 'unknown';
+  export const SINK: 'sink' = 'sink';
+  export const SRC: 'src' = 'src';
+  export async function get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/URIType/get_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
 }
+export type GstURITypeValue = "unknown" | "sink" | "src";
 
 export class GLibAllocator {
   ptr!: string;
@@ -2845,7 +2718,11 @@ export class GLibAllocator {
   }
 
 }
+export class GLibArray {
+  ptr!: Pointer;
 
+
+}
 export class GLibAsyncQueue {
   ptr!: string;
   
@@ -2921,7 +2798,7 @@ export class GLibAsyncQueue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async push_sorted(func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ func?: number }> {
+  async push_sorted(func: GLibCompareDataFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/push_sorted`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2932,7 +2809,7 @@ export class GLibAsyncQueue {
     }
     return data;
   }
-  async push_sorted_unlocked(func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ func?: number }> {
+  async push_sorted_unlocked(func: GLibCompareDataFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/push_sorted_unlocked`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2967,7 +2844,7 @@ export class GLibAsyncQueue {
     const data = await response.json();
     return data.return;
   }
-  async sort(func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ func?: number }> {
+  async sort(func: GLibCompareDataFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/sort`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -2978,7 +2855,7 @@ export class GLibAsyncQueue {
     }
     return data;
   }
-  async sort_unlocked(func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ func?: number }> {
+  async sort_unlocked(func: GLibCompareDataFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/sort_unlocked`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3047,7 +2924,6 @@ export class GLibAsyncQueue {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibBookmarkFile {
   ptr!: string;
   
@@ -3570,7 +3446,6 @@ export class GLibBookmarkFile {
     return data.return;
   }
 }
-
 export class GLibByteArray {
   ptr!: string;
   
@@ -3715,7 +3590,7 @@ export class GLibByteArray {
     const data = await response.json();
     return data.return;
   }
-  static async sort(array: Pointer, compare_func: (a: Pointer, b: Pointer) => number): Promise<{ compare_func?: number }> {
+  static async sort(array: Pointer, compare_func: GLibCompareFunc): Promise<{ compare_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ByteArray/sort`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('array', String(array));
@@ -3728,7 +3603,7 @@ export class GLibByteArray {
     }
     return data;
   }
-  static async sort_with_data(array: Pointer, compare_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ compare_func?: number }> {
+  static async sort_with_data(array: Pointer, compare_func: GLibCompareDataFunc): Promise<{ compare_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ByteArray/sort_with_data`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('array', String(array));
@@ -3765,7 +3640,6 @@ export class GLibByteArray {
     return data.return;
   }
 }
-
 export class GLibBytes {
   ptr!: string;
   
@@ -3923,7 +3797,6 @@ export class GLibBytes {
     return data.return;
   }
 }
-
 export class GLibCache {
   ptr!: string;
   
@@ -3965,7 +3838,7 @@ export class GLibCache {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async key_foreach(func: (key: Pointer, value_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  async key_foreach(func: GLibHFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cache/ptr,${this.ptr}/key_foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3981,7 +3854,7 @@ export class GLibCache {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async value_foreach(func: (key: Pointer, value_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  async value_foreach(func: GLibHFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cache/ptr,${this.ptr}/value_foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -3993,7 +3866,6 @@ export class GLibCache {
     return data;
   }
 }
-
 export class GLibChecksum {
   ptr!: string;
   
@@ -4077,7 +3949,6 @@ export class GLibChecksum {
     return data.return;
   }
 }
-
 export class GLibCompletion {
   ptr!: string;
   
@@ -4126,7 +3997,6 @@ export class GLibCompletion {
     return data.return;
   }
 }
-
 export class GLibCond {
   ptr!: string;
   
@@ -4197,7 +4067,11 @@ export class GLibCond {
     return data.return;
   }
 }
+export class GLibData {
+  ptr!: Pointer;
 
+
+}
 export class GLibDate {
   ptr!: string;
   
@@ -4639,7 +4513,6 @@ export class GLibDate {
     return data.return;
   }
 }
-
 export class GLibDateTime {
   ptr!: string;
   
@@ -5251,7 +5124,11 @@ export class GLibDateTime {
     return data.return;
   }
 }
+export class GLibDebugKey {
+  ptr!: Pointer;
 
+
+}
 export class GLibDir {
   ptr!: string;
   
@@ -5338,7 +5215,6 @@ export class GLibDir {
     return data.return;
   }
 }
-
 export class GLibError {
   ptr!: string;
   
@@ -5394,7 +5270,7 @@ export class GLibError {
     const data = await response.json();
     return data.return;
   }
-  static async domain_register(error_type_name: string, error_type_private_size: number, error_type_init: (error_: Pointer) => void, error_type_copy: (src_error: Pointer, dest_error: Pointer) => void, error_type_clear: (error_: Pointer) => void): Promise<number> {
+  static async domain_register(error_type_name: string, error_type_private_size: number, error_type_init: GLibErrorInitFunc, error_type_copy: GLibErrorCopyFunc, error_type_clear: GLibErrorClearFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Error/domain_register`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('error_type_name', String(error_type_name));
@@ -5415,7 +5291,7 @@ export class GLibError {
     }
     return data.return;
   }
-  static async domain_register_static(error_type_name: string, error_type_private_size: number, error_type_init: (error_: Pointer) => void, error_type_copy: (src_error: Pointer, dest_error: Pointer) => void, error_type_clear: (error_: Pointer) => void): Promise<number> {
+  static async domain_register_static(error_type_name: string, error_type_private_size: number, error_type_init: GLibErrorInitFunc, error_type_copy: GLibErrorCopyFunc, error_type_clear: GLibErrorClearFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Error/domain_register_static`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('error_type_name', String(error_type_name));
@@ -5444,7 +5320,6 @@ export class GLibError {
     return data.return;
   }
 }
-
 export class GLibHashTable {
   ptr!: string;
   
@@ -5501,7 +5376,7 @@ export class GLibHashTable {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async find(hash_table: Pointer, predicate: (key: Pointer, value_: Pointer, user_data: Pointer) => boolean): Promise<{ predicate?: number }> {
+  static async find(hash_table: Pointer, predicate: GLibHRFunc): Promise<{ predicate?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/find`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
@@ -5514,7 +5389,7 @@ export class GLibHashTable {
     }
     return data;
   }
-  static async foreach(hash_table: Pointer, func: (key: Pointer, value_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  static async foreach(hash_table: Pointer, func: GLibHFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/foreach`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
@@ -5527,7 +5402,7 @@ export class GLibHashTable {
     }
     return data;
   }
-  static async foreach_remove(hash_table: Pointer, func: (key: Pointer, value_: Pointer, user_data: Pointer) => boolean): Promise<number> {
+  static async foreach_remove(hash_table: Pointer, func: GLibHRFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/foreach_remove`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
@@ -5540,7 +5415,7 @@ export class GLibHashTable {
     }
     return data.return;
   }
-  static async foreach_steal(hash_table: Pointer, func: (key: Pointer, value_: Pointer, user_data: Pointer) => boolean): Promise<number> {
+  static async foreach_steal(hash_table: Pointer, func: GLibHRFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/foreach_steal`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
@@ -5670,7 +5545,6 @@ export class GLibHashTable {
     return data.return;
   }
 }
-
 export class GLibHashTableIter {
   ptr!: string;
   
@@ -5739,7 +5613,6 @@ export class GLibHashTableIter {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibHmac {
   ptr!: string;
   
@@ -5841,7 +5714,6 @@ export class GLibHmac {
     return data.return;
   }
 }
-
 export class GLibHook {
   ptr!: string;
   
@@ -5927,7 +5799,7 @@ export class GLibHook {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async insert_sorted(hook_list: GLibHookList, hook: GLibHook, func: (new_hook: GLibHook, sibling: GLibHook) => number): Promise<{ func?: number }> {
+  static async insert_sorted(hook_list: GLibHookList, hook: GLibHook, func: GLibHookCompareFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/insert_sorted`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (hook_list && typeof hook_list === 'object' && 'ptr' in hook_list) {
@@ -5973,7 +5845,6 @@ export class GLibHook {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibHookList {
   ptr!: string;
   
@@ -6031,7 +5902,7 @@ export class GLibHookList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async marshal(may_recurse: boolean, marshaller: (hook: GLibHook, marshal_data: Pointer) => void): Promise<{ marshaller?: number }> {
+  async marshal(may_recurse: boolean, marshaller: GLibHookMarshaller): Promise<{ marshaller?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/marshal`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('may_recurse', String(may_recurse));
@@ -6044,7 +5915,7 @@ export class GLibHookList {
     }
     return data;
   }
-  async marshal_check(may_recurse: boolean, marshaller: (hook: GLibHook, marshal_data: Pointer) => boolean): Promise<{ marshaller?: number }> {
+  async marshal_check(may_recurse: boolean, marshaller: GLibHookCheckMarshaller): Promise<{ marshaller?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/marshal_check`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('may_recurse', String(may_recurse));
@@ -6058,7 +5929,6 @@ export class GLibHookList {
     return data;
   }
 }
-
 export class GLibIOChannel {
   ptr!: string;
   
@@ -6387,7 +6257,11 @@ export class GLibIOChannel {
     return data.return;
   }
 }
+export class GLibIOFuncs {
+  ptr!: Pointer;
 
+
+}
 export class GLibKeyFile {
   ptr!: string;
   
@@ -6927,7 +6801,6 @@ export class GLibKeyFile {
     return data.return;
   }
 }
-
 export class GLibList {
   ptr!: string;
   
@@ -6974,7 +6847,11 @@ export class GLibList {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
+export class GLibLogField {
+  ptr!: Pointer;
 
+
+}
 export class GLibMainContext {
   ptr!: string;
   
@@ -7095,7 +6972,7 @@ export class GLibMainContext {
     }
     return data.return;
   }
-  async invoke_full(priority: number, function_: (user_data: Pointer) => boolean): Promise<{ function_?: number }> {
+  async invoke_full(priority: number, function_: GLibSourceFunc): Promise<{ function_?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MainContext/ptr,${this.ptr}/invoke_full`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('priority', String(priority));
@@ -7252,7 +7129,6 @@ export class GLibMainContext {
     return data.return;
   }
 }
-
 export class GLibMainLoop {
   ptr!: string;
   
@@ -7344,7 +7220,6 @@ export class GLibMainLoop {
     return data.return;
   }
 }
-
 export class GLibMappedFile {
   ptr!: string;
   
@@ -7444,7 +7319,6 @@ export class GLibMappedFile {
     return data.return;
   }
 }
-
 export class GLibMarkupParseContext {
   ptr!: string;
   
@@ -7466,7 +7340,7 @@ export class GLibMarkupParseContext {
       });
   }
 
-  static async new(parser: GLibMarkupParser, flags: GLibMarkupParseFlags, user_data_dnotify: (data_: Pointer) => void): Promise<GLibMarkupParseContext> {
+  static async new(parser: GLibMarkupParser, flags: GLibMarkupParseFlags, user_data_dnotify: GLibDestroyNotify): Promise<GLibMarkupParseContext> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MarkupParseContext/new`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (parser && typeof parser === 'object' && 'ptr' in parser) {
@@ -7569,7 +7443,11 @@ export class GLibMarkupParseContext {
     return data.return;
   }
 }
+export class GLibMarkupParser {
+  ptr!: Pointer;
 
+
+}
 export class GLibMatchInfo {
   ptr!: string;
   
@@ -7725,7 +7603,6 @@ export class GLibMatchInfo {
     return data.return;
   }
 }
-
 export class GLibMemChunk {
   ptr!: string;
   
@@ -7793,7 +7670,11 @@ export class GLibMemChunk {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
+export class GLibMemVTable {
+  ptr!: Pointer;
 
+
+}
 export class GLibNode {
   ptr!: string;
   
@@ -7843,7 +7724,7 @@ export class GLibNode {
     const data = await response.json();
     return data.return;
   }
-  async children_foreach(flags: GLibTraverseFlags, func: (node: GLibNode, data_: Pointer) => void): Promise<{ func?: number }> {
+  async children_foreach(flags: GLibTraverseFlags, func: GLibNodeForeachFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/children_foreach`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('flags', String(flags));
@@ -7907,7 +7788,7 @@ export class GLibNode {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async traverse(order: GLibTraverseType, flags: GLibTraverseFlags, max_depth: number, func: (node: GLibNode, data_: Pointer) => boolean): Promise<{ func?: number }> {
+  async traverse(order: GLibTraverseType, flags: GLibTraverseFlags, max_depth: number, func: GLibNodeTraverseFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/traverse`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('order', String(order));
@@ -7944,7 +7825,6 @@ export class GLibNode {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibOnce {
   ptr!: string;
   
@@ -8012,7 +7892,6 @@ export class GLibOnce {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibOptionContext {
   ptr!: string;
   
@@ -8186,7 +8065,7 @@ export class GLibOptionContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_translate_func(func: (str: string, data_: Pointer) => string): Promise<{ func?: number }> {
+  async set_translate_func(func: GLibTranslateFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/OptionContext/ptr,${this.ptr}/set_translate_func`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -8205,7 +8084,11 @@ export class GLibOptionContext {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
+export class GLibOptionEntry {
+  ptr!: Pointer;
 
+
+}
 export class GLibOptionGroup {
   ptr!: string;
   
@@ -8227,7 +8110,7 @@ export class GLibOptionGroup {
       });
   }
 
-  static async new(name: string, description: string, help_description: string, destroy: (data_: Pointer) => void): Promise<GLibOptionGroup> {
+  static async new(name: string, description: string, help_description: string, destroy: GLibDestroyNotify): Promise<GLibOptionGroup> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/OptionGroup/new`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('name', String(name));
@@ -8266,7 +8149,7 @@ export class GLibOptionGroup {
     }
     return data.return;
   }
-  async set_translate_func(func: (str: string, data_: Pointer) => string): Promise<{ func?: number }> {
+  async set_translate_func(func: GLibTranslateFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/OptionGroup/ptr,${this.ptr}/set_translate_func`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -8297,7 +8180,6 @@ export class GLibOptionGroup {
     return data.return;
   }
 }
-
 export class GLibPathBuf {
   ptr!: string;
   
@@ -8428,7 +8310,6 @@ export class GLibPathBuf {
     return data.return;
   }
 }
-
 export class GLibPatternSpec {
   ptr!: string;
   
@@ -8515,7 +8396,11 @@ export class GLibPatternSpec {
     return data.return;
   }
 }
+export class GLibPollFD {
+  ptr!: Pointer;
 
+
+}
 export class GLibPrivate {
   ptr!: string;
   
@@ -8563,7 +8448,11 @@ export class GLibPrivate {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
+export class GLibPtrArray {
+  ptr!: Pointer;
 
+
+}
 export class GLibQueue {
   ptr!: string;
   
@@ -8600,7 +8489,7 @@ export class GLibQueue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async clear_full(free_func: (data_: Pointer) => void): Promise<{ free_func?: number }> {
+  async clear_full(free_func: GLibDestroyNotify): Promise<{ free_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/clear_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -8611,7 +8500,7 @@ export class GLibQueue {
     }
     return data;
   }
-  async foreach(func: (data_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  async foreach(func: GLibFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -8622,7 +8511,7 @@ export class GLibQueue {
     }
     return data;
   }
-  async free_full(free_func: (data_: Pointer) => void): Promise<{ free_func?: number }> {
+  async free_full(free_func: GLibDestroyNotify): Promise<{ free_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/free_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -8652,7 +8541,7 @@ export class GLibQueue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async insert_sorted(func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ func?: number }> {
+  async insert_sorted(func: GLibCompareDataFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/insert_sorted`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -8740,7 +8629,7 @@ export class GLibQueue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async sort(compare_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ compare_func?: number }> {
+  async sort(compare_func: GLibCompareDataFunc): Promise<{ compare_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/sort`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -8752,7 +8641,6 @@ export class GLibQueue {
     return data;
   }
 }
-
 export class GLibRWLock {
   ptr!: string;
   
@@ -8829,7 +8717,6 @@ export class GLibRWLock {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibRand {
   ptr!: string;
   
@@ -8957,7 +8844,6 @@ export class GLibRand {
     return data.return;
   }
 }
-
 export class GLibRecMutex {
   ptr!: string;
   
@@ -9017,7 +8903,6 @@ export class GLibRecMutex {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibRegex {
   ptr!: string;
   
@@ -9210,7 +9095,7 @@ export class GLibRegex {
     const data = await response.json();
     return data.return;
   }
-  async replace_eval(string: Pointer, string_len: number, start_position: number, match_options: GLibRegexMatchFlags, eval_: (match_info: GLibMatchInfo, result_: GLibString, user_data: Pointer) => boolean): Promise<string> {
+  async replace_eval(string: Pointer, string_len: number, start_position: number, match_options: GLibRegexMatchFlags, eval_: GLibRegexEvalCallback): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Regex/ptr,${this.ptr}/replace_eval`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('string', String(string));
@@ -9355,7 +9240,6 @@ export class GLibRegex {
     return data.return;
   }
 }
-
 export class GLibRelation {
   ptr!: string;
   
@@ -9416,7 +9300,6 @@ export class GLibRelation {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibSList {
   ptr!: string;
   
@@ -9463,7 +9346,6 @@ export class GLibSList {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibScanner {
   ptr!: string;
   
@@ -9574,7 +9456,7 @@ export class GLibScanner {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async scope_foreach_symbol(scope_id: number, func: (key: Pointer, value_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  async scope_foreach_symbol(scope_id: number, func: GLibHFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/scope_foreach_symbol`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('scope_id', String(scope_id));
@@ -9637,7 +9519,11 @@ export class GLibScanner {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
+export class GLibScannerConfig {
+  ptr!: Pointer;
 
+
+}
 export class GLibSequence {
   ptr!: string;
   
@@ -9681,7 +9567,7 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async foreach(func: (data_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  async foreach(func: GLibFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9737,7 +9623,7 @@ export class GLibSequence {
     const data = await response.json();
     return data.return;
   }
-  async insert_sorted(cmp_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<GLibSequenceIter> {
+  async insert_sorted(cmp_func: GLibCompareDataFunc): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/insert_sorted`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9753,7 +9639,7 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async insert_sorted_iter(iter_cmp: (a: GLibSequenceIter, b: GLibSequenceIter, data_: Pointer) => number): Promise<GLibSequenceIter> {
+  async insert_sorted_iter(iter_cmp: GLibSequenceIterCompareFunc): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/insert_sorted_iter`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9776,7 +9662,7 @@ export class GLibSequence {
     const data = await response.json();
     return data.return;
   }
-  async lookup(cmp_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<GLibSequenceIter> {
+  async lookup(cmp_func: GLibCompareDataFunc): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/lookup`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9792,7 +9678,7 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async lookup_iter(iter_cmp: (a: GLibSequenceIter, b: GLibSequenceIter, data_: Pointer) => number): Promise<GLibSequenceIter> {
+  async lookup_iter(iter_cmp: GLibSequenceIterCompareFunc): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/lookup_iter`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9820,7 +9706,7 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async search(cmp_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<GLibSequenceIter> {
+  async search(cmp_func: GLibCompareDataFunc): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/search`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9836,7 +9722,7 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async search_iter(iter_cmp: (a: GLibSequenceIter, b: GLibSequenceIter, data_: Pointer) => number): Promise<GLibSequenceIter> {
+  async search_iter(iter_cmp: GLibSequenceIterCompareFunc): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/search_iter`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9852,7 +9738,7 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async sort(cmp_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ cmp_func?: number }> {
+  async sort(cmp_func: GLibCompareDataFunc): Promise<{ cmp_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/sort`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9863,7 +9749,7 @@ export class GLibSequence {
     }
     return data;
   }
-  async sort_iter(cmp_func: (a: GLibSequenceIter, b: GLibSequenceIter, data_: Pointer) => number): Promise<{ cmp_func?: number }> {
+  async sort_iter(cmp_func: GLibSequenceIterCompareFunc): Promise<{ cmp_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/sort_iter`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -9874,7 +9760,7 @@ export class GLibSequence {
     }
     return data;
   }
-  static async foreach_range(begin: GLibSequenceIter, end: GLibSequenceIter, func: (data_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  static async foreach_range(begin: GLibSequenceIter, end: GLibSequenceIter, func: GLibFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/foreach_range`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (begin && typeof begin === 'object' && 'ptr' in begin) {
@@ -9999,7 +9885,7 @@ export class GLibSequence {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async sort_changed(iter: GLibSequenceIter, cmp_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ cmp_func?: number }> {
+  static async sort_changed(iter: GLibSequenceIter, cmp_func: GLibCompareDataFunc): Promise<{ cmp_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/sort_changed`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (iter && typeof iter === 'object' && 'ptr' in iter) {
@@ -10014,7 +9900,7 @@ export class GLibSequence {
     }
     return data;
   }
-  static async sort_changed_iter(iter: GLibSequenceIter, iter_cmp: (a: GLibSequenceIter, b: GLibSequenceIter, data_: Pointer) => number): Promise<{ iter_cmp?: number }> {
+  static async sort_changed_iter(iter: GLibSequenceIter, iter_cmp: GLibSequenceIterCompareFunc): Promise<{ iter_cmp?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/sort_changed_iter`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (iter && typeof iter === 'object' && 'ptr' in iter) {
@@ -10043,7 +9929,6 @@ export class GLibSequence {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibSequenceIter {
   ptr!: string;
   
@@ -10158,7 +10043,6 @@ export class GLibSequenceIter {
     return data.return;
   }
 }
-
 export class GLibSource {
   ptr!: string;
   
@@ -10358,7 +10242,7 @@ export class GLibSource {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_callback(func: (user_data: Pointer) => boolean): Promise<{ func?: number }> {
+  async set_callback(func: GLibSourceFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/set_callback`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -10471,7 +10355,26 @@ export class GLibSource {
     return data.return;
   }
 }
+export class GLibSourceCallbackFuncs {
+  ptr!: Pointer;
 
+
+}
+export class GLibSourceFuncs {
+  ptr!: Pointer;
+
+
+}
+export class GLibSourcePrivate {
+  ptr!: Pointer;
+
+
+}
+export class GLibStatBuf {
+  ptr!: Pointer;
+
+
+}
 export class GLibString {
   ptr!: string;
   
@@ -10938,7 +10841,6 @@ export class GLibString {
     return data.return;
   }
 }
-
 export class GLibStringChunk {
   ptr!: string;
   
@@ -11005,7 +10907,6 @@ export class GLibStringChunk {
     return data.return;
   }
 }
-
 export class GLibStrvBuilder {
   ptr!: string;
   
@@ -11090,7 +10991,6 @@ export class GLibStrvBuilder {
     return data.return;
   }
 }
-
 export class GLibTestCase {
   ptr!: string;
   
@@ -11123,7 +11023,11 @@ export class GLibTestCase {
   }
 
 }
+export class GLibTestConfig {
+  ptr!: Pointer;
 
+
+}
 export class GLibTestLogBuffer {
   ptr!: string;
   
@@ -11165,7 +11069,6 @@ export class GLibTestLogBuffer {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibTestLogMsg {
   ptr!: string;
   
@@ -11198,7 +11101,6 @@ export class GLibTestLogMsg {
   }
 
 }
-
 export class GLibTestSuite {
   ptr!: string;
   
@@ -11249,7 +11151,6 @@ export class GLibTestSuite {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibThread {
   ptr!: string;
   
@@ -11271,7 +11172,7 @@ export class GLibThread {
       });
   }
 
-  static async new(func: (data_: Pointer) => void, name?: string): Promise<GLibThread> {
+  static async new(func: GLibThreadFunc, name?: string): Promise<GLibThread> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/new`, apiConfig.baseUrl);
     // Primitive parameter
     if (name !== undefined) url.searchParams.append('name', String(name));
@@ -11286,7 +11187,7 @@ export class GLibThread {
     Object.assign(instance, data.return || data);
     return instance;
   }
-  static async try_new(func: (data_: Pointer) => void, name?: string): Promise<GLibThread> {
+  static async try_new(func: GLibThreadFunc, name?: string): Promise<GLibThread> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/try_new`, apiConfig.baseUrl);
     // Primitive parameter
     if (name !== undefined) url.searchParams.append('name', String(name));
@@ -11361,7 +11262,6 @@ export class GLibThread {
     return data.return;
   }
 }
-
 export class GLibThreadPool {
   ptr!: string;
   
@@ -11478,7 +11378,6 @@ export class GLibThreadPool {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibTimeVal {
   ptr!: string;
   
@@ -11538,7 +11437,6 @@ export class GLibTimeVal {
     return data.return;
   }
 }
-
 export class GLibTimeZone {
   ptr!: string;
   
@@ -11693,7 +11591,6 @@ export class GLibTimeZone {
     return data.return;
   }
 }
-
 export class GLibTimer {
   ptr!: string;
   
@@ -11767,7 +11664,6 @@ export class GLibTimer {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibTrashStack {
   ptr!: string;
   
@@ -11838,7 +11734,6 @@ export class GLibTrashStack {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibTree {
   ptr!: string;
   
@@ -11860,7 +11755,7 @@ export class GLibTree {
       });
   }
 
-  static async new_full(key_compare_func: (a: Pointer, b: Pointer, user_data: Pointer) => number, key_destroy_func: (data_: Pointer) => void): Promise<GLibTree> {
+  static async new_full(key_compare_func: GLibCompareDataFunc, key_destroy_func: GLibDestroyNotify): Promise<GLibTree> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/new_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -11882,7 +11777,7 @@ export class GLibTree {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async foreach(func: (key: Pointer, value_: Pointer, data_: Pointer) => boolean): Promise<{ func?: number }> {
+  async foreach(func: GLibTraverseFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -11893,7 +11788,7 @@ export class GLibTree {
     }
     return data;
   }
-  async foreach_node(func: (node: GLibTreeNode, data_: Pointer) => boolean): Promise<{ func?: number }> {
+  async foreach_node(func: GLibTraverseNodeFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/foreach_node`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -12036,7 +11931,7 @@ export class GLibTree {
     }
     return data.return;
   }
-  async search(search_func: (a: Pointer, b: Pointer) => number): Promise<{ search_func?: number }> {
+  async search(search_func: GLibCompareFunc): Promise<{ search_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/search`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -12047,7 +11942,7 @@ export class GLibTree {
     }
     return data;
   }
-  async search_node(search_func: (a: Pointer, b: Pointer) => number): Promise<GLibTreeNode> {
+  async search_node(search_func: GLibCompareFunc): Promise<GLibTreeNode> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/search_node`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -12070,7 +11965,7 @@ export class GLibTree {
     const data = await response.json();
     return data.return;
   }
-  async traverse(traverse_type: GLibTraverseType, traverse_func: (key: Pointer, value_: Pointer, data_: Pointer) => boolean): Promise<{ traverse_func?: number }> {
+  async traverse(traverse_type: GLibTraverseType, traverse_func: GLibTraverseFunc): Promise<{ traverse_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/traverse`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('traverse_type', String(traverse_type));
@@ -12108,7 +12003,6 @@ export class GLibTree {
     return data.return;
   }
 }
-
 export class GLibTreeNode {
   ptr!: string;
   
@@ -12175,7 +12069,6 @@ export class GLibTreeNode {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GLibTuples {
   ptr!: string;
   
@@ -12222,7 +12115,11 @@ export class GLibTuples {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
+export class GLibUnixPipe {
+  ptr!: Pointer;
 
+
+}
 export class GLibUri {
   ptr!: string;
   
@@ -12671,7 +12568,6 @@ export class GLibUri {
     return data.return;
   }
 }
-
 export class GLibUriParamsIter {
   ptr!: string;
   
@@ -12724,7 +12620,6 @@ export class GLibUriParamsIter {
     return data.return;
   }
 }
-
 export class GLibVariant {
   ptr!: string;
   
@@ -12873,7 +12768,7 @@ export class GLibVariant {
     Object.assign(instance, data.return || data);
     return instance;
   }
-  static async new_from_data(type_: GLibVariantType, data_: Pointer, size: number, trusted: boolean, notify: (data_: Pointer) => void): Promise<GLibVariant> {
+  static async new_from_data(type_: GLibVariantType, data_: Pointer, size: number, trusted: boolean, notify: GLibDestroyNotify): Promise<GLibVariant> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Variant/new_from_data`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (type_ && typeof type_ === 'object' && 'ptr' in type_) {
@@ -13553,7 +13448,6 @@ export class GLibVariant {
     return data.return;
   }
 }
-
 export class GLibVariantBuilder {
   ptr!: string;
   
@@ -13649,7 +13543,6 @@ export class GLibVariantBuilder {
     return data.return;
   }
 }
-
 export class GLibVariantDict {
   ptr!: string;
   
@@ -13774,7 +13667,6 @@ export class GLibVariantDict {
     return data.return;
   }
 }
-
 export class GLibVariantType {
   ptr!: string;
   
@@ -14093,7 +13985,6 @@ export class GLibVariantType {
     return data.return;
   }
 }
-
 export class GModuleModule {
   ptr!: string;
   
@@ -14186,15 +14077,8 @@ export class GModuleModule {
     return data.return;
   }
 }
-
 export class GObjectTypeInstance {
-  ptr!: string;
-  
-  constructor(ptr?: string) {
-    if (ptr) {
-      this.ptr = ptr;
-    }
-  }
+  ptr!: Pointer;
 
 
   async get_private(private_type: string): Promise<void> {
@@ -14205,35 +14089,37 @@ export class GObjectTypeInstance {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GObjectObject extends GObjectTypeInstance {
-  constructor(ptr?: string) {
-    super(ptr);
+  constructor(ptr?: string, transfer: boolean = false) {
+    super(ptr, transfer);
     if (ptr) {
+      this.ptr = ptr;
       objectRegistry.register(this, ptr);
+      // If transfer is true, we need to ref the object
+      if (transfer) {
+        this.ref().catch(() => {});
+      }
     }
   }
 
   async castTo<T extends GObjectObject>(t: T): Promise<T> {
     const type = await t.get_type();
     const is_type = await GObject.type_check_instance_is_a(this, type);
-    console.error(`is type? ${is_type}`);
-    objectRegistry.unregister(this);
-    const instance = new t();
-    Object.assign(instance, this);
-    console.error(`ptr ${this.ptr}`);
+    // Don't set transfer=true here as it would cause ref() to be called in constructor
+    // The object is already referenced properly
+    const instance = new t(this.ptr, false);
     return instance;
   }
-
+  
   // Manual cleanup method
   unref(): Promise<void> {
     if (!this.ptr) return Promise.resolve();
-    objectRegistry.unregister(this);
     return fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + this.ptr + '/unref')
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
   }
+
   static async newv(object_type: string, n_parameters: number, parameters: Pointer): Promise<GObjectObject> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/newv`, apiConfig.baseUrl);
     // Primitive parameter
@@ -14318,7 +14204,9 @@ export class GObjectObject extends GObjectTypeInstance {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectBinding(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GObjectBinding(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -14348,7 +14236,9 @@ export class GObjectObject extends GObjectTypeInstance {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectBinding(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GObjectBinding(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -14426,25 +14316,17 @@ export class GObjectObject extends GObjectTypeInstance {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/ref`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    // Return value is an object/struct, instantiate it from the ptr
-    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectObject(data.return.ptr);
-      return instance;
-    }
-    return data.return;
+    // ref() should not create a new instance - it just increments the reference count
+    // and returns the same object (this) to avoid infinite recursion
+    return this;
   }
   async ref_sink(): Promise<GObjectObject> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/ref_sink`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    // Return value is an object/struct, instantiate it from the ptr
-    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectObject(data.return.ptr);
-      return instance;
-    }
-    return data.return;
+    // ref_sink() should not create a new instance - it just sinks the floating reference
+    // and returns the same object (this) to avoid infinite recursion
+    return this;
   }
   async run_dispose(): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/run_dispose`, apiConfig.baseUrl);
@@ -14505,7 +14387,6 @@ export class GObjectObject extends GObjectTypeInstance {
     return data.return;
   }
 }
-
 export class GObjectBinding extends GObjectObject {
 
   async dup_source(): Promise<GObjectObject> {
@@ -14515,7 +14396,9 @@ export class GObjectBinding extends GObjectObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectObject(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GObjectObject(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -14527,7 +14410,9 @@ export class GObjectBinding extends GObjectObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectObject(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GObjectObject(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -14546,7 +14431,9 @@ export class GObjectBinding extends GObjectObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectObject(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GObjectObject(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -14565,7 +14452,9 @@ export class GObjectBinding extends GObjectObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectObject(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GObjectObject(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -14590,7 +14479,6 @@ export class GObjectBinding extends GObjectObject {
     return data.return;
   }
 }
-
 export class GObjectBindingGroup extends GObjectObject {
   static async new(): Promise<GObjectBindingGroup> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/BindingGroup/new`, apiConfig.baseUrl);
@@ -14647,7 +14535,9 @@ export class GObjectBindingGroup extends GObjectObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectObject(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GObjectObject(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -14669,7 +14559,6 @@ export class GObjectBindingGroup extends GObjectObject {
     return data.return;
   }
 }
-
 export class GObjectCClosure {
   ptr!: string;
   
@@ -14690,6 +14579,7 @@ export class GObjectCClosure {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
   }
+
   static async new(): Promise<GObjectCClosure> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
@@ -15138,7 +15028,6 @@ export class GObjectCClosure {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GObjectClosure {
   ptr!: string;
   
@@ -15159,6 +15048,7 @@ export class GObjectClosure {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
   }
+
   static async new_object(sizeof_closure: number, object: GObjectObject): Promise<GObjectClosure> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/new_object`, apiConfig.baseUrl);
     // Primitive parameter
@@ -15234,7 +15124,31 @@ export class GObjectClosure {
     return data.return;
   }
 }
+export class GObjectClosureNotifyData {
+  ptr!: Pointer;
 
+
+}
+export class GObjectEnumClass {
+  ptr!: Pointer;
+
+
+}
+export class GObjectEnumValue {
+  ptr!: Pointer;
+
+
+}
+export class GObjectFlagsClass {
+  ptr!: Pointer;
+
+
+}
+export class GObjectFlagsValue {
+  ptr!: Pointer;
+
+
+}
 export class GObjectInitiallyUnowned extends GObjectObject {
 
   static async get_type(): Promise<string> {
@@ -15245,15 +15159,18 @@ export class GObjectInitiallyUnowned extends GObjectObject {
     return data.return;
   }
 }
+export class GObjectInterfaceInfo {
+  ptr!: Pointer;
 
+
+}
+export class GObjectObjectConstructParam {
+  ptr!: Pointer;
+
+
+}
 export class GObjectParamSpec {
-  ptr!: string;
-  
-  constructor(ptr?: string) {
-    if (ptr) {
-      this.ptr = ptr;
-    }
-  }
+  ptr!: Pointer;
 
 
   static async is_valid_name(name: string): Promise<boolean> {
@@ -15351,7 +15268,6 @@ export class GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecBoolean extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15362,7 +15278,6 @@ export class GObjectParamSpecBoolean extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecBoxed extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15373,7 +15288,6 @@ export class GObjectParamSpecBoxed extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecChar extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15384,7 +15298,6 @@ export class GObjectParamSpecChar extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecDouble extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15395,7 +15308,6 @@ export class GObjectParamSpecDouble extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecEnum extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15406,7 +15318,6 @@ export class GObjectParamSpecEnum extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecFlags extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15417,7 +15328,6 @@ export class GObjectParamSpecFlags extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecFloat extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15428,7 +15338,6 @@ export class GObjectParamSpecFloat extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecGType extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15439,7 +15348,6 @@ export class GObjectParamSpecGType extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecInt extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15450,7 +15358,6 @@ export class GObjectParamSpecInt extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecInt64 extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15461,7 +15368,6 @@ export class GObjectParamSpecInt64 extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecLong extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15472,7 +15378,6 @@ export class GObjectParamSpecLong extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecObject extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15483,7 +15388,6 @@ export class GObjectParamSpecObject extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecOverride extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15494,7 +15398,6 @@ export class GObjectParamSpecOverride extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecParam extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15505,7 +15408,6 @@ export class GObjectParamSpecParam extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecPointer extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15516,7 +15418,6 @@ export class GObjectParamSpecPointer extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecPool {
   ptr!: string;
   
@@ -15537,6 +15438,7 @@ export class GObjectParamSpecPool {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
   }
+
   static async new(): Promise<GObjectParamSpecPool> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpecPool/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
@@ -15604,7 +15506,6 @@ export class GObjectParamSpecPool {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GObjectParamSpecString extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15615,7 +15516,11 @@ export class GObjectParamSpecString extends GObjectParamSpec {
     return data.return;
   }
 }
+export class GObjectParamSpecTypeInfo {
+  ptr!: Pointer;
 
+
+}
 export class GObjectParamSpecUChar extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15626,7 +15531,6 @@ export class GObjectParamSpecUChar extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecUInt extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15637,7 +15541,6 @@ export class GObjectParamSpecUInt extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecUInt64 extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15648,7 +15551,6 @@ export class GObjectParamSpecUInt64 extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecULong extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15659,7 +15561,6 @@ export class GObjectParamSpecULong extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecUnichar extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15670,7 +15571,6 @@ export class GObjectParamSpecUnichar extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecValueArray extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15681,7 +15581,6 @@ export class GObjectParamSpecValueArray extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GObjectParamSpecVariant extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -15692,7 +15591,11 @@ export class GObjectParamSpecVariant extends GObjectParamSpec {
     return data.return;
   }
 }
+export class GObjectParameter {
+  ptr!: Pointer;
 
+
+}
 export class GObjectSignalGroup extends GObjectObject {
   static async new(target_type: string): Promise<GObjectSignalGroup> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/SignalGroup/new`, apiConfig.baseUrl);
@@ -15724,7 +15627,7 @@ export class GObjectSignalGroup extends GObjectObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async connect_data(detailed_signal: string, flags: GObjectConnectFlags, c_handler: () => void): Promise<{ c_handler?: number }> {
+  async connect_data(detailed_signal: string, flags: GObjectConnectFlags, c_handler: GObjectCallback): Promise<{ c_handler?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/SignalGroup/ptr,${this.ptr}/connect_data`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('detailed_signal', String(detailed_signal));
@@ -15739,7 +15642,7 @@ export class GObjectSignalGroup extends GObjectObject {
     }
     return data;
   }
-  async connect_swapped(detailed_signal: string, c_handler: () => void): Promise<{ c_handler?: number }> {
+  async connect_swapped(detailed_signal: string, c_handler: GObjectCallback): Promise<{ c_handler?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/SignalGroup/ptr,${this.ptr}/connect_swapped`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('detailed_signal', String(detailed_signal));
@@ -15759,7 +15662,9 @@ export class GObjectSignalGroup extends GObjectObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectObject(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GObjectObject(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -15786,15 +15691,18 @@ export class GObjectSignalGroup extends GObjectObject {
     return data.return;
   }
 }
+export class GObjectSignalInvocationHint {
+  ptr!: Pointer;
 
+
+}
+export class GObjectSignalQuery {
+  ptr!: Pointer;
+
+
+}
 export class GObjectTypeClass {
-  ptr!: string;
-  
-  constructor(ptr?: string) {
-    if (ptr) {
-      this.ptr = ptr;
-    }
-  }
+  ptr!: Pointer;
 
 
   async add_private(private_size: number): Promise<void> {
@@ -15878,7 +15786,16 @@ export class GObjectTypeClass {
     return data.return;
   }
 }
+export class GObjectTypeFundamentalInfo {
+  ptr!: Pointer;
 
+
+}
+export class GObjectTypeInfo {
+  ptr!: Pointer;
+
+
+}
 export class GObjectTypeInterface {
   ptr!: string;
   
@@ -15899,6 +15816,7 @@ export class GObjectTypeInterface {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
   }
+
   static async new(): Promise<GObjectTypeInterface> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInterface/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
@@ -15978,7 +15896,6 @@ export class GObjectTypeInterface {
     return data.return;
   }
 }
-
 export class GObjectTypeModule extends GObjectObject {
 
   async add_interface(instance_type: string, interface_type: string, interface_info: GObjectInterfaceInfo): Promise<void> {
@@ -16064,7 +15981,21 @@ export class GObjectTypeModule extends GObjectObject {
     return data.return;
   }
 }
+export class GObjectTypePluginClass {
+  ptr!: Pointer;
 
+
+}
+export class GObjectTypeQuery {
+  ptr!: Pointer;
+
+
+}
+export class GObjectTypeValueTable {
+  ptr!: Pointer;
+
+
+}
 export class GObjectValue {
   ptr!: string;
   
@@ -16085,6 +16016,7 @@ export class GObjectValue {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
   }
+
   static async new(): Promise<GObjectValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
@@ -16111,7 +16043,9 @@ export class GObjectValue {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectObject(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GObjectObject(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -16224,7 +16158,9 @@ export class GObjectValue {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GObjectObject(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GObjectObject(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -16599,7 +16535,6 @@ export class GObjectValue {
     return data.return;
   }
 }
-
 export class GObjectValueArray {
   ptr!: string;
   
@@ -16620,6 +16555,7 @@ export class GObjectValueArray {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
   }
+
   static async new(n_prealloced: number): Promise<GObjectValueArray> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ValueArray/new`, apiConfig.baseUrl);
     // Primitive parameter
@@ -16722,7 +16658,7 @@ export class GObjectValueArray {
     }
     return data.return;
   }
-  async sort(compare_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<GObjectValueArray> {
+  async sort(compare_func: GLibCompareDataFunc): Promise<GObjectValueArray> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ValueArray/ptr,${this.ptr}/sort`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -16746,7 +16682,11 @@ export class GObjectValueArray {
     return data.return;
   }
 }
+export class GObjectWeakRef {
+  ptr!: Pointer;
 
+
+}
 export class GstAllocationParams {
   ptr!: string;
   
@@ -16803,7 +16743,6 @@ export class GstAllocationParams {
     return data.return;
   }
 }
-
 export class GstObject extends GObjectInitiallyUnowned {
 
   static async check_uniqueness(list: Pointer, name: string): Promise<boolean> {
@@ -16898,7 +16837,9 @@ export class GstObject extends GObjectInitiallyUnowned {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstControlBinding(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstControlBinding(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -16941,7 +16882,9 @@ export class GstObject extends GObjectInitiallyUnowned {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstObject(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstObject(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -17016,7 +16959,9 @@ export class GstObject extends GObjectInitiallyUnowned {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstObject(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstObject(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -17109,7 +17054,6 @@ export class GstObject extends GObjectInitiallyUnowned {
     return data.return;
   }
 }
-
 export class GstAllocator extends GstObject {
 
   static async find(name?: string): Promise<GstAllocator> {
@@ -17121,7 +17065,9 @@ export class GstAllocator extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstAllocator(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstAllocator(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -17195,7 +17141,11 @@ export class GstAllocator extends GstObject {
     return data.return;
   }
 }
+export class GstAllocatorPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstAtomicQueue {
   ptr!: string;
   
@@ -17269,7 +17219,6 @@ export class GstAtomicQueue {
     return data.return;
   }
 }
-
 export class GstElement extends GstObject {
 
   static async make_from_uri(type_: GstURITypeValue, uri: string, elementname?: string): Promise<GstElement> {
@@ -17285,7 +17234,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -17370,7 +17321,7 @@ export class GstElement extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async call_async(func: (element: GstElement, user_data: Pointer) => void): Promise<{ func?: number }> {
+  async call_async(func: GstElementCallAsyncFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/call_async`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17413,7 +17364,7 @@ export class GstElement extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async foreach_pad(func: (element: GstElement, pad: GstPad, user_data: Pointer) => boolean): Promise<boolean> {
+  async foreach_pad(func: GstElementForeachPadFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/foreach_pad`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17424,7 +17375,7 @@ export class GstElement extends GstObject {
     }
     return data.return;
   }
-  async foreach_sink_pad(func: (element: GstElement, pad: GstPad, user_data: Pointer) => boolean): Promise<boolean> {
+  async foreach_sink_pad(func: GstElementForeachPadFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/foreach_sink_pad`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17435,7 +17386,7 @@ export class GstElement extends GstObject {
     }
     return data.return;
   }
-  async foreach_src_pad(func: (element: GstElement, pad: GstPad, user_data: Pointer) => boolean): Promise<boolean> {
+  async foreach_src_pad(func: GstElementForeachPadFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/foreach_src_pad`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17460,7 +17411,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstBus(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstBus(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -17472,7 +17425,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstClock(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstClock(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -17492,7 +17447,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPad(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPad(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -17508,7 +17465,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPadTemplate(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPadTemplate(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -17569,7 +17528,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElementFactory(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElementFactory(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -17592,7 +17553,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPadTemplate(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPadTemplate(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -17613,7 +17576,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPad(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPad(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -17647,7 +17612,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPad(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPad(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -17846,7 +17813,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstClock(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstClock(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -17937,7 +17906,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPad(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPad(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -17951,7 +17922,9 @@ export class GstElement extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPad(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPad(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -18099,7 +18072,6 @@ export class GstElement extends GstObject {
     return data.return;
   }
 }
-
 export class GstBin extends GstElement {
   static async new(name?: string): Promise<GstBin> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/new`, apiConfig.baseUrl);
@@ -18133,7 +18105,9 @@ export class GstBin extends GstElement {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPad(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPad(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -18147,7 +18121,9 @@ export class GstBin extends GstElement {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -18161,7 +18137,9 @@ export class GstBin extends GstElement {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -18175,7 +18153,9 @@ export class GstBin extends GstElement {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -18315,7 +18295,11 @@ export class GstBin extends GstElement {
     return data.return;
   }
 }
+export class GstBinPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstBitmask {
   ptr!: Pointer;
 
@@ -18328,7 +18312,6 @@ export class GstBitmask {
     return data.return;
   }
 }
-
 export class GstBuffer {
   ptr!: string;
   
@@ -18417,7 +18400,7 @@ export class GstBuffer {
     Object.assign(instance, data.return || data);
     return instance;
   }
-  static async new_wrapped_full(flags: GstMemoryFlagsValue, data_: Pointer, maxsize: number, offset: number, size: number, notify: (data_: Pointer) => void): Promise<GstBuffer> {
+  static async new_wrapped_full(flags: GstMemoryFlagsValue, data_: Pointer, maxsize: number, offset: number, size: number, notify: GLibDestroyNotify): Promise<GstBuffer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/new_wrapped_full`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('flags', String(flags));
@@ -18659,7 +18642,7 @@ export class GstBuffer {
     const data = await response.json();
     return data.return;
   }
-  async foreach_meta(func: (buffer: GstBuffer, meta: GstMeta, user_data: Pointer) => boolean): Promise<boolean> {
+  async foreach_meta(func: GstBufferForeachMetaFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/foreach_meta`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -19059,7 +19042,6 @@ export class GstBuffer {
     return data.return;
   }
 }
-
 export class GstBufferList {
   ptr!: string;
   
@@ -19121,7 +19103,7 @@ export class GstBufferList {
     }
     return data.return;
   }
-  async foreach(func: (buffer: GstBuffer, idx: number, user_data: Pointer) => boolean): Promise<boolean> {
+  async foreach(func: GstBufferListFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferList/ptr,${this.ptr}/foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -19195,7 +19177,6 @@ export class GstBufferList {
     return data.return;
   }
 }
-
 export class GstBufferPool extends GstObject {
   static async new(): Promise<GstBufferPool> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferPool/new`, apiConfig.baseUrl);
@@ -19440,7 +19421,16 @@ export class GstBufferPool extends GstObject {
     return data.return;
   }
 }
+export class GstBufferPoolAcquireParams {
+  ptr!: Pointer;
 
+
+}
+export class GstBufferPoolPrivate {
+  ptr!: Pointer;
+
+
+}
 export class GstBus extends GstObject {
   static async new(): Promise<GstBus> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/new`, apiConfig.baseUrl);
@@ -19464,7 +19454,7 @@ export class GstBus extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async add_watch(priority: number, func: (bus: GstBus, message: GstMessage, user_data: Pointer) => boolean): Promise<number> {
+  async add_watch(priority: number, func: GstBusFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/add_watch`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('priority', String(priority));
@@ -19610,7 +19600,7 @@ export class GstBus extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_sync_handler(func: (bus: GstBus, message: GstMessage, user_data: Pointer) => GstBusSyncReplyValue): Promise<{ func?: number }> {
+  async set_sync_handler(func: GstBusSyncHandler): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/set_sync_handler`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -19670,7 +19660,16 @@ export class GstBus extends GstObject {
     return data.return;
   }
 }
+export class GstBusPrivate {
+  ptr!: Pointer;
 
+
+}
+export class GstByteArrayInterface {
+  ptr!: Pointer;
+
+
+}
 export class GstCaps {
   ptr!: string;
   
@@ -19790,7 +19789,7 @@ export class GstCaps {
     }
     return data.return;
   }
-  async filter_and_map_in_place(func: (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean): Promise<{ func?: number }> {
+  async filter_and_map_in_place(func: GstCapsFilterMapFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/ptr,${this.ptr}/filter_and_map_in_place`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -19813,7 +19812,7 @@ export class GstCaps {
     }
     return data.return;
   }
-  async foreach(func: (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean): Promise<boolean> {
+  async foreach(func: GstCapsForeachFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/ptr,${this.ptr}/foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -19995,7 +19994,7 @@ export class GstCaps {
     const data = await response.json();
     return data.return;
   }
-  async map_in_place(func: (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean): Promise<boolean> {
+  async map_in_place(func: GstCapsMapFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/ptr,${this.ptr}/map_in_place`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -20200,7 +20199,6 @@ export class GstCaps {
     return data.return;
   }
 }
-
 export class GstCapsFeatures {
   ptr!: string;
   
@@ -20391,7 +20389,6 @@ export class GstCapsFeatures {
     return data.return;
   }
 }
-
 export class GstClock extends GstObject {
 
   static async id_compare_func(): Promise<number> {
@@ -20408,7 +20405,9 @@ export class GstClock extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstClock(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstClock(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -20453,7 +20452,7 @@ export class GstClock extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  static async id_wait_async(func: (clock: GstClock, time: number, id: Pointer, user_data: Pointer) => boolean): Promise<GstClockReturnValue> {
+  static async id_wait_async(func: GstClockCallback): Promise<GstClockReturnValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_wait_async`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -20533,7 +20532,9 @@ export class GstClock extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstClock(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstClock(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -20692,7 +20693,16 @@ export class GstClock extends GstObject {
     return data.return;
   }
 }
+export class GstClockEntry {
+  ptr!: Pointer;
 
+
+}
+export class GstClockPrivate {
+  ptr!: Pointer;
+
+
+}
 export class GstContext {
   ptr!: string;
   
@@ -20783,7 +20793,6 @@ export class GstContext {
     return data.return;
   }
 }
-
 export class GstControlBinding extends GstObject {
 
   async get_g_value_array_2(timestamp: number, interval: number, n_values: number, values: Pointer): Promise<boolean> {
@@ -20852,7 +20861,11 @@ export class GstControlBinding extends GstObject {
     return data.return;
   }
 }
+export class GstControlBindingPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstControlSource extends GstObject {
 
   async control_source_get_value(timestamp: number): Promise<boolean> {
@@ -20887,7 +20900,6 @@ export class GstControlSource extends GstObject {
     return data.return;
   }
 }
-
 export class GstCustomMeta {
   ptr!: string;
   
@@ -20941,7 +20953,6 @@ export class GstCustomMeta {
     return data.return;
   }
 }
-
 export class GstDateTime {
   ptr!: string;
   
@@ -21268,7 +21279,6 @@ export class GstDateTime {
     return data.return;
   }
 }
-
 export class GstDebugCategory {
   ptr!: string;
   
@@ -21341,7 +21351,6 @@ export class GstDebugCategory {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GstDebugMessage {
   ptr!: string;
   
@@ -21388,7 +21397,6 @@ export class GstDebugMessage {
     return data.return;
   }
 }
-
 export class GstDevice extends GstObject {
 
   async create_element(name?: string): Promise<GstElement> {
@@ -21400,7 +21408,9 @@ export class GstDevice extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -21480,7 +21490,6 @@ export class GstDevice extends GstObject {
     return data.return;
   }
 }
-
 export class GstDeviceMonitor extends GstObject {
   static async new(): Promise<GstDeviceMonitor> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceMonitor/new`, apiConfig.baseUrl);
@@ -21512,7 +21521,9 @@ export class GstDeviceMonitor extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstBus(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstBus(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -21574,7 +21585,16 @@ export class GstDeviceMonitor extends GstObject {
     return data.return;
   }
 }
+export class GstDeviceMonitorPrivate {
+  ptr!: Pointer;
 
+
+}
+export class GstDevicePrivate {
+  ptr!: Pointer;
+
+
+}
 export class GstDeviceProvider extends GstObject {
 
   static async register(name: string, rank: number, type_: string, plugin?: GstPlugin): Promise<boolean> {
@@ -21639,7 +21659,9 @@ export class GstDeviceProvider extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstBus(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstBus(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -21658,7 +21680,9 @@ export class GstDeviceProvider extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstDeviceProviderFactory(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstDeviceProviderFactory(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -21720,7 +21744,6 @@ export class GstDeviceProvider extends GstObject {
     return data.return;
   }
 }
-
 export class GstPluginFeature extends GstObject {
 
   static async list_copy(list: Pointer): Promise<Pointer> {
@@ -21773,7 +21796,9 @@ export class GstPluginFeature extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPlugin(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPlugin(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -21799,7 +21824,9 @@ export class GstPluginFeature extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPluginFeature(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPluginFeature(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -21819,7 +21846,6 @@ export class GstPluginFeature extends GstObject {
     return data.return;
   }
 }
-
 export class GstDeviceProviderFactory extends GstPluginFeature {
 
   static async find(name: string): Promise<GstDeviceProviderFactory> {
@@ -21831,7 +21857,9 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstDeviceProviderFactory(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstDeviceProviderFactory(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -21845,7 +21873,9 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstDeviceProvider(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstDeviceProvider(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -21866,7 +21896,9 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstDeviceProvider(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstDeviceProvider(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -21920,7 +21952,11 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
     return data.return;
   }
 }
+export class GstDeviceProviderPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstDoubleRange {
   ptr!: Pointer;
 
@@ -21933,7 +21969,6 @@ export class GstDoubleRange {
     return data.return;
   }
 }
-
 export class GstDynamicTypeFactory extends GstPluginFeature {
 
   static async load_2(factoryname: string): Promise<string> {
@@ -21953,7 +21988,6 @@ export class GstDynamicTypeFactory extends GstPluginFeature {
     return data.return;
   }
 }
-
 export class GstElementFactory extends GstPluginFeature {
 
   static async find(name: string): Promise<GstElementFactory> {
@@ -21965,7 +21999,9 @@ export class GstElementFactory extends GstPluginFeature {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElementFactory(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElementFactory(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -22009,7 +22045,9 @@ export class GstElementFactory extends GstPluginFeature {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -22029,7 +22067,9 @@ export class GstElementFactory extends GstPluginFeature {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -22087,7 +22127,9 @@ export class GstElementFactory extends GstPluginFeature {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -22105,7 +22147,9 @@ export class GstElementFactory extends GstPluginFeature {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -22194,7 +22238,6 @@ export class GstElementFactory extends GstPluginFeature {
     return data.return;
   }
 }
-
 export class GstEvent {
   ptr!: string;
   
@@ -22947,7 +22990,6 @@ export class GstEvent {
     return data.return;
   }
 }
-
 export class GstFlagSet {
   ptr!: Pointer;
 
@@ -22969,7 +23011,11 @@ export class GstFlagSet {
     return data.return;
   }
 }
+export class GstFormatDefinition {
+  ptr!: Pointer;
 
+
+}
 export class GstFraction {
   ptr!: Pointer;
 
@@ -22982,7 +23028,6 @@ export class GstFraction {
     return data.return;
   }
 }
-
 export class GstFractionRange {
   ptr!: Pointer;
 
@@ -22995,7 +23040,6 @@ export class GstFractionRange {
     return data.return;
   }
 }
-
 export class GstPad extends GstObject {
   static async new(direction: GstPadDirectionValue, name?: string): Promise<GstPad> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/new`, apiConfig.baseUrl);
@@ -23061,7 +23105,7 @@ export class GstPad extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async add_probe(mask: GstPadProbeTypeValue, callback: (pad: GstPad, info: GstPadProbeInfo, user_data: Pointer) => GstPadProbeReturnValue): Promise<number> {
+  async add_probe(mask: GstPadProbeTypeValue, callback: GstPadProbeCallback): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/add_probe`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('mask', String(mask));
@@ -23142,7 +23186,7 @@ export class GstPad extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async forward(forward: (pad: GstPad, user_data: Pointer) => boolean): Promise<boolean> {
+  async forward(forward: GstPadForwardFunction): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/forward`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23210,7 +23254,9 @@ export class GstPad extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPadTemplate(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPadTemplate(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -23234,7 +23280,9 @@ export class GstPad extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -23246,7 +23294,9 @@ export class GstPad extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPad(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPad(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -23273,7 +23323,9 @@ export class GstPad extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPad(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPad(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -23301,7 +23353,9 @@ export class GstPad extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstStream(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstStream(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -23691,7 +23745,7 @@ export class GstPad extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async set_activate_function_full(activate: (pad: GstPad, parent: GstObject) => boolean): Promise<{ activate?: number }> {
+  async set_activate_function_full(activate: GstPadActivateFunction): Promise<{ activate?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_activate_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23702,7 +23756,7 @@ export class GstPad extends GstObject {
     }
     return data;
   }
-  async set_activatemode_function_full(activatemode: (pad: GstPad, parent: GstObject, mode: GstPadModeValue, active: boolean) => boolean): Promise<{ activatemode?: number }> {
+  async set_activatemode_function_full(activatemode: GstPadActivateModeFunction): Promise<{ activatemode?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_activatemode_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23722,7 +23776,7 @@ export class GstPad extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async set_chain_function_full(chain: (pad: GstPad, parent: GstObject, buffer: GstBuffer) => GstFlowReturnValue): Promise<{ chain?: number }> {
+  async set_chain_function_full(chain: GstPadChainFunction): Promise<{ chain?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_chain_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23733,7 +23787,7 @@ export class GstPad extends GstObject {
     }
     return data;
   }
-  async set_chain_list_function_full(chainlist: (pad: GstPad, parent: GstObject, list: GstBufferList) => GstFlowReturnValue): Promise<{ chainlist?: number }> {
+  async set_chain_list_function_full(chainlist: GstPadChainListFunction): Promise<{ chainlist?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_chain_list_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23749,7 +23803,7 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_event_full_function_full(event: (pad: GstPad, parent: GstObject, event: GstEvent) => GstFlowReturnValue): Promise<{ event?: number }> {
+  async set_event_full_function_full(event: GstPadEventFullFunction): Promise<{ event?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_event_full_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23760,7 +23814,7 @@ export class GstPad extends GstObject {
     }
     return data;
   }
-  async set_event_function_full(event: (pad: GstPad, parent: GstObject, event: GstEvent) => boolean): Promise<{ event?: number }> {
+  async set_event_function_full(event: GstPadEventFunction): Promise<{ event?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_event_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23771,7 +23825,7 @@ export class GstPad extends GstObject {
     }
     return data;
   }
-  async set_getrange_function_full(get: (pad: GstPad, parent: GstObject, offset: number, length: number, buffer: GstBuffer) => GstFlowReturnValue): Promise<{ get?: number }> {
+  async set_getrange_function_full(get: GstPadGetRangeFunction): Promise<{ get?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_getrange_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23782,7 +23836,7 @@ export class GstPad extends GstObject {
     }
     return data;
   }
-  async set_iterate_internal_links_function_full(iterintlink: (pad: GstPad, parent: GstObject) => GstIterator): Promise<{ iterintlink?: number }> {
+  async set_iterate_internal_links_function_full(iterintlink: GstPadIterIntLinkFunction): Promise<{ iterintlink?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_iterate_internal_links_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23793,7 +23847,7 @@ export class GstPad extends GstObject {
     }
     return data;
   }
-  async set_link_function_full(link: (pad: GstPad, parent: GstObject, peer: GstPad) => GstPadLinkReturnValue): Promise<{ link?: number }> {
+  async set_link_function_full(link: GstPadLinkFunction): Promise<{ link?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_link_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23811,7 +23865,7 @@ export class GstPad extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_query_function_full(query: (pad: GstPad, parent: GstObject, query: GstQuery) => boolean): Promise<{ query?: number }> {
+  async set_query_function_full(query: GstPadQueryFunction): Promise<{ query?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_query_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23822,7 +23876,7 @@ export class GstPad extends GstObject {
     }
     return data;
   }
-  async set_unlink_function_full(unlink: (pad: GstPad, parent: GstObject) => void): Promise<{ unlink?: number }> {
+  async set_unlink_function_full(unlink: GstPadUnlinkFunction): Promise<{ unlink?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_unlink_function_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23833,7 +23887,7 @@ export class GstPad extends GstObject {
     }
     return data;
   }
-  async start_task(func: (user_data: Pointer) => void): Promise<boolean> {
+  async start_task(func: GstTaskFunction): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/start_task`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23844,7 +23898,7 @@ export class GstPad extends GstObject {
     }
     return data.return;
   }
-  async sticky_events_foreach(foreach_func: (pad: GstPad, event: GstEvent, user_data: Pointer) => boolean): Promise<{ foreach_func?: number }> {
+  async sticky_events_foreach(foreach_func: GstPadStickyEventsForeachFunction): Promise<{ foreach_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/sticky_events_foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -23897,7 +23951,6 @@ export class GstPad extends GstObject {
     return data.return;
   }
 }
-
 export class GstProxyPad extends GstPad {
 
   static async chain_default(pad: GstPad, buffer: GstBuffer, parent?: GstObject): Promise<GstFlowReturnValue> {
@@ -23988,7 +24041,9 @@ export class GstProxyPad extends GstPad {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstProxyPad(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstProxyPad(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -24001,7 +24056,6 @@ export class GstProxyPad extends GstPad {
     return data.return;
   }
 }
-
 export class GstGhostPad extends GstProxyPad {
   static async new_2(target: GstPad, name?: string): Promise<GstGhostPad> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/GhostPad/new`, apiConfig.baseUrl);
@@ -24118,7 +24172,9 @@ export class GstGhostPad extends GstProxyPad {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPad(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPad(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -24142,7 +24198,11 @@ export class GstGhostPad extends GstProxyPad {
     return data.return;
   }
 }
+export class GstGhostPadPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstInt64Range {
   ptr!: Pointer;
 
@@ -24155,7 +24215,6 @@ export class GstInt64Range {
     return data.return;
   }
 }
-
 export class GstIntRange {
   ptr!: Pointer;
 
@@ -24168,7 +24227,6 @@ export class GstIntRange {
     return data.return;
   }
 }
-
 export class GstIterator {
   ptr!: string;
   
@@ -24218,7 +24276,7 @@ export class GstIterator {
     }
     return data.return;
   }
-  async filter(user_data: GObjectValue, func: (a: Pointer, b: Pointer) => number): Promise<GstIterator> {
+  async filter(user_data: GObjectValue, func: GLibCompareFunc): Promise<GstIterator> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/filter`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (user_data && typeof user_data === 'object' && 'ptr' in user_data) {
@@ -24238,7 +24296,7 @@ export class GstIterator {
     }
     return data.return;
   }
-  async find_custom(elem: GObjectValue, func: (a: Pointer, b: Pointer) => number): Promise<boolean> {
+  async find_custom(elem: GObjectValue, func: GLibCompareFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/find_custom`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (elem && typeof elem === 'object' && 'ptr' in elem) {
@@ -24253,7 +24311,7 @@ export class GstIterator {
     }
     return data.return;
   }
-  async fold(ret: GObjectValue, func: (item: GObjectValue, ret: GObjectValue, user_data: Pointer) => boolean): Promise<GstIteratorResultValue> {
+  async fold(ret: GObjectValue, func: GstIteratorFoldFunction): Promise<GstIteratorResultValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fold`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (ret && typeof ret === 'object' && 'ptr' in ret) {
@@ -24268,7 +24326,7 @@ export class GstIterator {
     }
     return data.return;
   }
-  async foreach(func: (item: GObjectValue, user_data: Pointer) => void): Promise<GstIteratorResultValue> {
+  async foreach(func: GstIteratorForeachFunction): Promise<GstIteratorResultValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -24312,7 +24370,11 @@ export class GstIterator {
     return data.return;
   }
 }
+export class GstMapInfo {
+  ptr!: Pointer;
 
+
+}
 export class GstMemory {
   ptr!: string;
   
@@ -24334,7 +24396,7 @@ export class GstMemory {
       });
   }
 
-  static async new_wrapped(flags: GstMemoryFlagsValue, data_: Pointer, maxsize: number, offset: number, size: number, notify: (data_: Pointer) => void): Promise<GstMemory> {
+  static async new_wrapped(flags: GstMemoryFlagsValue, data_: Pointer, maxsize: number, offset: number, size: number, notify: GLibDestroyNotify): Promise<GstMemory> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/new_wrapped`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('flags', String(flags));
@@ -24474,7 +24536,6 @@ export class GstMemory {
     return data.return;
   }
 }
-
 export class GstMessage {
   ptr!: string;
   
@@ -24882,10 +24943,6 @@ export class GstMessage {
     return instance;
   }
   static async new_property_notify(src: GstObject, property_name: string, val?: GObjectValue): Promise<GstMessage> {
-    // Increment ref for parameters with full transfer ownership
-    if (val && typeof val === 'object' && 'ptr' in val) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + val.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/new_property_notify`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (src && typeof src === 'object' && 'ptr' in src) {
@@ -24897,26 +24954,12 @@ export class GstMessage {
     if (val !== undefined && typeof val === 'object' && 'ptr' in val) {
       url.searchParams.append('val', 'ptr,' + val.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (val && typeof val === 'object' && 'ptr' in val) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + val.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      const instance = new GstMessage();
-      Object.assign(instance, data.return || data);
-      return instance;
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (val && typeof val === 'object' && 'ptr' in val) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + val.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    const instance = new GstMessage();
+    Object.assign(instance, data.return || data);
+    return instance;
   }
   static async new_qos(live: boolean, running_time: number, stream_time: number, timestamp: number, duration: number, src?: GstObject): Promise<GstMessage> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/new_qos`, apiConfig.baseUrl);
@@ -25866,7 +25909,9 @@ export class GstMessage {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstStream(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstStream(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -25891,7 +25936,6 @@ export class GstMessage {
     return data.return;
   }
 }
-
 export class GstMeta {
   ptr!: string;
   
@@ -26026,7 +26070,7 @@ export class GstMeta {
     }
     return data.return;
   }
-  static async register_custom(name: string, tags: Pointer, transform_func: (transbuf: GstBuffer, meta: GstCustomMeta, buffer: GstBuffer, type_: number, data_: Pointer, user_data: Pointer) => boolean): Promise<GstMetaInfo> {
+  static async register_custom(name: string, tags: Pointer, transform_func: GstCustomMetaTransformFunction): Promise<GstMetaInfo> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Meta/register_custom`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('name', String(name));
@@ -26061,7 +26105,6 @@ export class GstMeta {
     return data.return;
   }
 }
-
 export class GstMetaInfo {
   ptr!: string;
   
@@ -26113,7 +26156,11 @@ export class GstMetaInfo {
     return data.return;
   }
 }
+export class GstMetaTransformCopy {
+  ptr!: Pointer;
 
+
+}
 export class GstMiniObject {
   ptr!: string;
   
@@ -26186,7 +26233,7 @@ export class GstMiniObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_qdata(quark: number, destroy: (data_: Pointer) => void): Promise<{ destroy?: number }> {
+  async set_qdata(quark: number, destroy: GLibDestroyNotify): Promise<{ destroy?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/set_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('quark', String(quark));
@@ -26251,7 +26298,11 @@ export class GstMiniObject {
     return data.return;
   }
 }
+export class GstPadPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstPadProbeInfo {
   ptr!: string;
   
@@ -26332,7 +26383,6 @@ export class GstPadProbeInfo {
     return data.return;
   }
 }
-
 export class GstPadTemplate extends GstObject {
   static async new(name_template: string, direction: GstPadDirectionValue, presence: GstPadPresenceValue, caps: GstCaps): Promise<GstPadTemplate> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadTemplate/new`, apiConfig.baseUrl);
@@ -26440,7 +26490,6 @@ export class GstPadTemplate extends GstObject {
     return data.return;
   }
 }
-
 export class GstParamArray extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -26451,7 +26500,6 @@ export class GstParamArray extends GObjectParamSpec {
     return data.return;
   }
 }
-
 export class GstParamFraction extends GObjectParamSpec {
 
   static async get_type(): Promise<string> {
@@ -26462,7 +26510,16 @@ export class GstParamFraction extends GObjectParamSpec {
     return data.return;
   }
 }
+export class GstParamSpecArray {
+  ptr!: Pointer;
 
+
+}
+export class GstParamSpecFraction {
+  ptr!: Pointer;
+
+
+}
 export class GstParentBufferMeta {
   ptr!: string;
   
@@ -26507,7 +26564,6 @@ export class GstParentBufferMeta {
     return data.return;
   }
 }
-
 export class GstParseContext {
   ptr!: string;
   
@@ -26566,7 +26622,6 @@ export class GstParseContext {
     return data.return;
   }
 }
-
 export class GstPipeline extends GstBin {
   static async new_2(name?: string): Promise<GstPipeline> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pipeline/new`, apiConfig.baseUrl);
@@ -26599,7 +26654,9 @@ export class GstPipeline extends GstBin {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstBus(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstBus(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -26632,7 +26689,9 @@ export class GstPipeline extends GstBin {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstClock(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstClock(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -26682,7 +26741,11 @@ export class GstPipeline extends GstBin {
     return data.return;
   }
 }
+export class GstPipelinePrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstPlugin extends GstObject {
 
   static async list_free(list: Pointer): Promise<void> {
@@ -26701,7 +26764,9 @@ export class GstPlugin extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPlugin(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPlugin(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -26715,12 +26780,14 @@ export class GstPlugin extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPlugin(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPlugin(data.return.ptr, false);
       return instance;
     }
     return data.return;
   }
-  static async register_static(major_version: number, minor_version: number, name: string, description: string, version: string, license: string, source: string, package_: string, origin: string, init_func: (plugin: GstPlugin) => boolean): Promise<boolean> {
+  static async register_static(major_version: number, minor_version: number, name: string, description: string, version: string, license: string, source: string, package_: string, origin: string, init_func: GstPluginInitFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/register_static`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('major_version', String(major_version));
@@ -26749,7 +26816,7 @@ export class GstPlugin extends GstObject {
     }
     return data.return;
   }
-  static async register_static_full(major_version: number, minor_version: number, name: string, description: string, version: string, license: string, source: string, package_: string, origin: string, init_full_func: (plugin: GstPlugin, user_data: Pointer) => boolean): Promise<boolean> {
+  static async register_static_full(major_version: number, minor_version: number, name: string, description: string, version: string, license: string, source: string, package_: string, origin: string, init_full_func: GstPluginInitFullFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/register_static_full`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('major_version', String(major_version));
@@ -26935,7 +27002,9 @@ export class GstPlugin extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPlugin(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPlugin(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -26957,7 +27026,11 @@ export class GstPlugin extends GstObject {
     return data.return;
   }
 }
+export class GstPluginDesc {
+  ptr!: Pointer;
 
+
+}
 export class GstPoll {
   ptr!: string;
   
@@ -27168,7 +27241,6 @@ export class GstPoll {
     return data.return;
   }
 }
-
 export class GstPollFD {
   ptr!: string;
   
@@ -27206,7 +27278,6 @@ export class GstPollFD {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
-
 export class GstPromise {
   ptr!: string;
   
@@ -27237,7 +27308,7 @@ export class GstPromise {
     Object.assign(instance, data.return || data);
     return instance;
   }
-  static async new_with_change_func(func: (promise: GstPromise, user_data: Pointer) => void): Promise<GstPromise> {
+  static async new_with_change_func(func: GstPromiseChangeFunc): Promise<GstPromise> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Promise/new_with_change_func`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -27297,7 +27368,6 @@ export class GstPromise {
     return data.return;
   }
 }
-
 export class GstProtectionMeta {
   ptr!: string;
   
@@ -27342,7 +27412,11 @@ export class GstProtectionMeta {
     return data.return;
   }
 }
+export class GstProxyPadPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstQuery {
   ptr!: string;
   
@@ -28251,7 +28325,6 @@ export class GstQuery {
     return data.return;
   }
 }
-
 export class GstReferenceTimestampMeta {
   ptr!: string;
   
@@ -28296,7 +28369,6 @@ export class GstReferenceTimestampMeta {
     return data.return;
   }
 }
-
 export class GstRegistry extends GstObject {
 
   static async fork_is_enabled(): Promise<boolean> {
@@ -28320,7 +28392,9 @@ export class GstRegistry extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstRegistry(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstRegistry(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -28362,7 +28436,7 @@ export class GstRegistry extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async feature_filter(first: boolean, filter: (feature: GstPluginFeature, user_data: Pointer) => boolean): Promise<Pointer> {
+  async feature_filter(first: boolean, filter: GstPluginFeatureFilter): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/feature_filter`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('first', String(first));
@@ -28386,7 +28460,9 @@ export class GstRegistry extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPluginFeature(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPluginFeature(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -28400,7 +28476,9 @@ export class GstRegistry extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPlugin(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPlugin(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -28446,7 +28524,9 @@ export class GstRegistry extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPlugin(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPlugin(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -28460,12 +28540,14 @@ export class GstRegistry extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPluginFeature(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPluginFeature(data.return.ptr, false);
       return instance;
     }
     return data.return;
   }
-  async plugin_filter(first: boolean, filter: (plugin: GstPlugin, user_data: Pointer) => boolean): Promise<Pointer> {
+  async plugin_filter(first: boolean, filter: GstPluginFilter): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/plugin_filter`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('first', String(first));
@@ -28513,7 +28595,11 @@ export class GstRegistry extends GstObject {
     return data.return;
   }
 }
+export class GstRegistryPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstSample {
   ptr!: string;
   
@@ -28676,7 +28762,6 @@ export class GstSample {
     return data.return;
   }
 }
-
 export class GstSegment {
   ptr!: string;
   
@@ -28910,7 +28995,6 @@ export class GstSegment {
     return data.return;
   }
 }
-
 export class GstTaskPool extends GstObject {
   static async new(): Promise<GstTaskPool> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TaskPool/new`, apiConfig.baseUrl);
@@ -28942,7 +29026,7 @@ export class GstTaskPool extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async push(func: (user_data: Pointer) => void): Promise<{ func?: number }> {
+  async push(func: GstTaskPoolFunction): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TaskPool/ptr,${this.ptr}/push`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -28961,7 +29045,6 @@ export class GstTaskPool extends GstObject {
     return data.return;
   }
 }
-
 export class GstSharedTaskPool extends GstTaskPool {
   static async new_2(): Promise<GstSharedTaskPool> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/SharedTaskPool/new`, apiConfig.baseUrl);
@@ -28995,7 +29078,11 @@ export class GstSharedTaskPool extends GstTaskPool {
     return data.return;
   }
 }
+export class GstSharedTaskPoolPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstStaticCaps {
   ptr!: string;
   
@@ -29045,7 +29132,6 @@ export class GstStaticCaps {
     return data.return;
   }
 }
-
 export class GstStaticPadTemplate {
   ptr!: string;
   
@@ -29084,7 +29170,9 @@ export class GstStaticPadTemplate {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstPadTemplate(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstPadTemplate(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -29102,7 +29190,6 @@ export class GstStaticPadTemplate {
     return data.return;
   }
 }
-
 export class GstStream extends GstObject {
   static async new(type_: GstStreamTypeValue, flags: GstStreamFlagsValue, stream_id?: string, caps?: GstCaps): Promise<GstStream> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Stream/new`, apiConfig.baseUrl);
@@ -29209,7 +29296,6 @@ export class GstStream extends GstObject {
     return data.return;
   }
 }
-
 export class GstStreamCollection extends GstObject {
   static async new(upstream_id?: string): Promise<GstStreamCollection> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamCollection/new`, apiConfig.baseUrl);
@@ -29268,7 +29354,9 @@ export class GstStreamCollection extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstStream(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstStream(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -29288,7 +29376,16 @@ export class GstStreamCollection extends GstObject {
     return data.return;
   }
 }
+export class GstStreamCollectionPrivate {
+  ptr!: Pointer;
 
+
+}
+export class GstStreamPrivate {
+  ptr!: Pointer;
+
+
+}
 export class GstStructure {
   ptr!: string;
   
@@ -29378,7 +29475,7 @@ export class GstStructure {
     }
     return data.return;
   }
-  async filter_and_map_in_place(func: (field_id: number, value_: GObjectValue, user_data: Pointer) => boolean): Promise<{ func?: number }> {
+  async filter_and_map_in_place(func: GstStructureFilterMapFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/filter_and_map_in_place`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -29460,7 +29557,7 @@ export class GstStructure {
     const data = await response.json();
     return data.return;
   }
-  async foreach(func: (field_id: number, value_: GObjectValue, user_data: Pointer) => boolean): Promise<boolean> {
+  async foreach(func: GstStructureForeachFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -29472,10 +29569,6 @@ export class GstStructure {
     return data.return;
   }
   async get_array(fieldname: string, array: GObjectValueArray): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    if (array && typeof array === 'object' && 'ptr' in array) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + array.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/get_array`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('fieldname', String(fieldname));
@@ -29483,24 +29576,10 @@ export class GstStructure {
     if (array && typeof array === 'object' && 'ptr' in array) {
       url.searchParams.append('array', 'ptr,' + array.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (array && typeof array === 'object' && 'ptr' in array) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      return data.return;
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (array && typeof array === 'object' && 'ptr' in array) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async get_boolean(fieldname: string): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/get_boolean`, apiConfig.baseUrl);
@@ -29623,10 +29702,6 @@ export class GstStructure {
     return data.return;
   }
   async get_list(fieldname: string, array: GObjectValueArray): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    if (array && typeof array === 'object' && 'ptr' in array) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + array.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/get_list`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('fieldname', String(fieldname));
@@ -29634,24 +29709,10 @@ export class GstStructure {
     if (array && typeof array === 'object' && 'ptr' in array) {
       url.searchParams.append('array', 'ptr,' + array.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (array && typeof array === 'object' && 'ptr' in array) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      return data.return;
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (array && typeof array === 'object' && 'ptr' in array) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async get_name(): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/get_name`, apiConfig.baseUrl);
@@ -29783,10 +29844,6 @@ export class GstStructure {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async id_take_value(field: number, value_: GObjectValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + value_.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/id_take_value`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('field', String(field));
@@ -29794,22 +29851,8 @@ export class GstStructure {
     if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
       url.searchParams.append('value', 'ptr,' + value_.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + value_.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + value_.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async intersect(struct2: GstStructure): Promise<GstStructure> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/intersect`, apiConfig.baseUrl);
@@ -29849,7 +29892,7 @@ export class GstStructure {
     const data = await response.json();
     return data.return;
   }
-  async map_in_place(func: (field_id: number, value_: GObjectValue, user_data: Pointer) => boolean): Promise<boolean> {
+  async map_in_place(func: GstStructureMapFunc): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/map_in_place`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -29956,10 +29999,6 @@ export class GstStructure {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async take_value(fieldname: string, value_: GObjectValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + value_.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/take_value`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('fieldname', String(fieldname));
@@ -29967,22 +30006,8 @@ export class GstStructure {
     if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
       url.searchParams.append('value', 'ptr,' + value_.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + value_.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + value_.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   async to_string(): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/to_string`, apiConfig.baseUrl);
@@ -30014,7 +30039,6 @@ export class GstStructure {
     return data.return;
   }
 }
-
 export class GstSystemClock extends GstClock {
 
   static async obtain(): Promise<GstClock> {
@@ -30024,7 +30048,9 @@ export class GstSystemClock extends GstClock {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstClock(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstClock(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -30046,7 +30072,11 @@ export class GstSystemClock extends GstClock {
     return data.return;
   }
 }
+export class GstSystemClockPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstTagList {
   ptr!: string;
   
@@ -30114,7 +30144,7 @@ export class GstTagList {
     }
     return data.return;
   }
-  async foreach(func: (list: GstTagList, tag: string, user_data: Pointer) => void): Promise<{ func?: number }> {
+  async foreach(func: GstTagForeachFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagList/ptr,${this.ptr}/foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -30541,9 +30571,8 @@ export class GstTagList {
     return data.return;
   }
 }
-
 export class GstTask extends GstObject {
-  static async new(func: (user_data: Pointer) => void): Promise<GstTask> {
+  static async new(func: GstTaskFunction): Promise<GstTask> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Task/new`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -30569,7 +30598,9 @@ export class GstTask extends GstObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstTaskPool(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstTaskPool(data.return.ptr, false);
       return instance;
     }
     return data.return;
@@ -30602,7 +30633,7 @@ export class GstTask extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async set_enter_callback(enter_func: (task: GstTask, thread: GLibThread, user_data: Pointer) => void): Promise<{ enter_func?: number }> {
+  async set_enter_callback(enter_func: GstTaskThreadFunc): Promise<{ enter_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Task/ptr,${this.ptr}/set_enter_callback`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -30613,7 +30644,7 @@ export class GstTask extends GstObject {
     }
     return data;
   }
-  async set_leave_callback(leave_func: (task: GstTask, thread: GLibThread, user_data: Pointer) => void): Promise<{ leave_func?: number }> {
+  async set_leave_callback(leave_func: GstTaskThreadFunc): Promise<{ leave_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Task/ptr,${this.ptr}/set_leave_callback`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -30673,7 +30704,16 @@ export class GstTask extends GstObject {
     return data.return;
   }
 }
+export class GstTaskPrivate {
+  ptr!: Pointer;
 
+
+}
+export class GstTimedValue {
+  ptr!: Pointer;
+
+
+}
 export class GstToc {
   ptr!: string;
   
@@ -30789,7 +30829,6 @@ export class GstToc {
     return data.return;
   }
 }
-
 export class GstTocEntry {
   ptr!: string;
   
@@ -30967,7 +31006,6 @@ export class GstTocEntry {
     return data.return;
   }
 }
-
 export class GstTracer extends GstObject {
 
   static async register(name: string, type_: string, plugin?: GstPlugin): Promise<boolean> {
@@ -30993,7 +31031,6 @@ export class GstTracer extends GstObject {
     return data.return;
   }
 }
-
 export class GstTracerFactory extends GstPluginFeature {
 
   static async get_list(): Promise<Pointer> {
@@ -31018,7 +31055,11 @@ export class GstTracerFactory extends GstPluginFeature {
     return data.return;
   }
 }
+export class GstTracerPrivate {
+  ptr!: Pointer;
 
+
+}
 export class GstTracerRecord extends GstObject {
 
   static async get_type(): Promise<string> {
@@ -31029,7 +31070,6 @@ export class GstTracerRecord extends GstObject {
     return data.return;
   }
 }
-
 export class GstTypeFind {
   ptr!: string;
   
@@ -31099,7 +31139,7 @@ export class GstTypeFind {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async register(name: string, rank: number, func: (find: GstTypeFind, user_data: Pointer) => void, plugin?: GstPlugin, extensions?: string, possible_caps?: GstCaps): Promise<boolean> {
+  static async register(name: string, rank: number, func: GstTypeFindFunction, plugin?: GstPlugin, extensions?: string, possible_caps?: GstCaps): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/register`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (plugin !== undefined && typeof plugin === 'object' && 'ptr' in plugin) {
@@ -31125,7 +31165,6 @@ export class GstTypeFind {
     return data.return;
   }
 }
-
 export class GstTypeFindFactory extends GstPluginFeature {
 
   static async get_list(): Promise<Pointer> {
@@ -31178,7 +31217,6 @@ export class GstTypeFindFactory extends GstPluginFeature {
     return data.return;
   }
 }
-
 export class GstUri {
   ptr!: string;
   
@@ -31695,16 +31733,11 @@ export class GstUri {
     return data.return;
   }
 }
-
 export class GstValueArray {
   ptr!: Pointer;
 
 
   static async append_and_take_value(value_: GObjectValue, append_value: GObjectValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + append_value.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ValueArray/append_and_take_value`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
@@ -31714,22 +31747,8 @@ export class GstValueArray {
     if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
       url.searchParams.append('append_value', 'ptr,' + append_value.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   static async append_value(value_: GObjectValue, append_value: GObjectValue): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ValueArray/append_value`, apiConfig.baseUrl);
@@ -31812,16 +31831,11 @@ export class GstValueArray {
     return data.return;
   }
 }
-
 export class GstValueList {
   ptr!: Pointer;
 
 
   static async append_and_take_value(value_: GObjectValue, append_value: GObjectValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + append_value.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ValueList/append_and_take_value`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
@@ -31831,22 +31845,8 @@ export class GstValueList {
     if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
       url.searchParams.append('append_value', 'ptr,' + append_value.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (append_value && typeof append_value === 'object' && 'ptr' in append_value) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + append_value.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   static async append_value(value_: GObjectValue, append_value: GObjectValue): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ValueList/append_value`, apiConfig.baseUrl);
@@ -31963,7 +31963,11 @@ export class GstValueList {
     return data.return;
   }
 }
+export class GstValueTable {
+  ptr!: Pointer;
 
+
+}
 
 export namespace GObject {
   export async function boxed_copy(boxed_type: string): Promise<void> {
@@ -31980,7 +31984,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function boxed_type_register_static(name: string, boxed_copy: (boxed: Pointer) => void, boxed_free: (boxed: Pointer) => void): Promise<string> {
+  export async function boxed_type_register_static(name: string, boxed_copy: GObjectBoxedCopyFunc, boxed_free: GObjectBoxedFreeFunc): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/boxed_type_register_static`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('name', String(name));
@@ -32445,10 +32449,6 @@ export namespace GObject {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function enum_complete_type_info(g_enum_type: string, info: GObjectTypeInfo, const_values: GObjectEnumValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    if (info && typeof info === 'object' && 'ptr' in info) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + info.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/enum_complete_type_info`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('g_enum_type', String(g_enum_type));
@@ -32460,22 +32460,8 @@ export namespace GObject {
     if (const_values && typeof const_values === 'object' && 'ptr' in const_values) {
       url.searchParams.append('const_values', 'ptr,' + const_values.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (info && typeof info === 'object' && 'ptr' in info) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + info.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (info && typeof info === 'object' && 'ptr' in info) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + info.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function enum_get_value(enum_class: GObjectEnumClass, value_: number): Promise<GObjectEnumValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/enum_get_value`, apiConfig.baseUrl);
@@ -32541,10 +32527,6 @@ export namespace GObject {
     return data.return;
   }
   export async function flags_complete_type_info(g_flags_type: string, info: GObjectTypeInfo, const_values: GObjectFlagsValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    if (info && typeof info === 'object' && 'ptr' in info) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + info.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/flags_complete_type_info`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('g_flags_type', String(g_flags_type));
@@ -32556,22 +32538,8 @@ export namespace GObject {
     if (const_values && typeof const_values === 'object' && 'ptr' in const_values) {
       url.searchParams.append('const_values', 'ptr,' + const_values.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (info && typeof info === 'object' && 'ptr' in info) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + info.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (info && typeof info === 'object' && 'ptr' in info) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + info.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function flags_get_first_value(flags_class: GObjectFlagsClass, value_: number): Promise<GObjectFlagsValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/flags_get_first_value`, apiConfig.baseUrl);
@@ -33311,7 +33279,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function signal_add_emission_hook(signal_id: number, detail: number, hook_func: (ihint: GObjectSignalInvocationHint, n_param_values: number, param_values: Pointer, data_: Pointer) => boolean): Promise<number> {
+  export async function signal_add_emission_hook(signal_id: number, detail: number, hook_func: GObjectSignalEmissionHook): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_add_emission_hook`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('signal_id', String(signal_id));
@@ -33378,10 +33346,6 @@ export namespace GObject {
     return data.return;
   }
   export async function signal_emitv(instance_and_params: Pointer, signal_id: number, detail: number, return_value: GObjectValue): Promise<{ return_value?: GObjectValue }> {
-    // Increment ref for parameters with full transfer ownership
-    if (return_value && typeof return_value === 'object' && 'ptr' in return_value) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + return_value.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_emitv`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('instance_and_params', String(instance_and_params));
@@ -33393,24 +33357,10 @@ export namespace GObject {
     if (return_value && typeof return_value === 'object' && 'ptr' in return_value) {
       url.searchParams.append('return_value', 'ptr,' + return_value.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (return_value && typeof return_value === 'object' && 'ptr' in return_value) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + return_value.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (return_value && typeof return_value === 'object' && 'ptr' in return_value) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + return_value.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
   }
   export async function signal_get_invocation_hint(instance: GObjectObject): Promise<GObjectSignalInvocationHint> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_get_invocation_hint`, apiConfig.baseUrl);
@@ -33617,7 +33567,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function signal_newv(signal_name: string, itype: string, signal_flags: GObjectSignalFlags, return_type: string, n_params: number, accumulator: (ihint: GObjectSignalInvocationHint, return_accu: GObjectValue, handler_return: GObjectValue, data_: Pointer) => boolean, c_marshaller: (closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: Pointer, invocation_hint: Pointer, marshal_data: Pointer) => void, class_closure?: GObjectClosure, param_types?: Pointer): Promise<number> {
+  export async function signal_newv(signal_name: string, itype: string, signal_flags: GObjectSignalFlags, return_type: string, n_params: number, accumulator: GObjectSignalAccumulator, c_marshaller: GObjectClosureMarshal, class_closure?: GObjectClosure, param_types?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_newv`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('signal_name', String(signal_name));
@@ -33660,7 +33610,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function signal_override_class_handler(signal_name: string, instance_type: string, class_handler: () => void): Promise<{ class_handler?: number }> {
+  export async function signal_override_class_handler(signal_name: string, instance_type: string, class_handler: GObjectCallback): Promise<{ class_handler?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_override_class_handler`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('signal_name', String(signal_name));
@@ -34725,7 +34675,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function atexit(func: () => void): Promise<{ func?: number }> {
+  export async function atexit(func: GLibVoidFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atexit`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -34965,7 +34915,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function atomic_rc_box_release_full(clear_func: (data_: Pointer) => void): Promise<{ clear_func?: number }> {
+  export async function atomic_rc_box_release_full(clear_func: GLibDestroyNotify): Promise<{ clear_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_rc_box_release_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -35305,7 +35255,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function byte_array_sort(array: Pointer, compare_func: (a: Pointer, b: Pointer) => number): Promise<{ compare_func?: number }> {
+  export async function byte_array_sort(array: Pointer, compare_func: GLibCompareFunc): Promise<{ compare_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/byte_array_sort`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('array', String(array));
@@ -35318,7 +35268,7 @@ export namespace GObject {
     }
     return data;
   }
-  export async function byte_array_sort_with_data(array: Pointer, compare_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ compare_func?: number }> {
+  export async function byte_array_sort_with_data(array: Pointer, compare_func: GLibCompareDataFunc): Promise<{ compare_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/byte_array_sort_with_data`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('array', String(array));
@@ -35389,7 +35339,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function child_watch_add(priority: number, pid: number, function_: (pid: number, wait_status: number, user_data: Pointer) => void): Promise<number> {
+  export async function child_watch_add(priority: number, pid: number, function_: GLibChildWatchFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/child_watch_add`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('priority', String(priority));
@@ -35592,7 +35542,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function datalist_foreach(datalist: GLibData, func: (key_id: number, data_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  export async function datalist_foreach(datalist: GLibData, func: GLibDataForeachFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/datalist_foreach`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (datalist && typeof datalist === 'object' && 'ptr' in datalist) {
@@ -35680,7 +35630,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function dataset_foreach(func: (key_id: number, data_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  export async function dataset_foreach(func: GLibDataForeachFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/dataset_foreach`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -35950,7 +35900,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function error_domain_register(error_type_name: string, error_type_private_size: number, error_type_init: (error_: Pointer) => void, error_type_copy: (src_error: Pointer, dest_error: Pointer) => void, error_type_clear: (error_: Pointer) => void): Promise<number> {
+  export async function error_domain_register(error_type_name: string, error_type_private_size: number, error_type_init: GLibErrorInitFunc, error_type_copy: GLibErrorCopyFunc, error_type_clear: GLibErrorClearFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/error_domain_register`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('error_type_name', String(error_type_name));
@@ -35971,7 +35921,7 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function error_domain_register_static(error_type_name: string, error_type_private_size: number, error_type_init: (error_: Pointer) => void, error_type_copy: (src_error: Pointer, dest_error: Pointer) => void, error_type_clear: (error_: Pointer) => void): Promise<number> {
+  export async function error_domain_register_static(error_type_name: string, error_type_private_size: number, error_type_init: GLibErrorInitFunc, error_type_copy: GLibErrorCopyFunc, error_type_clear: GLibErrorClearFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/error_domain_register_static`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('error_type_name', String(error_type_name));
@@ -36469,7 +36419,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function hash_table_find(hash_table: Pointer, predicate: (key: Pointer, value_: Pointer, user_data: Pointer) => boolean): Promise<{ predicate?: number }> {
+  export async function hash_table_find(hash_table: Pointer, predicate: GLibHRFunc): Promise<{ predicate?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_find`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
@@ -36482,7 +36432,7 @@ export namespace GObject {
     }
     return data;
   }
-  export async function hash_table_foreach(hash_table: Pointer, func: (key: Pointer, value_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  export async function hash_table_foreach(hash_table: Pointer, func: GLibHFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_foreach`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
@@ -36495,7 +36445,7 @@ export namespace GObject {
     }
     return data;
   }
-  export async function hash_table_foreach_remove(hash_table: Pointer, func: (key: Pointer, value_: Pointer, user_data: Pointer) => boolean): Promise<number> {
+  export async function hash_table_foreach_remove(hash_table: Pointer, func: GLibHRFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_foreach_remove`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
@@ -36508,7 +36458,7 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function hash_table_foreach_steal(hash_table: Pointer, func: (key: Pointer, value_: Pointer, user_data: Pointer) => boolean): Promise<number> {
+  export async function hash_table_foreach_steal(hash_table: Pointer, func: GLibHRFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_foreach_steal`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
@@ -36686,7 +36636,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function hook_insert_sorted(hook_list: GLibHookList, hook: GLibHook, func: (new_hook: GLibHook, sibling: GLibHook) => number): Promise<{ func?: number }> {
+  export async function hook_insert_sorted(hook_list: GLibHookList, hook: GLibHook, func: GLibHookCompareFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hook_insert_sorted`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (hook_list && typeof hook_list === 'object' && 'ptr' in hook_list) {
@@ -36776,7 +36726,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function idle_add(priority: number, function_: (user_data: Pointer) => boolean): Promise<number> {
+  export async function idle_add(priority: number, function_: GLibSourceFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/idle_add`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('priority', String(priority));
@@ -36854,7 +36804,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function io_add_watch(channel: GLibIOChannel, priority: number, condition: GLibIOConditionValue, func: (source: GLibIOChannel, condition: GLibIOConditionValue, data_: Pointer) => boolean): Promise<number> {
+  export async function io_add_watch(channel: GLibIOChannel, priority: number, condition: GLibIOConditionValue, func: GLibIOFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/io_add_watch`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (channel && typeof channel === 'object' && 'ptr' in channel) {
@@ -37011,7 +36961,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function log_set_handler(log_levels: GLibLogLevelFlags, log_func: (log_domain: string, log_level: GLibLogLevelFlags, message: string, user_data: Pointer) => void, log_domain?: string): Promise<number> {
+  export async function log_set_handler(log_levels: GLibLogLevelFlags, log_func: GLibLogFunc, log_domain?: string): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/log_set_handler`, apiConfig.baseUrl);
     // Primitive parameter
     if (log_domain !== undefined) url.searchParams.append('log_domain', String(log_domain));
@@ -37594,7 +37544,7 @@ export namespace GObject {
     const data = await response.json();
     return data;
   }
-  export async function qsort_with_data(total_elems: number, size: number, compare_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ compare_func?: number }> {
+  export async function qsort_with_data(total_elems: number, size: number, compare_func: GLibCompareDataFunc): Promise<{ compare_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/qsort_with_data`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('total_elems', String(total_elems));
@@ -37726,7 +37676,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function rc_box_release_full(clear_func: (data_: Pointer) => void): Promise<{ clear_func?: number }> {
+  export async function rc_box_release_full(clear_func: GLibDestroyNotify): Promise<{ clear_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_release_full`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -37943,7 +37893,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function sequence_foreach_range(begin: GLibSequenceIter, end: GLibSequenceIter, func: (data_: Pointer, user_data: Pointer) => void): Promise<{ func?: number }> {
+  export async function sequence_foreach_range(begin: GLibSequenceIter, end: GLibSequenceIter, func: GLibFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/sequence_foreach_range`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (begin && typeof begin === 'object' && 'ptr' in begin) {
@@ -38068,7 +38018,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function sequence_sort_changed(iter: GLibSequenceIter, cmp_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ cmp_func?: number }> {
+  export async function sequence_sort_changed(iter: GLibSequenceIter, cmp_func: GLibCompareDataFunc): Promise<{ cmp_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/sequence_sort_changed`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (iter && typeof iter === 'object' && 'ptr' in iter) {
@@ -38083,7 +38033,7 @@ export namespace GObject {
     }
     return data;
   }
-  export async function sequence_sort_changed_iter(iter: GLibSequenceIter, iter_cmp: (a: GLibSequenceIter, b: GLibSequenceIter, data_: Pointer) => number): Promise<{ iter_cmp?: number }> {
+  export async function sequence_sort_changed_iter(iter: GLibSequenceIter, iter_cmp: GLibSequenceIterCompareFunc): Promise<{ iter_cmp?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/sequence_sort_changed_iter`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (iter && typeof iter === 'object' && 'ptr' in iter) {
@@ -38312,7 +38262,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function spawn_async(argv: Pointer, flags: GLibSpawnFlags, child_setup: (data_: Pointer) => void, working_directory?: Pointer, envp?: Pointer): Promise<boolean> {
+  export async function spawn_async(argv: Pointer, flags: GLibSpawnFlags, child_setup: GLibSpawnChildSetupFunc, working_directory?: Pointer, envp?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/spawn_async`, apiConfig.baseUrl);
     // Primitive parameter
     if (working_directory !== undefined) url.searchParams.append('working_directory', String(working_directory));
@@ -38331,7 +38281,7 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function spawn_async_with_fds(argv: Pointer, flags: GLibSpawnFlags, stdin_fd: number, stdout_fd: number, stderr_fd: number, child_setup: (data_: Pointer) => void, working_directory?: Pointer, envp?: Pointer): Promise<boolean> {
+  export async function spawn_async_with_fds(argv: Pointer, flags: GLibSpawnFlags, stdin_fd: number, stdout_fd: number, stderr_fd: number, child_setup: GLibSpawnChildSetupFunc, working_directory?: Pointer, envp?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/spawn_async_with_fds`, apiConfig.baseUrl);
     // Primitive parameter
     if (working_directory !== undefined) url.searchParams.append('working_directory', String(working_directory));
@@ -38356,7 +38306,7 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function spawn_async_with_pipes(argv: Pointer, flags: GLibSpawnFlags, child_setup: (data_: Pointer) => void, working_directory?: Pointer, envp?: Pointer): Promise<boolean> {
+  export async function spawn_async_with_pipes(argv: Pointer, flags: GLibSpawnFlags, child_setup: GLibSpawnChildSetupFunc, working_directory?: Pointer, envp?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/spawn_async_with_pipes`, apiConfig.baseUrl);
     // Primitive parameter
     if (working_directory !== undefined) url.searchParams.append('working_directory', String(working_directory));
@@ -38375,7 +38325,7 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function spawn_async_with_pipes_and_fds(argv: Pointer, flags: GLibSpawnFlags, stdin_fd: number, stdout_fd: number, stderr_fd: number, n_fds: number, child_setup: (data_: Pointer) => void, working_directory?: Pointer, envp?: Pointer, source_fds?: Pointer, target_fds?: Pointer): Promise<boolean> {
+  export async function spawn_async_with_pipes_and_fds(argv: Pointer, flags: GLibSpawnFlags, stdin_fd: number, stdout_fd: number, stderr_fd: number, n_fds: number, child_setup: GLibSpawnChildSetupFunc, working_directory?: Pointer, envp?: Pointer, source_fds?: Pointer, target_fds?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/spawn_async_with_pipes_and_fds`, apiConfig.baseUrl);
     // Primitive parameter
     if (working_directory !== undefined) url.searchParams.append('working_directory', String(working_directory));
@@ -38463,7 +38413,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function spawn_sync(argv: Pointer, flags: GLibSpawnFlags, child_setup: (data_: Pointer) => void, working_directory?: Pointer, envp?: Pointer): Promise<boolean> {
+  export async function spawn_sync(argv: Pointer, flags: GLibSpawnFlags, child_setup: GLibSpawnChildSetupFunc, working_directory?: Pointer, envp?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/spawn_sync`, apiConfig.baseUrl);
     // Primitive parameter
     if (working_directory !== undefined) url.searchParams.append('working_directory', String(working_directory));
@@ -38935,7 +38885,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function test_add_data_func(testpath: string, test_func: (user_data: Pointer) => void): Promise<{ test_func?: number }> {
+  export async function test_add_data_func(testpath: string, test_func: GLibTestDataFunc): Promise<{ test_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/test_add_data_func`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('testpath', String(testpath));
@@ -38948,7 +38898,7 @@ export namespace GObject {
     }
     return data;
   }
-  export async function test_add_data_func_full(testpath: string, test_func: (user_data: Pointer) => void): Promise<{ test_func?: number }> {
+  export async function test_add_data_func_full(testpath: string, test_func: GLibTestDataFunc): Promise<{ test_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/test_add_data_func_full`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('testpath', String(testpath));
@@ -38961,7 +38911,7 @@ export namespace GObject {
     }
     return data;
   }
-  export async function test_add_func(testpath: string, test_func: () => void): Promise<{ test_func?: number }> {
+  export async function test_add_func(testpath: string, test_func: GLibTestFunc): Promise<{ test_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/test_add_func`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('testpath', String(testpath));
@@ -39061,7 +39011,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function test_queue_destroy(destroy_func: (data_: Pointer) => void): Promise<{ destroy_func?: number }> {
+  export async function test_queue_destroy(destroy_func: GLibDestroyNotify): Promise<{ destroy_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/test_queue_destroy`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -39324,7 +39274,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function timeout_add(priority: number, interval: number, function_: (user_data: Pointer) => boolean): Promise<number> {
+  export async function timeout_add(priority: number, interval: number, function_: GLibSourceFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/timeout_add`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('priority', String(priority));
@@ -39339,7 +39289,7 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function timeout_add_seconds(priority: number, interval: number, function_: (user_data: Pointer) => boolean): Promise<number> {
+  export async function timeout_add_seconds(priority: number, interval: number, function_: GLibSourceFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/timeout_add_seconds`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('priority', String(priority));
@@ -39829,7 +39779,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function unix_fd_add_full(priority: number, fd: number, condition: GLibIOConditionValue, function_: (fd: number, condition: GLibIOConditionValue, user_data: Pointer) => boolean): Promise<number> {
+  export async function unix_fd_add_full(priority: number, fd: number, condition: GLibIOConditionValue, function_: GLibUnixFDSourceFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/unix_fd_add_full`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('priority', String(priority));
@@ -39891,7 +39841,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function unix_signal_add(priority: number, signum: number, handler: (user_data: Pointer) => boolean): Promise<number> {
+  export async function unix_signal_add(priority: number, signum: number, handler: GLibSourceFunc): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/unix_signal_add`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('priority', String(priority));
@@ -40750,7 +40700,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function debug_add_log_function(func: (category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, object: GObjectObject, message: GstDebugMessage, user_data: Pointer) => void): Promise<{ func?: number }> {
+  export async function debug_add_log_function(func: GstLogFunction): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_add_log_function`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -40981,7 +40931,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function debug_remove_log_function(func: (category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, object: GObjectObject, message: GstDebugMessage, user_data: Pointer) => void): Promise<number> {
+  export async function debug_remove_log_function(func: GstLogFunction): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_remove_log_function`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -41366,7 +41316,7 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function meta_register_custom(name: string, tags: Pointer, transform_func: (transbuf: GstBuffer, meta: GstCustomMeta, buffer: GstBuffer, type_: number, data_: Pointer, user_data: Pointer) => boolean): Promise<GstMetaInfo> {
+  export async function meta_register_custom(name: string, tags: Pointer, transform_func: GstCustomMetaTransformFunction): Promise<GstMetaInfo> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_register_custom`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('name', String(name));
@@ -41525,7 +41475,9 @@ export namespace GObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstBin(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstBin(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -41547,7 +41499,9 @@ export namespace GObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -41568,7 +41522,9 @@ export namespace GObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -41588,7 +41544,9 @@ export namespace GObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -41602,7 +41560,9 @@ export namespace GObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -41622,7 +41582,9 @@ export namespace GObject {
     const data = await response.json();
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-      const instance = new GstElement(data.return.ptr);
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new GstElement(data.return.ptr, true);
       return instance;
     }
     return data.return;
@@ -41921,7 +41883,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function tracing_register_hook(tracer: GstTracer, detail: string, func: () => void): Promise<{ func?: number }> {
+  export async function tracing_register_hook(tracer: GstTracer, detail: string, func: GObjectCallback): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tracing_register_hook`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (tracer && typeof tracer === 'object' && 'ptr' in tracer) {
@@ -41945,7 +41907,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function type_find_register(name: string, rank: number, func: (find: GstTypeFind, user_data: Pointer) => void, plugin?: GstPlugin, extensions?: string, possible_caps?: GstCaps): Promise<boolean> {
+  export async function type_find_register(name: string, rank: number, func: GstTypeFindFunction, plugin?: GstPlugin, extensions?: string, possible_caps?: GstCaps): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/type_find_register`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (plugin !== undefined && typeof plugin === 'object' && 'ptr' in plugin) {
@@ -42112,7 +42074,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function util_array_binary_search(num_elements: number, element_size: number, mode: GstSearchModeValue, search_func: (a: Pointer, b: Pointer, user_data: Pointer) => number): Promise<{ search_func?: number }> {
+  export async function util_array_binary_search(num_elements: number, element_size: number, mode: GstSearchModeValue, search_func: GLibCompareDataFunc): Promise<{ search_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_array_binary_search`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('num_elements', String(num_elements));
@@ -42242,10 +42204,6 @@ export namespace GObject {
     return data.return;
   }
   export async function util_get_object_array(object: GObjectObject, name: string, array: GObjectValueArray): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    if (array && typeof array === 'object' && 'ptr' in array) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + array.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_get_object_array`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (object && typeof object === 'object' && 'ptr' in object) {
@@ -42257,24 +42215,10 @@ export namespace GObject {
     if (array && typeof array === 'object' && 'ptr' in array) {
       url.searchParams.append('array', 'ptr,' + array.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (array && typeof array === 'object' && 'ptr' in array) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      return data.return;
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (array && typeof array === 'object' && 'ptr' in array) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + array.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function util_get_timestamp(): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_get_timestamp`, apiConfig.baseUrl);
@@ -42866,10 +42810,6 @@ export namespace GObject {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
   export async function value_intersect(dest: GObjectValue, value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + dest.ptr + '/ref').catch(() => {});
-    }
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_intersect`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (dest && typeof dest === 'object' && 'ptr' in dest) {
@@ -42883,24 +42823,10 @@ export namespace GObject {
     if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
       url.searchParams.append('value2', 'ptr,' + value2.ptr);
     }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        if (dest && typeof dest === 'object' && 'ptr' in dest) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + dest.ptr + '/unref').catch(() => {});
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      return data.return;
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      if (dest && typeof dest === 'object' && 'ptr' in dest) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + dest.ptr + '/unref').catch(() => {});
-      }
-      throw error;
-    }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function value_is_fixed(value_: GObjectValue): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_is_fixed`, apiConfig.baseUrl);

@@ -58,7 +58,7 @@ export default function PipelinePage() {
     }
   };
   
-  const addNode = async (element: GstElement) => {
+  const generateNode = async (element: GstElement): Node => {
     const elementName = await element.get_name();
     // Create ReactFlow node with GstElement in data
     const node: Node = {
@@ -72,7 +72,7 @@ export default function PipelinePage() {
         y: 100,
       }
     };
-    nodes.push(node);
+    return node;
   }
 
   // Generate nodes directly by iterating over pipeline elements
@@ -80,7 +80,7 @@ export default function PipelinePage() {
     try {
       const gstModule = await import('@/lib/gst');
       const { GObjectValue, GstPipeline, GstElement, GObject } = gstModule;
-      const pipeline = new GstPipeline(pipelinePtr);
+      const pipeline = new GstPipeline(pipelinePtr, true);
       await pipeline.ref();
       const iterator = await pipeline.iterate_elements();
       
@@ -105,7 +105,8 @@ export default function PipelinePage() {
 	      const is_element = await GObject.type_check_instance_is_a(obj, element_type);*/
 	      const element = await obj.castTo(GstElement);
 	      console.error(`element name ${await element.get_name()}`);
-	      await addNode(element);
+	      const node = await generateNode(element);
+              nodes.push(node);
               await value.unset();
               break;
             case 0:

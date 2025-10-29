@@ -1,0 +1,9 @@
+{# Custom template for GObject.Object.ref_sink method to fix infinite recursion #}
+  async {{ name }}({{ params }}): Promise<{{ return_type }}> {
+    const url = new URL(`${apiConfig.normalizedBasePath}{{ path }}`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    // ref_sink() should not create a new instance - it just sinks the floating reference
+    // and returns the same object (this) to avoid infinite recursion
+    return this;
+  }

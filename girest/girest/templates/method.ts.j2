@@ -96,7 +96,13 @@
 {% if return_is_object %}
       // Return value is an object/struct, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+{% if return_is_gobject %}
+        // For GObject types, pass transfer parameter based on x-gi-transfer
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new {{ return_class_name }}(data.return.ptr, {{ 'false' if return_transfer == 'full' else 'true' }});
+{% else %}
         const instance = new {{ return_class_name }}(data.return.ptr);
+{% endif %}
         return instance;
       }
       return data.return;
@@ -145,7 +151,13 @@
 {% if return_is_object %}
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+{% if return_is_gobject %}
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new {{ return_class_name }}(data.return.ptr, {{ 'false' if return_transfer == 'full' else 'true' }});
+{% else %}
       const instance = new {{ return_class_name }}(data.return.ptr);
+{% endif %}
       return instance;
     }
     return data.return;
@@ -160,6 +172,12 @@
   }
 {% else %}
   async {{ name }}({{ params }}): Promise<{{ return_type }}> {
+{% if has_override %}
+    {{ override_implementation }}
+  }
+  
+  async _original{{ name | title }}({{ params }}): Promise<{{ return_type }}> {
+{% endif %}
 {% set has_full_transfer = query_params | selectattr('transfer', 'equalto', 'full') | selectattr('is_gobject', 'equalto', true) | list | length > 0 %}
 {% if has_full_transfer %}
     // Increment ref for parameters with full transfer ownership
@@ -246,7 +264,13 @@
 {% if return_is_object %}
       // Return value is an object/struct, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+{% if return_is_gobject %}
+        // For GObject types, pass transfer parameter based on x-gi-transfer
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new {{ return_class_name }}(data.return.ptr, {{ 'false' if return_transfer == 'full' else 'true' }});
+{% else %}
         const instance = new {{ return_class_name }}(data.return.ptr);
+{% endif %}
         return instance;
       }
       return data.return;
@@ -291,7 +315,13 @@
 {% if return_is_object %}
     // Return value is an object/struct, instantiate it from the ptr
     if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+{% if return_is_gobject %}
+      // For GObject types, pass transfer parameter based on x-gi-transfer
+      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+      const instance = new {{ return_class_name }}(data.return.ptr, {{ 'false' if return_transfer == 'full' else 'true' }});
+{% else %}
       const instance = new {{ return_class_name }}(data.return.ptr);
+{% endif %}
       return instance;
     }
     return data.return;
@@ -304,4 +334,7 @@
 {% endif %}
 {% endif %}
   }
+{% if has_override and not (is_namespace_function or is_static) %}
+  }
+{% endif %}
 {% endif %}
