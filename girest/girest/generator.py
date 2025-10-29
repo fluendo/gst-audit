@@ -158,6 +158,19 @@ class TypeScriptGenerator:
                     # Standalone function without tags
                     self.standalone_functions.append(method_info)
     
+    def _get_callback_type_name(self, callback_ref: str) -> str:
+        """Get the TypeScript type name for a callback reference."""
+        if not callback_ref.startswith("#/components/schemas/"):
+            return "Function"
+        
+        callback_name = callback_ref.split("/")[-1]
+        callback_schema = self.schemas.get(callback_name, {})
+        
+        if not callback_schema or callback_schema.get("x-gi-type") != "callback":
+            return "Function"
+        
+        return callback_name
+    
     def _get_callback_type_signature(self, callback_ref: str) -> str:
         """Generate TypeScript function signature for a callback."""
         if not callback_ref.startswith("#/components/schemas/"):
@@ -422,9 +435,10 @@ class TypeScriptGenerator:
         
         # Add callback parameters to method signature
         for callback_name, callback_ref in callbacks.items():
-            callback_type = self._get_callback_type_signature(callback_ref)
+            # Use the callback type name instead of the full function signature
+            callback_type_name = self._get_callback_type_name(callback_ref)
             safe_callback_name = self._safe_property_name(callback_name)
-            required_params.append(f"{safe_callback_name}: {callback_type}")
+            required_params.append(f"{safe_callback_name}: {callback_type_name}")
             callback_params.append({
                 "name": safe_callback_name,
                 "api_name": callback_name,  # Original name for API
