@@ -81,7 +81,7 @@ def test_gobject_base_class_structure(gst_typescript):
     # Verify it has the required structure
     assert 'constructor(ptr?: string, transfer: boolean = false)' in gobject_class, "GObjectObject should have constructor with transfer parameter"
     assert 'super(ptr, transfer)' in gobject_class, "GObjectObject constructor should call super(ptr, transfer)"
-    assert 'castTo<T extends GObjectObject>' in gobject_class, "GObjectObject should have castTo method"
+    assert 'castTo<T extends GObjectObject>(TargetClass:' in gobject_class, "GObjectObject should have castTo method with correct signature"
     assert 'unref():' in gobject_class, "GObjectObject should have unref method"
 
 
