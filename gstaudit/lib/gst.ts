@@ -14102,13 +14102,14 @@ export class GObjectObject extends GObjectTypeInstance {
     }
   }
 
-  async castTo<T extends GObjectObject>(t: T): Promise<T> {
-    const type = await t.get_type();
+  castTo<T extends GObjectObject>(TargetClass: new (ptr?: string, transfer?: boolean) => T): T {
+    return new TargetClass(this.ptr, true);
+  }
+
+  async isOf<T extends GObjectObject>(TargetClass: new (ptr?: string, transfer?: boolean) => T): Promise<boolean> {
+    const type = await TargetClass.get_type();
     const is_type = await GObject.type_check_instance_is_a(this, type);
-    // Don't set transfer=true here as it would cause ref() to be called in constructor
-    // The object is already referenced properly
-    const instance = new t(this.ptr, false);
-    return instance;
+    return is_type;
   }
   
   // Manual cleanup method
