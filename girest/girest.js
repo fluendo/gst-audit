@@ -47,6 +47,8 @@ function base_type_convert(t, p)
   switch (t) {
     case "string":
       return p.readCString();
+    case "bool":
+      return Boolean(p);
     default:
       return p;
   }
