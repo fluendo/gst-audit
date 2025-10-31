@@ -6,12 +6,16 @@ function findGTypeClass(address)
     console.debug(`Looking for a GTypeClass pointing to ${address}`);
     const gtypeclasses = [];
     Process.enumerateRanges("rw-").some(range => {
-        const results = Memory.scanSync(range.base, range.size, address.toMatchPattern());
-        for (let i = 0; i < results.length; i++) {
-            const r = results[i];
-            console.debug(`GTypeClass found at ${r.address} with size ${r.size}`);
-            let gtcp = r.address;
-            gtypeclasses.push(gtcp);
+        try {
+            const results = Memory.scanSync(range.base, range.size, address.toMatchPattern());
+            for (let i = 0; i < results.length; i++) {
+                const r = results[i];
+                console.debug(`GTypeClass found at ${r.address} with size ${r.size}`);
+                let gtcp = r.address;
+                gtypeclasses.push(gtcp);
+            }
+        } catch (error) {
+            console.debug(`Skipping access violation accessing memory`);
         }
         return false;
     });
@@ -26,14 +30,18 @@ function findGType(gtype)
     const ranges = Process.enumerateRanges("rw-");
     for (let i = 0; i < ranges.length; i++) {
         const range = ranges[i];
-        const results = Memory.scanSync(range.base, range.size, gtype.toMatchPattern());
-        if (results.length)
-            console.debug(`Range ${range.base} ${range.size}:`);
-        for (let j = 0; j < results.length; j++) {
-            const r = results[j];
-            console.debug(`GType found at ${r.address} with size ${r.size}`);
-            let gtp = r.address;
-            gtypes.push(gtp);
+        try {
+            const results = Memory.scanSync(range.base, range.size, gtype.toMatchPattern());
+            if (results.length)
+                console.debug(`Range ${range.base} ${range.size}:`);
+            for (let j = 0; j < results.length; j++) {
+                const r = results[j];
+                console.debug(`GType found at ${r.address} with size ${r.size}`);
+                let gtp = r.address;
+                gtypes.push(gtp);
+            }
+        } catch (error) {
+            console.debug(`Skipping access violation accessing memory`);
         }
     }
     return gtypes;
