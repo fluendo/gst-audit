@@ -30,43 +30,113 @@ import {
   GstPadDirection
 } from '@/lib/gst';
 import { ElementNode } from '@/components';
-import dagre from 'dagre';
+import ELK, { ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk.bundled.js';
 
-const dagreGraph = new dagre.graphlib.Graph();
-dagreGraph.setDefaultEdgeLabel(() => ({}));
+const elk = new ELK();
 
 const nodeWidth = 172;
 const nodeHeight = 36;
 
-const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'LR') => {
+const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR') => {
   const isHorizontal = direction === 'LR';
-  dagreGraph.setGraph({ rankdir: direction });
-
-  nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  
+  // Group nodes by parent to build hierarchy
+  const nodesById = new Map(nodes.map(node => [node.id, node]));
+  const rootNodes = nodes.filter(node => !node.parentId);
+  const childNodesByParent = new Map<string, Node[]>();
+  
+  nodes.forEach(node => {
+    if (node.parentId) {
+      if (!childNodesByParent.has(node.parentId)) {
+        childNodesByParent.set(node.parentId, []);
+      }
+      childNodesByParent.get(node.parentId)!.push(node);
+    }
   });
-
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(dagreGraph);
-
-  nodes.forEach((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = isHorizontal ? Position.Left : Position.Top;
-    node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
-
-    // We are shifting the dagre node position (anchor=center center) to the top left
-    // so it matches the React Flow node anchor point (top left).
-    node.position = {
-      x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
+  
+  // Build ELK graph structure with support for hierarchical groups
+  const buildElkNode = (node: Node): ElkNode => {
+    const children = childNodesByParent.get(node.id) || [];
+    const isGroup = children.length > 0;
+    
+    const elkNode: ElkNode = {
+      id: node.id,
+      // Don't set width/height for group nodes - let ELK calculate based on children
+      ...(isGroup ? {} : { width: nodeWidth, height: nodeHeight }),
+      // For group nodes, we need to add children
+      ...(isGroup ? {
+        children: children.map(child => buildElkNode(child)),
+        layoutOptions: {
+          'elk.algorithm': 'layered',
+          'elk.direction': direction === 'LR' ? 'RIGHT' : 'DOWN',
+          'elk.spacing.nodeNode': '50',
+          'elk.layered.spacing.nodeNodeBetweenLayers': '70',
+          'elk.padding': '[top=50,left=50,bottom=50,right=50]',
+          'nodeSize.constraints': 'NODE_LABELS PORTS PORT_LABELS MINIMUM_SIZE',
+          'nodeSize.minimum': '(200,150)',
+        }
+      } : {})
     };
-
-    return node;
-  });
-
+    return elkNode;
+  };
+  
+  const graph: ElkNode = {
+    id: 'root',
+    layoutOptions: {
+      'elk.algorithm': 'layered',
+      'elk.direction': direction === 'LR' ? 'RIGHT' : 'DOWN',
+      'elk.spacing.nodeNode': '50',
+      'elk.layered.spacing.nodeNodeBetweenLayers': '70',
+      'elk.padding': '[top=50,left=50,bottom=50,right=50]',
+      'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
+    },
+    children: rootNodes.map(node => buildElkNode(node)),
+    edges: edges.map(edge => ({
+      id: edge.id,
+      sources: [edge.source],
+      targets: [edge.target],
+    } as ElkExtendedEdge)),
+  };
+  
+  const layoutedGraph = await elk.layout(graph);
+  
+  // Apply positions from ELK to React Flow nodes
+  const applyPositions = (elkNode: ElkNode, parentPosition = { x: 0, y: 0 }) => {
+    const node = nodesById.get(elkNode.id);
+    if (node && elkNode.x !== undefined && elkNode.y !== undefined) {
+      // For child nodes, positions are relative to parent
+      // For root nodes, positions are absolute
+      node.position = {
+        x: node.parentId ? elkNode.x : elkNode.x + parentPosition.x,
+        y: node.parentId ? elkNode.y : elkNode.y + parentPosition.y,
+      };
+      node.targetPosition = isHorizontal ? Position.Left : Position.Top;
+      node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
+      
+      // Apply calculated width and height from ELK (important for group nodes)
+      if (elkNode.width !== undefined && elkNode.height !== undefined) {
+        node.style = {
+          ...node.style,
+          width: elkNode.width,
+          height: elkNode.height,
+        };
+      }
+      
+      // If this node has children, process them recursively
+      if (elkNode.children) {
+        const absolutePosition = {
+          x: (elkNode.x ?? 0) + parentPosition.x,
+          y: (elkNode.y ?? 0) + parentPosition.y,
+        };
+        elkNode.children.forEach(child => applyPositions(child, absolutePosition));
+      }
+    }
+  };
+  
+  if (layoutedGraph.children) {
+    layoutedGraph.children.forEach(child => applyPositions(child));
+  }
+  
   return { nodes, edges };
 };
 
@@ -89,68 +159,6 @@ export default function PipelinePage() {
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges],
   );
-
-  // Function to apply layout to current nodes
-  const applyLayout = useCallback((direction: 'LR' | 'TB' = 'LR') => {
-    if (nodes.length > 0) {
-      const layouted = getLayoutedElements(nodes, edges, direction);
-      setNodes(layouted.nodes);
-      setEdges(layouted.edges);
-    }
-  }, [nodes, edges, setNodes, setEdges]);
-
-  // Mock data generation for testing layout
-  const generateMockNodes = () => {
-    const mockNodes: Node[] = [
-      {
-        id: '1',
-        data: { label: 'Source' },
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-      },
-      {
-        id: '2',
-        data: { label: 'Filter' },
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-      },
-      {
-        id: '3',
-        data: { label: 'Transform' },
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-      },
-      {
-        id: '4',
-        data: { label: 'Sink' },
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-      },
-    ];
-
-    const mockEdges: Edge[] = [
-      { id: 'e1-2', source: '1', target: '2', animated: true },
-      { id: 'e2-3', source: '2', target: '3', animated: true },
-      { id: 'e3-4', source: '3', target: '4', animated: true },
-    ];
-
-    const layouted = getLayoutedElements(mockNodes, mockEdges);
-    setNodes(layouted.nodes);
-    setEdges(layouted.edges);
-    setStatus('Mock pipeline loaded with horizontal layout');
-  };
-
-  // Auto-apply layout when nodes are first loaded
-  useEffect(() => {
-    if (nodes.length > 0 && nodes.every(node => node.position.x === 0 && node.position.y === 0)) {
-      // Only apply layout if all nodes are at origin (newly created)
-      applyLayout('LR'); // Default to horizontal layout
-    }
-  }, [nodes.length]); // Only trigger when node count changes
 
   const fetchPipelines = async () => {
     try {
@@ -187,7 +195,7 @@ export default function PipelinePage() {
       id: element.ptr,
       data: {
         label: elementName,
-        element: element
+        element: element,
       },
       parentId: bin ? bin.ptr : undefined,
       type: isGstBin ? 'group' : 'element', // Use 'element' type for non-GstBin elements
@@ -291,21 +299,27 @@ export default function PipelinePage() {
                 const padDirection = await pad.get_direction();
                 const peerDirection = await peerPad.get_direction();
                 
+                // Get element names for handle IDs
+                const elementName = await element.get_name();
+                const peerElementName = await peerElement.get_name();
+                const padName = await pad.get_name();
+                const peerPadName = await peerPad.get_name();
+                
                 // Create edge based on pad directions
                 // Source pads connect TO sink pads
                 let sourceNodeId: string, targetNodeId: string;
-                let sourcePadName: string, targetPadName: string;
+                let sourceHandleId: string, targetHandleId: string;
                 
                 if (padDirection === GstPadDirection.SRC && peerDirection === GstPadDirection.SINK) {
                   sourceNodeId = element.ptr;
                   targetNodeId = peerElementPtr;
-                  sourcePadName = `${node.data.label}-${await pad.get_name()}`;
-                  targetPadName = `${await peerElement.get_name()}-${await peerPad.get_name()}`;
+                  sourceHandleId = `${elementName}-${padName}`;
+                  targetHandleId = `${peerElementName}-${peerPadName}`;
                 } else if (padDirection === GstPadDirection.SINK && peerDirection === GstPadDirection.SRC) {
                   sourceNodeId = peerElementPtr;
                   targetNodeId = element.ptr;
-                  sourcePadName = `${await peerElement.get_name()}-${await peerPad.get_name()}`;
-                  targetPadName = `${await node.data.label}-${await pad.get_name()}`;
+                  sourceHandleId = `${peerElementName}-${peerPadName}`;
+                  targetHandleId = `${elementName}-${padName}`;
                 } else {
                   // Skip invalid connections
                   console.warn(`Invalid pad connection: ${padDirection} -> ${peerDirection}`);
@@ -314,17 +328,17 @@ export default function PipelinePage() {
                 }
                 
                 // Verify both nodes exist in our node array
-                const sourceExists = nodeArray.some(n => n.id === sourceNodeId);
-                const targetExists = nodeArray.some(n => n.id === targetNodeId);
+                const sourceNode = nodeArray.find(n => n.id === sourceNodeId);
+                const targetNode = nodeArray.find(n => n.id === targetNodeId);
                 
-                if (sourceExists && targetExists) {
+                if (sourceNode && targetNode) {
                   const edge: Edge = {
-                    id: `${sourceNodeId}-${sourcePadName}:${targetNodeId}-${targetPadName}`,
+                    id: `${sourceNodeId}:${targetNodeId}`,
                     source: sourceNodeId,
                     target: targetNodeId,
-                    sourceHandle: sourcePadName,
-                    targetHandle: targetPadName,
-                    label: `${sourcePadName} → ${targetPadName}`,
+                    // Don't specify handles - let React Flow connect when they're ready
+                    // sourceHandle: sourceHandleId,
+                    // targetHandle: targetHandleId,
                     type: 'default',
                     animated: true,
                     style: {
@@ -338,7 +352,6 @@ export default function PipelinePage() {
                   };
                   
                   edgeArray.push(edge);
-                  console.log(`Created edge: ${sourcePadName} (${sourceNodeId}) -> ${targetPadName} (${targetNodeId})`);
                 }
                 
                 // Mark both pads as processed
@@ -381,9 +394,7 @@ export default function PipelinePage() {
       const edgeArray = await generateEdges(nodeArray);
       
       // Apply layout to collected nodes and edges
-      console.error('Nodes:', nodeArray);
-      console.error('Edges:', edgeArray);
-      const layouted = getLayoutedElements(nodeArray, edgeArray);
+      const layouted = await getLayoutedElements(nodeArray, edgeArray);
       
       setNodes(layouted.nodes);
       setEdges(layouted.edges);
@@ -411,12 +422,6 @@ export default function PipelinePage() {
             >
               Fetch Pipelines
             </button>
-            <button
-              onClick={generateMockNodes}
-              className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700"
-            >
-              Demo Layout
-            </button>
             {pipelinePtr && (
               <button
                 onClick={() => generateNodes(pipelinePtr)}
@@ -425,20 +430,6 @@ export default function PipelinePage() {
                 Reload Pipeline
               </button>
             )}
-            <button
-              onClick={() => applyLayout('LR')}
-              className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-              disabled={nodes.length === 0}
-            >
-              Horizontal Layout
-            </button>
-            <button
-              onClick={() => applyLayout('TB')}
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-              disabled={nodes.length === 0}
-            >
-              Vertical Layout
-            </button>
             <Link
               href="/"
               className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-800"

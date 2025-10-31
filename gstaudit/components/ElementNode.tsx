@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect } from 'react';
-import { Handle, Position, NodeProps } from '@xyflow/react';
+import { Handle, Position, NodeProps, useUpdateNodeInternals } from '@xyflow/react';
 import { GstElement, GstPad, GstIterator, GObjectValue, GObjectObject, GstPadDirectionValue, GstIteratorResult, GstPadDirection } from '@/lib/gst';
 
 interface ElementNodeData {
@@ -19,6 +19,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
   const [pads, setPads] = useState<PadInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const updateNodeInternals = useUpdateNodeInternals();
 
   useEffect(() => {
     const fetchPads = async () => {
@@ -73,6 +74,9 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
         }
         
         setPads(padList);
+        
+        // Notify React Flow that handles have been updated
+        updateNodeInternals(id);
       } catch (err) {
         console.error('Error fetching pads:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -82,7 +86,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
     };
 
     fetchPads();
-  }, [nodeData.element]);
+  }, [nodeData.element, id, updateNodeInternals]);
 
   // Separate pads by direction
   const sinkPads = pads.filter(pad => pad.direction === GstPadDirection.SINK);
