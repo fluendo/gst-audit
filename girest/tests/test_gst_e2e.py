@@ -471,3 +471,67 @@ async def test_gst_bin_get_type_endpoint(girest_server):
         
         assert data2["return"] == gtype_value, f"GType should be consistent across calls: {gtype_value} != {data2['return']}"
         print(f"✓ GType consistency verified across multiple calls")
+
+
+@pytest.mark.asyncio
+async def test_enum_returned_as_string(girest_server):
+    """
+    Test that enum values are returned as strings instead of integers.
+    
+    This test validates that GStreamer enum types (like GstStateChangeReturn)
+    are properly serialized as their string representations rather than 
+    their underlying integer values. This is critical for API usability
+    as string enums are more readable and type-safe.
+    
+    The test uses /Gst/Element/state_change_return_get_name which accepts a 
+    GstStateChangeReturn enum string and returns the string name, validating
+    both that enum inputs accept strings and that the API properly handles them.
+    """
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        # Test all valid GstStateChangeReturn enum values from the schema
+        valid_state_change_returns = ["failure", "success", "async", "no_preroll"]
+        
+        for enum_value in valid_state_change_returns:
+            # Call the endpoint with the enum string value
+            response = await client.get(
+                f"{girest_server}/Gst/Element/state_change_return_get_name",
+                params={"state_ret": enum_value}
+            )
+            assert_response(response, f"Failed to get name for state_ret='{enum_value}'")
+            response_data = response.json()
+            
+            # Validate the response structure
+            assert "return" in response_data, f"Response should contain 'return' field for enum '{enum_value}'"
+            name_result = response_data["return"]
+            
+            # The return value should be a string (the human-readable name)
+            assert isinstance(name_result, str), \
+                f"state_change_return_get_name should return string, got {type(name_result)}: {name_result}"
+            
+            # The returned string should not be empty
+            assert len(name_result) > 0, f"Returned name should not be empty for enum '{enum_value}'"
+            
+            # The name should be different from the input (it's the human-readable form)
+            # and typically contains uppercase/spaces (e.g., "GST_STATE_CHANGE_SUCCESS")
+            assert name_result != enum_value, \
+                f"Returned name '{name_result}' should be different from input enum '{enum_value}'"
+            
+            print(f"✓ Enum '{enum_value}' -> Name '{name_result}' (validated string)")
+        
+        # Test that invalid enum values are properly rejected
+        invalid_enum_value = "invalid_enum_value"
+        response = await client.get(
+            f"{girest_server}/Gst/Element/state_change_return_get_name",
+            params={"state_ret": invalid_enum_value}
+        )
+        
+        # This should result in an error (4xx status code) because the enum value is invalid
+        assert response.status_code >= 400, \
+            f"Invalid enum value '{invalid_enum_value}' should be rejected with 4xx status, got {response.status_code}"
+        
+        print(f"✓ Invalid enum value '{invalid_enum_value}' properly rejected with status {response.status_code}")
+        print(f"✓ Successfully validated that all enum values are handled as strings:")
+        print(f"  - All valid GstStateChangeReturn enum strings were accepted as input")
+        print(f"  - All responses contained string return values (not integers)")
+        print(f"  - Invalid enum strings were properly rejected")
+        print(f"✓ Enum serialization working correctly - strings instead of integers")

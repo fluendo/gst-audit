@@ -595,6 +595,18 @@ class FridaResolver(GIResolver):
                     result[k] = {"ptr": v}
                 if "type" in k_def and k_def["type"] == "object":
                     result[k] = {"ptr": v}
+                # Convert enum integers back to strings for OpenAPI compliance
+                if "x-gi-type" in k_def and k_def["x-gi-type"] in ["enum", "flags"]:
+                    # Find the return type from the method info to get the enum type
+                    return_type = GIRepository.callable_info_get_return_type(_method)
+                    interface = GIRepository.type_info_get_interface(return_type)
+                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                    enum_mapping = self.enum_mappings.get(full_name, {})
+                    # Reverse lookup: find string name for integer value
+                    for enum_name, enum_value in enum_mapping.items():
+                        if enum_value == v:
+                            result[k] = enum_name
+                            break
 
             return result
 

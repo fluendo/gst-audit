@@ -25,7 +25,9 @@ import {
   GstBin,
   GstElement,
   GObject,
-  GstPad
+  GstPad,
+  GstIteratorResult,
+  GstPadDirection
 } from '@/lib/gst';
 import { ElementNode } from '@/components';
 import dagre from 'dagre';
@@ -211,22 +213,22 @@ export default function PipelinePage() {
       while (!done) {
         const res = await iterator.next(value);
         switch (res) {
-          case 0:
+          case GstIteratorResult.DONE:
             done = true;
             break;
-          case 1:
+          case GstIteratorResult.OK:
             // Check the type
             const obj: GObjectObject = await value.get_object();
             const child: GstElement = await obj.castTo(GstElement);
             await generateNode(child, nodeArray, bin);
             await value.unset();
             break;
-          case 2:
+          case GstIteratorResult.RESYNC:
             // Iterator was modified, resync and try again
             await iterator.resync();
             await value.unset();
             break;
-          case 3:
+          case GstIteratorResult.ERROR:
             console.error('Error iterating');
             done = true;
             break;
@@ -253,10 +255,10 @@ export default function PipelinePage() {
         while (!done) {
           const res = await iterator.next(value);
           switch (res) {
-            case 0: // GST_ITERATOR_DONE
+            case GstIteratorResult.DONE:
               done = true;
               break;
-            case 1: // GST_ITERATOR_OK
+            case GstIteratorResult.OK:
               const obj: GObjectObject = await value.get_object();
               const pad = await obj.castTo(GstPad);
               const padPtr = pad.ptr;
@@ -294,12 +296,12 @@ export default function PipelinePage() {
                 let sourceNodeId: string, targetNodeId: string;
                 let sourcePadName: string, targetPadName: string;
                 
-                if (padDirection === 1 && peerDirection === 2) {
+                if (padDirection === GstPadDirection.SRC && peerDirection === GstPadDirection.SINK) {
                   sourceNodeId = element.ptr;
                   targetNodeId = peerElementPtr;
                   sourcePadName = `${node.data.label}-${await pad.get_name()}`;
                   targetPadName = `${await peerElement.get_name()}-${await peerPad.get_name()}`;
-                } else if (padDirection === 2 && peerDirection === 1) {
+                } else if (padDirection === GstPadDirection.SINK && peerDirection === GstPadDirection.SRC) {
                   sourceNodeId = peerElementPtr;
                   targetNodeId = element.ptr;
                   sourcePadName = `${await peerElement.get_name()}-${await peerPad.get_name()}`;
@@ -346,11 +348,11 @@ export default function PipelinePage() {
               
               await value.unset();
               break;
-            case 2: // GST_ITERATOR_RESYNC
+            case GstIteratorResult.RESYNC:
               await iterator.resync();
               await value.unset();
               break;
-            case 3: // GST_ITERATOR_ERROR
+            case GstIteratorResult.ERROR:
               console.error('Error iterating pads');
               done = true;
               break;
