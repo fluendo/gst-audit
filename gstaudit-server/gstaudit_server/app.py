@@ -141,7 +141,7 @@ app.add_api(gstaudit_spec.to_dict(), resolver=GstAuditResolver(), base_path="/gs
 # Add the CORS middleware to let the React app connect
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3001"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
