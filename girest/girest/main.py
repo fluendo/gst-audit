@@ -1,7 +1,11 @@
+import logging
+
 import gi
 gi.require_version("GIRepository", "2.0")
 from gi.repository import GIRepository
 from apispec import APISpec
+
+logger = logging.getLogger("girest")
 
 class GIRest():
     pointer_schema = {
@@ -76,8 +80,30 @@ class GIRest():
         """Convert GIRepository type to OpenAPI schema"""
         tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(t))
         
-        # Check if it's an interface type
-        if tag == "interface":
+        if tag == "void" and GIRepository.type_info_is_pointer(t):
+            # Check if this is a void pointer (gpointer)
+            # In GIRepository, gpointer is represented as void type with is_pointer=True
+            return {"$ref": "#/components/schemas/Pointer"}
+        elif tag == "void":
+            # Handle void type (return None for non-pointer void, which indicates no return value)
+            return None
+        elif tag == "glist":
+            # Handle GList type - generate GLibList schema if needed
+            # GList is a struct in GLib that should be generated
+            repo = GIRepository.Repository.get_default()
+            list_info = repo.find_by_name("GLib", "List")
+            if list_info:
+                self._generate_struct(list_info)
+            return {"$ref": "#/components/schemas/GLibList"}
+        elif tag == "gslist":
+            # Handle GSList type - generate GLibSList schema if needed
+            repo = GIRepository.Repository.get_default()
+            slist_info = repo.find_by_name("GLib", "SList")
+            if slist_info:
+                self._generate_struct(slist_info)
+            return {"$ref": "#/components/schemas/GLibSList"}
+        elif tag == "interface":
+            # Check if it's an interface type
             interface = GIRepository.type_info_get_interface(t)
             if interface:
                 info_type = interface.get_type()
@@ -132,11 +158,15 @@ class GIRest():
             "gfloat": {"type": "number", "format": "float"},
             "gdouble": {"type": "number", "format": "double"},
             "gsize": {"type": "number", "format": "int64"},
+            "gpointer": {"$ref": "#/components/schemas/Pointer"},
             "GType": {"type": "string"}, # FIXME beware ot this
-            "void": None
         }
         
-        return type_map.get(tag, {"$ref": "#/components/schemas/Pointer"})
+        
+        ret = type_map.get(tag, {"$ref": "#/components/schemas/Pointer"})
+        if not ret:
+            logger.warning(f"Unknown type tag: {tag}")
+        return ret
 
     def _generate_function(self, bim, bi=None):
         api = f"/{bim.get_namespace()}"
@@ -370,7 +400,6 @@ class GIRest():
     def _generate_struct(self, bi):
         if GIRepository.struct_info_is_gtype_struct(bi):
             return
-        # TODO Structs with private fields can not be serialized
         # TODO Structs with a constructor can not be serialized
         # TODO Get free_function
         
@@ -429,6 +458,12 @@ class GIRest():
         for i in range(0, n_methods):
             bim = GIRepository.struct_info_get_method(bi, i)
             self._generate_function(bim, bi)
+        
+        # Generate endpoints for struct fields
+        n_fields = GIRepository.struct_info_get_n_fields(bi)
+        for i in range(n_fields):
+            field_info = GIRepository.struct_info_get_field(bi, i)
+            self._generate_field_endpoints(field_info, bi)
         
         # Generate get_type function if the struct has a registered GType
         self._generate_get_type_function(bi)
@@ -595,6 +630,90 @@ class GIRest():
         }
         
         self.spec.path(path=api, operations={"get": operation})
+
+    def _generate_field_endpoints(self, field_info, struct_info):
+        """Generate GET and PUT endpoints for struct fields based on writability"""
+        namespace = struct_info.get_namespace()
+        struct_name = struct_info.get_name()
+        field_name = field_info.get_name()
+        
+        # Get field type and offset
+        field_type = GIRepository.field_info_get_type(field_info)
+        field_offset = GIRepository.field_info_get_offset(field_info)
+        is_writable = bool(GIRepository.field_info_get_flags(field_info) & GIRepository.FieldInfoFlags.WRITABLE)
+        
+        # Convert field type to schema
+        field_schema = self._type_to_schema(field_type)
+        if not field_schema:
+            # Skip fields with unsupported types
+            logger.warning(f"Skipping field {field_name} of struct {struct_name} due to unsupported type")
+            return
+        
+        # Generate GET endpoint (always available for readable fields)
+        get_api = f"/{namespace}/{struct_name}/{{self}}/{field_name}"
+        get_operation = {
+            "summary": f"Get {field_name} field from {struct_name}",
+            "description": f"Reads the {field_name} field at offset {field_offset}",
+            "operationId": f"{namespace}-{struct_name}-{field_name}-get",
+            "tags": [f"{namespace}{struct_name}"],
+            "parameters": [
+                {
+                    "name": "self",
+                    "in": "path",
+                    "required": True,
+                    "schema": {"$ref": f"#/components/schemas/{namespace}{struct_name}"},
+                    "description": "Pointer to the struct instance"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Success",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "return": field_schema
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        self.spec.path(path=get_api, operations={"get": get_operation})
+        
+        # Generate PUT endpoint only if the field is writable
+        if is_writable:
+            put_api = f"/{namespace}/{struct_name}/{{self}}/{field_name}"
+            put_operation = {
+                "summary": f"Set {field_name} field in {struct_name}",
+                "description": f"Writes to the {field_name} field at offset {field_offset}",
+                "operationId": f"{namespace}-{struct_name}-{field_name}-put",
+                "tags": [f"{namespace}{struct_name}"],
+                "parameters": [
+                    {
+                        "name": "self",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"$ref": f"#/components/schemas/{namespace}{struct_name}"},
+                        "description": "Pointer to the struct instance"
+                    },
+                    {
+                        "name": "value",
+                        "in": "query",
+                        "required": True,
+                        "schema": field_schema,
+                        "description": f"Value to write to {field_name}"
+                    }
+                ],
+                "responses": {
+                    "204": {"description": "No Content"}
+                }
+            }
+            
+            self.spec.path(path=put_api, operations={"put": put_operation})
 
     def _generate_enum(self, bi):
         """Generate OpenAPI schema for an enum"""

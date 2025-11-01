@@ -156,7 +156,7 @@ class GIResolver(Resolver):
         if not parsed:
             return None
 
-        namespace, class_name, method_name = parsed
+        namespace, class_name, method_name, operator = parsed
         if namespace == "GIRest" and method_name == "callbacks" and not class_name:
             return sse_callback
 
@@ -514,6 +514,110 @@ class FridaResolver(GIResolver):
         
         return generic_free_handler
 
+    def _parse_response(self, result, operation, field_type_info=None, method_info=None):
+        """
+        Parse and transform the response from Frida based on OpenAPI schema.
+        
+        Args:
+            result: The raw result from Frida
+            operation: The OpenAPI operation object
+            field_type_info: Optional GITypeInfo for field operations
+            method_info: Optional GICallableInfo for method operations (used for enum conversion)
+            
+        Returns:
+            Transformed result with proper type conversions
+        """
+        if not result:
+            return result
+        
+        # Ok, now we have a response, check the spec about the response type to see if
+        # there are any structs or objects
+        for k, v in result.items():
+            responses = operation.responses
+            # Take into account that the endpoint is already resolved
+            k_def = responses["200"]["content"]["application/json"]["schema"]["properties"][k]
+            if "x-gi-type" in k_def and k_def["x-gi-type"] in ["object", "struct", "gtype"]:
+                result[k] = {"ptr": v}
+            if "type" in k_def and k_def["type"] == "object":
+                result[k] = {"ptr": v}
+            # Convert enum integers back to strings for OpenAPI compliance
+            if "x-gi-type" in k_def and k_def["x-gi-type"] in ["enum", "flags"]:
+                # Determine which type info to use
+                type_info = field_type_info
+                if method_info and not field_type_info:
+                    # For method calls, get return type from method info
+                    type_info = GIRepository.callable_info_get_return_type(method_info)
+                
+                if type_info:
+                    interface = GIRepository.type_info_get_interface(type_info)
+                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                    enum_mapping = self.enum_mappings.get(full_name, {})
+                    # Reverse lookup: find string name for integer value
+                    for enum_name, enum_value in enum_mapping.items():
+                        if enum_value == v:
+                            result[k] = enum_name
+                            break
+        
+        return result
+
+    def _create_field_get_handler(self, offset, field_type_json, field_type_info, operation):
+        """Create handler for reading a struct field"""
+        async def field_get_handler(*args, **kwargs):
+            # Extract the self parameter (struct pointer)
+            obj = kwargs.get('self')
+            if obj is None:
+                raise ValueError("Missing 'self' parameter for field get")
+            if not "ptr" in obj:
+                raise ValueError("Missing 'ptr' value")
+            
+            # Call the Frida script's get function
+            raw_result = await asyncio.to_thread(
+                self.scripts[0].exports_sync.get_field, 
+                obj["ptr"], 
+                offset, 
+                field_type_json
+            )
+            
+            # Wrap in result dictionary
+            result = {"return": raw_result}
+            
+            # Use common response parsing logic
+            return self._parse_response(result, operation, field_type_info)
+        
+        return field_get_handler
+
+    def _create_field_put_handler(self, offset, field_type_json, field_type_info, operation):
+        """Create handler for writing a struct field"""
+        async def field_put_handler(*args, **kwargs):
+            # Extract the self parameter (struct pointer)
+            obj = kwargs.get('self')
+            if obj is None:
+                raise ValueError("Missing 'self' parameter for field put")
+            if not "ptr" in obj:
+                raise ValueError("Missing 'ptr' value")
+            
+            # Extract the value to write
+            value = kwargs.get('value')
+            if value is None:
+                raise ValueError("Missing 'value' parameter for field put")
+            
+            # Handle object/struct values (extract ptr)
+            if isinstance(value, dict) and 'ptr' in value:
+                value = value['ptr']
+            
+            # Call the Frida script's set function
+            await asyncio.to_thread(
+                self.scripts[0].exports_sync.set_field, 
+                obj["ptr"], 
+                offset, 
+                field_type_json,
+                value
+            )
+            
+            return None
+        
+        return field_put_handler
+
     # TODO what to access here, the info from GI (_method) or the type info for Frida (_type)
     def create_frida_handler(self):
         """Create handler that calls Frida with the method JSON, converting enum strings to integers,
@@ -585,30 +689,8 @@ class FridaResolver(GIResolver):
             if not result:
                 return
 
-            # Ok, now we have a response, check the spec about the response type to see if
-            # there are any structs or objects
-            for k,v in result.items():
-                responses = _endpoint.responses
-                # Take into account that the endpoint is already resolved
-                k_def = responses["200"]["content"]["application/json"]["schema"]["properties"][k]
-                if "x-gi-type" in k_def and k_def["x-gi-type"] in ["object", "struct", "gtype"]:
-                    result[k] = {"ptr": v}
-                if "type" in k_def and k_def["type"] == "object":
-                    result[k] = {"ptr": v}
-                # Convert enum integers back to strings for OpenAPI compliance
-                if "x-gi-type" in k_def and k_def["x-gi-type"] in ["enum", "flags"]:
-                    # Find the return type from the method info to get the enum type
-                    return_type = GIRepository.callable_info_get_return_type(_method)
-                    interface = GIRepository.type_info_get_interface(return_type)
-                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
-                    enum_mapping = self.enum_mappings.get(full_name, {})
-                    # Reverse lookup: find string name for integer value
-                    for enum_name, enum_value in enum_mapping.items():
-                        if enum_value == v:
-                            result[k] = enum_name
-                            break
-
-            return result
+            # Use common response parsing logic
+            return self._parse_response(result, _endpoint, method_info=_method)
 
         return frida_resolver_handler
 
@@ -627,7 +709,42 @@ class FridaResolver(GIResolver):
         if not parsed:
             return None
 
-        namespace, class_name, method_name = parsed
+        namespace, class_name, method_name, operator = parsed
+        
+        # Check if this is a field operation based on the operator
+        if operator in ['get', 'put']:
+            # This is a field access operation
+            field_name = method_name
+            
+            # Find the struct info
+            struct_info = None
+            n_infos = self.repo.get_n_infos(namespace)
+            for i in range(n_infos):
+                info = self.repo.get_info(namespace, i)
+                if info.get_type() == GIRepository.InfoType.STRUCT and info.get_name() == class_name:
+                    struct_info = info
+                    break
+            
+            if struct_info:
+                # Find the field info
+                n_fields = GIRepository.struct_info_get_n_fields(struct_info)
+                for i in range(n_fields):
+                    field_info = GIRepository.struct_info_get_field(struct_info, i)
+                    if field_info.get_name() == field_name:
+                        # Extract field metadata
+                        field_offset = GIRepository.field_info_get_offset(field_info)
+                        field_flags = GIRepository.field_info_get_flags(field_info)
+                        is_writable = bool(field_flags & GIRepository.FieldInfoFlags.WRITABLE)
+                        field_type_info = GIRepository.field_info_get_type(field_info)
+                        field_type_json = self._type_to_json(field_type_info)
+                        
+                        if operator == "get":
+                            return self._create_field_get_handler(field_offset, field_type_json, field_type_info, operation)
+                        elif operator == "put" and is_writable:
+                            return self._create_field_put_handler(field_offset, field_type_json, field_type_info, operation)
+                        
+                        return None
+        
         method_info = self._find_function_info(namespace, class_name, method_name)
         if method_info:
             # Generate the JSON representation

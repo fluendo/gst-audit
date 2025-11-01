@@ -104,7 +104,7 @@ def girest_server(gst_pipeline):
     )
     
     # Give the server time to start and attach to the process
-    time.sleep(12)
+    time.sleep(20)
     
     # Verify it's running
     if process.poll() is not None:
@@ -115,10 +115,11 @@ def girest_server(gst_pipeline):
     
     # Wait for the server to be ready by polling the docs endpoint
     ready = False
-    max_retries = 3
+    max_retries = 5
     for i in range(max_retries):
         try:
-            response = httpx.get(f"{base_url}/openapi.json")
+            print(f"Getting openapi.json")
+            response = httpx.get(f"{base_url}/openapi.json", timeout=10.0)
             if response.status_code == 200:
                 ready = True
                 break
@@ -126,7 +127,7 @@ def girest_server(gst_pipeline):
             if i == max_retries - 1:  # Last attempt
                 print(f"Failed to connect: {e}")
             pass
-        time.sleep(5)
+        time.sleep(8)
     
     if not ready:
         process.send_signal(signal.SIGTERM)
@@ -535,3 +536,99 @@ async def test_enum_returned_as_string(girest_server):
         print(f"  - All responses contained string return values (not integers)")
         print(f"  - Invalid enum strings were properly rejected")
         print(f"✓ Enum serialization working correctly - strings instead of integers")
+
+
+@pytest.mark.asyncio
+async def test_glist_field_iteration(girest_server):
+    """
+    Test field access on GList by iterating through the 'next' field.
+    
+    This test validates the field access functionality by:
+    1. Getting a GstRegistry using /Gst/Registry/get
+    2. Getting a GList of plugins using /Gst/Registry/{self}/get_plugins_list
+    3. Iterating through the GList by accessing the 'next' field until it's null
+    
+    This tests that:
+    - Field GET endpoints work correctly (reading struct fields)
+    - Pointer fields are properly serialized and deserialized
+    - Iteration using field access works as expected
+    """
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        # Step 1: Get the GstRegistry singleton
+        response = await client.get(f"{girest_server}/Gst/Registry/get")
+        assert_response(response, "Failed to get GstRegistry")
+        response_data = response.json()
+        assert "return" in response_data, "Registry get should return an object"
+        assert "ptr" in response_data["return"], "Registry should have a ptr field"
+        registry_ptr = response_data["return"]["ptr"]
+        print(f"✓ Got GstRegistry at {registry_ptr}")
+        
+        # Step 2: Get the plugin list from the registry
+        response = await client.get(f"{girest_server}/Gst/Registry/ptr,{registry_ptr}/get_plugin_list")
+        assert_response(response, "Failed to get plugin list from registry")
+        response_data = response.json()
+        assert "return" in response_data, "get_plugin_list should return an object"
+        
+        # The return value should be a GList pointer
+        glist = response_data["return"]
+        if glist is None:
+            print("⚠ Plugin list is empty (no plugins registered)")
+            return
+        
+        assert "ptr" in glist, "GList should have a ptr field"
+        current_ptr = glist["ptr"]
+        print(f"✓ Got GList starting at {current_ptr}")
+        
+        # Step 3: Iterate through the GList using the 'next' field
+        iteration_count = 0
+        max_iterations = 100  # Safety limit to prevent infinite loops
+        
+        while current_ptr and current_ptr != "0x0" and current_ptr != 0 and iteration_count < max_iterations:
+            iteration_count += 1
+            print(f"  Iteration {iteration_count}: GList node at {current_ptr}")
+            
+            # Access the 'next' field of the current GList node
+            # The operation ID format is: Gst-List-next-get
+            response = await client.get(f"{girest_server}/GLib/List/ptr,{current_ptr}/next")
+            assert_response(response, f"Failed to get 'next' field from GList at iteration {iteration_count}")
+            response_data = response.json()
+            
+            # The response should contain a 'return' field
+            assert "return" in response_data, f"Field access should return a value at iteration {iteration_count}"
+            
+            # The 'next' field is a pointer to the next GList node (or null)
+            next_value = response_data["return"]
+            
+            if next_value is None or (isinstance(next_value, dict) and next_value.get("ptr") in ["0x0", 0, None]):
+                # Reached the end of the list
+                print(f"✓ Reached end of list at iteration {iteration_count}")
+                break
+            
+            # The next field should be a struct/pointer with a ptr field
+            if isinstance(next_value, dict) and "ptr" in next_value:
+                current_ptr = next_value["ptr"]
+                if current_ptr in ["0x0", 0, None]:
+                    print(f"✓ Reached end of list (null pointer) at iteration {iteration_count}")
+                    break
+            else:
+                # Handle case where next is directly a pointer value
+                current_ptr = next_value
+                if current_ptr in ["0x0", 0, None]:
+                    print(f"✓ Reached end of list (null pointer) at iteration {iteration_count}")
+                    break
+        
+        # Validate that we iterated through at least some nodes
+        # GStreamer usually has many plugins registered, so we should see multiple nodes
+        assert iteration_count > 0, "Should have iterated through at least one GList node"
+        print(f"✓ Successfully iterated through {iteration_count} GList nodes using field access")
+        
+        # Validate we didn't hit the safety limit (which would indicate an infinite loop)
+        assert iteration_count < max_iterations, \
+            f"Hit safety limit of {max_iterations} iterations - possible infinite loop or circular list"
+        
+        print(f"✓ Field access test completed successfully:")
+        print(f"  - Retrieved GstRegistry singleton")
+        print(f"  - Got Plugins list (GList)")
+        print(f"  - Iterated through {iteration_count} nodes using 'next' field")
+        print(f"  - Properly detected end of list (null pointer)")
+        print(f"✓ GList field iteration test passed!")

@@ -85,6 +85,55 @@ function base_type_read(t, p)
   }
 }
 
+function base_type_write(t, p, value)
+{
+  switch (t) {
+    case "string":
+      p.writePointer(Memory.allocUtf8String(value));
+      break;
+    case "gtype":
+      p.writePointer(ptr(value));
+      break;
+    case "int8":
+      p.writeS8(value);
+      break;
+    case "uint8":
+      p.writeU8(value);
+      break;
+    case "int16":
+      p.writeS16(value);
+      break;
+    case "uint16":
+      p.writeU16(value);
+      break;
+    case "int32":
+      p.writeS32(value);
+      break;
+    case "uint32":
+      p.writeU32(value);
+      break;
+    case "int64":
+      p.writeS64(int64(value));
+      break;
+    case "uint64":
+      p.writeU64(uint64(value));
+      break;
+    case "float":
+      p.writeFloat(value);
+      break;
+    case "double":
+      p.writeDouble(value);
+      break;
+    case "pointer":
+    case "struct":
+      p.writePointer(ptr(value));
+      break;
+    default:
+      console.error(`Unsupported type ${t} for write`);
+      break;
+  }
+}
+
 function type_signature(type)
 {
     if (type == "callback") {
@@ -263,10 +312,41 @@ function free(ptr)
   }
 }
 
+function get_field(struct_ptr, offset, field_type)
+{
+  console.info(`Reading field at offset ${offset} from struct ${struct_ptr} with type ${field_type}`);
+  
+  // Convert struct_ptr string to pointer
+  const base = ptr(struct_ptr);
+  const field_ptr = base.add(offset);
+  
+  // Read the value based on the field type
+  const value = base_type_read(field_type, field_ptr);
+  
+  console.info(`Read field value: ${value}`);
+  return value;
+}
+
+function set_field(struct_ptr, offset, field_type, value)
+{
+  console.info(`Writing field at offset ${offset} to struct ${struct_ptr} with type ${field_type} and value ${value}`);
+  
+  // Convert struct_ptr string to pointer
+  const base = ptr(struct_ptr);
+  const field_ptr = base.add(offset);
+  
+  // Write the value based on the field type
+  base_type_write(field_type, field_ptr, value);
+  
+  console.info(`Wrote field value: ${value}`);
+}
+
 rpc.exports = {
   'call': call,
   'alloc': alloc,
   'free': free,
+  'getField': get_field,
+  'setField': set_field,
   'init': init,
   'shutdown': shutdown,
 };
