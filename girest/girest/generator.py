@@ -52,6 +52,7 @@ class TypeScriptGenerator:
         self.enum_schemas: Set[str] = set()
         self.class_methods: Dict[str, List[Dict]] = {}
         self.class_constructors: Dict[str, List[Dict]] = {}
+        self.class_fields: Dict[str, Dict[str, Dict]] = {}  # Track field operations: {class_name: {field_name: {get: method_info, put: method_info}}}
         self.gobject_types: Set[str] = set()  # Track GObject-derived types
         self.callback_schemas: Set[str] = set()  # Track callback types
         self.standalone_functions: List[Dict] = []  # Track standalone functions without tags
@@ -145,8 +146,29 @@ class TypeScriptGenerator:
                     class_name = tags[0]
                     is_constructor = operation.get("x-gi-constructor", False)
                     is_destructor = operation.get("x-gi-destructor", False)
+                    is_field = operation.get("x-gi-field", False)
                     
-                    if is_constructor:
+                    if is_field:
+                        # Parse field operations - use the tag as class name, not the parsed class name
+                        parsed = parse_operation_id(operation.get("operationId", ""))
+                        if parsed and len(parsed) == 4:
+                            namespace, parsed_class_name, field_name, operator = parsed
+                            
+                            # Use the tag as the class name (which includes namespace prefix)
+                            field_class_name = class_name  # This comes from tags[0]
+                            
+                            # Initialize class fields if not exists
+                            if field_class_name not in self.class_fields:
+                                self.class_fields[field_class_name] = {}
+                            
+                            # Initialize field if not exists
+                            if field_name not in self.class_fields[field_class_name]:
+                                self.class_fields[field_class_name][field_name] = {}
+                            
+                            # Store the operation by type (get/put)
+                            if operator in ['get', 'put']:
+                                self.class_fields[field_class_name][field_name][operator] = method_info
+                    elif is_constructor:
                         if class_name not in self.class_constructors:
                             self.class_constructors[class_name] = []
                         self.class_constructors[class_name].append(method_info)
@@ -569,6 +591,98 @@ class TypeScriptGenerator:
             "class_name": class_name
         }
     
+    def _prepare_field_methods(self, class_name: str, field_name: str, field_operations: Dict[str, Dict]) -> List[str]:
+        """Prepare getter and setter methods for a field."""
+        methods = []
+        
+        # Prepare getter method (if GET operation exists)
+        if 'get' in field_operations:
+            get_info = field_operations['get']
+            
+            # Get the return type from the operation response
+            operation = get_info['operation']
+            return_type = "any"
+            responses = operation.get("responses", {})
+            if "200" in responses:
+                content = responses["200"].get("content", {})
+                app_json = content.get("application/json", {})
+                schema = app_json.get("schema", {})
+                if schema:
+                    props = schema.get("properties", {})
+                    if "return" in props:
+                        return_props = props["return"]
+                        return_type = self._openapi_type_to_ts(return_props)
+            
+            # Create custom method data for field getter
+            get_method_data = {
+                "name": f"get_{field_name}",
+                "params": "",  # No parameters for getter
+                "return_type": return_type,
+                "is_static": False,
+                "with_impl": True,
+                "base_url": self.base_url,
+                "host": self.host,
+                "port": self.port,
+                "base_path": self.base_path,
+                "path": get_info['path'].replace('{self}', 'ptr,${this.ptr}'),  # Replace {self} with proper path parameter
+                "query_params": [],
+                "callback_params": [],
+                "is_constructor": False,
+                "has_return": True,  # Field operations return values
+                "return_is_object": False,
+                "return_class_name": None,
+                "return_transfer": "none",
+                "return_is_gobject": False,
+                "class_name": class_name
+            }
+            
+            # Try to find method-specific template first, fallback to default method template
+            method_template = self._get_method_template(class_name, f"get_{field_name}")
+            methods.append(method_template.render(get_method_data).rstrip())
+        
+        # Prepare setter method (if PUT operation exists)
+        if 'put' in field_operations:
+            put_info = field_operations['put']
+            
+            # Get the value parameter type
+            operation = put_info['operation']
+            value_type = "any"
+            params = operation.get("parameters", [])
+            for param in params:
+                if param.get("name") == "value":
+                    param_schema = param.get("schema", {})
+                    value_type = self._openapi_type_to_ts(param_schema)
+                    break
+            
+            # Create custom method data for field setter
+            put_method_data = {
+                "name": f"set_{field_name}",
+                "params": f"value_: {value_type}",  # Single parameter for setter
+                "return_type": "void",
+                "is_static": False,
+                "with_impl": True,
+                "base_url": self.base_url,
+                "host": self.host,
+                "port": self.port,
+                "base_path": self.base_path,
+                "path": put_info['path'].replace('{self}', 'ptr,${this.ptr}'),  # Replace {self} with proper path parameter
+                "query_params": [{"name": "value_", "original_name": "value", "type": value_type, "required": True, "description": f"Value to set for {field_name}"}],
+                "callback_params": [],
+                "is_constructor": False,
+                "has_return": False,  # Setter operations don't return values
+                "return_is_object": False,
+                "return_class_name": None,
+                "return_transfer": "none",
+                "return_is_gobject": False,
+                "class_name": class_name
+            }
+            
+            # Try to find method-specific template first, fallback to default method template
+            method_template = self._get_method_template(class_name, f"set_{field_name}")
+            methods.append(method_template.render(put_method_data).rstrip())
+        
+        return methods
+    
     def _get_direct_parent(self, class_name: str) -> Optional[str]:
         """Get the direct parent class from the schema's allOf."""
         schema = self.schemas.get(class_name, {})
@@ -894,6 +1008,12 @@ class TypeScriptGenerator:
                     # Try to find method-specific template first, fallback to default method template
                     method_template = self._get_method_template(class_name, original_name)
                     data["methods"].append(method_template.render(method_data).rstrip())
+            
+            # Add field getter/setter methods
+            if class_name in self.class_fields:
+                for field_name, field_operations in self.class_fields[class_name].items():
+                    field_methods = self._prepare_field_methods(class_name, field_name, field_operations)
+                    data["methods"].extend(field_methods)
         
         return data
     
