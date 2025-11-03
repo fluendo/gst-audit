@@ -95,6 +95,14 @@ const gobjectparamspecpoolRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/GObject/ParamSpecPool/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GObjectParamSpecPool:', ptr, err));
 });
+const gliblistRegistry = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.fullBaseUrl + '/GLib/List/ptr,' + ptr + '/free')
+    .catch(err => console.error('Failed to free GLibList:', ptr, err));
+});
+const gliballocatorRegistry = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.fullBaseUrl + '/GLib/Allocator/ptr,' + ptr + '/free')
+    .catch(err => console.error('Failed to free GLibAllocator:', ptr, err));
+});
 const gobjectvaluearrayRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/GObject/ValueArray/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GObjectValueArray:', ptr, err));
@@ -115,13 +123,13 @@ const glibtimevalRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/GLib/TimeVal/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibTimeVal:', ptr, err));
 });
+const glibslistRegistry = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.fullBaseUrl + '/GLib/SList/ptr,' + ptr + '/free')
+    .catch(err => console.error('Failed to free GLibSList:', ptr, err));
+});
 const gmodulemoduleRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/GModule/Module/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GModuleModule:', ptr, err));
-});
-const gliballocatorRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/Allocator/ptr,' + ptr + '/free')
-    .catch(err => console.error('Failed to free GLibAllocator:', ptr, err));
 });
 const glibasyncqueueRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/GLib/AsyncQueue/ptr,' + ptr + '/free')
@@ -199,10 +207,6 @@ const glibkeyfileRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/GLib/KeyFile/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibKeyFile:', ptr, err));
 });
-const gliblistRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/List/ptr,' + ptr + '/free')
-    .catch(err => console.error('Failed to free GLibList:', ptr, err));
-});
 const glibmainloopRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/GLib/MainLoop/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibMainLoop:', ptr, err));
@@ -274,10 +278,6 @@ const glibrecmutexRegistry = new FinalizationRegistry((ptr: string) => {
 const glibrelationRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/GLib/Relation/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GLibRelation:', ptr, err));
-});
-const glibslistRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/GLib/SList/ptr,' + ptr + '/free')
-    .catch(err => console.error('Failed to free GLibSList:', ptr, err));
 });
 const glibscannerRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/GLib/Scanner/ptr,' + ptr + '/free')
@@ -367,6 +367,10 @@ const gstmemoryRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/Memory/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstMemory:', ptr, err));
 });
+const gstminiobjectRegistry = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.fullBaseUrl + '/Gst/MiniObject/ptr,' + ptr + '/free')
+    .catch(err => console.error('Failed to free GstMiniObject:', ptr, err));
+});
 const gstatomicqueueRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/AtomicQueue/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstAtomicQueue:', ptr, err));
@@ -391,6 +395,10 @@ const gstcapsfeaturesRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/CapsFeatures/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstCapsFeatures:', ptr, err));
 });
+const gststaticcapsRegistry = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.fullBaseUrl + '/Gst/StaticCaps/ptr,' + ptr + '/free')
+    .catch(err => console.error('Failed to free GstStaticCaps:', ptr, err));
+});
 const gstpadprobeinfoRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/PadProbeInfo/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstPadProbeInfo:', ptr, err));
@@ -403,13 +411,13 @@ const gstcustommetaRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/CustomMeta/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstCustomMeta:', ptr, err));
 });
-const gstmetainfoRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/MetaInfo/ptr,' + ptr + '/free')
-    .catch(err => console.error('Failed to free GstMetaInfo:', ptr, err));
-});
 const gstmetaRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/Meta/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstMeta:', ptr, err));
+});
+const gstmetainfoRegistry = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.fullBaseUrl + '/Gst/MetaInfo/ptr,' + ptr + '/free')
+    .catch(err => console.error('Failed to free GstMetaInfo:', ptr, err));
 });
 const gstparentbuffermetaRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/ParentBufferMeta/ptr,' + ptr + '/free')
@@ -475,10 +483,6 @@ const gstdebugmessageRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/DebugMessage/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstDebugMessage:', ptr, err));
 });
-const gstminiobjectRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/MiniObject/ptr,' + ptr + '/free')
-    .catch(err => console.error('Failed to free GstMiniObject:', ptr, err));
-});
 const gstparsecontextRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/ParseContext/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstParseContext:', ptr, err));
@@ -494,10 +498,6 @@ const gstpollRegistry = new FinalizationRegistry((ptr: string) => {
 const gstpromiseRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/Promise/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free GstPromise:', ptr, err));
-});
-const gststaticcapsRegistry = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/Gst/StaticCaps/ptr,' + ptr + '/free')
-    .catch(err => console.error('Failed to free GstStaticCaps:', ptr, err));
 });
 const gsttypefindRegistry = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/Gst/TypeFind/ptr,' + ptr + '/free')
@@ -559,6 +559,8 @@ export type GLibChecksumType = "md5" | "sha1" | "sha256" | "sha512" | "sha384";
 export type GLibChildWatchFunc = (pid: number, wait_status: number, user_data: Pointer) => void;
 export type GLibCompareDataFunc = (a: Pointer, b: Pointer, user_data: Pointer) => number;
 export type GLibCompareFunc = (a: Pointer, b: Pointer) => number;
+export type GLibCompletionFunc = (item: Pointer) => string;
+export type GLibCompletionStrncmpFunc = (s1: string, s2: string, n: number) => number;
 export type GLibConvertError = "no_conversion" | "illegal_sequence" | "failed" | "partial_input" | "bad_uri" | "not_absolute_path" | "no_memory" | "embedded_nul";
 export type GLibDataForeachFunc = (key_id: number, data_: Pointer, user_data: Pointer) => void;
 export type GLibDateDMY = "day" | "month" | "year";
@@ -578,6 +580,7 @@ export type GLibHFunc = (key: Pointer, value_: Pointer, user_data: Pointer) => v
 export type GLibHRFunc = (key: Pointer, value_: Pointer, user_data: Pointer) => boolean;
 export type GLibHookCheckMarshaller = (hook: GLibHook, marshal_data: Pointer) => boolean;
 export type GLibHookCompareFunc = (new_hook: GLibHook, sibling: GLibHook) => number;
+export type GLibHookFinalizeFunc = (hook_list: GLibHookList, hook: GLibHook) => void;
 export type GLibHookFlagMask = "active" | "in_call" | "mask";
 export type GLibHookMarshaller = (hook: GLibHook, marshal_data: Pointer) => void;
 export type GLibIOChannelError = "fbig" | "inval" | "io" | "isdir" | "nospc" | "nxio" | "overflow" | "pipe" | "failed";
@@ -639,6 +642,7 @@ export type GLibRegexCompileFlags = "default" | "caseless" | "multiline" | "dota
 export type GLibRegexError = "compile" | "optimize" | "replace" | "match" | "internal" | "stray_backslash" | "missing_control_char" | "unrecognized_escape" | "quantifiers_out_of_order" | "quantifier_too_big" | "unterminated_character_class" | "invalid_escape_in_character_class" | "range_out_of_order" | "nothing_to_repeat" | "unrecognized_character" | "posix_named_class_outside_class" | "unmatched_parenthesis" | "inexistent_subpattern_reference" | "unterminated_comment" | "expression_too_large" | "memory_error" | "variable_length_lookbehind" | "malformed_condition" | "too_many_conditional_branches" | "assertion_expected" | "unknown_posix_class_name" | "posix_collating_elements_not_supported" | "hex_code_too_large" | "invalid_condition" | "single_byte_match_in_lookbehind" | "infinite_loop" | "missing_subpattern_name_terminator" | "duplicate_subpattern_name" | "malformed_property" | "unknown_property" | "subpattern_name_too_long" | "too_many_subpatterns" | "invalid_octal_value" | "too_many_branches_in_define" | "define_repetion" | "inconsistent_newline_options" | "missing_back_reference" | "invalid_relative_reference" | "backtracking_control_verb_argument_forbidden" | "unknown_backtracking_control_verb" | "number_too_big" | "missing_subpattern_name" | "missing_digit" | "invalid_data_character" | "extra_subpattern_name" | "backtracking_control_verb_argument_required" | "invalid_control_char" | "missing_name" | "not_supported_in_class" | "too_many_forward_references" | "name_too_long" | "character_value_too_large";
 export type GLibRegexEvalCallback = (match_info: GLibMatchInfo, result_: GLibString, user_data: Pointer) => boolean;
 export type GLibRegexMatchFlags = "default" | "anchored" | "notbol" | "noteol" | "notempty" | "partial" | "newline_cr" | "newline_lf" | "newline_crlf" | "newline_any" | "newline_anycrlf" | "bsr_anycrlf" | "bsr_any" | "partial_soft" | "partial_hard" | "notempty_atstart";
+export type GLibScannerMsgFunc = (scanner: GLibScanner, message: string, error_: boolean) => void;
 export type GLibSeekType = "cur" | "set" | "end";
 export type GLibSequenceIterCompareFunc = (a: GLibSequenceIter, b: GLibSequenceIter, data_: Pointer) => number;
 export type GLibShellError = "bad_quoting" | "empty_string" | "failed";
@@ -655,7 +659,7 @@ export type GLibTestResult = "success" | "skipped" | "failure" | "incomplete";
 export type GLibTestSubprocessFlags = "default" | "inherit_stdin" | "inherit_stdout" | "inherit_stderr";
 export type GLibTestTrapFlags = "default" | "silence_stdout" | "silence_stderr" | "inherit_stdin";
 export type GLibThreadError = "thread_error_again";
-export type GLibThreadFunc = (data_: Pointer) => void;
+export type GLibThreadFunc = (data_: Pointer) => Pointer;
 export type GLibTimeType = "standard" | "daylight" | "universal";
 export type GLibTokenType = "eof" | "left_paren" | "right_paren" | "left_curly" | "right_curly" | "left_brace" | "right_brace" | "equal_sign" | "comma" | "none" | "error" | "char" | "binary" | "octal" | "int" | "hex" | "float" | "string" | "symbol" | "identifier" | "identifier_null" | "comment_single" | "comment_multi";
 export type GLibTranslateFunc = (str: string, data_: Pointer) => string;
@@ -982,7 +986,7 @@ export namespace GObjectBindingFlags {
   }
 }
 export type GObjectBindingFlagsValue = "default" | "bidirectional" | "sync_create" | "invert_boolean";
-export type GObjectBoxedCopyFunc = (boxed: Pointer) => void;
+export type GObjectBoxedCopyFunc = (boxed: Pointer) => Pointer;
 export type GObjectBoxedFreeFunc = (boxed: Pointer) => void;
 export type GObjectCallback = () => void;
 export type GObjectClosureMarshal = (closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: Pointer, invocation_hint: Pointer, marshal_data: Pointer) => void;
@@ -1011,6 +1015,7 @@ export type GObjectSignalMatchType = "id" | "detail" | "closure" | "func" | "dat
 export type GObjectTypeDebugFlags = "none" | "objects" | "signals" | "instance_count" | "mask";
 export type GObjectTypeFlags = "none" | "abstract" | "value_abstract" | "final" | "deprecated";
 export type GObjectTypeFundamentalFlags = "classed" | "instantiatable" | "derivable" | "deep_derivable";
+export type GObjectmarshal = (closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint: Pointer, marshal_data: Pointer) => void;
 export namespace GstAllocatorFlags {
   export const CUSTOM_ALLOC: 'custom_alloc' = 'custom_alloc';
   export const NO_COPY: 'no_copy' = 'no_copy';
@@ -1566,8 +1571,10 @@ export namespace GstGapFlags {
   }
 }
 export type GstGapFlagsValue = "data";
+export type GstIteratorCopyFunction = (it: GstIterator, copy: GstIterator) => void;
 export type GstIteratorFoldFunction = (item: GObjectValue, ret: GObjectValue, user_data: Pointer) => boolean;
 export type GstIteratorForeachFunction = (item: GObjectValue, user_data: Pointer) => void;
+export type GstIteratorFreeFunction = (it: GstIterator) => void;
 export namespace GstIteratorItem {
   export const SKIP: 'skip' = 'skip';
   export const PASS: 'pass' = 'pass';
@@ -1581,6 +1588,8 @@ export namespace GstIteratorItem {
   }
 }
 export type GstIteratorItemValue = "skip" | "pass" | "end";
+export type GstIteratorItemFunction = (it: GstIterator, item: GObjectValue) => GstIteratorItemValue;
+export type GstIteratorNextFunction = (it: GstIterator, result_: GObjectValue) => GstIteratorResultValue;
 export namespace GstIteratorResult {
   export const DONE: 'done' = 'done';
   export const OK: 'ok' = 'ok';
@@ -1595,6 +1604,7 @@ export namespace GstIteratorResult {
   }
 }
 export type GstIteratorResultValue = "done" | "ok" | "resync" | "error";
+export type GstIteratorResyncFunction = (it: GstIterator) => void;
 export namespace GstLibraryError {
   export const FAILED: 'failed' = 'failed';
   export const TOO_LAZY: 'too_lazy' = 'too_lazy';
@@ -1734,6 +1744,8 @@ export namespace GstMessageType {
   }
 }
 export type GstMessageTypeValue = "unknown" | "eos" | "error" | "warning" | "info" | "tag" | "buffering" | "state_changed" | "state_dirty" | "step_done" | "clock_provide" | "clock_lost" | "new_clock" | "structure_change" | "stream_status" | "application" | "element" | "segment_start" | "segment_done" | "duration_changed" | "latency" | "async_start" | "async_done" | "request_state" | "step_start" | "qos" | "progress" | "toc" | "reset_time" | "stream_start" | "need_context" | "have_context" | "extended" | "device_added" | "device_removed" | "property_notify" | "stream_collection" | "streams_selected" | "redirect" | "device_changed" | "instant_rate_request" | "any";
+export type GstMetaClearFunction = (buffer: GstBuffer, meta: GstMeta) => void;
+export type GstMetaDeserializeFunction = (info: GstMetaInfo, buffer: GstBuffer, data_: number, size: number, version: number) => GstMeta;
 export namespace GstMetaFlags {
   export const NONE: 'none' = 'none';
   export const READONLY: 'readonly' = 'readonly';
@@ -1749,6 +1761,12 @@ export namespace GstMetaFlags {
   }
 }
 export type GstMetaFlagsValue = "none" | "readonly" | "pooled" | "locked" | "last";
+export type GstMetaFreeFunction = (meta: GstMeta, buffer: GstBuffer) => void;
+export type GstMetaInitFunction = (meta: GstMeta, params: Pointer, buffer: GstBuffer) => boolean;
+export type GstMetaSerializeFunction = (meta: GstMeta, data_: GstByteArrayInterface, version: number) => boolean;
+export type GstMetaTransformFunction = (transbuf: GstBuffer, meta: GstMeta, buffer: GstBuffer, type_: number, data_: Pointer) => boolean;
+export type GstMiniObjectCopyFunction = (obj: GstMiniObject) => GstMiniObject;
+export type GstMiniObjectDisposeFunction = (obj: GstMiniObject) => boolean;
 export namespace GstMiniObjectFlags {
   export const LOCKABLE: 'lockable' = 'lockable';
   export const LOCK_READONLY: 'lock_readonly' = 'lock_readonly';
@@ -1763,6 +1781,7 @@ export namespace GstMiniObjectFlags {
   }
 }
 export type GstMiniObjectFlagsValue = "lockable" | "lock_readonly" | "may_be_leaked" | "last";
+export type GstMiniObjectFreeFunction = (obj: GstMiniObject) => void;
 export namespace GstObjectFlags {
   export const MAY_BE_LEAKED: 'may_be_leaked' = 'may_be_leaked';
   export const CONSTRUCTED: 'constructed' = 'constructed';
@@ -2685,6 +2704,9 @@ export namespace GstURIType {
   }
 }
 export type GstURITypeValue = "unknown" | "sink" | "src";
+export type Gstget_length = (data_: Pointer) => number;
+export type Gstpeek = (data_: Pointer, offset: number, size: number) => number;
+export type Gstsuggest = (data_: Pointer, probability: number, caps: GstCaps) => void;
 
 export class GLibAllocator {
   ptr!: string;
@@ -2773,33 +2795,45 @@ export class GLibAsyncQueue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async pop(): Promise<void> {
+  async pop(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/pop`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async pop_unlocked(): Promise<void> {
+  async pop_unlocked(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/pop_unlocked`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async push(): Promise<void> {
+  async push(data_: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/push`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async push_front(): Promise<void> {
+  async push_front(item: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/push_front`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('item', String(item));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async push_front_unlocked(): Promise<void> {
+  async push_front_unlocked(item: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/push_front_unlocked`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('item', String(item));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async push_sorted(func: GLibCompareDataFunc): Promise<{ func?: number }> {
+  async push_sorted(data_: Pointer, func: GLibCompareDataFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/push_sorted`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2809,8 +2843,10 @@ export class GLibAsyncQueue {
     }
     return data;
   }
-  async push_sorted_unlocked(func: GLibCompareDataFunc): Promise<{ func?: number }> {
+  async push_sorted_unlocked(func: GLibCompareDataFunc, data_?: Pointer): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/push_sorted_unlocked`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2820,8 +2856,10 @@ export class GLibAsyncQueue {
     }
     return data;
   }
-  async push_unlocked(): Promise<void> {
+  async push_unlocked(data_: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/push_unlocked`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -2830,15 +2868,19 @@ export class GLibAsyncQueue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async remove(): Promise<boolean> {
+  async remove(item: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/remove`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('item', String(item));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  async remove_unlocked(): Promise<boolean> {
+  async remove_unlocked(item?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/remove_unlocked`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (item !== undefined) url.searchParams.append('item', String(item));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -2866,7 +2908,7 @@ export class GLibAsyncQueue {
     }
     return data;
   }
-  async timed_pop(end_time: GLibTimeVal): Promise<void> {
+  async timed_pop(end_time: GLibTimeVal): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/timed_pop`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (end_time && typeof end_time === 'object' && 'ptr' in end_time) {
@@ -2874,8 +2916,10 @@ export class GLibAsyncQueue {
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async timed_pop_unlocked(end_time: GLibTimeVal): Promise<void> {
+  async timed_pop_unlocked(end_time: GLibTimeVal): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/timed_pop_unlocked`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (end_time && typeof end_time === 'object' && 'ptr' in end_time) {
@@ -2883,30 +2927,40 @@ export class GLibAsyncQueue {
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async timeout_pop(timeout: number): Promise<void> {
+  async timeout_pop(timeout: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/timeout_pop`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('timeout', String(timeout));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async timeout_pop_unlocked(timeout: number): Promise<void> {
+  async timeout_pop_unlocked(timeout: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/timeout_pop_unlocked`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('timeout', String(timeout));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async try_pop(): Promise<void> {
+  async try_pop(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/try_pop`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async try_pop_unlocked(): Promise<void> {
+  async try_pop_unlocked(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/try_pop_unlocked`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async unlock(): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/unlock`, apiConfig.baseUrl);
@@ -3639,6 +3693,34 @@ export class GLibByteArray {
     const data = await response.json();
     return data.return;
   }
+  async get_data(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ByteArray/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_data(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ByteArray/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_len(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ByteArray/ptr,${this.ptr}/fields/len`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_len(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ByteArray/ptr,${this.ptr}/fields/len`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GLibBytes {
   ptr!: string;
@@ -3717,7 +3799,7 @@ export class GLibBytes {
     const data = await response.json();
     return data.return;
   }
-  async get_region(element_size: number, offset: number, n_elements: number): Promise<void> {
+  async get_region(element_size: number, offset: number, n_elements: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Bytes/ptr,${this.ptr}/get_region`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('element_size', String(element_size));
@@ -3727,6 +3809,8 @@ export class GLibBytes {
     url.searchParams.append('n_elements', String(n_elements));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async get_size(): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Bytes/ptr,${this.ptr}/get_size`, apiConfig.baseUrl);
@@ -3833,10 +3917,14 @@ export class GLibCache {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async insert(): Promise<void> {
+  async insert(key?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cache/ptr,${this.ptr}/insert`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async key_foreach(func: GLibHFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cache/ptr,${this.ptr}/key_foreach`, apiConfig.baseUrl);
@@ -3849,8 +3937,10 @@ export class GLibCache {
     }
     return data;
   }
-  async remove(): Promise<void> {
+  async remove(value_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cache/ptr,${this.ptr}/remove`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -3985,7 +4075,7 @@ export class GLibCompletion {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async complete_utf8(prefix: string, new_prefix: string): Promise<Pointer> {
+  async complete_utf8(prefix: string, new_prefix: string): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/complete_utf8`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('prefix', String(prefix));
@@ -3994,7 +4084,82 @@ export class GLibCompletion {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
+  }
+  async get_items(): Promise<GLibList> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/items`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_items(value_: GLibList): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/items`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_func(): Promise<GLibCompletionFunc> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_func(value_: GLibCompletionFunc): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_prefix(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/prefix`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_prefix(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/prefix`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_cache(): Promise<GLibList> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/cache`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_cache(value_: GLibList): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/cache`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_strncmp_func(): Promise<GLibCompletionStrncmpFunc> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/strncmp_func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_strncmp_func(value_: GLibCompletionStrncmpFunc): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/strncmp_func`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GLibCond {
@@ -4061,6 +4226,20 @@ export class GLibCond {
     url.searchParams.append('mutex', String(mutex));
     // Primitive parameter
     url.searchParams.append('end_time', String(end_time));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_p(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cond/ptr,${this.ptr}/fields/p`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_i(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cond/ptr,${this.ptr}/fields/i`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -4380,8 +4559,10 @@ export class GLibDate {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async to_struct_tm(): Promise<void> {
+  async to_struct_tm(tm: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/to_struct_tm`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('tm', String(tm));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -4511,6 +4692,90 @@ export class GLibDate {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
+  }
+  async get_julian_days(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/julian_days`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_julian_days(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/julian_days`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_julian(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/julian`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_julian(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/julian`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_dmy(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/dmy`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_dmy(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/dmy`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_day(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/day`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_day(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/day`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_month(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/month`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_month(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/month`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_year(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/year`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_year(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Date/ptr,${this.ptr}/fields/year`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GLibDateTime {
@@ -5319,6 +5584,48 @@ export class GLibError {
     const data = await response.json();
     return data.return;
   }
+  async get_domain(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Error/ptr,${this.ptr}/fields/domain`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_domain(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Error/ptr,${this.ptr}/fields/domain`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_code(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Error/ptr,${this.ptr}/fields/code`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_code(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Error/ptr,${this.ptr}/fields/code`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_message(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Error/ptr,${this.ptr}/fields/message`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_message(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Error/ptr,${this.ptr}/fields/message`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GLibHashTable {
   ptr!: string;
@@ -5351,19 +5658,23 @@ export class GLibHashTable {
     return instance;
   }
 
-  static async add(hash_table: Pointer): Promise<boolean> {
+  static async add(hash_table: Pointer, key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/add`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  static async contains(hash_table: Pointer): Promise<boolean> {
+  static async contains(hash_table: Pointer, key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/contains`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5376,7 +5687,7 @@ export class GLibHashTable {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async find(hash_table: Pointer, predicate: GLibHRFunc): Promise<{ predicate?: number }> {
+  static async find(hash_table: Pointer, predicate: GLibHRFunc): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/find`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
@@ -5387,7 +5698,7 @@ export class GLibHashTable {
     if (data.predicate !== undefined) {
       callbackDispatcher.set(data.predicate.toString(), predicate);
     }
-    return data;
+    return data.return;
   }
   static async foreach(hash_table: Pointer, func: GLibHFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/foreach`, apiConfig.baseUrl);
@@ -5428,26 +5739,36 @@ export class GLibHashTable {
     }
     return data.return;
   }
-  static async insert(hash_table: Pointer): Promise<boolean> {
+  static async insert(hash_table: Pointer, key?: Pointer, value_?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/insert`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  static async lookup(hash_table: Pointer): Promise<void> {
+  static async lookup(hash_table: Pointer, key?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/lookup`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  static async lookup_extended(hash_table: Pointer): Promise<boolean> {
+  static async lookup_extended(hash_table: Pointer, lookup_key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/lookup_extended`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (lookup_key !== undefined) url.searchParams.append('lookup_key', String(lookup_key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5471,10 +5792,12 @@ export class GLibHashTable {
     const data = await response.json();
     return data.return;
   }
-  static async remove(hash_table: Pointer): Promise<boolean> {
+  static async remove(hash_table: Pointer, key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/remove`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5487,10 +5810,14 @@ export class GLibHashTable {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async replace(hash_table: Pointer): Promise<boolean> {
+  static async replace(hash_table: Pointer, key?: Pointer, value_?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/replace`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5505,10 +5832,12 @@ export class GLibHashTable {
     const data = await response.json();
     return data.return;
   }
-  static async steal(hash_table: Pointer): Promise<boolean> {
+  static async steal(hash_table: Pointer, key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/steal`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5521,10 +5850,12 @@ export class GLibHashTable {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async steal_extended(hash_table: Pointer): Promise<boolean> {
+  static async steal_extended(hash_table: Pointer, lookup_key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/steal_extended`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (lookup_key !== undefined) url.searchParams.append('lookup_key', String(lookup_key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -5602,8 +5933,10 @@ export class GLibHashTableIter {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async replace(): Promise<void> {
+  async replace(value_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/replace`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -5611,6 +5944,48 @@ export class GLibHashTableIter {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/steal`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_dummy1(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/fields/dummy1`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_dummy2(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/fields/dummy2`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_dummy3(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/fields/dummy3`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_dummy4(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/fields/dummy4`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_dummy5(): Promise<boolean> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/fields/dummy5`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_dummy6(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/fields/dummy6`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
 }
 export class GLibHmac {
@@ -5844,6 +6219,118 @@ export class GLibHook {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
+  async get_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_data(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_next(): Promise<GLibHook> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_next(value_: GLibHook): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_prev(): Promise<GLibHook> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/prev`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_prev(value_: GLibHook): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/prev`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_ref_count(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/ref_count`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_ref_count(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/ref_count`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_hook_id(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/hook_id`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_hook_id(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/hook_id`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_flags(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_flags(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_func(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_func(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_destroy(): Promise<GLibDestroyNotify> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/destroy`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_destroy(value_: GLibDestroyNotify): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/destroy`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GLibHookList {
   ptr!: string;
@@ -5927,6 +6414,104 @@ export class GLibHookList {
       callbackDispatcher.set(data.marshaller.toString(), marshaller);
     }
     return data;
+  }
+  async get_seq_id(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/seq_id`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_seq_id(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/seq_id`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_hook_size(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/hook_size`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_hook_size(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/hook_size`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_is_setup(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/is_setup`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_is_setup(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/is_setup`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_hooks(): Promise<GLibHook> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/hooks`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_hooks(value_: GLibHook): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/hooks`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_dummy3(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/dummy3`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_dummy3(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/dummy3`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_finalize_hook(): Promise<GLibHookFinalizeFunc> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/finalize_hook`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_finalize_hook(value_: GLibHookFinalizeFunc): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/finalize_hook`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_dummy(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/dummy`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_dummy(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/dummy`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GLibIOChannel {
@@ -6251,6 +6836,146 @@ export class GLibIOChannel {
   }
   static async get_type(): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_ref_count(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/ref_count`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_funcs(): Promise<GLibIOFuncs> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/funcs`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_encoding(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/encoding`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_read_cd(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/read_cd`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_write_cd(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/write_cd`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_line_term(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/line_term`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_line_term_len(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/line_term_len`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_buf_size(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/buf_size`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_read_buf(): Promise<GLibString> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/read_buf`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_encoded_read_buf(): Promise<GLibString> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/encoded_read_buf`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_write_buf(): Promise<GLibString> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/write_buf`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_partial_write_buf(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/partial_write_buf`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_use_buffer(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/use_buffer`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_do_encode(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/do_encode`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_close_on_unref(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/close_on_unref`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_is_readable(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/is_readable`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_is_writeable(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/is_writeable`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_is_seekable(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/is_seekable`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_reserved1(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/reserved1`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_reserved2(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/reserved2`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -6846,6 +7571,48 @@ export class GLibList {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
+  async get_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/List/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_data(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/List/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_next(): Promise<GLibList> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/List/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_next(value_: GLibList): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/List/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_prev(): Promise<GLibList> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/List/ptr,${this.ptr}/fields/prev`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_prev(value_: GLibList): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/List/ptr,${this.ptr}/fields/prev`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GLibLogField {
   ptr!: Pointer;
@@ -6930,12 +7697,14 @@ export class GLibMainContext {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async find_source_by_funcs_user_data(funcs: GLibSourceFuncs): Promise<GLibSource> {
+  async find_source_by_funcs_user_data(funcs: GLibSourceFuncs, user_data?: Pointer): Promise<GLibSource> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MainContext/ptr,${this.ptr}/find_source_by_funcs_user_data`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (funcs && typeof funcs === 'object' && 'ptr' in funcs) {
       url.searchParams.append('funcs', 'ptr,' + funcs.ptr);
     }
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -6960,8 +7729,10 @@ export class GLibMainContext {
     }
     return data.return;
   }
-  async find_source_by_user_data(): Promise<GLibSource> {
+  async find_source_by_user_data(user_data?: Pointer): Promise<GLibSource> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MainContext/ptr,${this.ptr}/find_source_by_user_data`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -7340,7 +8111,7 @@ export class GLibMarkupParseContext {
       });
   }
 
-  static async new(parser: GLibMarkupParser, flags: GLibMarkupParseFlags, user_data_dnotify: GLibDestroyNotify): Promise<GLibMarkupParseContext> {
+  static async new(parser: GLibMarkupParser, flags: GLibMarkupParseFlags, user_data_dnotify: GLibDestroyNotify, user_data?: Pointer): Promise<GLibMarkupParseContext> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MarkupParseContext/new`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (parser && typeof parser === 'object' && 'ptr' in parser) {
@@ -7348,6 +8119,8 @@ export class GLibMarkupParseContext {
     }
     // Primitive parameter
     url.searchParams.append('flags', String(flags));
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -7374,11 +8147,16 @@ export class GLibMarkupParseContext {
     const data = await response.json();
     return data.return;
   }
-  async get_element_stack(): Promise<Pointer> {
+  async get_element_stack(): Promise<GLibSList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MarkupParseContext/ptr,${this.ptr}/get_element_stack`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibSList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_position(): Promise<{ line_number?: number; char_number?: number }> {
@@ -7388,10 +8166,12 @@ export class GLibMarkupParseContext {
     const data = await response.json();
     return data;
   }
-  async get_user_data(): Promise<void> {
+  async get_user_data(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MarkupParseContext/ptr,${this.ptr}/get_user_data`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async parse(text: string, text_len: number): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MarkupParseContext/ptr,${this.ptr}/parse`, apiConfig.baseUrl);
@@ -7404,17 +8184,21 @@ export class GLibMarkupParseContext {
     const data = await response.json();
     return data.return;
   }
-  async pop(): Promise<void> {
+  async pop(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MarkupParseContext/ptr,${this.ptr}/pop`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async push(parser: GLibMarkupParser): Promise<void> {
+  async push(parser: GLibMarkupParser, user_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MarkupParseContext/ptr,${this.ptr}/push`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (parser && typeof parser === 'object' && 'ptr' in parser) {
       url.searchParams.append('parser', 'ptr,' + parser.ptr);
     }
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -7634,15 +8418,19 @@ export class GLibMemChunk {
     return instance;
   }
 
-  async alloc(): Promise<void> {
+  async alloc(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MemChunk/ptr,${this.ptr}/alloc`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async alloc0(): Promise<void> {
+  async alloc0(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MemChunk/ptr,${this.ptr}/alloc0`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async clean(): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MemChunk/ptr,${this.ptr}/clean`, apiConfig.baseUrl);
@@ -7706,8 +8494,10 @@ export class GLibNode {
     return instance;
   }
 
-  async child_index(): Promise<number> {
+  async child_index(data_?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/child_index`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -7824,6 +8614,76 @@ export class GLibNode {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
+  async get_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_data(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_next(): Promise<GLibNode> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_next(value_: GLibNode): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_prev(): Promise<GLibNode> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/prev`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_prev(value_: GLibNode): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/prev`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_parent(): Promise<GLibNode> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_parent(value_: GLibNode): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_children(): Promise<GLibNode> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/children`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_children(value_: GLibNode): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/children`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GLibOnce {
   ptr!: string;
@@ -7856,8 +8716,10 @@ export class GLibOnce {
     return instance;
   }
 
-  static async init_enter(): Promise<boolean> {
+  static async init_enter(location: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Once/init_enter`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('location', String(location));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -7872,22 +8734,60 @@ export class GLibOnce {
     const data = await response.json();
     return data.return;
   }
-  static async init_enter_pointer(): Promise<boolean> {
+  static async init_enter_pointer(location: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Once/init_enter_pointer`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('location', String(location));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  static async init_leave(result_: number): Promise<void> {
+  static async init_leave(location: Pointer, result_: number): Promise<{ location?: Pointer }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Once/init_leave`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('location', String(location));
     // Primitive parameter
     url.searchParams.append('result', String(result_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
   }
-  static async init_leave_pointer(): Promise<void> {
+  static async init_leave_pointer(location: Pointer, result_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Once/init_leave_pointer`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('location', String(location));
+    // Primitive parameter
+    if (result_ !== undefined) url.searchParams.append('result', String(result_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_status(): Promise<GLibOnceStatus> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Once/ptr,${this.ptr}/fields/status`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_status(value_: GLibOnceStatus): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Once/ptr,${this.ptr}/fields/status`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_retval(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Once/ptr,${this.ptr}/fields/retval`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_retval(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Once/ptr,${this.ptr}/fields/retval`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -8110,7 +9010,7 @@ export class GLibOptionGroup {
       });
   }
 
-  static async new(name: string, description: string, help_description: string, destroy: GLibDestroyNotify): Promise<GLibOptionGroup> {
+  static async new(name: string, description: string, help_description: string, destroy: GLibDestroyNotify, user_data?: Pointer): Promise<GLibOptionGroup> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/OptionGroup/new`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('name', String(name));
@@ -8118,6 +9018,8 @@ export class GLibOptionGroup {
     url.searchParams.append('description', String(description));
     // Primitive parameter
     url.searchParams.append('help_description', String(help_description));
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -8302,8 +9204,19 @@ export class GLibPathBuf {
     const data = await response.json();
     return data.return;
   }
-  static async equal(): Promise<boolean> {
+  static async equal(v1: Pointer, v2: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/PathBuf/equal`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v1', String(v1));
+    // Primitive parameter
+    url.searchParams.append('v2', String(v2));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_dummy(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/PathBuf/ptr,${this.ptr}/fields/dummy`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -8432,20 +9345,47 @@ export class GLibPrivate {
     return instance;
   }
 
-  async get(): Promise<void> {
+  async get(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Private/ptr,${this.ptr}/get`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async replace(): Promise<void> {
+  async replace(value_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Private/ptr,${this.ptr}/replace`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set(): Promise<void> {
+  async set(value_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Private/ptr,${this.ptr}/set`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_p(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Private/ptr,${this.ptr}/fields/p`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_notify(): Promise<GLibDestroyNotify> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Private/ptr,${this.ptr}/fields/notify`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_future(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Private/ptr,${this.ptr}/fields/future`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
 }
 export class GLibPtrArray {
@@ -8529,8 +9469,10 @@ export class GLibQueue {
     const data = await response.json();
     return data.return;
   }
-  async index(): Promise<number> {
+  async index(data_?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/index`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -8541,8 +9483,10 @@ export class GLibQueue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async insert_sorted(func: GLibCompareDataFunc): Promise<{ func?: number }> {
+  async insert_sorted(func: GLibCompareDataFunc, data_?: Pointer): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/insert_sorted`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -8559,66 +9503,88 @@ export class GLibQueue {
     const data = await response.json();
     return data.return;
   }
-  async peek_head(): Promise<void> {
+  async peek_head(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/peek_head`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  async peek_nth(n: number): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/peek_nth`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('n', String(n));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  async peek_tail(): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/peek_tail`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  async pop_head(): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/pop_head`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  async pop_nth(n: number): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/pop_nth`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('n', String(n));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  async pop_tail(): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/pop_tail`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  async push_head(): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/push_head`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  async push_nth(n: number): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/push_nth`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('n', String(n));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  async push_tail(): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/push_tail`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  async remove(): Promise<boolean> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/remove`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  async remove_all(): Promise<number> {
+  async peek_nth(n: number): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/peek_nth`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('n', String(n));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async peek_tail(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/peek_tail`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async pop_head(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/pop_head`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async pop_nth(n: number): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/pop_nth`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('n', String(n));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async pop_tail(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/pop_tail`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async push_head(data_?: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/push_head`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async push_nth(n: number, data_?: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/push_nth`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
+    // Primitive parameter
+    url.searchParams.append('n', String(n));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async push_tail(data_?: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/push_tail`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async remove(data_?: Pointer): Promise<boolean> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/remove`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async remove_all(data_?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/remove_all`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -8639,6 +9605,48 @@ export class GLibQueue {
       callbackDispatcher.set(data.compare_func.toString(), compare_func);
     }
     return data;
+  }
+  async get_head(): Promise<GLibList> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/fields/head`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_head(value_: GLibList): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/fields/head`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_tail(): Promise<GLibList> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/fields/tail`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_tail(value_: GLibList): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/fields/tail`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_length(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/fields/length`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_length(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/fields/length`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GLibRWLock {
@@ -8715,6 +9723,20 @@ export class GLibRWLock {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RWLock/ptr,${this.ptr}/writer_unlock`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_p(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RWLock/ptr,${this.ptr}/fields/p`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_i(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RWLock/ptr,${this.ptr}/fields/i`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
 }
 export class GLibRand {
@@ -8901,6 +9923,20 @@ export class GLibRecMutex {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RecMutex/ptr,${this.ptr}/unlock`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_p(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RecMutex/ptr,${this.ptr}/fields/p`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_i(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RecMutex/ptr,${this.ptr}/fields/i`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
 }
 export class GLibRegex {
@@ -9271,8 +10307,10 @@ export class GLibRelation {
     return instance;
   }
 
-  async count(field: number): Promise<number> {
+  async count(field: number, key?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Relation/ptr,${this.ptr}/count`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     // Primitive parameter
     url.searchParams.append('field', String(field));
     const response = await fetch(url.toString());
@@ -9280,8 +10318,10 @@ export class GLibRelation {
     const data = await response.json();
     return data.return;
   }
-  async delete(field: number): Promise<number> {
+  async delete(field: number, key?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Relation/ptr,${this.ptr}/delete`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     // Primitive parameter
     url.searchParams.append('field', String(field));
     const response = await fetch(url.toString());
@@ -9342,6 +10382,34 @@ export class GLibSList {
     if (allocator && typeof allocator === 'object' && 'ptr' in allocator) {
       url.searchParams.append('allocator', 'ptr,' + allocator.ptr);
     }
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/SList/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_data(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/SList/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_next(): Promise<GLibSList> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/SList/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_next(value_: GLibSList): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/SList/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -9433,12 +10501,14 @@ export class GLibScanner {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async lookup_symbol(symbol: string): Promise<void> {
+  async lookup_symbol(symbol: string): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/lookup_symbol`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('symbol', String(symbol));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async peek_next_token(): Promise<GLibTokenType> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/peek_next_token`, apiConfig.baseUrl);
@@ -9447,12 +10517,14 @@ export class GLibScanner {
     const data = await response.json();
     return data.return;
   }
-  async scope_add_symbol(scope_id: number, symbol: string): Promise<void> {
+  async scope_add_symbol(scope_id: number, symbol: string, value_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/scope_add_symbol`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('scope_id', String(scope_id));
     // Primitive parameter
     url.searchParams.append('symbol', String(symbol));
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -9469,7 +10541,7 @@ export class GLibScanner {
     }
     return data;
   }
-  async scope_lookup_symbol(scope_id: number, symbol: string): Promise<void> {
+  async scope_lookup_symbol(scope_id: number, symbol: string): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/scope_lookup_symbol`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('scope_id', String(scope_id));
@@ -9477,6 +10549,8 @@ export class GLibScanner {
     url.searchParams.append('symbol', String(symbol));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async scope_remove_symbol(scope_id: number, symbol: string): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/scope_remove_symbol`, apiConfig.baseUrl);
@@ -9518,6 +10592,258 @@ export class GLibScanner {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
+  async get_user_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/user_data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_user_data(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/user_data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_max_parse_errors(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/max_parse_errors`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_max_parse_errors(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/max_parse_errors`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_parse_errors(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/parse_errors`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_parse_errors(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/parse_errors`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_input_name(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/input_name`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_input_name(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/input_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_qdata(): Promise<GLibData> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/qdata`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_qdata(value_: GLibData): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/qdata`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_config(): Promise<GLibScannerConfig> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/config`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_config(value_: GLibScannerConfig): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/config`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_token(): Promise<GLibTokenType> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/token`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_token(value_: GLibTokenType): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/token`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_value(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/value`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_value(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/value`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_line(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/line`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_line(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/line`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_position(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/position`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_position(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/position`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_next_token(): Promise<GLibTokenType> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/next_token`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_next_token(value_: GLibTokenType): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/next_token`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_next_value(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/next_value`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_next_value(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/next_value`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_next_line(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/next_line`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_next_line(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/next_line`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_next_position(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/next_position`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_next_position(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/next_position`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_symbol_table(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/symbol_table`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_input_fd(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/input_fd`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_text(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/text`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_text_end(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/text_end`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_buffer(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/buffer`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_scope_id(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/scope_id`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_msg_handler(): Promise<GLibScannerMsgFunc> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/msg_handler`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_msg_handler(value_: GLibScannerMsgFunc): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/msg_handler`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GLibScannerConfig {
   ptr!: Pointer;
@@ -9555,8 +10881,10 @@ export class GLibSequence {
     return instance;
   }
 
-  async append(): Promise<GLibSequenceIter> {
+  async append(data_?: Pointer): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/append`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -9623,8 +10951,10 @@ export class GLibSequence {
     const data = await response.json();
     return data.return;
   }
-  async insert_sorted(cmp_func: GLibCompareDataFunc): Promise<GLibSequenceIter> {
+  async insert_sorted(cmp_func: GLibCompareDataFunc, data_?: Pointer): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/insert_sorted`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -9639,8 +10969,10 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async insert_sorted_iter(iter_cmp: GLibSequenceIterCompareFunc): Promise<GLibSequenceIter> {
+  async insert_sorted_iter(iter_cmp: GLibSequenceIterCompareFunc, data_?: Pointer): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/insert_sorted_iter`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -9662,8 +10994,10 @@ export class GLibSequence {
     const data = await response.json();
     return data.return;
   }
-  async lookup(cmp_func: GLibCompareDataFunc): Promise<GLibSequenceIter> {
+  async lookup(cmp_func: GLibCompareDataFunc, data_?: Pointer): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/lookup`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -9678,8 +11012,10 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async lookup_iter(iter_cmp: GLibSequenceIterCompareFunc): Promise<GLibSequenceIter> {
+  async lookup_iter(iter_cmp: GLibSequenceIterCompareFunc, data_?: Pointer): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/lookup_iter`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -9694,8 +11030,10 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async prepend(): Promise<GLibSequenceIter> {
+  async prepend(data_?: Pointer): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/prepend`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -9706,8 +11044,10 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async search(cmp_func: GLibCompareDataFunc): Promise<GLibSequenceIter> {
+  async search(cmp_func: GLibCompareDataFunc, data_?: Pointer): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/search`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -9722,8 +11062,10 @@ export class GLibSequence {
     }
     return data.return;
   }
-  async search_iter(iter_cmp: GLibSequenceIterCompareFunc): Promise<GLibSequenceIter> {
+  async search_iter(iter_cmp: GLibSequenceIterCompareFunc, data_?: Pointer): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/search_iter`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -9779,7 +11121,7 @@ export class GLibSequence {
     }
     return data;
   }
-  static async get(iter: GLibSequenceIter): Promise<void> {
+  static async get(iter: GLibSequenceIter): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/get`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (iter && typeof iter === 'object' && 'ptr' in iter) {
@@ -9787,13 +11129,17 @@ export class GLibSequence {
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  static async insert_before(iter: GLibSequenceIter): Promise<GLibSequenceIter> {
+  static async insert_before(iter: GLibSequenceIter, data_?: Pointer): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/insert_before`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (iter && typeof iter === 'object' && 'ptr' in iter) {
       url.searchParams.append('iter', 'ptr,' + iter.ptr);
     }
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -9876,12 +11222,14 @@ export class GLibSequence {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async set(iter: GLibSequenceIter): Promise<void> {
+  static async set(iter: GLibSequenceIter, data_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/set`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (iter && typeof iter === 'object' && 'ptr' in iter) {
       url.searchParams.append('iter', 'ptr,' + iter.ptr);
     }
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -10098,7 +11446,7 @@ export class GLibSource {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async add_unix_fd(fd: number, events: GLibIOConditionValue): Promise<void> {
+  async add_unix_fd(fd: number, events: GLibIOConditionValue): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/add_unix_fd`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('fd', String(fd));
@@ -10106,6 +11454,8 @@ export class GLibSource {
     url.searchParams.append('events', String(events));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async attach(context?: GLibMainContext): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/attach`, apiConfig.baseUrl);
@@ -10193,15 +11543,19 @@ export class GLibSource {
     const data = await response.json();
     return data.return;
   }
-  async modify_unix_fd(new_events: GLibIOConditionValue): Promise<void> {
+  async modify_unix_fd(tag: Pointer, new_events: GLibIOConditionValue): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/modify_unix_fd`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
     // Primitive parameter
     url.searchParams.append('new_events', String(new_events));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async query_unix_fd(): Promise<GLibIOConditionValue> {
+  async query_unix_fd(tag: Pointer): Promise<GLibIOConditionValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/query_unix_fd`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -10237,8 +11591,10 @@ export class GLibSource {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async remove_unix_fd(): Promise<void> {
+  async remove_unix_fd(tag: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/remove_unix_fd`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -10253,8 +11609,10 @@ export class GLibSource {
     }
     return data;
   }
-  async set_callback_indirect(callback_funcs: GLibSourceCallbackFuncs): Promise<void> {
+  async set_callback_indirect(callback_funcs: GLibSourceCallbackFuncs, callback_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/set_callback_indirect`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (callback_data !== undefined) url.searchParams.append('callback_data', String(callback_data));
     // Object with explode=false: serialize as comma-separated
     if (callback_funcs && typeof callback_funcs === 'object' && 'ptr' in callback_funcs) {
       url.searchParams.append('callback_funcs', 'ptr,' + callback_funcs.ptr);
@@ -10320,19 +11678,23 @@ export class GLibSource {
     const data = await response.json();
     return data.return;
   }
-  static async remove_by_funcs_user_data(funcs: GLibSourceFuncs): Promise<boolean> {
+  static async remove_by_funcs_user_data(funcs: GLibSourceFuncs, user_data?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/remove_by_funcs_user_data`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (funcs && typeof funcs === 'object' && 'ptr' in funcs) {
       url.searchParams.append('funcs', 'ptr,' + funcs.ptr);
     }
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  static async remove_by_user_data(): Promise<boolean> {
+  static async remove_by_user_data(user_data?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/remove_by_user_data`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -10349,6 +11711,97 @@ export class GLibSource {
   }
   static async get_type(): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_callback_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/callback_data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_callback_funcs(): Promise<GLibSourceCallbackFuncs> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/callback_funcs`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_source_funcs(): Promise<GLibSourceFuncs> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/source_funcs`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_ref_count(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/ref_count`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_context(): Promise<GLibMainContext> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/context`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_priority(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/priority`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_flags(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_source_id(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/source_id`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_poll_fds(): Promise<GLibSList> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/poll_fds`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_prev(): Promise<GLibSource> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/prev`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_next(): Promise<GLibSource> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_name(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/name`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_priv(): Promise<GLibSourcePrivate> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/priv`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -10840,6 +12293,48 @@ export class GLibString {
     const data = await response.json();
     return data.return;
   }
+  async get_str(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/String/ptr,${this.ptr}/fields/str`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_str(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/String/ptr,${this.ptr}/fields/str`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_len(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/String/ptr,${this.ptr}/fields/len`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_len(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/String/ptr,${this.ptr}/fields/len`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_allocated_len(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/String/ptr,${this.ptr}/fields/allocated_len`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_allocated_len(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/String/ptr,${this.ptr}/fields/allocated_len`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GLibStringChunk {
   ptr!: string;
@@ -11068,6 +12563,20 @@ export class GLibTestLogBuffer {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
+  async get_data(): Promise<GLibString> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogBuffer/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_msgs(): Promise<GLibSList> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogBuffer/ptr,${this.ptr}/fields/msgs`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GLibTestLogMsg {
   ptr!: string;
@@ -11100,6 +12609,76 @@ export class GLibTestLogMsg {
     return instance;
   }
 
+  async get_log_type(): Promise<GLibTestLogType> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/log_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_log_type(value_: GLibTestLogType): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/log_type`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_n_strings(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/n_strings`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_n_strings(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/n_strings`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_strings(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/strings`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_strings(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/strings`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_n_nums(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/n_nums`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_n_nums(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/n_nums`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_nums(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/nums`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_nums(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/nums`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GLibTestSuite {
   ptr!: string;
@@ -11203,10 +12782,12 @@ export class GLibThread {
     return instance;
   }
 
-  async join(): Promise<void> {
+  async join(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/join`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async ref(): Promise<GLibThread> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/ref`, apiConfig.baseUrl);
@@ -11232,8 +12813,10 @@ export class GLibThread {
     const data = await response.json();
     return data.return;
   }
-  static async exit(): Promise<void> {
+  static async exit(retval?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/exit`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (retval !== undefined) url.searchParams.append('retval', String(retval));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -11256,6 +12839,34 @@ export class GLibThread {
   }
   static async get_type(): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_func(): Promise<GLibThreadFunc> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_joinable(): Promise<boolean> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/fields/joinable`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_priority(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/fields/priority`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11307,15 +12918,19 @@ export class GLibThreadPool {
     const data = await response.json();
     return data.return;
   }
-  async move_to_front(): Promise<boolean> {
+  async move_to_front(data_?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ThreadPool/ptr,${this.ptr}/move_to_front`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  async push(): Promise<boolean> {
+  async push(data_?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ThreadPool/ptr,${this.ptr}/push`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11377,6 +12992,48 @@ export class GLibThreadPool {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
+  async get_func(): Promise<GLibFunc> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ThreadPool/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_func(value_: GLibFunc): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ThreadPool/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_user_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ThreadPool/ptr,${this.ptr}/fields/user_data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_user_data(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ThreadPool/ptr,${this.ptr}/fields/user_data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_exclusive(): Promise<boolean> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ThreadPool/ptr,${this.ptr}/fields/exclusive`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_exclusive(value_: boolean): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ThreadPool/ptr,${this.ptr}/fields/exclusive`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GLibTimeVal {
   ptr!: string;
@@ -11435,6 +13092,34 @@ export class GLibTimeVal {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
+  }
+  async get_tv_sec(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TimeVal/ptr,${this.ptr}/fields/tv_sec`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_tv_sec(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TimeVal/ptr,${this.ptr}/fields/tv_sec`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_tv_usec(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TimeVal/ptr,${this.ptr}/fields/tv_usec`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_tv_usec(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TimeVal/ptr,${this.ptr}/fields/tv_usec`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GLibTimeZone {
@@ -11706,7 +13391,7 @@ export class GLibTrashStack {
     const data = await response.json();
     return data.return;
   }
-  static async peek(stack_p: GLibTrashStack): Promise<void> {
+  static async peek(stack_p: GLibTrashStack): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TrashStack/peek`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (stack_p && typeof stack_p === 'object' && 'ptr' in stack_p) {
@@ -11714,8 +13399,10 @@ export class GLibTrashStack {
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  static async pop(stack_p: GLibTrashStack): Promise<void> {
+  static async pop(stack_p: GLibTrashStack): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TrashStack/pop`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (stack_p && typeof stack_p === 'object' && 'ptr' in stack_p) {
@@ -11723,13 +13410,31 @@ export class GLibTrashStack {
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  static async push(stack_p: GLibTrashStack): Promise<void> {
+  static async push(stack_p: GLibTrashStack, data_p: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TrashStack/push`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (stack_p && typeof stack_p === 'object' && 'ptr' in stack_p) {
       url.searchParams.append('stack_p', 'ptr,' + stack_p.ptr);
     }
+    // Primitive parameter
+    url.searchParams.append('data_p', String(data_p));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_next(): Promise<GLibTrashStack> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TrashStack/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_next(value_: GLibTrashStack): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TrashStack/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -11806,13 +13511,21 @@ export class GLibTree {
     const data = await response.json();
     return data.return;
   }
-  async insert(): Promise<void> {
+  async insert(key?: Pointer, value_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/insert`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async insert_node(): Promise<GLibTreeNode> {
+  async insert_node(key?: Pointer, value_?: Pointer): Promise<GLibTreeNode> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/insert_node`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11823,20 +13536,28 @@ export class GLibTree {
     }
     return data.return;
   }
-  async lookup(): Promise<void> {
+  async lookup(key?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/lookup`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  async lookup_extended(): Promise<boolean> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/lookup_extended`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  async lookup_node(): Promise<GLibTreeNode> {
+  async lookup_extended(lookup_key?: Pointer): Promise<boolean> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/lookup_extended`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (lookup_key !== undefined) url.searchParams.append('lookup_key', String(lookup_key));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async lookup_node(key?: Pointer): Promise<GLibTreeNode> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/lookup_node`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11847,8 +13568,10 @@ export class GLibTree {
     }
     return data.return;
   }
-  async lower_bound(): Promise<GLibTreeNode> {
+  async lower_bound(key?: Pointer): Promise<GLibTreeNode> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/lower_bound`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11902,8 +13625,10 @@ export class GLibTree {
     }
     return data.return;
   }
-  async remove(): Promise<boolean> {
+  async remove(key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/remove`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11914,13 +13639,21 @@ export class GLibTree {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async replace(): Promise<void> {
+  async replace(key?: Pointer, value_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/replace`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async replace_node(): Promise<GLibTreeNode> {
+  async replace_node(key?: Pointer, value_?: Pointer): Promise<GLibTreeNode> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/replace_node`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11931,7 +13664,7 @@ export class GLibTree {
     }
     return data.return;
   }
-  async search(search_func: GLibCompareFunc): Promise<{ search_func?: number }> {
+  async search(search_func: GLibCompareFunc): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/search`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -11940,7 +13673,7 @@ export class GLibTree {
     if (data.search_func !== undefined) {
       callbackDispatcher.set(data.search_func.toString(), search_func);
     }
-    return data;
+    return data.return;
   }
   async search_node(search_func: GLibCompareFunc): Promise<GLibTreeNode> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/search_node`, apiConfig.baseUrl);
@@ -11958,8 +13691,10 @@ export class GLibTree {
     }
     return data.return;
   }
-  async steal(): Promise<boolean> {
+  async steal(key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/steal`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -11983,8 +13718,10 @@ export class GLibTree {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async upper_bound(): Promise<GLibTreeNode> {
+  async upper_bound(key?: Pointer): Promise<GLibTreeNode> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/upper_bound`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -12034,10 +13771,12 @@ export class GLibTreeNode {
     return instance;
   }
 
-  async key(): Promise<void> {
+  async key(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TreeNode/ptr,${this.ptr}/key`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async next(): Promise<GLibTreeNode> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TreeNode/ptr,${this.ptr}/next`, apiConfig.baseUrl);
@@ -12063,10 +13802,12 @@ export class GLibTreeNode {
     }
     return data.return;
   }
-  async value(): Promise<void> {
+  async value(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TreeNode/ptr,${this.ptr}/value`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
 }
 export class GLibTuples {
@@ -12105,12 +13846,28 @@ export class GLibTuples {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async index(index_: number, field: number): Promise<void> {
+  async index(index_: number, field: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tuples/ptr,${this.ptr}/index`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('index_', String(index_));
     // Primitive parameter
     url.searchParams.append('field', String(field));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_len(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tuples/ptr,${this.ptr}/fields/len`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_len(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tuples/ptr,${this.ptr}/fields/len`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -12619,6 +14376,34 @@ export class GLibUriParamsIter {
     const data = await response.json();
     return data.return;
   }
+  async get_dummy0(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/UriParamsIter/ptr,${this.ptr}/fields/dummy0`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_dummy1(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/UriParamsIter/ptr,${this.ptr}/fields/dummy1`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_dummy2(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/UriParamsIter/ptr,${this.ptr}/fields/dummy2`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_dummy3(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/UriParamsIter/ptr,${this.ptr}/fields/dummy3`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GLibVariant {
   ptr!: string;
@@ -12732,12 +14517,14 @@ export class GLibVariant {
     Object.assign(instance, data.return || data);
     return instance;
   }
-  static async new_fixed_array(element_type: GLibVariantType, n_elements: number, element_size: number): Promise<GLibVariant> {
+  static async new_fixed_array(element_type: GLibVariantType, n_elements: number, element_size: number, elements?: Pointer): Promise<GLibVariant> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Variant/new_fixed_array`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (element_type && typeof element_type === 'object' && 'ptr' in element_type) {
       url.searchParams.append('element_type', 'ptr,' + element_type.ptr);
     }
+    // Primitive parameter
+    if (elements !== undefined) url.searchParams.append('elements', String(elements));
     // Primitive parameter
     url.searchParams.append('n_elements', String(n_elements));
     // Primitive parameter
@@ -12768,7 +14555,7 @@ export class GLibVariant {
     Object.assign(instance, data.return || data);
     return instance;
   }
-  static async new_from_data(type_: GLibVariantType, data_: Pointer, size: number, trusted: boolean, notify: GLibDestroyNotify): Promise<GLibVariant> {
+  static async new_from_data(type_: GLibVariantType, data_: Pointer, size: number, trusted: boolean, notify: GLibDestroyNotify, user_data?: Pointer): Promise<GLibVariant> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Variant/new_from_data`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (type_ && typeof type_ === 'object' && 'ptr' in type_) {
@@ -12780,6 +14567,8 @@ export class GLibVariant {
     url.searchParams.append('size', String(size));
     // Primitive parameter
     url.searchParams.append('trusted', String(trusted));
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -13100,10 +14889,12 @@ export class GLibVariant {
     }
     return data.return;
   }
-  async get_data(): Promise<void> {
+  async get_data(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Variant/ptr,${this.ptr}/get_data`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async get_data_as_bytes(): Promise<GLibBytes> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Variant/ptr,${this.ptr}/get_data_as_bytes`, apiConfig.baseUrl);
@@ -13353,8 +15144,10 @@ export class GLibVariant {
     }
     return data.return;
   }
-  async store(): Promise<void> {
+  async store(data_: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Variant/ptr,${this.ptr}/store`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -14081,12 +15874,21 @@ export class GObjectTypeInstance {
   ptr!: Pointer;
 
 
-  async get_private(private_type: string): Promise<void> {
+  async get_private(private_type: string): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInstance/ptr,${this.ptr}/get_private`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('private_type', String(private_type));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_g_class(): Promise<GObjectTypeClass> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInstance/ptr,${this.ptr}/fields/g_class`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
 }
 export class GObjectObject extends GObjectTypeInstance {
@@ -14137,10 +15939,12 @@ export class GObjectObject extends GObjectTypeInstance {
     return instance;
   }
 
-  static async compat_control(what: number): Promise<number> {
+  static async compat_control(what: number, data_?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/compat_control`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('what', String(what));
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -14254,12 +16058,14 @@ export class GObjectObject extends GObjectTypeInstance {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async get_data(key: string): Promise<void> {
+  async get_data(key: string): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/get_data`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async get_property(property_name: string, value_: GObjectValue): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/get_property`, apiConfig.baseUrl);
@@ -14272,12 +16078,14 @@ export class GObjectObject extends GObjectTypeInstance {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async get_qdata(quark: number): Promise<void> {
+  async get_qdata(quark: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/get_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async getv(n_properties: number, names: Pointer, values: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/getv`, apiConfig.baseUrl);
@@ -14334,10 +16142,12 @@ export class GObjectObject extends GObjectTypeInstance {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_data(key: string): Promise<void> {
+  async set_data(key: string, data_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/set_data`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('key', String(key));
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -14352,19 +16162,23 @@ export class GObjectObject extends GObjectTypeInstance {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async steal_data(key: string): Promise<void> {
+  async steal_data(key: string): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/steal_data`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async steal_qdata(quark: number): Promise<void> {
+  async steal_qdata(quark: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/steal_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async thaw_notify(): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/thaw_notify`, apiConfig.baseUrl);
@@ -14591,7 +16405,7 @@ export class GObjectCClosure {
     return instance;
   }
 
-  static async marshal_BOOLEAN__BOXED_BOXED(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_BOOLEAN__BOXED_BOXED(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_BOOLEAN__BOXED_BOXED`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14607,10 +16421,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_BOOLEAN__FLAGS(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_BOOLEAN__FLAGS(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_BOOLEAN__FLAGS`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14626,10 +16444,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_STRING__OBJECT_POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_STRING__OBJECT_POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_STRING__OBJECT_POINTER`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14645,10 +16467,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__BOOLEAN(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__BOOLEAN(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__BOOLEAN`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14664,10 +16490,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__BOXED(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__BOXED(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__BOXED`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14683,10 +16513,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__CHAR(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__CHAR(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__CHAR`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14702,10 +16536,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__DOUBLE(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__DOUBLE(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__DOUBLE`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14721,10 +16559,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__ENUM(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__ENUM(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__ENUM`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14740,10 +16582,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__FLAGS(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__FLAGS(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__FLAGS`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14759,10 +16605,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__FLOAT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__FLOAT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__FLOAT`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14778,10 +16628,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__INT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__INT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__INT`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14797,10 +16651,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__LONG(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__LONG(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__LONG`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14816,10 +16674,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__OBJECT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__OBJECT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__OBJECT`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14835,10 +16697,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__PARAM(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__PARAM(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__PARAM`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14854,10 +16720,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__POINTER`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14873,10 +16743,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__STRING(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__STRING(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__STRING`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14892,10 +16766,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__UCHAR(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__UCHAR(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__UCHAR`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14911,10 +16789,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__UINT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__UINT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__UINT`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14930,10 +16812,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__UINT_POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__UINT_POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__UINT_POINTER`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14949,10 +16835,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__ULONG(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__ULONG(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__ULONG`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14968,10 +16858,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__VARIANT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__VARIANT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__VARIANT`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -14987,10 +16881,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_VOID__VOID(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_VOID__VOID(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_VOID__VOID`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -15006,10 +16904,14 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async marshal_generic(closure: GObjectClosure, return_gvalue: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  static async marshal_generic(closure: GObjectClosure, return_gvalue: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/marshal_generic`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -15025,6 +16927,38 @@ export class GObjectCClosure {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_closure(): Promise<GObjectClosure> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/ptr,${this.ptr}/fields/closure`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_closure(value_: GObjectClosure): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/ptr,${this.ptr}/fields/closure`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_callback(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/ptr,${this.ptr}/fields/callback`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_callback(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/ptr,${this.ptr}/fields/callback`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -15065,10 +16999,12 @@ export class GObjectClosure {
     Object.assign(instance, data.return || data);
     return instance;
   }
-  static async new_simple(sizeof_closure: number): Promise<GObjectClosure> {
+  static async new_simple(sizeof_closure: number, data_?: Pointer): Promise<GObjectClosure> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/new_simple`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('sizeof_closure', String(sizeof_closure));
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -15082,7 +17018,7 @@ export class GObjectClosure {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async invoke(return_value: GObjectValue, n_param_values: number, param_values: Pointer): Promise<void> {
+  async invoke(return_value: GObjectValue, n_param_values: number, param_values: Pointer, invocation_hint?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/invoke`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (return_value && typeof return_value === 'object' && 'ptr' in return_value) {
@@ -15092,6 +17028,8 @@ export class GObjectClosure {
     url.searchParams.append('n_param_values', String(n_param_values));
     // Primitive parameter
     url.searchParams.append('param_values', String(param_values));
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -15119,6 +17057,111 @@ export class GObjectClosure {
   }
   static async get_type(): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_ref_count(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/ref_count`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_meta_marshal_nouse(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/meta_marshal_nouse`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_n_guards(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/n_guards`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_n_fnotifiers(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/n_fnotifiers`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_n_inotifiers(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/n_inotifiers`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_in_inotify(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/in_inotify`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_floating(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/floating`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_derivative_flag(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/derivative_flag`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_in_marshal(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/in_marshal`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_in_marshal(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/in_marshal`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_is_invalid(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/is_invalid`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_is_invalid(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/is_invalid`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_marshal(): Promise<GObjectmarshal> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/marshal`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_notifiers(): Promise<GObjectClosureNotifyData> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/notifiers`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -15223,12 +17266,14 @@ export class GObjectParamSpec {
     const data = await response.json();
     return data.return;
   }
-  async get_qdata(quark: number): Promise<void> {
+  async get_qdata(quark: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpec/ptr,${this.ptr}/get_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async get_redirect_target(): Promise<GObjectParamSpec> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpec/ptr,${this.ptr}/get_redirect_target`, apiConfig.baseUrl);
@@ -15242,10 +17287,12 @@ export class GObjectParamSpec {
     }
     return data.return;
   }
-  async set_qdata(quark: number): Promise<void> {
+  async set_qdata(quark: number, data_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpec/ptr,${this.ptr}/set_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('quark', String(quark));
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -15254,12 +17301,14 @@ export class GObjectParamSpec {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async steal_qdata(quark: number): Promise<void> {
+  async steal_qdata(quark: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpec/ptr,${this.ptr}/steal_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   static async get_type(): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpec/get_type`, apiConfig.baseUrl);
@@ -15470,13 +17519,18 @@ export class GObjectParamSpecPool {
     const data = await response.json();
     return data.return;
   }
-  async list_owned(owner_type: string): Promise<Pointer> {
+  async list_owned(owner_type: string): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpecPool/ptr,${this.ptr}/list_owned`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('owner_type', String(owner_type));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async lookup(param_name: string, owner_type: string, walk_ancestors: boolean): Promise<GObjectParamSpec> {
@@ -15713,12 +17767,14 @@ export class GObjectTypeClass {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async get_private(private_type: string): Promise<void> {
+  async get_private(private_type: string): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeClass/ptr,${this.ptr}/get_private`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('private_type', String(private_type));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async peek_parent(): Promise<GObjectTypeClass> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeClass/ptr,${this.ptr}/peek_parent`, apiConfig.baseUrl);
@@ -15737,8 +17793,10 @@ export class GObjectTypeClass {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async adjust_private_offset(private_size_or_offset: number): Promise<void> {
+  static async adjust_private_offset(private_size_or_offset: number, g_class?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeClass/adjust_private_offset`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (g_class !== undefined) url.searchParams.append('g_class', String(g_class));
     // Primitive parameter
     url.searchParams.append('private_size_or_offset', String(private_size_or_offset));
     const response = await fetch(url.toString());
@@ -15784,6 +17842,13 @@ export class GObjectTypeClass {
       const instance = new GObjectTypeClass(data.return.ptr);
       return instance;
     }
+    return data.return;
+  }
+  async get_g_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeClass/ptr,${this.ptr}/fields/g_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
     return data.return;
   }
 }
@@ -15891,6 +17956,20 @@ export class GObjectTypeInterface {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInterface/prerequisites`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('interface_type', String(interface_type));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_g_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInterface/ptr,${this.ptr}/fields/g_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_g_instance_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInterface/ptr,${this.ptr}/fields/g_instance_type`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -16084,10 +18163,12 @@ export class GObjectValue {
     const data = await response.json();
     return data.return;
   }
-  async get_boxed(): Promise<void> {
+  async get_boxed(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/get_boxed`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async get_char(): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/get_char`, apiConfig.baseUrl);
@@ -16178,10 +18259,12 @@ export class GObjectValue {
     }
     return data.return;
   }
-  async get_pointer(): Promise<void> {
+  async get_pointer(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/get_pointer`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async get_schar(): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/get_schar`, apiConfig.baseUrl);
@@ -16260,10 +18343,12 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async peek_pointer(): Promise<void> {
+  async peek_pointer(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/peek_pointer`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async reset(): Promise<GObjectValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/reset`, apiConfig.baseUrl);
@@ -16284,13 +18369,17 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_boxed(): Promise<void> {
+  async set_boxed(v_boxed?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/set_boxed`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (v_boxed !== undefined) url.searchParams.append('v_boxed', String(v_boxed));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_boxed_take_ownership(): Promise<void> {
+  async set_boxed_take_ownership(v_boxed?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/set_boxed_take_ownership`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (v_boxed !== undefined) url.searchParams.append('v_boxed', String(v_boxed));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -16336,8 +18425,10 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_instance(): Promise<void> {
+  async set_instance(instance?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/set_instance`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (instance !== undefined) url.searchParams.append('instance', String(instance));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -16387,8 +18478,10 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_pointer(): Promise<void> {
+  async set_pointer(v_pointer?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/set_pointer`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (v_pointer !== undefined) url.searchParams.append('v_pointer', String(v_pointer));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -16399,8 +18492,10 @@ export class GObjectValue {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_static_boxed(): Promise<void> {
+  async set_static_boxed(v_boxed?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/set_static_boxed`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (v_boxed !== undefined) url.searchParams.append('v_boxed', String(v_boxed));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -16469,8 +18564,10 @@ export class GObjectValue {
     const data = await response.json();
     return data.return;
   }
-  async take_boxed(): Promise<void> {
+  async take_boxed(v_boxed?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/take_boxed`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (v_boxed !== undefined) url.searchParams.append('v_boxed', String(v_boxed));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -16534,6 +18631,27 @@ export class GObjectValue {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
+  }
+  async get_g_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/fields/g_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_data(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GObjectValueArray {
@@ -16682,6 +18800,41 @@ export class GObjectValueArray {
     const data = await response.json();
     return data.return;
   }
+  async get_n_values(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ValueArray/ptr,${this.ptr}/fields/n_values`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_n_values(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ValueArray/ptr,${this.ptr}/fields/n_values`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_values(): Promise<GObjectValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ValueArray/ptr,${this.ptr}/fields/values`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_values(value_: GObjectValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ValueArray/ptr,${this.ptr}/fields/values`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_n_prealloced(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ValueArray/ptr,${this.ptr}/fields/n_prealloced`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GObjectWeakRef {
   ptr!: Pointer;
@@ -16743,13 +18896,78 @@ export class GstAllocationParams {
     const data = await response.json();
     return data.return;
   }
+  async get_flags(): Promise<GstMemoryFlagsValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_flags(value_: GstMemoryFlagsValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_align(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/align`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_align(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/align`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_prefix(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/prefix`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_prefix(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/prefix`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_padding(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/padding`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_padding(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/padding`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get__gst_reserved(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/_gst_reserved`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GstObject extends GObjectInitiallyUnowned {
 
-  static async check_uniqueness(list: Pointer, name: string): Promise<boolean> {
+  static async check_uniqueness(list: GLibList, name: string): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Object/check_uniqueness`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('list', String(list));
+    // Object with explode=false: serialize as comma-separated
+    if (list && typeof list === 'object' && 'ptr' in list) {
+      url.searchParams.append('list', 'ptr,' + list.ptr);
+    }
     // Primitive parameter
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
@@ -17187,18 +19405,24 @@ export class GstAtomicQueue {
     const data = await response.json();
     return data.return;
   }
-  async peek(): Promise<void> {
+  async peek(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AtomicQueue/ptr,${this.ptr}/peek`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async pop(): Promise<void> {
+  async pop(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AtomicQueue/ptr,${this.ptr}/pop`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async push(): Promise<void> {
+  async push(data_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AtomicQueue/ptr,${this.ptr}/push`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -17501,11 +19725,16 @@ export class GstElement extends GstObject {
     }
     return data.return;
   }
-  async get_contexts(): Promise<Pointer> {
+  async get_contexts(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_contexts`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_current_clock_time(): Promise<number> {
@@ -17561,11 +19790,16 @@ export class GstElement extends GstObject {
     }
     return data.return;
   }
-  async get_pad_template_list(): Promise<Pointer> {
+  async get_pad_template_list(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_pad_template_list`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_request_pad(name: string): Promise<GstPad> {
@@ -18439,12 +20673,14 @@ export class GstBuffer {
     }
     return data.return;
   }
-  async add_meta(info: GstMetaInfo): Promise<GstMeta> {
+  async add_meta(info: GstMetaInfo, params?: Pointer): Promise<GstMeta> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/add_meta`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (info && typeof info === 'object' && 'ptr' in info) {
       url.searchParams.append('info', 'ptr,' + info.ptr);
     }
+    // Primitive parameter
+    if (params !== undefined) url.searchParams.append('params', String(params));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -19042,6 +21278,104 @@ export class GstBuffer {
     const data = await response.json();
     return data.return;
   }
+  async get_mini_object(): Promise<GstMiniObject> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_mini_object(value_: GstMiniObject): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_pool(): Promise<GstBufferPool> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/pool`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_pool(value_: GstBufferPool): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/pool`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_pts(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/pts`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_pts(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/pts`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_dts(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/dts`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_dts(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/dts`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_duration(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/duration`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_duration(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/duration`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_offset(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/offset`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_offset(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/offset`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_offset_end(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/offset_end`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_offset_end(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/offset_end`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GstBufferList {
   ptr!: string;
@@ -19468,12 +21802,14 @@ export class GstBus extends GstObject {
     }
     return data.return;
   }
-  async async_signal_func(message: GstMessage): Promise<boolean> {
+  async async_signal_func(message: GstMessage, data_?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/async_signal_func`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (message && typeof message === 'object' && 'ptr' in message) {
       url.searchParams.append('message', 'ptr,' + message.ptr);
     }
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -19612,12 +21948,14 @@ export class GstBus extends GstObject {
     }
     return data;
   }
-  async sync_signal_handler(message: GstMessage): Promise<GstBusSyncReplyValue> {
+  async sync_signal_handler(message: GstMessage, data_?: Pointer): Promise<GstBusSyncReplyValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/sync_signal_handler`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (message && typeof message === 'object' && 'ptr' in message) {
       url.searchParams.append('message', 'ptr,' + message.ptr);
     }
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -20199,6 +22537,20 @@ export class GstCaps {
     const data = await response.json();
     return data.return;
   }
+  async get_mini_object(): Promise<GstMiniObject> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_mini_object(value_: GstMiniObject): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GstCapsFeatures {
   ptr!: string;
@@ -20392,15 +22744,21 @@ export class GstCapsFeatures {
 }
 export class GstClock extends GstObject {
 
-  static async id_compare_func(): Promise<number> {
+  static async id_compare_func(id1?: Pointer, id2?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_compare_func`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (id1 !== undefined) url.searchParams.append('id1', String(id1));
+    // Primitive parameter
+    if (id2 !== undefined) url.searchParams.append('id2', String(id2));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  static async id_get_clock(): Promise<GstClock> {
+  static async id_get_clock(id: Pointer): Promise<GstClock> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_get_clock`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('id', String(id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -20413,30 +22771,42 @@ export class GstClock extends GstObject {
     }
     return data.return;
   }
-  static async id_get_time(): Promise<number> {
+  static async id_get_time(id: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_get_time`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('id', String(id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  static async id_ref(): Promise<void> {
+  static async id_ref(id: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_ref`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('id', String(id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  static async id_unref(): Promise<void> {
+  static async id_unref(id: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_unref`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('id', String(id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async id_unschedule(): Promise<void> {
+  static async id_unschedule(id: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_unschedule`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('id', String(id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async id_uses_clock(clock: GstClock): Promise<boolean> {
+  static async id_uses_clock(id: Pointer, clock: GstClock): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_uses_clock`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('id', String(id));
     // Object with explode=false: serialize as comma-separated
     if (clock && typeof clock === 'object' && 'ptr' in clock) {
       url.searchParams.append('clock', 'ptr,' + clock.ptr);
@@ -20446,15 +22816,19 @@ export class GstClock extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  static async id_wait(): Promise<GstClockReturnValue> {
+  static async id_wait(id: Pointer): Promise<GstClockReturnValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_wait`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('id', String(id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  static async id_wait_async(func: GstClockCallback): Promise<GstClockReturnValue> {
+  static async id_wait_async(id: Pointer, func: GstClockCallback): Promise<GstClockReturnValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_wait_async`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('id', String(id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -20568,7 +22942,7 @@ export class GstClock extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async new_periodic_id(start_time: number, interval: number): Promise<void> {
+  async new_periodic_id(start_time: number, interval: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/ptr,${this.ptr}/new_periodic_id`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('start_time', String(start_time));
@@ -20576,16 +22950,22 @@ export class GstClock extends GstObject {
     url.searchParams.append('interval', String(interval));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async new_single_shot_id(time: number): Promise<void> {
+  async new_single_shot_id(time: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/ptr,${this.ptr}/new_single_shot_id`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('time', String(time));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  async periodic_id_reinit(start_time: number, interval: number): Promise<boolean> {
+  async periodic_id_reinit(id: Pointer, start_time: number, interval: number): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/ptr,${this.ptr}/periodic_id_reinit`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('id', String(id));
     // Primitive parameter
     url.searchParams.append('start_time', String(start_time));
     // Primitive parameter
@@ -20642,8 +23022,10 @@ export class GstClock extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async single_shot_id_reinit(time: number): Promise<boolean> {
+  async single_shot_id_reinit(id: Pointer, time: number): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/ptr,${this.ptr}/single_shot_id_reinit`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('id', String(id));
     // Primitive parameter
     url.searchParams.append('time', String(time));
     const response = await fetch(url.toString());
@@ -20952,6 +23334,34 @@ export class GstCustomMeta {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
+  }
+  async get_meta(): Promise<GstMeta> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CustomMeta/ptr,${this.ptr}/fields/meta`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_meta(value_: GstMeta): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CustomMeta/ptr,${this.ptr}/fields/meta`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_structure(): Promise<GstStructure> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CustomMeta/ptr,${this.ptr}/fields/structure`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_structure(value_: GstStructure): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CustomMeta/ptr,${this.ptr}/fields/structure`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GstDateTime {
@@ -21351,6 +23761,34 @@ export class GstDebugCategory {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
+  async get_threshold(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugCategory/ptr,${this.ptr}/fields/threshold`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_color(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugCategory/ptr,${this.ptr}/fields/color`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_name(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugCategory/ptr,${this.ptr}/fields/name`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_description(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugCategory/ptr,${this.ptr}/fields/description`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GstDebugMessage {
   ptr!: string;
@@ -21529,11 +23967,16 @@ export class GstDeviceMonitor extends GstObject {
     }
     return data.return;
   }
-  async get_devices(): Promise<Pointer> {
+  async get_devices(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceMonitor/ptr,${this.ptr}/get_devices`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_providers(): Promise<Pointer> {
@@ -21667,11 +24110,16 @@ export class GstDeviceProvider extends GstObject {
     }
     return data.return;
   }
-  async get_devices(): Promise<Pointer> {
+  async get_devices(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceProvider/ptr,${this.ptr}/get_devices`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_factory(): Promise<GstDeviceProviderFactory> {
@@ -21747,31 +24195,46 @@ export class GstDeviceProvider extends GstObject {
 }
 export class GstPluginFeature extends GstObject {
 
-  static async list_copy(list: Pointer): Promise<Pointer> {
+  static async list_copy(list: GLibList): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginFeature/list_copy`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('list', String(list));
+    // Object with explode=false: serialize as comma-separated
+    if (list && typeof list === 'object' && 'ptr' in list) {
+      url.searchParams.append('list', 'ptr,' + list.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
-  static async list_debug(list: Pointer): Promise<void> {
+  static async list_debug(list: GLibList): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginFeature/list_debug`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('list', String(list));
+    // Object with explode=false: serialize as comma-separated
+    if (list && typeof list === 'object' && 'ptr' in list) {
+      url.searchParams.append('list', 'ptr,' + list.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async list_free(list: Pointer): Promise<void> {
+  static async list_free(list: GLibList): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginFeature/list_free`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('list', String(list));
+    // Object with explode=false: serialize as comma-separated
+    if (list && typeof list === 'object' && 'ptr' in list) {
+      url.searchParams.append('list', 'ptr,' + list.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  static async rank_compare_func(): Promise<number> {
+  static async rank_compare_func(p1?: Pointer, p2?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginFeature/rank_compare_func`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (p1 !== undefined) url.searchParams.append('p1', String(p1));
+    // Primitive parameter
+    if (p2 !== undefined) url.searchParams.append('p2', String(p2));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -21881,13 +24344,18 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
     }
     return data.return;
   }
-  static async list_get_device_providers(minrank: GstRankValue): Promise<Pointer> {
+  static async list_get_device_providers(minrank: GstRankValue): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceProviderFactory/list_get_device_providers`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('minrank', String(minrank));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get(): Promise<GstDeviceProvider> {
@@ -22007,10 +24475,12 @@ export class GstElementFactory extends GstPluginFeature {
     }
     return data.return;
   }
-  static async list_filter(list: Pointer, caps: GstCaps, direction: GstPadDirectionValue, subsetonly: boolean): Promise<Pointer> {
+  static async list_filter(list: GLibList, caps: GstCaps, direction: GstPadDirectionValue, subsetonly: boolean): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFactory/list_filter`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('list', String(list));
+    // Object with explode=false: serialize as comma-separated
+    if (list && typeof list === 'object' && 'ptr' in list) {
+      url.searchParams.append('list', 'ptr,' + list.ptr);
+    }
     // Object with explode=false: serialize as comma-separated
     if (caps && typeof caps === 'object' && 'ptr' in caps) {
       url.searchParams.append('caps', 'ptr,' + caps.ptr);
@@ -22022,9 +24492,14 @@ export class GstElementFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
-  static async list_get_elements(type_: number, minrank: GstRankValue): Promise<Pointer> {
+  static async list_get_elements(type_: number, minrank: GstRankValue): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFactory/list_get_elements`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('type', String(type_));
@@ -22033,6 +24508,11 @@ export class GstElementFactory extends GstPluginFeature {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   static async make(factoryname: string, name?: string): Promise<GstElement> {
@@ -22192,11 +24672,16 @@ export class GstElementFactory extends GstPluginFeature {
     const data = await response.json();
     return data.return;
   }
-  async get_static_pad_templates(): Promise<Pointer> {
+  async get_static_pad_templates(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFactory/ptr,${this.ptr}/get_static_pad_templates`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_uri_protocols(): Promise<Pointer> {
@@ -22491,10 +24976,12 @@ export class GstEvent {
     Object.assign(instance, data.return || data);
     return instance;
   }
-  static async new_select_streams(streams: Pointer): Promise<GstEvent> {
+  static async new_select_streams(streams: GLibList): Promise<GstEvent> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/new_select_streams`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('streams', String(streams));
+    // Object with explode=false: serialize as comma-separated
+    if (streams && typeof streams === 'object' && 'ptr' in streams) {
+      url.searchParams.append('streams', 'ptr,' + streams.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -22793,7 +25280,7 @@ export class GstEvent {
     const data = await response.json();
     return data;
   }
-  async parse_select_streams(): Promise<{ streams?: Pointer }> {
+  async parse_select_streams(): Promise<{ streams?: GLibList }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/parse_select_streams`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -22989,6 +25476,62 @@ export class GstEvent {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
+  }
+  async get_mini_object(): Promise<GstMiniObject> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_mini_object(value_: GstMiniObject): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_type(): Promise<GstEventTypeValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_type(value_: GstEventTypeValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_timestamp(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/fields/timestamp`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_timestamp(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/fields/timestamp`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_seqnum(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/fields/seqnum`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_seqnum(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/fields/seqnum`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GstFlagSet {
@@ -23229,10 +25772,12 @@ export class GstPad extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async get_element_private(): Promise<void> {
+  async get_element_private(): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_element_private`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async get_last_flow_return(): Promise<GstFlowReturnValue> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_last_flow_return`, apiConfig.baseUrl);
@@ -23799,8 +26344,10 @@ export class GstPad extends GstObject {
     }
     return data;
   }
-  async set_element_private(): Promise<void> {
+  async set_element_private(priv?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/set_element_private`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (priv !== undefined) url.searchParams.append('priv', String(priv));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -24228,7 +26775,7 @@ export class GstIntRange {
     return data.return;
   }
 }
-export class GstIterator {
+export class GstIterator implements AsyncIterable<GObjectObject> {
   ptr!: string;
   
   constructor(ptr?: string) {
@@ -24247,6 +26794,44 @@ export class GstIterator {
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       });
+  }
+
+  // Implement AsyncIterable interface
+  [Symbol.asyncIterator](): AsyncIterator<GObjectObject, any, any> {
+    let value: GObjectValue | null = null;
+    
+    return {
+      next: async (): Promise<IteratorResult<GObjectObject>> => {
+        // Initialize value lazily on first call
+        if (!value) {
+          value = await GObjectValue.new();
+        }
+        
+        while (true) {
+          await value.unset();
+          const res = await this.next(value);
+          
+          switch (res) {
+            case GstIteratorResult.DONE:
+              return { done: true, value: undefined };
+              
+            case GstIteratorResult.OK:
+              // Get the current value and return it
+              const obj = await value.get_object();
+              console.error("Iterator yielding:", obj);
+              return { done: false, value: obj };
+              
+            case GstIteratorResult.RESYNC:
+              // Iterator was modified, resync and continue
+              await this.resync();
+              break;
+              
+            case GstIteratorResult.ERROR:
+              throw new Error('Iterator error');
+          }
+        }
+      }
+    };
   }
 
   static async new_single(type_: string, object: GObjectValue): Promise<GstIterator> {
@@ -24365,6 +26950,167 @@ export class GstIterator {
   }
   static async get_type(): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_copy(): Promise<GstIteratorCopyFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/copy`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_copy(value_: GstIteratorCopyFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/copy`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_next(): Promise<GstIteratorNextFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_next(value_: GstIteratorNextFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_item(): Promise<GstIteratorItemFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/item`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_item(value_: GstIteratorItemFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/item`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_resync(): Promise<GstIteratorResyncFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/resync`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_resync(value_: GstIteratorResyncFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/resync`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_free(): Promise<GstIteratorFreeFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/free`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_free(value_: GstIteratorFreeFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/free`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_pushed(): Promise<GstIterator> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/pushed`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_pushed(value_: GstIterator): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/pushed`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_type(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_lock(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/lock`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_lock(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/lock`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_cookie(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/cookie`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_cookie(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/cookie`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_master_cookie(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/master_cookie`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_master_cookie(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/master_cookie`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_size(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/size`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_size(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/size`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get__gst_reserved(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/_gst_reserved`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -24535,6 +27281,104 @@ export class GstMemory {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
+  }
+  async get_mini_object(): Promise<GstMiniObject> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_mini_object(value_: GstMiniObject): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_allocator(): Promise<GstAllocator> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/allocator`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_allocator(value_: GstAllocator): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/allocator`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_parent(): Promise<GstMemory> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_parent(value_: GstMemory): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_maxsize(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/maxsize`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_maxsize(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/maxsize`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_align(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/align`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_align(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/align`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_offset(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/offset`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_offset(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/offset`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_size(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/size`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_size(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/size`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GstMessage {
@@ -25936,6 +28780,90 @@ export class GstMessage {
     const data = await response.json();
     return data.return;
   }
+  async get_mini_object(): Promise<GstMiniObject> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_mini_object(value_: GstMiniObject): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_type(): Promise<GstMessageTypeValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_type(value_: GstMessageTypeValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_timestamp(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/timestamp`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_timestamp(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/timestamp`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_src(): Promise<GstObject> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/src`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_src(value_: GstObject): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/src`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_seqnum(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/seqnum`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_seqnum(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/seqnum`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_lock(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/lock`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_cond(): Promise<GLibCond> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/cond`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GstMeta {
   ptr!: string;
@@ -26105,6 +29033,34 @@ export class GstMeta {
     }
     return data.return;
   }
+  async get_flags(): Promise<GstMetaFlagsValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Meta/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_flags(value_: GstMetaFlagsValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Meta/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_info(): Promise<GstMetaInfo> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Meta/ptr,${this.ptr}/fields/info`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_info(value_: GstMetaInfo): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Meta/ptr,${this.ptr}/fields/info`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GstMetaInfo {
   ptr!: string;
@@ -26156,6 +29112,132 @@ export class GstMetaInfo {
     }
     return data.return;
   }
+  async get_api(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/api`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_api(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/api`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_type(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_size(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/size`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_size(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/size`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_init_func(): Promise<GstMetaInitFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/init_func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_init_func(value_: GstMetaInitFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/init_func`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_free_func(): Promise<GstMetaFreeFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/free_func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_free_func(value_: GstMetaFreeFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/free_func`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_transform_func(): Promise<GstMetaTransformFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/transform_func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_transform_func(value_: GstMetaTransformFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/transform_func`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_serialize_func(): Promise<GstMetaSerializeFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/serialize_func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_serialize_func(value_: GstMetaSerializeFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/serialize_func`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_deserialize_func(): Promise<GstMetaDeserializeFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/deserialize_func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_deserialize_func(value_: GstMetaDeserializeFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/deserialize_func`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_clear_func(): Promise<GstMetaClearFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/clear_func`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_clear_func(value_: GstMetaClearFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/clear_func`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GstMetaTransformCopy {
   ptr!: Pointer;
@@ -26202,12 +29284,14 @@ export class GstMiniObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async get_qdata(quark: number): Promise<void> {
+  async get_qdata(quark: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/get_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async is_writable(): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/is_writable`, apiConfig.baseUrl);
@@ -26234,10 +29318,12 @@ export class GstMiniObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async set_qdata(quark: number, destroy: GLibDestroyNotify): Promise<{ destroy?: number }> {
+  async set_qdata(quark: number, destroy: GLibDestroyNotify, data_?: Pointer): Promise<{ destroy?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/set_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('quark', String(quark));
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -26247,12 +29333,14 @@ export class GstMiniObject {
     }
     return data;
   }
-  async steal_qdata(quark: number): Promise<void> {
+  async steal_qdata(quark: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/steal_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   async unlock(flags: GstLockFlagsValue): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/unlock`, apiConfig.baseUrl);
@@ -26293,6 +29381,118 @@ export class GstMiniObject {
   }
   static async get_type(): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/get_type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_type(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_refcount(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/refcount`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_refcount(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/refcount`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_lockstate(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/lockstate`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_lockstate(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/lockstate`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_flags(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_flags(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_copy(): Promise<GstMiniObjectCopyFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/copy`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_copy(value_: GstMiniObjectCopyFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/copy`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_dispose(): Promise<GstMiniObjectDisposeFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/dispose`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_dispose(value_: GstMiniObjectDisposeFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/dispose`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_free(): Promise<GstMiniObjectFreeFunction> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/free`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_free(value_: GstMiniObjectFreeFunction): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/free`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_priv_uint(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/priv_uint`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_priv_pointer(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/priv_pointer`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -26382,6 +29582,76 @@ export class GstPadProbeInfo {
       return instance;
     }
     return data.return;
+  }
+  async get_type(): Promise<GstPadProbeTypeValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_type(value_: GstPadProbeTypeValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_id(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/id`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_id(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/id`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_data(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_offset(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/offset`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_offset(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/offset`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_size(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/size`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_size(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/size`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GstPadTemplate extends GstObject {
@@ -26563,6 +29833,34 @@ export class GstParentBufferMeta {
       return instance;
     }
     return data.return;
+  }
+  async get_parent(): Promise<GstMeta> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParentBufferMeta/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_parent(value_: GstMeta): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParentBufferMeta/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_buffer(): Promise<GstBuffer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParentBufferMeta/ptr,${this.ptr}/fields/buffer`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_buffer(value_: GstBuffer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParentBufferMeta/ptr,${this.ptr}/fields/buffer`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GstParseContext {
@@ -26749,10 +30047,12 @@ export class GstPipelinePrivate {
 }
 export class GstPlugin extends GstObject {
 
-  static async list_free(list: Pointer): Promise<void> {
+  static async list_free(list: GLibList): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/list_free`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('list', String(list));
+    // Object with explode=false: serialize as comma-separated
+    if (list && typeof list === 'object' && 'ptr' in list) {
+      url.searchParams.append('list', 'ptr,' + list.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -27278,6 +30578,27 @@ export class GstPollFD {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
+  async get_fd(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PollFD/ptr,${this.ptr}/fields/fd`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_fd(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PollFD/ptr,${this.ptr}/fields/fd`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_idx(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PollFD/ptr,${this.ptr}/fields/idx`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GstPromise {
   ptr!: string;
@@ -27368,6 +30689,20 @@ export class GstPromise {
     const data = await response.json();
     return data.return;
   }
+  async get_parent(): Promise<GstMiniObject> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Promise/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_parent(value_: GstMiniObject): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Promise/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GstProtectionMeta {
   ptr!: string;
@@ -27411,6 +30746,34 @@ export class GstProtectionMeta {
       return instance;
     }
     return data.return;
+  }
+  async get_meta(): Promise<GstMeta> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ProtectionMeta/ptr,${this.ptr}/fields/meta`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_meta(value_: GstMeta): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ProtectionMeta/ptr,${this.ptr}/fields/meta`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_info(): Promise<GstStructure> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ProtectionMeta/ptr,${this.ptr}/fields/info`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_info(value_: GstStructure): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ProtectionMeta/ptr,${this.ptr}/fields/info`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GstProxyPadPrivate {
@@ -28325,6 +31688,34 @@ export class GstQuery {
     const data = await response.json();
     return data.return;
   }
+  async get_mini_object(): Promise<GstMiniObject> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Query/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_mini_object(value_: GstMiniObject): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Query/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_type(): Promise<GstQueryTypeValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Query/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_type(value_: GstQueryTypeValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Query/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GstReferenceTimestampMeta {
   ptr!: string;
@@ -28368,6 +31759,62 @@ export class GstReferenceTimestampMeta {
       return instance;
     }
     return data.return;
+  }
+  async get_parent(): Promise<GstMeta> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_parent(value_: GstMeta): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_reference(): Promise<GstCaps> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/fields/reference`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_reference(value_: GstCaps): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/fields/reference`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_timestamp(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/fields/timestamp`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_timestamp(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/fields/timestamp`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_duration(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/fields/duration`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_duration(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/fields/duration`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GstRegistry extends GstObject {
@@ -28437,7 +31884,7 @@ export class GstRegistry extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async feature_filter(first: boolean, filter: GstPluginFeatureFilter): Promise<Pointer> {
+  async feature_filter(first: boolean, filter: GstPluginFeatureFilter): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/feature_filter`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('first', String(first));
@@ -28447,6 +31894,11 @@ export class GstRegistry extends GstObject {
     // Register callbacks
     if (data.filter !== undefined) {
       callbackDispatcher.set(data.filter.toString(), filter);
+    }
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
     }
     return data.return;
   }
@@ -28484,22 +31936,32 @@ export class GstRegistry extends GstObject {
     }
     return data.return;
   }
-  async get_feature_list(type_: string): Promise<Pointer> {
+  async get_feature_list(type_: string): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/get_feature_list`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('type', String(type_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
-  async get_feature_list_by_plugin(name: string): Promise<Pointer> {
+  async get_feature_list_by_plugin(name: string): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/get_feature_list_by_plugin`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('name', String(name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_feature_list_cookie(): Promise<number> {
@@ -28509,11 +31971,16 @@ export class GstRegistry extends GstObject {
     const data = await response.json();
     return data.return;
   }
-  async get_plugin_list(): Promise<Pointer> {
+  async get_plugin_list(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/get_plugin_list`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async lookup(filename: string): Promise<GstPlugin> {
@@ -28548,7 +32015,7 @@ export class GstRegistry extends GstObject {
     }
     return data.return;
   }
-  async plugin_filter(first: boolean, filter: GstPluginFilter): Promise<Pointer> {
+  async plugin_filter(first: boolean, filter: GstPluginFilter): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/plugin_filter`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('first', String(first));
@@ -28558,6 +32025,11 @@ export class GstRegistry extends GstObject {
     // Register callbacks
     if (data.filter !== undefined) {
       callbackDispatcher.set(data.filter.toString(), filter);
+    }
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
     }
     return data.return;
   }
@@ -28995,6 +32467,167 @@ export class GstSegment {
     const data = await response.json();
     return data.return;
   }
+  async get_flags(): Promise<GstSegmentFlagsValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_flags(value_: GstSegmentFlagsValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_rate(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/rate`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_rate(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/rate`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_applied_rate(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/applied_rate`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_applied_rate(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/applied_rate`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_format(): Promise<GstFormatValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/format`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_format(value_: GstFormatValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/format`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_base(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/base`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_base(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/base`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_offset(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/offset`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_offset(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/offset`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_start(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/start`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_start(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/start`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_stop(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/stop`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_stop(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/stop`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_time(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/time`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_time(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/time`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_position(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/position`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_position(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/position`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_duration(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/duration`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_duration(value_: number): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/duration`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get__gst_reserved(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/_gst_reserved`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GstTaskPool extends GstObject {
   static async new(): Promise<GstTaskPool> {
@@ -29012,13 +32645,17 @@ export class GstTaskPool extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async dispose_handle(): Promise<void> {
+  async dispose_handle(id?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TaskPool/ptr,${this.ptr}/dispose_handle`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (id !== undefined) url.searchParams.append('id', String(id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async join(): Promise<void> {
+  async join(id?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TaskPool/ptr,${this.ptr}/join`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (id !== undefined) url.searchParams.append('id', String(id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -29027,7 +32664,7 @@ export class GstTaskPool extends GstObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  async push(func: GstTaskPoolFunction): Promise<{ func?: number }> {
+  async push(func: GstTaskPoolFunction): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TaskPool/ptr,${this.ptr}/push`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -29036,7 +32673,7 @@ export class GstTaskPool extends GstObject {
     if (data.func !== undefined) {
       callbackDispatcher.set(data.func.toString(), func);
     }
-    return data;
+    return data.return;
   }
   static async get_type(): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TaskPool/get_type`, apiConfig.baseUrl);
@@ -29132,6 +32769,41 @@ export class GstStaticCaps {
     }
     return data.return;
   }
+  async get_caps(): Promise<GstCaps> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticCaps/ptr,${this.ptr}/fields/caps`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_caps(value_: GstCaps): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticCaps/ptr,${this.ptr}/fields/caps`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_string(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticCaps/ptr,${this.ptr}/fields/string`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_string(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticCaps/ptr,${this.ptr}/fields/string`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get__gst_reserved(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticCaps/ptr,${this.ptr}/fields/_gst_reserved`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GstStaticPadTemplate {
   ptr!: string;
@@ -29189,6 +32861,62 @@ export class GstStaticPadTemplate {
       return instance;
     }
     return data.return;
+  }
+  async get_name_template(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/name_template`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_name_template(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/name_template`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_direction(): Promise<GstPadDirectionValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/direction`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_direction(value_: GstPadDirectionValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/direction`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_presence(): Promise<GstPadPresenceValue> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/presence`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_presence(value_: GstPadPresenceValue): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/presence`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_static_caps(): Promise<GstStaticCaps> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/static_caps`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_static_caps(value_: GstStaticCaps): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/static_caps`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
 }
 export class GstStream extends GstObject {
@@ -30039,6 +33767,27 @@ export class GstStructure {
     const data = await response.json();
     return data.return;
   }
+  async get_type(): Promise<string> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_type(value_: string): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_name(): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/fields/name`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GstSystemClock extends GstClock {
 
@@ -30571,6 +34320,20 @@ export class GstTagList {
     const data = await response.json();
     return data.return;
   }
+  async get_mini_object(): Promise<GstMiniObject> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagList/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_mini_object(value_: GstMiniObject): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagList/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
 }
 export class GstTask extends GstObject {
   static async new(func: GstTaskFunction): Promise<GstTask> {
@@ -30776,11 +34539,16 @@ export class GstToc {
     }
     return data.return;
   }
-  async get_entries(): Promise<Pointer> {
+  async get_entries(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Toc/ptr,${this.ptr}/get_entries`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_scope(): Promise<GstTocScopeValue> {
@@ -30909,11 +34677,16 @@ export class GstTocEntry {
     const data = await response.json();
     return data.return;
   }
-  async get_sub_entries(): Promise<Pointer> {
+  async get_sub_entries(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocEntry/ptr,${this.ptr}/get_sub_entries`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_tags(): Promise<GstTagList> {
@@ -31034,11 +34807,16 @@ export class GstTracer extends GstObject {
 }
 export class GstTracerFactory extends GstPluginFeature {
 
-  static async get_list(): Promise<Pointer> {
+  static async get_list(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TracerFactory/get_list`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_tracer_type(): Promise<string> {
@@ -31165,14 +34943,61 @@ export class GstTypeFind {
     }
     return data.return;
   }
+  async get_peek(): Promise<Gstpeek> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/peek`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_suggest(): Promise<Gstsuggest> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/suggest`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get_data(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async set_data(value_: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value_', String(value_));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  async get_get_length(): Promise<Gstget_length> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/get_length`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  async get__gst_reserved(): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/_gst_reserved`, apiConfig.baseUrl);
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
 }
 export class GstTypeFindFactory extends GstPluginFeature {
 
-  static async get_list(): Promise<Pointer> {
+  static async get_list(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFindFactory/get_list`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async call_function(find: GstTypeFind): Promise<void> {
@@ -31334,11 +35159,16 @@ export class GstUri {
     const data = await response.json();
     return data.return;
   }
-  async get_path_segments(): Promise<Pointer> {
+  async get_path_segments(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_path_segments`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_path_string(): Promise<string> {
@@ -31355,11 +35185,16 @@ export class GstUri {
     const data = await response.json();
     return data.return;
   }
-  async get_query_keys(): Promise<Pointer> {
+  async get_query_keys(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_query_keys`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   async get_query_string(): Promise<string> {
@@ -31369,10 +35204,12 @@ export class GstUri {
     const data = await response.json();
     return data.return;
   }
-  async get_query_string_ordered(keys?: Pointer): Promise<string> {
+  async get_query_string_ordered(keys?: GLibList): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_query_string_ordered`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (keys !== undefined) url.searchParams.append('keys', String(keys));
+    // Object with explode=false: serialize as comma-separated
+    if (keys !== undefined && typeof keys === 'object' && 'ptr' in keys) {
+      url.searchParams.append('keys', 'ptr,' + keys.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -31528,10 +35365,12 @@ export class GstUri {
     const data = await response.json();
     return data.return;
   }
-  async set_path_segments(path_segments?: Pointer): Promise<boolean> {
+  async set_path_segments(path_segments?: GLibList): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/set_path_segments`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (path_segments !== undefined) url.searchParams.append('path_segments', String(path_segments));
+    // Object with explode=false: serialize as comma-separated
+    if (path_segments !== undefined && typeof path_segments === 'object' && 'ptr' in path_segments) {
+      url.searchParams.append('path_segments', 'ptr,' + path_segments.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -31609,10 +35448,12 @@ export class GstUri {
     const data = await response.json();
     return data.return;
   }
-  async to_string_with_keys(keys?: Pointer): Promise<string> {
+  async to_string_with_keys(keys?: GLibList): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/to_string_with_keys`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (keys !== undefined) url.searchParams.append('keys', String(keys));
+    // Object with explode=false: serialize as comma-separated
+    if (keys !== undefined && typeof keys === 'object' && 'ptr' in keys) {
+      url.searchParams.append('keys', 'ptr,' + keys.ptr);
+    }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -31971,17 +35812,23 @@ export class GstValueTable {
 }
 
 export namespace GObject {
-  export async function boxed_copy(boxed_type: string): Promise<void> {
+  export async function boxed_copy(boxed_type: string, src_boxed: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/boxed_copy`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('boxed_type', String(boxed_type));
+    // Primitive parameter
+    url.searchParams.append('src_boxed', String(src_boxed));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function boxed_free(boxed_type: string): Promise<void> {
+  export async function boxed_free(boxed_type: string, boxed: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/boxed_free`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('boxed_type', String(boxed_type));
+    // Primitive parameter
+    url.searchParams.append('boxed', String(boxed));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -32001,7 +35848,7 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function cclosure_marshal_BOOLEAN__BOXED_BOXED(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_BOOLEAN__BOXED_BOXED(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_BOOLEAN__BOXED_BOXED`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32017,10 +35864,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_BOOLEAN__FLAGS(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_BOOLEAN__FLAGS(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_BOOLEAN__FLAGS`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32036,10 +35887,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_STRING__OBJECT_POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_STRING__OBJECT_POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_STRING__OBJECT_POINTER`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32055,10 +35910,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__BOOLEAN(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__BOOLEAN(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__BOOLEAN`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32074,10 +35933,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__BOXED(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__BOXED(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__BOXED`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32093,10 +35956,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__CHAR(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__CHAR(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__CHAR`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32112,10 +35979,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__DOUBLE(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__DOUBLE(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__DOUBLE`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32131,10 +36002,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__ENUM(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__ENUM(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__ENUM`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32150,10 +36025,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__FLAGS(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__FLAGS(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__FLAGS`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32169,10 +36048,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__FLOAT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__FLOAT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__FLOAT`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32188,10 +36071,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__INT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__INT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__INT`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32207,10 +36094,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__LONG(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__LONG(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__LONG`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32226,10 +36117,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__OBJECT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__OBJECT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__OBJECT`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32245,10 +36140,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__PARAM(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__PARAM(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__PARAM`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32264,10 +36163,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__POINTER`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32283,10 +36186,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__STRING(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__STRING(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__STRING`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32302,10 +36209,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__UCHAR(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__UCHAR(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__UCHAR`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32321,10 +36232,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__UINT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__UINT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__UINT`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32340,10 +36255,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__UINT_POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__UINT_POINTER(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__UINT_POINTER`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32359,10 +36278,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__ULONG(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__ULONG(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__ULONG`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32378,10 +36301,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__VARIANT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__VARIANT(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__VARIANT`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32397,10 +36324,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_VOID__VOID(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_VOID__VOID(closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_VOID__VOID`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32416,10 +36347,14 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function cclosure_marshal_generic(closure: GObjectClosure, return_gvalue: GObjectValue, n_param_values: number, param_values: GObjectValue): Promise<void> {
+  export async function cclosure_marshal_generic(closure: GObjectClosure, return_gvalue: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint?: Pointer, marshal_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/cclosure_marshal_generic`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (closure && typeof closure === 'object' && 'ptr' in closure) {
@@ -32435,6 +36370,10 @@ export namespace GObject {
     if (param_values && typeof param_values === 'object' && 'ptr' in param_values) {
       url.searchParams.append('param_values', 'ptr,' + param_values.ptr);
     }
+    // Primitive parameter
+    if (invocation_hint !== undefined) url.searchParams.append('invocation_hint', String(invocation_hint));
+    // Primitive parameter
+    if (marshal_data !== undefined) url.searchParams.append('marshal_data', String(marshal_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -33242,7 +37181,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function signal_accumulator_first_wins(ihint: GObjectSignalInvocationHint, return_accu: GObjectValue, handler_return: GObjectValue): Promise<boolean> {
+  export async function signal_accumulator_first_wins(ihint: GObjectSignalInvocationHint, return_accu: GObjectValue, handler_return: GObjectValue, dummy?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_accumulator_first_wins`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (ihint && typeof ihint === 'object' && 'ptr' in ihint) {
@@ -33256,12 +37195,14 @@ export namespace GObject {
     if (handler_return && typeof handler_return === 'object' && 'ptr' in handler_return) {
       url.searchParams.append('handler_return', 'ptr,' + handler_return.ptr);
     }
+    // Primitive parameter
+    if (dummy !== undefined) url.searchParams.append('dummy', String(dummy));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function signal_accumulator_true_handled(ihint: GObjectSignalInvocationHint, return_accu: GObjectValue, handler_return: GObjectValue): Promise<boolean> {
+  export async function signal_accumulator_true_handled(ihint: GObjectSignalInvocationHint, return_accu: GObjectValue, handler_return: GObjectValue, dummy?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_accumulator_true_handled`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (ihint && typeof ihint === 'object' && 'ptr' in ihint) {
@@ -33275,6 +37216,8 @@ export namespace GObject {
     if (handler_return && typeof handler_return === 'object' && 'ptr' in handler_return) {
       url.searchParams.append('handler_return', 'ptr,' + handler_return.ptr);
     }
+    // Primitive parameter
+    if (dummy !== undefined) url.searchParams.append('dummy', String(dummy));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -33396,7 +37339,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function signal_handler_find(instance: GObjectObject, mask: GObjectSignalMatchType, signal_id: number, detail: number, closure?: GObjectClosure): Promise<number> {
+  export async function signal_handler_find(instance: GObjectObject, mask: GObjectSignalMatchType, signal_id: number, detail: number, closure?: GObjectClosure, func?: Pointer, data_?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_handler_find`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (instance && typeof instance === 'object' && 'ptr' in instance) {
@@ -33412,6 +37355,10 @@ export namespace GObject {
     if (closure !== undefined && typeof closure === 'object' && 'ptr' in closure) {
       url.searchParams.append('closure', 'ptr,' + closure.ptr);
     }
+    // Primitive parameter
+    if (func !== undefined) url.searchParams.append('func', String(func));
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -33441,7 +37388,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function signal_handlers_block_matched(instance: GObjectObject, mask: GObjectSignalMatchType, signal_id: number, detail: number, closure?: GObjectClosure): Promise<number> {
+  export async function signal_handlers_block_matched(instance: GObjectObject, mask: GObjectSignalMatchType, signal_id: number, detail: number, closure?: GObjectClosure, func?: Pointer, data_?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_handlers_block_matched`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (instance && typeof instance === 'object' && 'ptr' in instance) {
@@ -33457,6 +37404,10 @@ export namespace GObject {
     if (closure !== undefined && typeof closure === 'object' && 'ptr' in closure) {
       url.searchParams.append('closure', 'ptr,' + closure.ptr);
     }
+    // Primitive parameter
+    if (func !== undefined) url.searchParams.append('func', String(func));
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -33471,7 +37422,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function signal_handlers_disconnect_matched(instance: GObjectObject, mask: GObjectSignalMatchType, signal_id: number, detail: number, closure?: GObjectClosure): Promise<number> {
+  export async function signal_handlers_disconnect_matched(instance: GObjectObject, mask: GObjectSignalMatchType, signal_id: number, detail: number, closure?: GObjectClosure, func?: Pointer, data_?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_handlers_disconnect_matched`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (instance && typeof instance === 'object' && 'ptr' in instance) {
@@ -33487,12 +37438,16 @@ export namespace GObject {
     if (closure !== undefined && typeof closure === 'object' && 'ptr' in closure) {
       url.searchParams.append('closure', 'ptr,' + closure.ptr);
     }
+    // Primitive parameter
+    if (func !== undefined) url.searchParams.append('func', String(func));
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function signal_handlers_unblock_matched(instance: GObjectObject, mask: GObjectSignalMatchType, signal_id: number, detail: number, closure?: GObjectClosure): Promise<number> {
+  export async function signal_handlers_unblock_matched(instance: GObjectObject, mask: GObjectSignalMatchType, signal_id: number, detail: number, closure?: GObjectClosure, func?: Pointer, data_?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_handlers_unblock_matched`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (instance && typeof instance === 'object' && 'ptr' in instance) {
@@ -33508,6 +37463,10 @@ export namespace GObject {
     if (closure !== undefined && typeof closure === 'object' && 'ptr' in closure) {
       url.searchParams.append('closure', 'ptr,' + closure.ptr);
     }
+    // Primitive parameter
+    if (func !== undefined) url.searchParams.append('func', String(func));
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -33879,8 +37838,10 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function type_class_adjust_private_offset(private_size_or_offset: number): Promise<void> {
+  export async function type_class_adjust_private_offset(private_size_or_offset: number, g_class?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/type_class_adjust_private_offset`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (g_class !== undefined) url.searchParams.append('g_class', String(g_class));
     // Primitive parameter
     url.searchParams.append('private_size_or_offset', String(private_size_or_offset));
     const response = await fetch(url.toString());
@@ -34033,7 +37994,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function type_get_qdata(type_: string, quark: number): Promise<void> {
+  export async function type_get_qdata(type_: string, quark: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/type_get_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('type', String(type_));
@@ -34041,6 +38002,8 @@ export namespace GObject {
     url.searchParams.append('quark', String(quark));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function type_get_type_registration_serial(): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/type_get_type_registration_serial`, apiConfig.baseUrl);
@@ -34261,12 +38224,14 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function type_set_qdata(type_: string, quark: number): Promise<void> {
+  export async function type_set_qdata(type_: string, quark: number, data_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/type_set_qdata`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('type', String(type_));
     // Primitive parameter
     url.searchParams.append('quark', String(quark));
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -34353,7 +38318,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function aligned_alloc(n_blocks: number, n_block_bytes: number, alignment: number): Promise<void> {
+  export async function aligned_alloc(n_blocks: number, n_block_bytes: number, alignment: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/aligned_alloc`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('n_blocks', String(n_blocks));
@@ -34363,8 +38328,10 @@ export namespace GObject {
     url.searchParams.append('alignment', String(alignment));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function aligned_alloc0(n_blocks: number, n_block_bytes: number, alignment: number): Promise<void> {
+  export async function aligned_alloc0(n_blocks: number, n_block_bytes: number, alignment: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/aligned_alloc0`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('n_blocks', String(n_blocks));
@@ -34374,14 +38341,20 @@ export namespace GObject {
     url.searchParams.append('alignment', String(alignment));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function aligned_free(): Promise<void> {
+  export async function aligned_free(mem?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/aligned_free`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (mem !== undefined) url.searchParams.append('mem', String(mem));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function aligned_free_sized(alignment: number, size: number): Promise<void> {
+  export async function aligned_free_sized(alignment: number, size: number, mem?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/aligned_free_sized`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (mem !== undefined) url.searchParams.append('mem', String(mem));
     // Primitive parameter
     url.searchParams.append('alignment', String(alignment));
     // Primitive parameter
@@ -34813,64 +38786,78 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function atomic_pointer_add(val: number): Promise<number> {
+  export async function atomic_pointer_add(atomic: Pointer, val: number): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_add`, apiConfig.baseUrl);
     // Primitive parameter
+    url.searchParams.append('atomic', String(atomic));
+    // Primitive parameter
     url.searchParams.append('val', String(val));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function atomic_pointer_and(val: number): Promise<number> {
+  export async function atomic_pointer_and(atomic: Pointer, val: number): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_and`, apiConfig.baseUrl);
     // Primitive parameter
+    url.searchParams.append('atomic', String(atomic));
+    // Primitive parameter
     url.searchParams.append('val', String(val));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function atomic_pointer_compare_and_exchange(): Promise<boolean> {
+  export async function atomic_pointer_compare_and_exchange(atomic: Pointer, oldval?: Pointer, newval?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_compare_and_exchange`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('atomic', String(atomic));
+    // Primitive parameter
+    if (oldval !== undefined) url.searchParams.append('oldval', String(oldval));
+    // Primitive parameter
+    if (newval !== undefined) url.searchParams.append('newval', String(newval));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function atomic_pointer_compare_and_exchange_full(): Promise<boolean> {
+  export async function atomic_pointer_compare_and_exchange_full(atomic: Pointer, oldval?: Pointer, newval?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_compare_and_exchange_full`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('atomic', String(atomic));
+    // Primitive parameter
+    if (oldval !== undefined) url.searchParams.append('oldval', String(oldval));
+    // Primitive parameter
+    if (newval !== undefined) url.searchParams.append('newval', String(newval));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function atomic_pointer_exchange(): Promise<void> {
+  export async function atomic_pointer_exchange(atomic?: Pointer, newval?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_exchange`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (atomic !== undefined) url.searchParams.append('atomic', String(atomic));
+    // Primitive parameter
+    if (newval !== undefined) url.searchParams.append('newval', String(newval));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function atomic_pointer_get(): Promise<void> {
+  export async function atomic_pointer_get(atomic: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_get`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('atomic', String(atomic));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function atomic_pointer_or(val: number): Promise<number> {
+  export async function atomic_pointer_or(atomic: Pointer, val: number): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_or`, apiConfig.baseUrl);
     // Primitive parameter
-    url.searchParams.append('val', String(val));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return data.return;
-  }
-  export async function atomic_pointer_set(): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_set`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  export async function atomic_pointer_xor(val: number): Promise<number> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_xor`, apiConfig.baseUrl);
+    url.searchParams.append('atomic', String(atomic));
     // Primitive parameter
     url.searchParams.append('val', String(val));
     const response = await fetch(url.toString());
@@ -34878,46 +38865,84 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function atomic_rc_box_acquire(): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_rc_box_acquire`, apiConfig.baseUrl);
+  export async function atomic_pointer_set(atomic: Pointer, newval?: Pointer): Promise<void> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_set`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('atomic', String(atomic));
+    // Primitive parameter
+    if (newval !== undefined) url.searchParams.append('newval', String(newval));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function atomic_rc_box_alloc(block_size: number): Promise<void> {
+  export async function atomic_pointer_xor(atomic: Pointer, val: number): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_xor`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('atomic', String(atomic));
+    // Primitive parameter
+    url.searchParams.append('val', String(val));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function atomic_rc_box_acquire(mem_block: Pointer): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_rc_box_acquire`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mem_block', String(mem_block));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function atomic_rc_box_alloc(block_size: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_rc_box_alloc`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('block_size', String(block_size));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function atomic_rc_box_alloc0(block_size: number): Promise<void> {
+  export async function atomic_rc_box_alloc0(block_size: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_rc_box_alloc0`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('block_size', String(block_size));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function atomic_rc_box_dup(block_size: number): Promise<void> {
+  export async function atomic_rc_box_dup(block_size: number, mem_block: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_rc_box_dup`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('block_size', String(block_size));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  export async function atomic_rc_box_get_size(): Promise<number> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_rc_box_get_size`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mem_block', String(mem_block));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function atomic_rc_box_release(): Promise<void> {
+  export async function atomic_rc_box_get_size(mem_block: Pointer): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_rc_box_get_size`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mem_block', String(mem_block));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function atomic_rc_box_release(mem_block: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_rc_box_release`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mem_block', String(mem_block));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function atomic_rc_box_release_full(clear_func: GLibDestroyNotify): Promise<{ clear_func?: number }> {
+  export async function atomic_rc_box_release_full(mem_block: Pointer, clear_func: GLibDestroyNotify): Promise<{ clear_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_rc_box_release_full`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mem_block', String(mem_block));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -35558,7 +39583,7 @@ export namespace GObject {
     }
     return data;
   }
-  export async function datalist_get_data(datalist: GLibData, key: string): Promise<void> {
+  export async function datalist_get_data(datalist: GLibData, key: string): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/datalist_get_data`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (datalist && typeof datalist === 'object' && 'ptr' in datalist) {
@@ -35568,6 +39593,8 @@ export namespace GObject {
     url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function datalist_get_flags(datalist: GLibData): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/datalist_get_flags`, apiConfig.baseUrl);
@@ -35580,7 +39607,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function datalist_id_get_data(datalist: GLibData, key_id: number): Promise<void> {
+  export async function datalist_id_get_data(datalist: GLibData, key_id: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/datalist_id_get_data`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (datalist && typeof datalist === 'object' && 'ptr' in datalist) {
@@ -35590,6 +39617,8 @@ export namespace GObject {
     url.searchParams.append('key_id', String(key_id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function datalist_id_remove_multiple(datalist: GLibData, keys: Pointer, n_keys: number): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/datalist_id_remove_multiple`, apiConfig.baseUrl);
@@ -35626,13 +39655,17 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function dataset_destroy(): Promise<void> {
+  export async function dataset_destroy(dataset_location: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/dataset_destroy`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('dataset_location', String(dataset_location));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function dataset_foreach(func: GLibDataForeachFunc): Promise<{ func?: number }> {
+  export async function dataset_foreach(dataset_location: Pointer, func: GLibDataForeachFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/dataset_foreach`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('dataset_location', String(dataset_location));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -35642,12 +39675,16 @@ export namespace GObject {
     }
     return data;
   }
-  export async function dataset_id_get_data(key_id: number): Promise<void> {
+  export async function dataset_id_get_data(dataset_location: Pointer, key_id: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/dataset_id_get_data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('dataset_location', String(dataset_location));
     // Primitive parameter
     url.searchParams.append('key_id', String(key_id));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function date_get_days_in_month(month: GLibDateMonth, year: number): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/date_get_days_in_month`, apiConfig.baseUrl);
@@ -35795,15 +39832,21 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function direct_equal(): Promise<boolean> {
+  export async function direct_equal(v1?: Pointer, v2?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/direct_equal`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (v1 !== undefined) url.searchParams.append('v1', String(v1));
+    // Primitive parameter
+    if (v2 !== undefined) url.searchParams.append('v2', String(v2));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function direct_hash(): Promise<number> {
+  export async function direct_hash(v?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/direct_hash`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (v !== undefined) url.searchParams.append('v', String(v));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -35824,15 +39867,21 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function double_equal(): Promise<boolean> {
+  export async function double_equal(v1: Pointer, v2: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/double_equal`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v1', String(v1));
+    // Primitive parameter
+    url.searchParams.append('v2', String(v2));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function double_hash(): Promise<number> {
+  export async function double_hash(v: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/double_hash`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v', String(v));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -36105,7 +40154,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function fopen(filename: Pointer, mode: string): Promise<void> {
+  export async function fopen(filename: Pointer, mode: string): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/fopen`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('filename', String(filename));
@@ -36113,6 +40162,8 @@ export namespace GObject {
     url.searchParams.append('mode', String(mode));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function format_size(size: number): Promise<string> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/format_size`, apiConfig.baseUrl);
@@ -36143,26 +40194,34 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function free(): Promise<void> {
+  export async function free(mem?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/free`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (mem !== undefined) url.searchParams.append('mem', String(mem));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function free_sized(size: number): Promise<void> {
+  export async function free_sized(size: number, mem?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/free_sized`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (mem !== undefined) url.searchParams.append('mem', String(mem));
     // Primitive parameter
     url.searchParams.append('size', String(size));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function freopen(filename: Pointer, mode: string): Promise<void> {
+  export async function freopen(filename: Pointer, mode: string, stream?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/freopen`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('filename', String(filename));
     // Primitive parameter
     url.searchParams.append('mode', String(mode));
+    // Primitive parameter
+    if (stream !== undefined) url.searchParams.append('stream', String(stream));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function fsync(fd: number): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/fsync`, apiConfig.baseUrl);
@@ -36395,19 +40454,23 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function hash_table_add(hash_table: Pointer): Promise<boolean> {
+  export async function hash_table_add(hash_table: Pointer, key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_add`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function hash_table_contains(hash_table: Pointer): Promise<boolean> {
+  export async function hash_table_contains(hash_table: Pointer, key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_contains`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -36420,7 +40483,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function hash_table_find(hash_table: Pointer, predicate: GLibHRFunc): Promise<{ predicate?: number }> {
+  export async function hash_table_find(hash_table: Pointer, predicate: GLibHRFunc): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_find`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
@@ -36431,7 +40494,7 @@ export namespace GObject {
     if (data.predicate !== undefined) {
       callbackDispatcher.set(data.predicate.toString(), predicate);
     }
-    return data;
+    return data.return;
   }
   export async function hash_table_foreach(hash_table: Pointer, func: GLibHFunc): Promise<{ func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_foreach`, apiConfig.baseUrl);
@@ -36472,26 +40535,36 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function hash_table_insert(hash_table: Pointer): Promise<boolean> {
+  export async function hash_table_insert(hash_table: Pointer, key?: Pointer, value_?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_insert`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function hash_table_lookup(hash_table: Pointer): Promise<void> {
+  export async function hash_table_lookup(hash_table: Pointer, key?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_lookup`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function hash_table_lookup_extended(hash_table: Pointer): Promise<boolean> {
+  export async function hash_table_lookup_extended(hash_table: Pointer, lookup_key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_lookup_extended`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (lookup_key !== undefined) url.searchParams.append('lookup_key', String(lookup_key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -36515,10 +40588,12 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function hash_table_remove(hash_table: Pointer): Promise<boolean> {
+  export async function hash_table_remove(hash_table: Pointer, key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_remove`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -36531,10 +40606,14 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function hash_table_replace(hash_table: Pointer): Promise<boolean> {
+  export async function hash_table_replace(hash_table: Pointer, key?: Pointer, value_?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_replace`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
+    // Primitive parameter
+    if (value_ !== undefined) url.searchParams.append('value', String(value_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -36549,10 +40628,12 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function hash_table_steal(hash_table: Pointer): Promise<boolean> {
+  export async function hash_table_steal(hash_table: Pointer, key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_steal`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (key !== undefined) url.searchParams.append('key', String(key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -36565,10 +40646,12 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function hash_table_steal_extended(hash_table: Pointer): Promise<boolean> {
+  export async function hash_table_steal_extended(hash_table: Pointer, lookup_key?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_steal_extended`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('hash_table', String(hash_table));
+    // Primitive parameter
+    if (lookup_key !== undefined) url.searchParams.append('lookup_key', String(lookup_key));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -36740,8 +40823,10 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function idle_remove_by_data(): Promise<boolean> {
+  export async function idle_remove_by_data(data_?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/idle_remove_by_data`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -36759,29 +40844,41 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function int64_equal(): Promise<boolean> {
+  export async function int64_equal(v1: Pointer, v2: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/int64_equal`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v1', String(v1));
+    // Primitive parameter
+    url.searchParams.append('v2', String(v2));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function int64_hash(): Promise<number> {
+  export async function int64_hash(v: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/int64_hash`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v', String(v));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function int_equal(): Promise<boolean> {
+  export async function int_equal(v1: Pointer, v2: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/int_equal`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v1', String(v1));
+    // Primitive parameter
+    url.searchParams.append('v2', String(v2));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function int_hash(): Promise<number> {
+  export async function int_hash(v: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/int_hash`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v', String(v));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -36908,7 +41005,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function log_default_handler(log_level: GLibLogLevelFlags, log_domain?: string, message?: string): Promise<void> {
+  export async function log_default_handler(log_level: GLibLogLevelFlags, log_domain?: string, message?: string, unused_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/log_default_handler`, apiConfig.baseUrl);
     // Primitive parameter
     if (log_domain !== undefined) url.searchParams.append('log_domain', String(log_domain));
@@ -36916,6 +41013,8 @@ export namespace GObject {
     url.searchParams.append('log_level', String(log_level));
     // Primitive parameter
     if (message !== undefined) url.searchParams.append('message', String(message));
+    // Primitive parameter
+    if (unused_data !== undefined) url.searchParams.append('unused_data', String(unused_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -37006,7 +41105,7 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function log_writer_default(log_level: GLibLogLevelFlags, fields: Pointer, n_fields: number): Promise<GLibLogWriterOutput> {
+  export async function log_writer_default(log_level: GLibLogLevelFlags, fields: Pointer, n_fields: number, user_data?: Pointer): Promise<GLibLogWriterOutput> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/log_writer_default`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('log_level', String(log_level));
@@ -37014,6 +41113,8 @@ export namespace GObject {
     url.searchParams.append('fields', String(fields));
     // Primitive parameter
     url.searchParams.append('n_fields', String(n_fields));
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -37068,7 +41169,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function log_writer_journald(log_level: GLibLogLevelFlags, fields: Pointer, n_fields: number): Promise<GLibLogWriterOutput> {
+  export async function log_writer_journald(log_level: GLibLogLevelFlags, fields: Pointer, n_fields: number, user_data?: Pointer): Promise<GLibLogWriterOutput> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/log_writer_journald`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('log_level', String(log_level));
@@ -37076,12 +41177,14 @@ export namespace GObject {
     url.searchParams.append('fields', String(fields));
     // Primitive parameter
     url.searchParams.append('n_fields', String(n_fields));
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function log_writer_standard_streams(log_level: GLibLogLevelFlags, fields: Pointer, n_fields: number): Promise<GLibLogWriterOutput> {
+  export async function log_writer_standard_streams(log_level: GLibLogLevelFlags, fields: Pointer, n_fields: number, user_data?: Pointer): Promise<GLibLogWriterOutput> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/log_writer_standard_streams`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('log_level', String(log_level));
@@ -37089,6 +41192,8 @@ export namespace GObject {
     url.searchParams.append('fields', String(fields));
     // Primitive parameter
     url.searchParams.append('n_fields', String(n_fields));
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -37103,7 +41208,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function log_writer_syslog(log_level: GLibLogLevelFlags, fields: Pointer, n_fields: number): Promise<GLibLogWriterOutput> {
+  export async function log_writer_syslog(log_level: GLibLogLevelFlags, fields: Pointer, n_fields: number, user_data?: Pointer): Promise<GLibLogWriterOutput> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/log_writer_syslog`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('log_level', String(log_level));
@@ -37111,6 +41216,8 @@ export namespace GObject {
     url.searchParams.append('fields', String(fields));
     // Primitive parameter
     url.searchParams.append('n_fields', String(n_fields));
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -37184,21 +41291,25 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function malloc(n_bytes: number): Promise<void> {
+  export async function malloc(n_bytes: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/malloc`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('n_bytes', String(n_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function malloc0(n_bytes: number): Promise<void> {
+  export async function malloc0(n_bytes: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/malloc0`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('n_bytes', String(n_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function malloc0_n(n_blocks: number, n_block_bytes: number): Promise<void> {
+  export async function malloc0_n(n_blocks: number, n_block_bytes: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/malloc0_n`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('n_blocks', String(n_blocks));
@@ -37206,8 +41317,10 @@ export namespace GObject {
     url.searchParams.append('n_block_bytes', String(n_block_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function malloc_n(n_blocks: number, n_block_bytes: number): Promise<void> {
+  export async function malloc_n(n_blocks: number, n_block_bytes: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/malloc_n`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('n_blocks', String(n_blocks));
@@ -37215,6 +41328,8 @@ export namespace GObject {
     url.searchParams.append('n_block_bytes', String(n_block_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function markup_error_quark(): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/markup_error_quark`, apiConfig.baseUrl);
@@ -37260,19 +41375,27 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function memdup(byte_size: number): Promise<void> {
+  export async function memdup(byte_size: number, mem?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/memdup`, apiConfig.baseUrl);
     // Primitive parameter
-    url.searchParams.append('byte_size', String(byte_size));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  export async function memdup2(byte_size: number): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/memdup2`, apiConfig.baseUrl);
+    if (mem !== undefined) url.searchParams.append('mem', String(mem));
     // Primitive parameter
     url.searchParams.append('byte_size', String(byte_size));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function memdup2(byte_size: number, mem?: Pointer): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/memdup2`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (mem !== undefined) url.searchParams.append('mem', String(mem));
+    // Primitive parameter
+    url.searchParams.append('byte_size', String(byte_size));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function mkdir(filename: Pointer, mode: number): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/mkdir`, apiConfig.baseUrl);
@@ -37310,8 +41433,10 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function nullify_pointer(): Promise<void> {
+  export async function nullify_pointer(nullify_location: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/nullify_pointer`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('nullify_location', String(nullify_location));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -37336,8 +41461,10 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function once_init_enter(): Promise<boolean> {
+  export async function once_init_enter(location: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/once_init_enter`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('location', String(location));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -37352,22 +41479,32 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function once_init_enter_pointer(): Promise<boolean> {
+  export async function once_init_enter_pointer(location: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/once_init_enter_pointer`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('location', String(location));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function once_init_leave(result_: number): Promise<void> {
+  export async function once_init_leave(location: Pointer, result_: number): Promise<{ location?: Pointer }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/once_init_leave`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('location', String(location));
     // Primitive parameter
     url.searchParams.append('result', String(result_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
   }
-  export async function once_init_leave_pointer(): Promise<void> {
+  export async function once_init_leave_pointer(location: Pointer, result_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/once_init_leave_pointer`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('location', String(location));
+    // Primitive parameter
+    if (result_ !== undefined) url.searchParams.append('result', String(result_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -37404,8 +41541,12 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function path_buf_equal(): Promise<boolean> {
+  export async function path_buf_equal(v1: Pointer, v2: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/path_buf_equal`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v1', String(v1));
+    // Primitive parameter
+    url.searchParams.append('v2', String(v2));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -37458,15 +41599,19 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function pointer_bit_lock(lock_bit: number): Promise<void> {
+  export async function pointer_bit_lock(address: Pointer, lock_bit: number): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/pointer_bit_lock`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('address', String(address));
     // Primitive parameter
     url.searchParams.append('lock_bit', String(lock_bit));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function pointer_bit_lock_and_get(lock_bit: number): Promise<{ out_ptr?: number }> {
+  export async function pointer_bit_lock_and_get(address: Pointer, lock_bit: number): Promise<{ out_ptr?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/pointer_bit_lock_and_get`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('address', String(address));
     // Primitive parameter
     url.searchParams.append('lock_bit', String(lock_bit));
     const response = await fetch(url.toString());
@@ -37474,19 +41619,27 @@ export namespace GObject {
     const data = await response.json();
     return data;
   }
-  export async function pointer_bit_lock_mask_ptr(lock_bit: number, set: boolean, preserve_mask: number): Promise<void> {
+  export async function pointer_bit_lock_mask_ptr(lock_bit: number, set: boolean, preserve_mask: number, ptr?: Pointer, preserve_ptr?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/pointer_bit_lock_mask_ptr`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (ptr !== undefined) url.searchParams.append('ptr', String(ptr));
     // Primitive parameter
     url.searchParams.append('lock_bit', String(lock_bit));
     // Primitive parameter
     url.searchParams.append('set', String(set));
     // Primitive parameter
     url.searchParams.append('preserve_mask', String(preserve_mask));
+    // Primitive parameter
+    if (preserve_ptr !== undefined) url.searchParams.append('preserve_ptr', String(preserve_ptr));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function pointer_bit_trylock(lock_bit: number): Promise<boolean> {
+  export async function pointer_bit_trylock(address: Pointer, lock_bit: number): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/pointer_bit_trylock`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('address', String(address));
     // Primitive parameter
     url.searchParams.append('lock_bit', String(lock_bit));
     const response = await fetch(url.toString());
@@ -37494,17 +41647,23 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function pointer_bit_unlock(lock_bit: number): Promise<void> {
+  export async function pointer_bit_unlock(address: Pointer, lock_bit: number): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/pointer_bit_unlock`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('address', String(address));
     // Primitive parameter
     url.searchParams.append('lock_bit', String(lock_bit));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function pointer_bit_unlock_and_set(lock_bit: number, preserve_mask: number): Promise<void> {
+  export async function pointer_bit_unlock_and_set(address: Pointer, lock_bit: number, preserve_mask: number, ptr?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/pointer_bit_unlock_and_set`, apiConfig.baseUrl);
     // Primitive parameter
+    url.searchParams.append('address', String(address));
+    // Primitive parameter
     url.searchParams.append('lock_bit', String(lock_bit));
+    // Primitive parameter
+    if (ptr !== undefined) url.searchParams.append('ptr', String(ptr));
     // Primitive parameter
     url.searchParams.append('preserve_mask', String(preserve_mask));
     const response = await fetch(url.toString());
@@ -37545,8 +41704,10 @@ export namespace GObject {
     const data = await response.json();
     return data;
   }
-  export async function qsort_with_data(total_elems: number, size: number, compare_func: GLibCompareDataFunc): Promise<{ compare_func?: number }> {
+  export async function qsort_with_data(pbase: Pointer, total_elems: number, size: number, compare_func: GLibCompareDataFunc): Promise<{ compare_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/qsort_with_data`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('pbase', String(pbase));
     // Primitive parameter
     url.searchParams.append('total_elems', String(total_elems));
     // Primitive parameter
@@ -37639,46 +41800,64 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function rc_box_acquire(): Promise<void> {
+  export async function rc_box_acquire(mem_block: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_acquire`, apiConfig.baseUrl);
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  export async function rc_box_alloc(block_size: number): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_alloc`, apiConfig.baseUrl);
     // Primitive parameter
-    url.searchParams.append('block_size', String(block_size));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  export async function rc_box_alloc0(block_size: number): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_alloc0`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('block_size', String(block_size));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  export async function rc_box_dup(block_size: number): Promise<void> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_dup`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('block_size', String(block_size));
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  export async function rc_box_get_size(): Promise<number> {
-    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_get_size`, apiConfig.baseUrl);
+    url.searchParams.append('mem_block', String(mem_block));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function rc_box_release(): Promise<void> {
+  export async function rc_box_alloc(block_size: number): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_alloc`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('block_size', String(block_size));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function rc_box_alloc0(block_size: number): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_alloc0`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('block_size', String(block_size));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function rc_box_dup(block_size: number, mem_block: Pointer): Promise<Pointer> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_dup`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('block_size', String(block_size));
+    // Primitive parameter
+    url.searchParams.append('mem_block', String(mem_block));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function rc_box_get_size(mem_block: Pointer): Promise<number> {
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_get_size`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mem_block', String(mem_block));
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
+  }
+  export async function rc_box_release(mem_block: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_release`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mem_block', String(mem_block));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function rc_box_release_full(clear_func: GLibDestroyNotify): Promise<{ clear_func?: number }> {
+  export async function rc_box_release_full(mem_block: Pointer, clear_func: GLibDestroyNotify): Promise<{ clear_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/rc_box_release_full`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mem_block', String(mem_block));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -37688,21 +41867,29 @@ export namespace GObject {
     }
     return data;
   }
-  export async function realloc(n_bytes: number): Promise<void> {
+  export async function realloc(n_bytes: number, mem?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/realloc`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (mem !== undefined) url.searchParams.append('mem', String(mem));
     // Primitive parameter
     url.searchParams.append('n_bytes', String(n_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function realloc_n(n_blocks: number, n_block_bytes: number): Promise<void> {
+  export async function realloc_n(n_blocks: number, n_block_bytes: number, mem?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/realloc_n`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (mem !== undefined) url.searchParams.append('mem', String(mem));
     // Primitive parameter
     url.searchParams.append('n_blocks', String(n_blocks));
     // Primitive parameter
     url.searchParams.append('n_block_bytes', String(n_block_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function ref_count_compare(rc: number, val: number): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ref_count_compare`, apiConfig.baseUrl);
@@ -37913,7 +42100,7 @@ export namespace GObject {
     }
     return data;
   }
-  export async function sequence_get(iter: GLibSequenceIter): Promise<void> {
+  export async function sequence_get(iter: GLibSequenceIter): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/sequence_get`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (iter && typeof iter === 'object' && 'ptr' in iter) {
@@ -37921,13 +42108,17 @@ export namespace GObject {
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function sequence_insert_before(iter: GLibSequenceIter): Promise<GLibSequenceIter> {
+  export async function sequence_insert_before(iter: GLibSequenceIter, data_?: Pointer): Promise<GLibSequenceIter> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/sequence_insert_before`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (iter && typeof iter === 'object' && 'ptr' in iter) {
       url.searchParams.append('iter', 'ptr,' + iter.ptr);
     }
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -38010,12 +42201,14 @@ export namespace GObject {
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function sequence_set(iter: GLibSequenceIter): Promise<void> {
+  export async function sequence_set(iter: GLibSequenceIter, data_?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/sequence_set`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (iter && typeof iter === 'object' && 'ptr' in iter) {
       url.searchParams.append('iter', 'ptr,' + iter.ptr);
     }
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -38136,38 +42329,50 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function slice_alloc(block_size: number): Promise<void> {
+  export async function slice_alloc(block_size: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/slice_alloc`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('block_size', String(block_size));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function slice_alloc0(block_size: number): Promise<void> {
+  export async function slice_alloc0(block_size: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/slice_alloc0`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('block_size', String(block_size));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function slice_copy(block_size: number): Promise<void> {
+  export async function slice_copy(block_size: number, mem_block?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/slice_copy`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('block_size', String(block_size));
+    // Primitive parameter
+    if (mem_block !== undefined) url.searchParams.append('mem_block', String(mem_block));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function slice_free1(block_size: number): Promise<void> {
+  export async function slice_free1(block_size: number, mem_block?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/slice_free1`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('block_size', String(block_size));
+    // Primitive parameter
+    if (mem_block !== undefined) url.searchParams.append('mem_block', String(mem_block));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function slice_free_chain_with_offset(block_size: number, next_offset: number): Promise<void> {
+  export async function slice_free_chain_with_offset(block_size: number, next_offset: number, mem_chain?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/slice_free_chain_with_offset`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('block_size', String(block_size));
+    // Primitive parameter
+    if (mem_chain !== undefined) url.searchParams.append('mem_chain', String(mem_chain));
     // Primitive parameter
     url.searchParams.append('next_offset', String(next_offset));
     const response = await fetch(url.toString());
@@ -38227,19 +42432,23 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function source_remove_by_funcs_user_data(funcs: GLibSourceFuncs): Promise<boolean> {
+  export async function source_remove_by_funcs_user_data(funcs: GLibSourceFuncs, user_data?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/source_remove_by_funcs_user_data`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (funcs && typeof funcs === 'object' && 'ptr' in funcs) {
       url.searchParams.append('funcs', 'ptr,' + funcs.ptr);
     }
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     return data.return;
   }
-  export async function source_remove_by_user_data(): Promise<boolean> {
+  export async function source_remove_by_user_data(user_data?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/source_remove_by_user_data`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -38457,8 +42666,12 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function str_equal(): Promise<boolean> {
+  export async function str_equal(v1: Pointer, v2: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/str_equal`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v1', String(v1));
+    // Primitive parameter
+    url.searchParams.append('v2', String(v2));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -38486,8 +42699,10 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function str_hash(): Promise<number> {
+  export async function str_hash(v: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/str_hash`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v', String(v));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -38886,10 +43101,12 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function test_add_data_func(testpath: string, test_func: GLibTestDataFunc): Promise<{ test_func?: number }> {
+  export async function test_add_data_func(testpath: string, test_func: GLibTestDataFunc, test_data?: Pointer): Promise<{ test_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/test_add_data_func`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('testpath', String(testpath));
+    // Primitive parameter
+    if (test_data !== undefined) url.searchParams.append('test_data', String(test_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -38899,10 +43116,12 @@ export namespace GObject {
     }
     return data;
   }
-  export async function test_add_data_func_full(testpath: string, test_func: GLibTestDataFunc): Promise<{ test_func?: number }> {
+  export async function test_add_data_func_full(testpath: string, test_func: GLibTestDataFunc, test_data?: Pointer): Promise<{ test_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/test_add_data_func_full`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('testpath', String(testpath));
+    // Primitive parameter
+    if (test_data !== undefined) url.searchParams.append('test_data', String(test_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -39012,8 +43231,10 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function test_queue_destroy(destroy_func: GLibDestroyNotify): Promise<{ destroy_func?: number }> {
+  export async function test_queue_destroy(destroy_func: GLibDestroyNotify, destroy_data?: Pointer): Promise<{ destroy_func?: number }> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/test_queue_destroy`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (destroy_data !== undefined) url.searchParams.append('destroy_data', String(destroy_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -39023,8 +43244,10 @@ export namespace GObject {
     }
     return data;
   }
-  export async function test_queue_free(): Promise<void> {
+  export async function test_queue_free(gfree_pointer?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/test_queue_free`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (gfree_pointer !== undefined) url.searchParams.append('gfree_pointer', String(gfree_pointer));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -39200,8 +43423,10 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function thread_exit(): Promise<void> {
+  export async function thread_exit(retval?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/thread_exit`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (retval !== undefined) url.searchParams.append('retval', String(retval));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -39344,7 +43569,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function trash_stack_peek(stack_p: GLibTrashStack): Promise<void> {
+  export async function trash_stack_peek(stack_p: GLibTrashStack): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/trash_stack_peek`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (stack_p && typeof stack_p === 'object' && 'ptr' in stack_p) {
@@ -39352,8 +43577,10 @@ export namespace GObject {
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function trash_stack_pop(stack_p: GLibTrashStack): Promise<void> {
+  export async function trash_stack_pop(stack_p: GLibTrashStack): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/trash_stack_pop`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (stack_p && typeof stack_p === 'object' && 'ptr' in stack_p) {
@@ -39361,31 +43588,39 @@ export namespace GObject {
     }
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function trash_stack_push(stack_p: GLibTrashStack): Promise<void> {
+  export async function trash_stack_push(stack_p: GLibTrashStack, data_p: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/trash_stack_push`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (stack_p && typeof stack_p === 'object' && 'ptr' in stack_p) {
       url.searchParams.append('stack_p', 'ptr,' + stack_p.ptr);
     }
+    // Primitive parameter
+    url.searchParams.append('data_p', String(data_p));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
-  export async function try_malloc(n_bytes: number): Promise<void> {
+  export async function try_malloc(n_bytes: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_malloc`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('n_bytes', String(n_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function try_malloc0(n_bytes: number): Promise<void> {
+  export async function try_malloc0(n_bytes: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_malloc0`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('n_bytes', String(n_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function try_malloc0_n(n_blocks: number, n_block_bytes: number): Promise<void> {
+  export async function try_malloc0_n(n_blocks: number, n_block_bytes: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_malloc0_n`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('n_blocks', String(n_blocks));
@@ -39393,8 +43628,10 @@ export namespace GObject {
     url.searchParams.append('n_block_bytes', String(n_block_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function try_malloc_n(n_blocks: number, n_block_bytes: number): Promise<void> {
+  export async function try_malloc_n(n_blocks: number, n_block_bytes: number): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_malloc_n`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('n_blocks', String(n_blocks));
@@ -39402,22 +43639,32 @@ export namespace GObject {
     url.searchParams.append('n_block_bytes', String(n_block_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function try_realloc(n_bytes: number): Promise<void> {
+  export async function try_realloc(n_bytes: number, mem?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_realloc`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (mem !== undefined) url.searchParams.append('mem', String(mem));
     // Primitive parameter
     url.searchParams.append('n_bytes', String(n_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
-  export async function try_realloc_n(n_blocks: number, n_block_bytes: number): Promise<void> {
+  export async function try_realloc_n(n_blocks: number, n_block_bytes: number, mem?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_realloc_n`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (mem !== undefined) url.searchParams.append('mem', String(mem));
     // Primitive parameter
     url.searchParams.append('n_blocks', String(n_blocks));
     // Primitive parameter
     url.searchParams.append('n_block_bytes', String(n_block_bytes));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function ucs4_to_utf16(str: Pointer, len: number): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ucs4_to_utf16`, apiConfig.baseUrl);
@@ -39813,12 +44060,14 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function unix_get_passwd_entry(user_name: string): Promise<void> {
+  export async function unix_get_passwd_entry(user_name: string): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/unix_get_passwd_entry`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('user_name', String(user_name));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.return;
   }
   export async function unix_open_pipe(fds: Pointer, flags: number): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/unix_open_pipe`, apiConfig.baseUrl);
@@ -40519,10 +44768,12 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function utime(filename: Pointer): Promise<number> {
+  export async function utime(filename: Pointer, utb?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/utime`, apiConfig.baseUrl);
     // Primitive parameter
     url.searchParams.append('filename', String(filename));
+    // Primitive parameter
+    if (utb !== undefined) url.searchParams.append('utb', String(utb));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -40778,11 +45029,16 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function debug_get_all_categories(): Promise<Pointer> {
+  export async function debug_get_all_categories(): Promise<GLibSList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_get_all_categories`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibSList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function debug_get_color_mode(): Promise<GstDebugColorModeValue> {
@@ -40831,7 +45087,7 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function debug_log_default(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message: GstDebugMessage, object?: GObjectObject): Promise<void> {
+  export async function debug_log_default(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message: GstDebugMessage, object?: GObjectObject, user_data?: Pointer): Promise<void> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_log_default`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
     if (category && typeof category === 'object' && 'ptr' in category) {
@@ -40853,6 +45109,8 @@ export namespace GObject {
     if (message && typeof message === 'object' && 'ptr' in message) {
       url.searchParams.append('message', 'ptr,' + message.ptr);
     }
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -40943,8 +45201,10 @@ export namespace GObject {
     }
     return data.return;
   }
-  export async function debug_remove_log_function_by_data(): Promise<number> {
+  export async function debug_remove_log_function_by_data(data_?: Pointer): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_remove_log_function_by_data`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data', String(data_));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -41213,8 +45473,10 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function is_caps_features(): Promise<boolean> {
+  export async function is_caps_features(obj?: Pointer): Promise<boolean> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/is_caps_features`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (obj !== undefined) url.searchParams.append('obj', String(obj));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -41877,11 +46139,16 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function tracing_get_active_tracers(): Promise<Pointer> {
+  export async function tracing_get_active_tracers(): Promise<GLibList> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tracing_get_active_tracers`, apiConfig.baseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
+    // Return value is an object/struct, instantiate it from the ptr
+    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+      const instance = new GLibList(data.return.ptr);
+      return instance;
+    }
     return data.return;
   }
   export async function tracing_register_hook(tracer: GstTracer, detail: string, func: GObjectCallback): Promise<{ func?: number }> {
@@ -42075,14 +46342,18 @@ export namespace GObject {
     const data = await response.json();
     return data.return;
   }
-  export async function util_array_binary_search(num_elements: number, element_size: number, mode: GstSearchModeValue, search_func: GLibCompareDataFunc): Promise<{ search_func?: number }> {
+  export async function util_array_binary_search(num_elements: number, element_size: number, mode: GstSearchModeValue, search_func: GLibCompareDataFunc, array?: Pointer, search_data?: Pointer): Promise<Pointer> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_array_binary_search`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (array !== undefined) url.searchParams.append('array', String(array));
     // Primitive parameter
     url.searchParams.append('num_elements', String(num_elements));
     // Primitive parameter
     url.searchParams.append('element_size', String(element_size));
     // Primitive parameter
     url.searchParams.append('mode', String(mode));
+    // Primitive parameter
+    if (search_data !== undefined) url.searchParams.append('search_data', String(search_data));
     const response = await fetch(url.toString());
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
@@ -42090,7 +46361,7 @@ export namespace GObject {
     if (data.search_func !== undefined) {
       callbackDispatcher.set(data.search_func.toString(), search_func);
     }
-    return data;
+    return data.return;
   }
   export async function util_ceil_log2(v: number): Promise<number> {
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_ceil_log2`, apiConfig.baseUrl);
@@ -43107,4 +47378,3 @@ export namespace GObject {
     return data.return;
   }
 }
-
