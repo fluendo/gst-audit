@@ -650,7 +650,8 @@ class GIRest():
             return
         
         # Generate GET endpoint (always available for readable fields)
-        get_api = f"/{namespace}/{struct_name}/{{self}}/{field_name}"
+        # Use 'fields' prefix to avoid collision with method endpoints
+        get_api = f"/{namespace}/{struct_name}/{{self}}/fields/{field_name}"
         get_operation = {
             "summary": f"Get {field_name} field from {struct_name}",
             "description": f"Reads the {field_name} field at offset {field_offset}",
@@ -679,14 +680,16 @@ class GIRest():
                         }
                     }
                 }
-            }
+            },
+            "x-gi-field": True
         }
         
         self.spec.path(path=get_api, operations={"get": get_operation})
         
         # Generate PUT endpoint only if the field is writable
         if is_writable:
-            put_api = f"/{namespace}/{struct_name}/{{self}}/{field_name}"
+            # Use 'fields' prefix to avoid collision with method endpoints
+            put_api = f"/{namespace}/{struct_name}/{{self}}/fields/{field_name}"
             put_operation = {
                 "summary": f"Set {field_name} field in {struct_name}",
                 "description": f"Writes to the {field_name} field at offset {field_offset}",
@@ -710,7 +713,8 @@ class GIRest():
                 ],
                 "responses": {
                     "204": {"description": "No Content"}
-                }
+                },
+                "x-gi-field": True
             }
             
             self.spec.path(path=put_api, operations={"put": put_operation})
