@@ -168,7 +168,7 @@ class GIRest():
             logger.warning(f"Unknown type tag: {tag}")
         return ret
 
-    def _generate_function(self, bim, bi=None):
+    def _generate_function(self, bim, bi=None, is_constructor=False, is_destructor=False, is_copy=False):
         api = f"/{bim.get_namespace()}"
         if bi:
             api += f"/{bi.get_name()}"
@@ -320,13 +320,10 @@ class GIRest():
         else:
             responses["204"] = {"description": "No Content"}
         
-        # Check if this is a constructor method
-        flags = GIRepository.function_info_get_flags(bim)
-        is_constructor = bool(flags & GIRepository.FunctionInfoFlags.IS_CONSTRUCTOR)
-        
-        # Check if this is a destructor method (free function for structs)
-        method_name = bim.get_name()
-        is_destructor = method_name == 'free' and bi and bi.get_type() == GIRepository.InfoType.STRUCT
+        # Override constructor detection if explicitly passed
+        if not is_constructor:
+            flags = GIRepository.function_info_get_flags(bim)
+            is_constructor = bool(flags & GIRepository.FunctionInfoFlags.IS_CONSTRUCTOR)
         
         # Build operation definition
         operation = {
@@ -336,9 +333,15 @@ class GIRest():
             "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
             "parameters": params,
             "responses": responses,
-            "x-gi-constructor": is_constructor,
-            "x-gi-destructor": is_destructor
         }
+        
+        # Only add vendor-specific attributes when they are True
+        if is_constructor:
+            operation["x-gi-constructor"] = True
+        if is_destructor:
+            operation["x-gi-destructor"] = True
+        if is_copy:
+            operation["x-gi-copy"] = True
         
         # Add callback schema references if there are callbacks
         if callback_schemas:
@@ -390,10 +393,51 @@ class GIRest():
                     "x-gi-type": "object"
                 }
             )
+        
+        # Get official ref and unref function names from GIRepository API
+        ref_func_name = None
+        unref_func_name = None
+        
+        try:
+            ref_func = GIRepository.object_info_get_ref_function(bi)
+            if ref_func:
+                ref_func_name = ref_func.get_name()
+        except AttributeError:
+            # API not available for older GIRepository versions
+            pass
+            
+        try:
+            unref_func = GIRepository.object_info_get_unref_function(bi)
+            if unref_func:
+                unref_func_name = unref_func.get_name()
+        except AttributeError:
+            # API not available for older GIRepository versions
+            pass
+        
         # Now the member functions
         for i in range(0, GIRepository.object_info_get_n_methods(bi)):
             bim = GIRepository.object_info_get_method(bi, i)
-            self._generate_function(bim, bi)
+            method_name = bim.get_name()
+            
+            # Determine if this is a ref or unref method
+            is_copy = False
+            is_destructor = False
+            
+            # Check ref function
+            if ref_func_name and method_name == ref_func_name:
+                is_copy = True
+            elif not ref_func_name and method_name in ['ref', 'ref_sink']:
+                logger.warning(f"Using fallback detection for ref function '{method_name}' in {bi.get_namespace()}.{bi.get_name()}")
+                is_copy = True
+            
+            # Check unref function    
+            if unref_func_name and method_name == unref_func_name:
+                is_destructor = True
+            elif not unref_func_name and method_name == 'unref':
+                logger.warning(f"Using fallback detection for unref function '{method_name}' in {bi.get_namespace()}.{bi.get_name()}")
+                is_destructor = True
+                
+            self._generate_function(bim, bi, is_copy=is_copy, is_destructor=is_destructor)
         # Finally the g_foo_get_type
         self._generate_get_type_function(bi)
 
@@ -431,7 +475,27 @@ class GIRest():
         if n_methods == 0:
             return
         
-        # Check existing methods for constructors/free
+        # Get official copy and free function names from GIRepository API
+        copy_func_name = None
+        free_func_name = None
+        
+        try:
+            copy_func = GIRepository.struct_info_get_copy_function(bi)
+            if copy_func:
+                copy_func_name = copy_func.get_name()
+        except AttributeError:
+            # API not available for older GIRepository versions (< 1.76)
+            pass
+            
+        try:
+            free_func = GIRepository.struct_info_get_free_function(bi)
+            if free_func:
+                free_func_name = free_func.get_name()
+        except AttributeError:
+            # API not available for older GIRepository versions (< 1.76)
+            pass
+        
+        # Check existing methods for constructors/free and generate endpoints for struct methods
         has_constructor = False
         has_destructor = False
         for i in range(0, n_methods):
@@ -440,24 +504,35 @@ class GIRest():
             is_constructor = bool(flags & GIRepository.FunctionInfoFlags.IS_CONSTRUCTOR)
             method_name = bim.get_name()
             
+            # Check for constructor
             if is_constructor or method_name == 'new':
                 has_constructor = True
-            if method_name == 'free':
+            
+            # Check for destructor using API first, then fallback
+            if free_func_name and method_name == free_func_name:
                 has_destructor = True
-
-        # Avoid the Type types
-        if bi.get_name() not in ["TypeInstance", "TypeClass"]:
-            # Generate generic new/free endpoints if struct doesn't have constructor/free
-            if not has_constructor:
-                self._generate_generic_struct_new(bi)
+            elif not free_func_name and method_name == 'free':
+                has_destructor = True
             
-            if not has_destructor:
-                self._generate_generic_struct_free(bi)
+            # Determine if this is a copy or destructor method
+            is_copy = False
+            is_destructor_method = False
             
-        # Generate endpoints for struct methods
-        for i in range(0, n_methods):
-            bim = GIRepository.struct_info_get_method(bi, i)
-            self._generate_function(bim, bi)
+            # Check copy function
+            if copy_func_name and method_name == copy_func_name:
+                is_copy = True
+            elif not copy_func_name and method_name in ['copy', 'ref']:
+                logger.warning(f"Using fallback detection for copy function '{method_name}' in {bi.get_namespace()}.{bi.get_name()}")
+                is_copy = True
+                
+            # Check destructor function  
+            if free_func_name and method_name == free_func_name:
+                is_destructor_method = True
+            elif not free_func_name and method_name == 'free':
+                logger.warning(f"Using fallback detection for free function '{method_name}' in {bi.get_namespace()}.{bi.get_name()}")
+                is_destructor_method = True
+                
+            self._generate_function(bim, bi, is_constructor=is_constructor, is_copy=is_copy, is_destructor=is_destructor_method)
         
         # Generate endpoints for struct fields
         n_fields = GIRepository.struct_info_get_n_fields(bi)
@@ -467,6 +542,15 @@ class GIRest():
         
         # Generate get_type function if the struct has a registered GType
         self._generate_get_type_function(bi)
+
+        # Avoid the Type types
+        if bi.get_name() not in ["TypeInstance", "TypeClass"]:
+            # Generate generic new/free endpoints if struct doesn't have constructor/free
+            if not has_constructor:
+                self._generate_generic_struct_new(bi)
+            
+            if not has_destructor:
+                self._generate_generic_struct_free(bi)
 
     def _generate_callback(self, bi):
         """Generate OpenAPI schema for a callback"""
