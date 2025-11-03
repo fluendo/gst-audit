@@ -588,8 +588,8 @@ async def test_glist_field_iteration(girest_server):
             print(f"  Iteration {iteration_count}: GList node at {current_ptr}")
             
             # Access the 'next' field of the current GList node
-            # The operation ID format is: Gst-List-next-get
-            response = await client.get(f"{girest_server}/GLib/List/ptr,{current_ptr}/next")
+            # The operation ID format is: GLib-List-next-get
+            response = await client.get(f"{girest_server}/GLib/List/ptr,{current_ptr}/fields/next")
             assert_response(response, f"Failed to get 'next' field from GList at iteration {iteration_count}")
             response_data = response.json()
             
