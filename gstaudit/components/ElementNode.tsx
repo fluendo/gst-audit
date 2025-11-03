@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect } from 'react';
 import { Handle, Position, NodeProps, useUpdateNodeInternals } from '@xyflow/react';
-import { GstElement, GstPad, GstIterator, GObjectValue, GObjectObject, GstPadDirectionValue, GstIteratorResult, GstPadDirection } from '@/lib/gst';
+import { GstElement, GstPad, GObjectValue, GObjectObject, GstPadDirectionValue, GstPadDirection } from '@/lib/gst';
 
 interface ElementNodeData {
   label: string;
@@ -31,45 +31,22 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
         
         // Get all pads from the element
         const iterator = await nodeData.element.iterate_pads();
-        const value = await GObjectValue.new();
-        await value.unset();
         
-        let done = false;
-        while (!done) {
-          const res = await iterator.next(value);
-          switch (res) {
-            case GstIteratorResult.DONE:
-              done = true;
-              break;
-            case GstIteratorResult.OK:
-              try {
-                const obj: GObjectObject = await value.get_object();
-                const pad: GstPad = await obj.castTo(GstPad);
-                const name = await pad.get_name();
-                const id = `${await nodeData.element.get_name()}-${name}`;
-                const direction = await pad.get_direction();
-                
-                padList.push({
-                  id,
-                  name,
-                  direction,
-                  pad
-                });
-                
-                await value.unset();
-              } catch (err) {
-                console.error('Error processing pad:', err);
-              }
-              break;
-            case GstIteratorResult.RESYNC:
-              // Iterator was modified, resync and try again
-              await iterator.resync();
-              await value.unset();
-              break;
-            case GstIteratorResult.ERROR:
-              console.error('Error iterating pads');
-              done = true;
-              break;
+        for await (const obj of iterator) {
+          try {
+            const pad: GstPad = await obj.castTo(GstPad);
+            const name = await pad.get_name();
+            const id = `${await nodeData.element.get_name()}-${name}`;
+            const direction = await pad.get_direction();
+            
+            padList.push({
+              id,
+              name,
+              direction,
+              pad
+            });
+          } catch (err) {
+            console.error('Error processing pad:', err);
           }
         }
         

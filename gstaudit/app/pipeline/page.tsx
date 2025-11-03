@@ -26,7 +26,6 @@ import {
   GstElement,
   GObject,
   GstPad,
-  GstIteratorResult,
   GstPadDirection
 } from '@/lib/gst';
 import { ElementNode } from '@/components';
@@ -215,32 +214,10 @@ export default function PipelinePage() {
     if (await element.isOf(GstBin)) {
       const bin = await element.castTo(GstBin);
       const iterator = await bin.iterate_elements();
-      const value = await GObjectValue.new();
-      await value.unset();
-      let done = false;
-      while (!done) {
-        const res = await iterator.next(value);
-        switch (res) {
-          case GstIteratorResult.DONE:
-            done = true;
-            break;
-          case GstIteratorResult.OK:
-            // Check the type
-            const obj: GObjectObject = await value.get_object();
-            const child: GstElement = await obj.castTo(GstElement);
-            await generateNode(child, nodeArray, bin);
-            await value.unset();
-            break;
-          case GstIteratorResult.RESYNC:
-            // Iterator was modified, resync and try again
-            await iterator.resync();
-            await value.unset();
-            break;
-          case GstIteratorResult.ERROR:
-            console.error('Error iterating');
-            done = true;
-            break;
-        }
+      
+      for await (const obj of iterator) {
+        const child: GstElement = await obj.castTo(GstElement);
+        await generateNode(child, nodeArray, bin);
       }
     }
   }
@@ -256,119 +233,94 @@ export default function PipelinePage() {
         
         // Iterate through all pads of this element
         const iterator = await element.iterate_pads();
-        const value = await GObjectValue.new();
-        await value.unset();
-        let done = false;
         
-        while (!done) {
-          const res = await iterator.next(value);
-          switch (res) {
-            case GstIteratorResult.DONE:
-              done = true;
-              break;
-            case GstIteratorResult.OK:
-              const obj: GObjectObject = await value.get_object();
-              const pad = await obj.castTo(GstPad);
-              const padPtr = pad.ptr;
+        for await (const obj of iterator) {
+          const pad = await obj.castTo(GstPad);
+          const padPtr = pad.ptr;
+          
+          // Skip if we've already processed this pad
+          if (processedPads.has(padPtr)) {
+            continue;
+          }
+          
+          // Check if pad is linked
+          const isLinked = await pad.is_linked();
+          if (isLinked) {
+            // Get the peer pad
+            const peerPad = await pad.get_peer();
+            const peerPadPtr = peerPad.ptr;
+            
+            // Skip if we've already processed the peer pad
+            if (processedPads.has(peerPadPtr)) {
+              continue;
+            }
+            
+            // Get the parent element of the peer pad
+            const peerParent = await peerPad.get_parent();
+            const peerElement = await peerParent.castTo(GstElement);
+            const peerElementPtr = peerElement.ptr;
+            
+            // Get pad directions to determine source/target
+            const padDirection = await pad.get_direction();
+            const peerDirection = await peerPad.get_direction();
+            
+            // Get element names for handle IDs
+            const elementName = await element.get_name();
+            const peerElementName = await peerElement.get_name();
+            const padName = await pad.get_name();
+            const peerPadName = await peerPad.get_name();
+            
+            // Create edge based on pad directions
+            // Source pads connect TO sink pads
+            let sourceNodeId: string, targetNodeId: string;
+            let sourceHandleId: string, targetHandleId: string;
+            
+            if (padDirection === GstPadDirection.SRC && peerDirection === GstPadDirection.SINK) {
+              sourceNodeId = element.ptr;
+              targetNodeId = peerElementPtr;
+              sourceHandleId = `${elementName}-${padName}`;
+              targetHandleId = `${peerElementName}-${peerPadName}`;
+            } else if (padDirection === GstPadDirection.SINK && peerDirection === GstPadDirection.SRC) {
+              sourceNodeId = peerElementPtr;
+              targetNodeId = element.ptr;
+              sourceHandleId = `${peerElementName}-${peerPadName}`;
+              targetHandleId = `${elementName}-${padName}`;
+            } else {
+              // Skip invalid connections
+              console.warn(`Invalid pad connection: ${padDirection} -> ${peerDirection}`);
+              continue;
+            }
+            
+            // Verify both nodes exist in our node array
+            const sourceNode = nodeArray.find(n => n.id === sourceNodeId);
+            const targetNode = nodeArray.find(n => n.id === targetNodeId);
+            
+            if (sourceNode && targetNode) {
+              const edge: Edge = {
+                id: `${sourceNodeId}:${targetNodeId}`,
+                source: sourceNodeId,
+                target: targetNodeId,
+                // Don't specify handles - let React Flow connect when they're ready
+                // sourceHandle: sourceHandleId,
+                // targetHandle: targetHandleId,
+                type: 'default',
+                animated: true,
+                style: {
+                  stroke: '#0ea5e9',
+                  strokeWidth: 2,
+                },
+                markerEnd: {
+                  type: 'arrowclosed',
+                  color: '#0ea5e9',
+                },
+              };
               
-              // Skip if we've already processed this pad
-              if (processedPads.has(padPtr)) {
-                await value.unset();
-                continue;
-              }
-              
-              // Check if pad is linked
-              const isLinked = await pad.is_linked();
-              if (isLinked) {
-                // Get the peer pad
-                const peerPad = await pad.get_peer();
-                const peerPadPtr = peerPad.ptr;
-                
-                // Skip if we've already processed the peer pad
-                if (processedPads.has(peerPadPtr)) {
-                  await value.unset();
-                  continue;
-                }
-                
-                // Get the parent element of the peer pad
-                const peerParent = await peerPad.get_parent();
-                const peerElement = await peerParent.castTo(GstElement);
-                const peerElementPtr = peerElement.ptr;
-                
-                // Get pad directions to determine source/target
-                const padDirection = await pad.get_direction();
-                const peerDirection = await peerPad.get_direction();
-                
-                // Get element names for handle IDs
-                const elementName = await element.get_name();
-                const peerElementName = await peerElement.get_name();
-                const padName = await pad.get_name();
-                const peerPadName = await peerPad.get_name();
-                
-                // Create edge based on pad directions
-                // Source pads connect TO sink pads
-                let sourceNodeId: string, targetNodeId: string;
-                let sourceHandleId: string, targetHandleId: string;
-                
-                if (padDirection === GstPadDirection.SRC && peerDirection === GstPadDirection.SINK) {
-                  sourceNodeId = element.ptr;
-                  targetNodeId = peerElementPtr;
-                  sourceHandleId = `${elementName}-${padName}`;
-                  targetHandleId = `${peerElementName}-${peerPadName}`;
-                } else if (padDirection === GstPadDirection.SINK && peerDirection === GstPadDirection.SRC) {
-                  sourceNodeId = peerElementPtr;
-                  targetNodeId = element.ptr;
-                  sourceHandleId = `${peerElementName}-${peerPadName}`;
-                  targetHandleId = `${elementName}-${padName}`;
-                } else {
-                  // Skip invalid connections
-                  console.warn(`Invalid pad connection: ${padDirection} -> ${peerDirection}`);
-                  await value.unset();
-                  continue;
-                }
-                
-                // Verify both nodes exist in our node array
-                const sourceNode = nodeArray.find(n => n.id === sourceNodeId);
-                const targetNode = nodeArray.find(n => n.id === targetNodeId);
-                
-                if (sourceNode && targetNode) {
-                  const edge: Edge = {
-                    id: `${sourceNodeId}:${targetNodeId}`,
-                    source: sourceNodeId,
-                    target: targetNodeId,
-                    // Don't specify handles - let React Flow connect when they're ready
-                    // sourceHandle: sourceHandleId,
-                    // targetHandle: targetHandleId,
-                    type: 'default',
-                    animated: true,
-                    style: {
-                      stroke: '#0ea5e9',
-                      strokeWidth: 2,
-                    },
-                    markerEnd: {
-                      type: 'arrowclosed',
-                      color: '#0ea5e9',
-                    },
-                  };
-                  
-                  edgeArray.push(edge);
-                }
-                
-                // Mark both pads as processed
-                processedPads.add(padPtr);
-                processedPads.add(peerPadPtr);
-              }
-              
-              await value.unset();
-              break;
-            case GstIteratorResult.RESYNC:
-              await iterator.resync();
-              await value.unset();
-              break;
-            case GstIteratorResult.ERROR:
-              console.error('Error iterating pads');
-              done = true;
-              break;
+              edgeArray.push(edge);
+            }
+            
+            // Mark both pads as processed
+            processedPads.add(padPtr);
+            processedPads.add(peerPadPtr);
           }
         }
       }
