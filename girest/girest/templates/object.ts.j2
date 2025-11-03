@@ -1,14 +1,10 @@
 {# Object template - handles GIR object types (GObject-derived classes) #}
 export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif %} {
-{% for prop in properties %}
-  {{ prop.name }}{{ prop.assertion }}: {{ prop.type }};
-{% endfor %}
-{% if properties and (constructors or methods) %}
-
-{% endif %}
+{% if constructors %}
 {{ constructors | join('\n') }}
-{% if constructors and methods %}
-
 {% endif %}
+
+{% if methods %}
 {{ methods | join('\n') }}
+{% endif %}
 }

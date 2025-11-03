@@ -1,0 +1,78 @@
+{# GLibList template - handles GLibList with AsyncIterable interface #}
+export class {{ name }}<T = any>{% if parent_class %} extends {{ parent_class }}{% endif %} implements AsyncIterable<T> {
+{% if has_destructor %}
+  ptr!: string;
+  contentTransfer!: boolean;
+  TargetClass?: new (ptr?: string, transfer?: boolean) => T;
+  
+  constructor(ptr?: string, contentTransfer: boolean = false, TargetClass?: new (ptr?: string, transfer?: boolean) => T) {
+    if (ptr) {
+      this.ptr = ptr;
+      this.contentTransfer = contentTransfer;
+      this.TargetClass = TargetClass;
+      {{ destructor_registry }}.register(this, ptr);
+    }
+  }
+{% else %}
+  ptr!: string;
+  contentTransfer!: boolean;
+  TargetClass?: new (ptr?: string, transfer?: boolean) => T;
+  
+  constructor(ptr?: string, contentTransfer: boolean = false, TargetClass?: new (ptr?: string, transfer?: boolean) => T) {
+    if (ptr) {
+      this.ptr = ptr;
+      this.contentTransfer = contentTransfer;
+      this.TargetClass = TargetClass;
+    }
+  }
+{% endif %}
+
+  // Implement AsyncIterable interface
+  [Symbol.asyncIterator](): AsyncIterator<T, any, any> {
+    let currentNode: GLibList | null = this;
+    
+    return {
+      next: async (): Promise<IteratorResult<T>> => {
+        // Check if current node is null/undefined (reached end of list)
+        if (!currentNode || !currentNode.ptr) {
+          return { done: true, value: undefined };
+        }
+        
+        try {
+          // Get the data from the current node
+          const data = await currentNode.get_data();
+          
+          // Move to the next node
+          const nextNode = await currentNode.get_next();
+          
+          // Check if nextNode has a valid pointer, if not we've reached the end
+          if (nextNode && typeof nextNode === 'object' && 'ptr' in nextNode && nextNode.ptr) {
+            currentNode = nextNode;
+          } else {
+            currentNode = null;
+          }
+          
+          // Create an instance of the target class if TargetClass is provided and data is a pointer
+          if (this.TargetClass && data && typeof data === 'string') {
+            const instance = new this.TargetClass(data, this.contentTransfer);
+            return { done: false, value: instance };
+          }
+          
+          // Otherwise return the raw data cast to type T
+          return { done: false, value: data as T };
+        } catch (error) {
+          // If we get an error, we're probably at the end of the list
+          return { done: true, value: undefined };
+        }
+      }
+    };
+  }
+
+{% if constructors %}
+{{ constructors | join('\n') }}
+{% endif %}
+
+{% if methods %}
+{{ methods | join('\n') }}
+{% endif %}
+}

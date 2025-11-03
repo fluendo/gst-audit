@@ -172,14 +172,14 @@ class TypeScriptGenerator:
                         if class_name not in self.class_constructors:
                             self.class_constructors[class_name] = []
                         self.class_constructors[class_name].append(method_info)
+                    elif is_destructor:
+                        # Track destructors for finalization registry only
+                        # Do not add to class_methods - consumer should not call destructors
+                        self.struct_destructors[class_name] = method_info
                     else:
                         if class_name not in self.class_methods:
                             self.class_methods[class_name] = []
                         self.class_methods[class_name].append(method_info)
-                    
-                    # Track destructors for struct finalization
-                    if is_destructor:
-                        self.struct_destructors[class_name] = method_info
                 else:
                     # Standalone function without tags
                     self.standalone_functions.append(method_info)
@@ -874,17 +874,6 @@ class TypeScriptGenerator:
         
         # Check if this struct has a destructor
         has_destructor = class_name in self.struct_destructors
-        destructor_info = self.struct_destructors.get(class_name, {})
-        destructor_path = ""
-        destructor_method_name = "free"
-        destructor_registry = ""
-        
-        if has_destructor:
-            # Process destructor as a regular method to get the properly formatted path
-            destructor_method_data = self._prepare_method_data(destructor_info, class_name)
-            destructor_path = destructor_method_data["path"]
-            destructor_method_name = destructor_method_data["name"]
-            destructor_registry = f"{class_name.lower()}Registry"
         
         data = {
             "name": class_name,
@@ -892,9 +881,7 @@ class TypeScriptGenerator:
             "extends_gobject": extends_gobject,
             "parent_class": parent_class,
             "has_destructor": has_destructor,
-            "destructor_path": destructor_path,
-            "destructor_method_name": destructor_method_name,
-            "destructor_registry": destructor_registry,
+            "destructor_registry": f"{class_name.lower()}Registry" if has_destructor else "",
             "properties": [],
             "constructors": [],
             "methods": []
@@ -908,39 +895,13 @@ class TypeScriptGenerator:
                     method_data = self._prepare_method_data(method_info, class_name)
                     data["methods"].append(method_template.render(method_data))
         else:
-            # Regular class
-            # Add properties from schema in these cases:
-            # 1. Not a GObject type  
-            # 2. GObject type without parent and without destructor (needs ptr field and constructor)
-            # 
-            # Why case 2? GObject types with parents inherit the ptr field from their parent.
-            # GObject types with destructors get ptr field from the destructor template section.
-            # But GObject types without either (like GObjectParamSpec) need properties from schema.
-            should_add_properties = (
-                not extends_gobject or
-                (extends_gobject and not parent_class and not has_destructor)
-            )
-            
-            if schema and should_add_properties:
-                # Add properties if not using GObjectBase
-                properties = schema.get("properties", {})
-                required = schema.get("required", [])
-                
-                if "allOf" in schema:
-                    all_of = schema["allOf"]
-                    for item in all_of:
-                        if "type" in item and item["type"] == "object":
-                            properties = item.get("properties", {})
-                            break
-                
-                data["properties"] = [
-                    {
-                        "name": prop_name,
-                        "assertion": "!" if prop_name in required else "?",
-                        "type": self._openapi_type_to_ts(prop_schema)
-                    }
-                    for prop_name, prop_schema in properties.items()
-                ]
+            # Regular class (struct or object)
+            # Properties should only be added for interface generation, not for classes
+            # Structs and objects get their ptr fields from:
+            # - Destructor handling (if has_destructor)
+            # - Inheritance chain (for GObject types)
+            # - Template-specific logic (not from schema properties)
+            data["properties"] = []
             
             # Add constructors
             if class_name in self.class_constructors:
@@ -985,9 +946,6 @@ class TypeScriptGenerator:
                     
                     # Skip 'unref' method for GObjectObject as it's provided by the base class
                     if class_name == "GObjectObject" and original_name == "unref":
-                        continue
-                    # Skip destructor method for structs as it's provided by the class constructor
-                    if has_destructor and original_name == destructor_method_name:
                         continue
                     
                     # Check if method name conflicts with parent chain

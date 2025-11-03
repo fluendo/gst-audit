@@ -64,7 +64,7 @@ def test_gobject_base_class_structure(gst_typescript):
     - Extends GObjectTypeInstance
     - constructor with super() call
     - castTo method
-    - unref method
+    - Does NOT have unref method (destructors are excluded from API)
     """
     output = gst_typescript
     
@@ -82,7 +82,8 @@ def test_gobject_base_class_structure(gst_typescript):
     assert 'constructor(ptr?: string, transfer: boolean = false)' in gobject_class, "GObjectObject should have constructor with transfer parameter"
     assert 'super(ptr, transfer)' in gobject_class, "GObjectObject constructor should call super(ptr, transfer)"
     assert 'castTo<T extends GObjectObject>(TargetClass:' in gobject_class, "GObjectObject should have castTo method with correct signature"
-    assert 'unref():' in gobject_class, "GObjectObject should have unref method"
+    # Verify that unref method is NOT present (destructors should be excluded from API)
+    assert 'unref():' not in gobject_class, "GObjectObject should NOT have unref method (destructors are excluded from API)"
 
 
 def test_intermediate_classes_generated(gst_typescript):
@@ -443,3 +444,56 @@ def test_typescript_duplicate_constructor_names_in_inheritance_chain(gst_typescr
         "GstSharedTaskPool should not have plain new constructor (conflicts with parent)"
     
     print("✓ TypeScript generator handles duplicate method names in inheritance chain correctly")
+
+
+def test_typescript_destructors_excluded_from_api(gst_typescript):
+    """
+    Test that methods marked as x-gi-destructor are excluded from the TypeScript API.
+    
+    Verifies that:
+    - Destructors like 'free' and 'unref' are not generated as callable methods
+    - The FinalizationRegistry system is still generated for memory management
+    - Struct registries are properly generated for cleanup
+    """
+    typescript = gst_typescript
+    import re
+    
+    # Test 1: GObjectTypeInterface should not have a callable 'free' method
+    type_interface_match = re.search(
+        r'export class GObjectTypeInterface.*?(?=export class|export namespace|$)',
+        typescript,
+        re.DOTALL
+    )
+    assert type_interface_match, "GObjectTypeInterface class not found in generated TypeScript"
+    
+    class_content = type_interface_match.group(0)
+    # Should not have a callable free method (async free() is not allowed)
+    assert 'async free(' not in class_content and 'free(' not in class_content, \
+        "GObjectTypeInterface should NOT have a callable free method (it's a destructor)"
+    
+    # Test 2: GObjectObject should not have a callable 'unref' method
+    gobject_match = re.search(
+        r'export class GObjectObject.*?(?=export class|export namespace|$)',
+        typescript,
+        re.DOTALL
+    )
+    assert gobject_match, "GObjectObject class not found in generated TypeScript"
+    
+    gobject_content = gobject_match.group(0)
+    # Should not have a callable unref method (async unref() is not allowed)
+    assert 'async unref(' not in gobject_content and 'unref(' not in gobject_content, \
+        "GObjectObject should NOT have a callable unref method (it's a destructor)"
+    
+    # Test 3: FinalizationRegistry system should still be present
+    assert 'FinalizationRegistry' in typescript, \
+        "FinalizationRegistry should be present for automatic memory management"
+    
+    # Test 4: Struct registries should be generated for cleanup
+    assert 'gobjecttypeinterfaceRegistry' in typescript, \
+        "gobjecttypeinterfaceRegistry should be present for GObjectTypeInterface cleanup"
+    
+    # Test 5: Constructor registration should still work
+    assert 'register(this, ptr)' in class_content, \
+        "Constructor should register objects with FinalizationRegistry"
+    
+    print("✓ TypeScript generator excludes destructors from API while maintaining automatic cleanup")

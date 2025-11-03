@@ -1,5 +1,4 @@
 {# Method template #}
-{# Method template #}
 {% if is_namespace_function or is_static %}
 {% if is_namespace_function %}
   export async function {{ name }}({{ params }}): Promise<{{ return_type }}> {

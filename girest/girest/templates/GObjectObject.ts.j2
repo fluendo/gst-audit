@@ -23,23 +23,11 @@ export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif 
     const is_type = await GObject.type_check_instance_is_a(this, type);
     return is_type;
   }
-  
-  // Manual cleanup method
-  unref(): Promise<void> {
-    if (!this.ptr) return Promise.resolve();
-    return fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + this.ptr + '/unref')
-      .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      });
-  }
 {% if constructors %}
-
 {{ constructors | join('\n') }}
 {% endif %}
-{% if methods %}
-{% if constructors %}
 
-{% endif %}
+{% if methods %}
 {{ methods | join('\n') }}
 {% endif %}
 }
