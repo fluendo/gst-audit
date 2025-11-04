@@ -1,0 +1,5 @@
+// Finalization registry for {{ class_name }}
+const {{ registry_name }} = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.fullBaseUrl + '{{ registry_path }}')
+    .catch(err => console.error('Failed to free {{ class_name }}:', ptr, err));
+});

@@ -1,0 +1,12 @@
+{# Param postcondition template - unrefs a single object when call fails #}
+{% if param.transfer == 'full' and param.is_gobject %}
+{% if param.required %}
+        if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+        }
+{% else %}
+        if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
+        }
+{% endif %}
+{% endif %}

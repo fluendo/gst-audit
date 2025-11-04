@@ -1,79 +1,25 @@
 {# Method template #}
-{% if is_namespace_function or is_static %}
 {% if is_namespace_function %}
   export async function {{ name }}({{ params }}): Promise<{{ return_type }}> {
-{% else %}
+{% elif is_static %}
   static async {{ name }}({{ params }}): Promise<{{ return_type }}> {
+{% else %}
+  async {{ name }}({{ params }}): Promise<{{ return_type }}> {
 {% endif %}
-{% set has_full_transfer = query_params | selectattr('transfer', 'equalto', 'full') | selectattr('is_gobject', 'equalto', true) | list | length > 0 %}
-{% if has_full_transfer %}
     // Increment ref for parameters with full transfer ownership
 {% for param in query_params %}
-{% if param.transfer == 'full' and param.is_gobject %}
-{% if param.required %}
-    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
-    }
-{% else %}
-    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
-    }
-{% endif %}
-{% endif %}
+{% include 'param_precondition.ts.j2' %}
 {% endfor %}
-{% endif %}
     const url = new URL(`${apiConfig.normalizedBasePath}{{ path }}`, apiConfig.baseUrl);
 {% for param in query_params %}
-{% if param.is_object %}
-{% if param.explode %}
-    // Object with explode=true: add each property as separate parameter
-{% if param.required %}
-    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('ptr', {{ param.name }}.ptr);
-    }
-{% else %}
-    if ({{ param.name }} !== undefined && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('ptr', {{ param.name }}.ptr);
-    }
-{% endif %}
-{% else %}
-    // Object with explode=false: serialize as comma-separated
-{% if param.required %}
-    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', 'ptr,' + {{ param.name }}.ptr);
-    }
-{% else %}
-    if ({{ param.name }} !== undefined && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', 'ptr,' + {{ param.name }}.ptr);
-    }
-{% endif %}
-{% endif %}
-{% else %}
-    // Primitive parameter
-{% if param.required %}
-    url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
-{% else %}
-    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
-{% endif %}
-{% endif %}
+{% include 'param.ts.j2' %}
 {% endfor %}
-{% if has_full_transfer %}
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
         // If the call fails, unref the objects we ref'd
 {% for param in query_params %}
-{% if param.transfer == 'full' and param.is_gobject %}
-{% if param.required %}
-        if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
-        }
-{% else %}
-        if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
-        }
-{% endif %}
-{% endif %}
+{% include 'param_postcondition.ts.j2' %}
 {% endfor %}
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -92,22 +38,7 @@
       Object.assign(instance, data.return || data);
       return instance;
 {% elif has_return %}
-{% if return_is_object %}
-      // Return value is an object/struct, instantiate it from the ptr
-      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-{% if return_is_gobject %}
-        // For GObject types, pass transfer parameter based on x-gi-transfer
-        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-        const instance = new {{ return_class_name }}(data.return.ptr, {{ 'false' if return_transfer == 'full' else 'true' }});
-{% else %}
-        const instance = new {{ return_class_name }}(data.return.ptr);
-{% endif %}
-        return instance;
-      }
-      return data.return;
-{% else %}
-      return data.return;
-{% endif %}
+{% include 'return.ts.j2' %}
 {% else %}
       return data;
 {% endif %}
@@ -115,216 +46,8 @@
     } catch (error) {
       // If there's an error, unref the objects we ref'd
 {% for param in query_params %}
-{% if param.transfer == 'full' and param.is_gobject %}
-{% if param.required %}
-      if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
-      }
-{% else %}
-      if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
-      }
-{% endif %}
-{% endif %}
+{% include 'param_postcondition.ts.j2' %}
 {% endfor %}
       throw error;
     }
-{% else %}
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-{% if return_type != 'void' or callback_params %}
-    const data = await response.json();
-{% if callback_params %}
-    // Register callbacks
-{% for cb in callback_params %}
-    if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
-      callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
-    }
-{% endfor %}
-{% endif %}
-{% if is_constructor %}
-    const instance = new {{ class_name }}();
-    Object.assign(instance, data.return || data);
-    return instance;
-{% elif has_return %}
-{% if return_is_object %}
-    // Return value is an object/struct, instantiate it from the ptr
-    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-{% if return_is_gobject %}
-      // For GObject types, pass transfer parameter based on x-gi-transfer
-      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-      const instance = new {{ return_class_name }}(data.return.ptr, {{ 'false' if return_transfer == 'full' else 'true' }});
-{% else %}
-      const instance = new {{ return_class_name }}(data.return.ptr);
-{% endif %}
-      return instance;
-    }
-    return data.return;
-{% else %}
-    return data.return;
-{% endif %}
-{% elif return_type != 'void' %}
-    return data;
-{% endif %}
-{% endif %}
-{% endif %}
   }
-{% else %}
-  async {{ name }}({{ params }}): Promise<{{ return_type }}> {
-{% set has_full_transfer = query_params | selectattr('transfer', 'equalto', 'full') | selectattr('is_gobject', 'equalto', true) | list | length > 0 %}
-{% if has_full_transfer %}
-    // Increment ref for parameters with full transfer ownership
-{% for param in query_params %}
-{% if param.transfer == 'full' and param.is_gobject %}
-{% if param.required %}
-    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
-    }
-{% else %}
-    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
-    }
-{% endif %}
-{% endif %}
-{% endfor %}
-{% endif %}
-    const url = new URL(`${apiConfig.normalizedBasePath}{{ path }}`, apiConfig.baseUrl);
-{% for param in query_params %}
-{% if param.is_object %}
-{% if param.explode %}
-    // Object with explode=true: add each property as separate parameter
-{% if param.required %}
-    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('ptr', {{ param.name }}.ptr);
-    }
-{% else %}
-    if ({{ param.name }} !== undefined && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('ptr', {{ param.name }}.ptr);
-    }
-{% endif %}
-{% else %}
-    // Object with explode=false: serialize as comma-separated
-{% if param.required %}
-    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', 'ptr,' + {{ param.name }}.ptr);
-    }
-{% else %}
-    if ({{ param.name }} !== undefined && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', 'ptr,' + {{ param.name }}.ptr);
-    }
-{% endif %}
-{% endif %}
-{% else %}
-    // Primitive parameter
-{% if param.required %}
-    url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
-{% else %}
-    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
-{% endif %}
-{% endif %}
-{% endfor %}
-{% if has_full_transfer %}
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-{% for param in query_params %}
-{% if param.transfer == 'full' and param.is_gobject %}
-{% if param.required %}
-        if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
-        }
-{% else %}
-        if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-          await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
-        }
-{% endif %}
-{% endif %}
-{% endfor %}
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-{% if return_type != 'void' or callback_params %}
-      const data = await response.json();
-{% if callback_params %}
-      // Register callbacks
-{% for cb in callback_params %}
-      if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
-        callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
-      }
-{% endfor %}
-{% endif %}
-{% if has_return %}
-{% if return_is_object %}
-      // Return value is an object/struct, instantiate it from the ptr
-      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-{% if return_is_gobject %}
-        // For GObject types, pass transfer parameter based on x-gi-transfer
-        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-        const instance = new {{ return_class_name }}(data.return.ptr, {{ 'false' if return_transfer == 'full' else 'true' }});
-{% else %}
-        const instance = new {{ return_class_name }}(data.return.ptr);
-{% endif %}
-        return instance;
-      }
-      return data.return;
-{% else %}
-      return data.return;
-{% endif %}
-{% elif return_type != 'void' %}
-      return data;
-{% endif %}
-{% endif %}
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-{% for param in query_params %}
-{% if param.transfer == 'full' and param.is_gobject %}
-{% if param.required %}
-      if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
-      }
-{% else %}
-      if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-        await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/unref').catch(() => {});
-      }
-{% endif %}
-{% endif %}
-{% endfor %}
-      throw error;
-    }
-{% else %}
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-{% if return_type != 'void' or callback_params %}
-    const data = await response.json();
-{% if callback_params %}
-    // Register callbacks
-{% for cb in callback_params %}
-    if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
-      callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
-    }
-{% endfor %}
-{% endif %}
-{% if has_return %}
-{% if return_is_object %}
-    // Return value is an object/struct, instantiate it from the ptr
-    if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-{% if return_is_gobject %}
-      // For GObject types, pass transfer parameter based on x-gi-transfer
-      // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-      const instance = new {{ return_class_name }}(data.return.ptr, {{ 'false' if return_transfer == 'full' else 'true' }});
-{% else %}
-      const instance = new {{ return_class_name }}(data.return.ptr);
-{% endif %}
-      return instance;
-    }
-    return data.return;
-{% else %}
-    return data.return;
-{% endif %}
-{% elif return_type != 'void' %}
-    return data;
-{% endif %}
-{% endif %}
-{% endif %}
-  }
-{% endif %}

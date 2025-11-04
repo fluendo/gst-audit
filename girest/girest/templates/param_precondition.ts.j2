@@ -1,0 +1,12 @@
+{# Param precondition template - refs a single object with full transfer ownership #}
+{% if param.transfer == 'full' and param.is_gobject %}
+{% if param.required %}
+    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
+    }
+{% else %}
+    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
+      await fetch(apiConfig.fullBaseUrl + '/GObject/Object/' + {{ param.name }}.ptr + '/ref').catch(() => {});
+    }
+{% endif %}
+{% endif %}

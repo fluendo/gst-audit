@@ -1,0 +1,17 @@
+{# Return template - handles converting return data into objects or returning primitives #}
+{% if return_is_object %}
+      // Return value is an object/struct, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+{% if return_is_gobject %}
+        // For GObject types, pass transfer parameter based on x-gi-transfer
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new {{ return_class_name }}(data.return.ptr, {{ 'false' if return_transfer == 'full' else 'true' }});
+{% else %}
+        const instance = new {{ return_class_name }}(data.return.ptr);
+{% endif %}
+        return instance;
+      }
+      return data.return;
+{% else %}
+      return data.return;
+{% endif %}
