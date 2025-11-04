@@ -916,7 +916,8 @@ class TypeScriptGenerator:
     
     def _get_method_template(self, class_name: str, method_name: str) -> Template:
         """Get the appropriate template for a method."""
-        method_template_name = f"{class_name}{method_name}.ts.j2"
+        # Try to find a specific template for this method using the new pattern
+        method_template_name = f"method_{class_name}_{method_name}.ts.j2"
         if os.path.exists(os.path.join(self.template_dir, method_template_name)):
             return self.jinja_env.get_template(method_template_name)
         
@@ -924,14 +925,15 @@ class TypeScriptGenerator:
 
     def _get_template_for_schema(self, schema_name: str, schema_def: Dict[str, Any], fallback_type: str = "") -> Template:
         """Get the appropriate template for a schema."""
-        # First try to find a specific template by name
-        specific_template_name = f"{schema_name}.ts.j2"
+        # Determine the schema type
+        gi_type = schema_def.get("x-gi-type", fallback_type)
+        
+        # First try to find a specific template for this class with type prefix
+        specific_template_name = f"{gi_type}_{schema_name}.ts.j2"
         if os.path.exists(os.path.join(self.template_dir, specific_template_name)):
             return self.jinja_env.get_template(specific_template_name)
         
         # Fall back to type-based templates
-        gi_type = schema_def.get("x-gi-type", fallback_type)
-        
         type_template_map = {
             "enum": "enum.ts.j2",
             "flags": "flags.ts.j2", 
@@ -945,11 +947,8 @@ class TypeScriptGenerator:
         if template_name:
             return self.jinja_env.get_template(template_name)
         
-        # Default fallback
-        if "enum" in schema_def and schema_def.get("type") == "string":
-            return self.jinja_env.get_template("enum.ts.j2")
-        
-        return self.jinja_env.get_template("object.ts.j2")
+        # If we get here, the gi_type is not supported
+        raise ValueError(f"Unsupported schema type '{gi_type}' for schema '{schema_name}'")
     
     def _generate_schemas(self) -> Dict[str, str]:
         """Generate TypeScript code for all schemas based on their types."""
