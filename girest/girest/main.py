@@ -76,6 +76,23 @@ class GIRest():
             "get": operation
         })
 
+    def _get_container_element_type_schema(self, container_type_info):
+        """
+        Get the element type schema from a container type (GList, GSList, etc.).
+        
+        Args:
+            container_type_info: GIRepository type info for the container
+            
+        Returns:
+            dict: Element type schema or None if not available
+        """
+        # Get the element type (parameter 0 for containers)
+        element_type_info = GIRepository.type_info_get_param_type(container_type_info, 0)
+        if element_type_info:
+            return self._type_to_schema(element_type_info)
+        
+        return None
+
     def _type_to_schema(self, t):
         """Convert GIRepository type to OpenAPI schema"""
         tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(t))
@@ -94,14 +111,32 @@ class GIRest():
             list_info = repo.find_by_name("GLib", "List")
             if list_info:
                 self._generate_struct(list_info)
-            return {"$ref": "#/components/schemas/GLibList"}
+            
+            # Get element type schema
+            element_type_schema = self._get_container_element_type_schema(t)
+            schema = {"$ref": "#/components/schemas/GLibList"}
+            
+            # Add vendor-specific tag if element type is available
+            if element_type_schema:
+                schema["x-gi-element-type"] = element_type_schema
+                
+            return schema
         elif tag == "gslist":
             # Handle GSList type - generate GLibSList schema if needed
             repo = GIRepository.Repository.get_default()
             slist_info = repo.find_by_name("GLib", "SList")
             if slist_info:
                 self._generate_struct(slist_info)
-            return {"$ref": "#/components/schemas/GLibSList"}
+            
+            # Get element type schema
+            element_type_schema = self._get_container_element_type_schema(t)
+            schema = {"$ref": "#/components/schemas/GLibSList"}
+            
+            # Add vendor-specific tag if element type is available
+            if element_type_schema:
+                schema["x-gi-element-type"] = element_type_schema
+                
+            return schema
         elif tag == "interface":
             # Check if it's an interface type
             interface = GIRepository.type_info_get_interface(t)
