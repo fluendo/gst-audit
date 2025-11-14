@@ -1,53 +1,77 @@
 {# Method template #}
-{% if is_namespace_function %}
-  export async function {{ name }}({{ params }}): Promise<{{ return_type }}> {
-{% elif is_static %}
-  static async {{ name }}({{ params }}): Promise<{{ return_type }}> {
+{% set required_params = [] %}
+{% set optional_params = [] %}
+{% for param in method.query_params %}
+  {% set ts_type = param.type.lang_type %}
+  {% if param.required %}
+    {% set _ = required_params.append(param.valid_name + ": " + ts_type) %}
+  {% else %}
+    {% set _ = optional_params.append(param.valid_name + "?: " + ts_type) %}
+  {% endif %}
+{% endfor %}
+{% set all_params = required_params + optional_params %}
+{% set params_string = all_params | join(", ") %}
+
+{% set ns = namespace(method_path = method.path) %}
+{% for param in method.path_params %}
+  {% set placeholder = "{" + param.valid_name + "}" %}
+  {% if param.type.is_ref and param.type.ref_schema.info_type in ['object','struct'] %}
+    {% set ns.method_path = ns.method_path.replace(placeholder, "ptr,${this.ptr}") %}
+  {% else %}
+    {% set ns.method_path = ns.method_path.replace(placeholder, "${" + param.valid_name + "}") %}
+  {% endif %}
+{% endfor %}
+
+
+{% block signature %} 
+{% if method.is_namespace_function or (method.parent.info_type in ['enum','flags'] and method.parent.methods|length > 0) %}
+  export async function {{ method.valid_name }}({{ params_string }}): Promise<{{ method.return_obj.return_param.type.lang_type if method.return_obj.return_param else 'void' }}> {
+{% elif method.is_static %}
+  static async {{ method.valid_name }}({{ params_string }}): Promise<{{ method.return_obj.return_param.type.lang_type if method.return_obj.return_param else 'void' }}> {
 {% else %}
-  async {{ name }}({{ params }}): Promise<{{ return_type }}> {
+  async {{ method.valid_name }}({{ params_string }}): Promise<{{ method.return_obj.return_param.type.lang_type if method.return_obj.return_param else 'void' }}> {
 {% endif %}
+{% endblock %}
+{% block body %}
     // Increment ref for parameters with full transfer ownership
-{% for param in query_params %}
+{% for param in method.query_params %}
 {% include 'param_precondition.ts.j2' %}
 {% endfor %}
-    const url = new URL(`${apiConfig.normalizedBasePath}{{ path }}`, apiConfig.baseUrl);
-{% for param in query_params %}
+    const url = new URL(`${apiConfig.normalizedBasePath}{{ ns.method_path }}`, apiConfig.baseUrl);
+{% for param in method.query_params %}
 {% include 'param.ts.j2' %}
 {% endfor %}
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
         // If the call fails, unref the objects we ref'd
-{% for param in query_params %}
+{% for param in method.query_params %}
 {% include 'param_postcondition.ts.j2' %}
 {% endfor %}
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-{% if return_type != 'void' or callback_params %}
+{% if not method.return_obj.is_void or method.callback_params %}
       const data = await response.json();
-{% if callback_params %}
+{% if method.callback_params %}
       // Register callbacks
-{% for cb in callback_params %}
-      if (data.{{ cb.api_name if cb.api_name else cb.name }} !== undefined) {
-        callbackDispatcher.set(data.{{ cb.api_name if cb.api_name else cb.name }}.toString(), {{ cb.name }});
+{% for cb in method.callback_params %}
+      if (data.{{ cb.name }} !== undefined) {
+        callbackDispatcher.set(data.{{ cb.name }}.toString(), {{ cb.name }});
       }
 {% endfor %}
 {% endif %}
-{% if is_constructor %}
-      const instance = new {{ class_name }}();
-      Object.assign(instance, data.return || data);
-      return instance;
-{% elif has_return %}
-{% include 'return.ts.j2' %}
+{% if not method.return_obj.is_void %}
+  {{ method.return_obj.generate() }}
 {% else %}
       return data;
 {% endif %}
 {% endif %}
     } catch (error) {
       // If there's an error, unref the objects we ref'd
-{% for param in query_params %}
+{% for param in method.query_params %}
 {% include 'param_postcondition.ts.j2' %}
 {% endfor %}
       throw error;
     }
   }
+{% endblock %}

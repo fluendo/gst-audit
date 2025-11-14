@@ -1,22 +1,22 @@
 {# Generic interface template - fallback for interfaces without specific templates #}
-{% if has_parent %}
-{% if properties %}
-export interface {{ name }} extends {{ parent }} {
-{% for prop in properties %}
+{% if interface.has_parent %}
+{% if interface.properties %}
+export interface {{ interface.name }} extends {{ interface.parent }} {
+{% for prop in interface.properties %}
   {{ prop.name }}{{ prop.optional }}: {{ prop.type }};
 {% endfor %}
 }
 {% else %}
-export interface {{ name }} extends {{ parent }} {}
+export interface {{ interface.name }} extends {{ interface.parent }} {}
 {% endif %}
 {% else %}
-{% if properties %}
-export interface {{ name }} {
-{% for prop in properties %}
+{% if interface.properties %}
+export interface {{ interface.name }} {
+{% for prop in interface.properties %}
   {{ prop.name }}{{ prop.optional }}: {{ prop.type }};
 {% endfor %}
 }
 {% else %}
-export interface {{ name }} {}
+export interface {{ interface.name }} {}
 {% endif %}
 {% endif %}

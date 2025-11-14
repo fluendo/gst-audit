@@ -1,14 +1,15 @@
-{# Flags template - handles flag/bitfield types (same as enum but semantic distinction) #}
-{% if is_enum_with_methods %}
-export namespace {{ name }} {
-{% for value in enum_values %}
+{# flags template - handles flag/bitfield types (same as enum but semantic distinction) #}
+{% set values_union = flags.values | map(attribute='value') | map('tojson') | join(' | ') %}
+{% if flags.methods|length > 0 %}
+export namespace {{ flags.name }} {
+  {% for value in flags.values %}
   export const {{ value.const_name }}: '{{ value.value }}' = '{{ value.value }}';
-{% endfor %}
-{% for method in methods %}
-{{ method }}
-{% endfor %}
-}
-export type {{ name }}Value = {{ enum_value_union }};
+  {% endfor %}
+  {% for method in flags.methods %}
+    {{ method.generate() }}
+  {% endfor %}
+  }
+  export type {{ flags.name }}Value = {{ values_union }};
 {% else %}
-export type {{ name }} = {{ enum_value_union }};
+export type {{ flags.name }} = {{ values_union }};
 {% endif %}

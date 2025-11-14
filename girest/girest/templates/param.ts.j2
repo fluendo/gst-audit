@@ -1,33 +1,33 @@
 {# Param template - adds a single param to query based on explode setting #}
-{% if param.is_object %}
+{% if param.type.is_ref and param.type.ref_schema.info_type in ['object','struct'] %}
 {% if param.explode %}
     // Object with explode=true: add each property as separate parameter
 {% if param.required %}
-    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('ptr', {{ param.name }}.ptr);
+    if ({{ param.valid_name }} && typeof {{ param.valid_name }} === 'object' && 'ptr' in {{ param.valid_name }}) {
+      url.searchParams.append('ptr', {{ param.valid_name }}.ptr);
     }
 {% else %}
-    if ({{ param.name }} !== undefined && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('ptr', {{ param.name }}.ptr);
+    if ({{ param.valid_name }} !== undefined && typeof {{ param.valid_name }} === 'object' && 'ptr' in {{ param.valid_name }}) {
+      url.searchParams.append('ptr', {{ param.valid_name }}.ptr);
     }
 {% endif %}
 {% else %}
     // Object with explode=false: serialize as comma-separated
 {% if param.required %}
-    if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', 'ptr,' + {{ param.name }}.ptr);
+    if ({{ param.valid_name }} && typeof {{ param.valid_name }} === 'object' && 'ptr' in {{ param.valid_name }}) {
+      url.searchParams.append('{{ param.valid_name }}', 'ptr,' + {{ param.valid_name }}.ptr);
     }
 {% else %}
-    if ({{ param.name }} !== undefined && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
-      url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', 'ptr,' + {{ param.name }}.ptr);
+    if ({{ param.valid_name }} !== undefined && typeof {{ param.valid_name }} === 'object' && 'ptr' in {{ param.valid_name }}) {
+      url.searchParams.append('{{ param.valid_name }}', 'ptr,' + {{ param.valid_name }}.ptr);
     }
 {% endif %}
 {% endif %}
 {% else %}
     // Primitive parameter
 {% if param.required %}
-    url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
+    url.searchParams.append('{{ param.valid_name }}', String({{ param.valid_name }}));
 {% else %}
-    if ({{ param.name }} !== undefined) url.searchParams.append('{{ param.api_name if param.api_name else param.name }}', String({{ param.name }}));
+    if ({{ param.valid_name }} !== undefined) url.searchParams.append('{{ param.valid_name }}', String({{ param.valid_name }}));
 {% endif %}
 {% endif %}

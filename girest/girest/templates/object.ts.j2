@@ -1,10 +1,50 @@
 {# Object template - handles GIR object types (GObject-derived classes) #}
-export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif %} {
-{% if constructors %}
-{{ constructors | join('\n') }}
+{% block finalization%}
+{% if object.parent_schema.info_type == 'struct' %}
+{% set registry_name = object.name.lower() + 'Registry' %}
+// Finalization registry for {{ object.name }}
+const {{ registry_name }} = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.fullBaseUrl + '/{{ object.namespace }}/{{ object.type_name }}/ptr,' + ptr + '/unref')
+    .catch(err => console.error('Failed to free {{ object.name }}:', ptr, err));
+});
 {% endif %}
+{% endblock %}
 
-{% if methods %}
-{{ methods | join('\n') }}
-{% endif %}
+{% block signature %}
+export class {{ object.name }}{% if object.parent_schema %} extends {{ object.parent_schema.valid_name }}{% endif %} {
+{% endblock %}
+
+{% block constructors %}
+  {% block default_constructor %}
+    {% if object.parent_schema.info_type == 'struct' %}
+
+  constructor(ptr?: string, transfer: boolean = false) {
+	super(ptr);
+    if (ptr) {
+      this.ptr = ptr;
+      {{ object.name.lower() }}Registry.register(this, ptr);
+      if (transfer) {
+        this.ref().catch(() => {});
+      }
+    }
+  }
+    {% endif %}
+  {% endblock %}
+
+  {% for constructor in object.constructors %}
+    {{ constructor.generate() }}
+  {% endfor %}
+{% endblock %}
+
+{% block destructors %}
+  {% for destructor in object.destructors %}
+      {{ destructor.generate() }}
+  {% endfor %}
+{% endblock%}
+
+{% block methods %}
+  {% for method in object.methods %}
+      {{ method.generate() }}
+  {% endfor %}
+{% endblock %}
 }

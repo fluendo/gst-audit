@@ -330,7 +330,7 @@ class GIRest():
             "summary": "",
             "description": "",
             "operationId": f"{bim.get_namespace()}-{bi.get_name() if bi else ''}-{bim.get_name()}",
-            "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [],
+            "tags": [f"{bi.get_namespace()}{bi.get_name()}"] if bi else [f"{bim.get_namespace()}"],
             "parameters": params,
             "responses": responses,
         }
@@ -363,7 +363,7 @@ class GIRest():
         
         # Generate the type for every parent
         # In of GObject, use GTypeInstance as parent
-        if bi.get_name() == "Object" and bi.get_namespace() == "GObject":
+        if bi.get_name() in ["Object","ParamSpec"] and bi.get_namespace() == "GObject":
             parent = self.repo.find_by_name("GObject", "TypeInstance")
         else:
             parent = GIRepository.object_info_get_parent(bi)
@@ -378,7 +378,9 @@ class GIRest():
                             "type": "object",
                         }
                     ],
-                    "x-gi-type": "object"
+                    "x-gi-type": "object",
+                    "x-gi-namespace": f"{bi.get_namespace()}",
+                    "x-gi-name": f"{bi.get_name()}",
                 }
            )
         else:
@@ -390,7 +392,9 @@ class GIRest():
                         "ptr": {"$ref": "#/components/schemas/Pointer"},
                     },
                     "required": ["ptr"],
-                    "x-gi-type": "object"
+                    "x-gi-type": "object",
+                    "x-gi-namespace": f"{bi.get_namespace()}",
+                    "x-gi-name": f"{bi.get_name()}",
                 }
             )
         
@@ -445,8 +449,7 @@ class GIRest():
         if GIRepository.struct_info_is_gtype_struct(bi):
             return
         # TODO Structs with a constructor can not be serialized
-        # TODO Get free_function
-        
+
         # For now, generate a basic schema for structs as opaque pointer types
         # This prevents dangling references when structs are used as parameters
         full_name = f"{bi.get_namespace()}{bi.get_name()}"
@@ -461,7 +464,9 @@ class GIRest():
                     "ptr": {"$ref": "#/components/schemas/Pointer"},
                 },
                 "required": ["ptr"],
-                "x-gi-type": "struct"
+                "x-gi-type": "struct",
+                "x-gi-namespace": f"{bi.get_namespace()}",
+                "x-gi-name": f"{bi.get_name()}",
             }
         )
         
@@ -720,11 +725,25 @@ class GIRest():
         namespace = struct_info.get_namespace()
         struct_name = struct_info.get_name()
         field_name = field_info.get_name()
+
+        is_writable = bool(GIRepository.field_info_get_flags(field_info) & GIRepository.FieldInfoFlags.WRITABLE)
+
+        # Do not generate getters/setters iif there is already a method named the same way
+        n_methods = GIRepository.struct_info_get_n_methods(struct_info)
+        for i in range(0, n_methods):
+            bim = GIRepository.struct_info_get_method(struct_info, i)
+            method_name = bim.get_name()
+            if method_name == f"get_{field_name}":
+                logger.warning(f"Skipping field {field_name} of struct {struct_name} as it has a getter already")
+                return
+            if is_writable and method_name == f"set_{field_name}":
+                logger.warning(f"Skipping field {field_name} of struct {struct_name} as it has a setter already")
+                return
+
         
         # Get field type and offset
         field_type = GIRepository.field_info_get_type(field_info)
         field_offset = GIRepository.field_info_get_offset(field_info)
-        is_writable = bool(GIRepository.field_info_get_flags(field_info) & GIRepository.FieldInfoFlags.WRITABLE)
         
         # Convert field type to schema
         field_schema = self._type_to_schema(field_type)
@@ -831,7 +850,9 @@ class GIRest():
                 "type": "string",
                 "enum": enum_values,
                 "description": f"Enum values for {bi.get_name()}",
-                "x-gi-type": gi_type
+                "x-gi-type": gi_type,
+                "x-gi-namespace": f"{bi.get_namespace()}",
+                "x-gi-name": f"{bi.get_name()}",
             }
         )
         

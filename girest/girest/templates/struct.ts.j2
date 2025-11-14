@@ -1,20 +1,42 @@
 {# Struct template - handles struct types #}
-export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif %} {
-{% if has_destructor %}
+
+{% block finalization %}
+{% set registry_name = struct.name.lower() + 'Registry' %}
+// Finalization registry for {{ struct.name }}
+const {{ registry_name }} = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.fullBaseUrl + '/{{ struct.namespace }}/{{ struct.type_name }}/ptr,' + ptr + '/free')
+    .catch(err => console.error('Failed to free {{ struct.name }}:', ptr, err));
+});
+{% endblock %}
+
+export class {{ struct.name }} {
+{% block properties %}
   ptr!: string;
-  
+{% endblock %}
+
+{% block constructors %}
+  {% block default_constructor %}
   constructor(ptr?: string) {
     if (ptr) {
       this.ptr = ptr;
-      {{ destructor_registry }}.register(this, ptr);
+      {{ struct.name.lower() }}Registry.register(this, ptr);
     }
   }
-{% endif %}
-{% if constructors %}
-{{ constructors | join('\n') }}
-{% endif %}
+  {% endblock %}
+  {% for constructor in struct.constructors %}
+    {{ constructor.generate() }}
+  {% endfor %}
+{% endblock %}
 
-{% if methods %}
-{{ methods | join('\n') }}
-{% endif %}
+{% block destructors %}
+  {% for destructor in struct.destructors %}
+      {{ destructor.generate() }}
+  {% endfor %}
+{% endblock%}
+
+{% block methods %}
+{% for method in struct.methods %}
+    {{ method.generate() }}
+{% endfor %}
+{% endblock %}
 }

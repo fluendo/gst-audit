@@ -1,10 +1,17 @@
 {# GLibList template - handles GLibList with AsyncIterable interface #}
-export class {{ name }}<T = any>{% if parent_class %} extends {{ parent_class }}{% endif %} implements AsyncIterable<T> {
-{% if has_destructor %}
+{% extends "struct.ts.j2" %}
+
+{% block signature %}
+export class {{ name }}<T = any>{% if parent_class %} extends {{ parent_class }}{% endif %} implements AsyncIterable<T>
+{% endblock %}
+
+{% block properties %}
   ptr!: string;
   contentTransfer!: boolean;
   TargetClass?: new (ptr?: string, transfer?: boolean) => T;
-  
+{% endblock %}
+
+{% block constructor %}
   constructor(ptr?: string, contentTransfer: boolean = false, TargetClass?: new (ptr?: string, transfer?: boolean) => T) {
     if (ptr) {
       this.ptr = ptr;
@@ -13,20 +20,9 @@ export class {{ name }}<T = any>{% if parent_class %} extends {{ parent_class }}
       {{ destructor_registry }}.register(this, ptr);
     }
   }
-{% else %}
-  ptr!: string;
-  contentTransfer!: boolean;
-  TargetClass?: new (ptr?: string, transfer?: boolean) => T;
-  
-  constructor(ptr?: string, contentTransfer: boolean = false, TargetClass?: new (ptr?: string, transfer?: boolean) => T) {
-    if (ptr) {
-      this.ptr = ptr;
-      this.contentTransfer = contentTransfer;
-      this.TargetClass = TargetClass;
-    }
-  }
-{% endif %}
+{% endblock %}
 
+{% block methods %}
   // Implement AsyncIterable interface
   [Symbol.asyncIterator](): AsyncIterator<T, any, any> {
     let currentNode: GLibList | null = this;
@@ -68,11 +64,6 @@ export class {{ name }}<T = any>{% if parent_class %} extends {{ parent_class }}
     };
   }
 
-{% if constructors %}
-{{ constructors | join('\n') }}
-{% endif %}
-
-{% if methods %}
-{{ methods | join('\n') }}
-{% endif %}
+{{ super() }}
+{% endblock %}
 }

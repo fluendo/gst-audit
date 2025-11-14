@@ -1,16 +1,11 @@
 {# GstIterator template - handles GstIterator with AsyncIterable interface #}
-export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif %} implements AsyncIterable<GObjectObject> {
-{% if has_destructor %}
-  ptr!: string;
-  
-  constructor(ptr?: string) {
-    if (ptr) {
-      this.ptr = ptr;
-      {{ destructor_registry }}.register(this, ptr);
-    }
-  }
-{% endif %}
+{% extends "struct.ts.j2" %}
 
+{% block signature %}
+export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif %} implements AsyncIterable<GObjectObject>
+{% endblock %}
+
+{% block methods %}
   // Implement AsyncIterable interface
   [Symbol.asyncIterator](): AsyncIterator<GObjectObject, any, any> {
     let value: GObjectValue | null = null;
@@ -47,11 +42,7 @@ export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif 
       }
     };
   }
-{% if constructors %}
-{{ constructors | join('\n') }}
-{% endif %}
 
-{% if methods %}
-{{ methods | join('\n') }}
-{% endif %}
+{{ super() }}
+{% endblock %}
 }

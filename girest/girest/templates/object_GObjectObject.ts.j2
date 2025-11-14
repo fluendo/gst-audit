@@ -1,33 +1,26 @@
 {# GObjectObject template - specific template for GObject.Object class #}
-export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif %} {
-  constructor(ptr?: string, transfer: boolean = false) {
-{% if parent_class %}
-    super(ptr, transfer);
-{% endif %}
-    if (ptr) {
-      this.ptr = ptr;
-      objectRegistry.register(this, ptr);
-      // If transfer is true, we need to ref the object
-      if (transfer) {
-        this.ref().catch(() => {});
-      }
-    }
-  }
+{% extends "object.ts.j2" %}
 
-  castTo<T extends GObjectObject>(TargetClass: new (ptr?: string, transfer?: boolean) => T): T {
+{% block signature %}
+// Type interface for GObject constructors with static get_type method
+interface GObjectConstructor<T extends GObjectObject> {
+  new (ptr?: string, transfer?: boolean): T;
+	get_type(): Promise<string>;
+}
+
+export class GObjectObject extends GObjectTypeInstance {
+{% endblock %}
+
+{% block methods %}
+	castTo<T extends GObjectObject>(TargetClass: GObjectConstructor<T>): T {
     return new TargetClass(this.ptr, true);
   }
 
-  async isOf<T extends GObjectObject>(TargetClass: new (ptr?: string, transfer?: boolean) => T): Promise<boolean> {
+	async isOf<T extends GObjectObject>(TargetClass: GObjectConstructor<T>): Promise<boolean> {
     const type = await TargetClass.get_type();
     const is_type = await GObject.type_check_instance_is_a(this, type);
     return is_type;
   }
-{% if constructors %}
-{{ constructors | join('\n') }}
-{% endif %}
 
-{% if methods %}
-{{ methods | join('\n') }}
-{% endif %}
-}
+{{ super() }}
+{% endblock %}

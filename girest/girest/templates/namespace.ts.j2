@@ -1,0 +1,5 @@
+export namespace {{ namespace.name }} {
+{% for method in namespace.methods %}
+  {{ method.generate() }}
+{% endfor %}
+}

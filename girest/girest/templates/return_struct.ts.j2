@@ -1,0 +1,6 @@
+      // Return value is a struct, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        const instance = new {{ return.return_param.type.ref_schema.valid_name }}(data.return.ptr);
+        return instance;
+      }
+      return Promise.reject("Call failed");

@@ -273,7 +273,7 @@ def test_typescript_object_return_value_instantiation(gst_typescript):
     gst_allocation_match = re.search(r'export class GstAllocationParams.*?(?=export class|export namespace|$)', typescript, re.DOTALL)
     if gst_allocation_match:
         allocation_class = gst_allocation_match.group(0)
-        copy_match = re.search(r'async copy\(\): Promise<GstAllocationParams>.*?(?=async |static |  })', allocation_class, re.DOTALL)
+        copy_match = re.search(r'async copy\(\): Promise<GstAllocationParams>.*?(?=\n  async |\n  static |\n})', allocation_class, re.DOTALL)
         if copy_match:
             method_section = copy_match.group(0)
             
@@ -446,19 +446,20 @@ def test_typescript_duplicate_constructor_names_in_inheritance_chain(gst_typescr
     print("✓ TypeScript generator handles duplicate method names in inheritance chain correctly")
 
 
-def test_typescript_destructors_excluded_from_api(gst_typescript):
+def test_typescript_destructors_included_in_api(gst_typescript):
     """
-    Test that methods marked as x-gi-destructor are excluded from the TypeScript API.
+    Test that methods marked as x-gi-destructor are included in the TypeScript API.
     
     Verifies that:
-    - Destructors like 'free' and 'unref' are not generated as callable methods
-    - The FinalizationRegistry system is still generated for memory management
+    - Destructors like 'free' and 'unref' are generated as callable methods
+    - They are needed for proper memory management when API calls fail
+    - The FinalizationRegistry system is still generated for automatic cleanup
     - Struct registries are properly generated for cleanup
     """
     typescript = gst_typescript
     import re
     
-    # Test 1: GObjectTypeInterface should not have a callable 'free' method
+    # Test 1: GObjectTypeInterface should have a callable 'free' method
     type_interface_match = re.search(
         r'export class GObjectTypeInterface.*?(?=export class|export namespace|$)',
         typescript,
@@ -467,11 +468,11 @@ def test_typescript_destructors_excluded_from_api(gst_typescript):
     assert type_interface_match, "GObjectTypeInterface class not found in generated TypeScript"
     
     class_content = type_interface_match.group(0)
-    # Should not have a callable free method (async free() is not allowed)
-    assert 'async free(' not in class_content and 'free(' not in class_content, \
-        "GObjectTypeInterface should NOT have a callable free method (it's a destructor)"
+    # Should have a callable free method for manual cleanup
+    assert 'async free(' in class_content, \
+        "GObjectTypeInterface should have a callable free method for manual cleanup"
     
-    # Test 2: GObjectObject should not have a callable 'unref' method
+    # Test 2: GObjectObject should have a callable 'unref' method
     gobject_match = re.search(
         r'export class GObjectObject.*?(?=export class|export namespace|$)',
         typescript,
@@ -480,9 +481,9 @@ def test_typescript_destructors_excluded_from_api(gst_typescript):
     assert gobject_match, "GObjectObject class not found in generated TypeScript"
     
     gobject_content = gobject_match.group(0)
-    # Should not have a callable unref method (async unref() is not allowed)
-    assert 'async unref(' not in gobject_content and 'unref(' not in gobject_content, \
-        "GObjectObject should NOT have a callable unref method (it's a destructor)"
+    # Should have a callable unref method for manual cleanup
+    assert 'async unref(' in gobject_content, \
+        "GObjectObject should have a callable unref method for manual cleanup"
     
     # Test 3: FinalizationRegistry system should still be present
     assert 'FinalizationRegistry' in typescript, \
@@ -496,4 +497,73 @@ def test_typescript_destructors_excluded_from_api(gst_typescript):
     assert 'register(this, ptr)' in class_content, \
         "Constructor should register objects with FinalizationRegistry"
     
-    print("✓ TypeScript generator excludes destructors from API while maintaining automatic cleanup")
+    print("✓ TypeScript generator includes destructors in API for proper memory management")
+
+
+def test_param_class():
+    """Test the new Param class functionality with Type class."""
+    from girest.generator import Param, Type, TypeScriptGenerator
+    
+    # Create a minimal generator for testing
+    schema = {"info": {"title": "Test", "version": "1.0"}, "components": {"schemas": {}}, "paths": {}}
+    generator = TypeScriptGenerator(schema)
+    
+    # Test basic parameter parsing
+    param_def = {
+        "name": "test_param",
+        "schema": {"type": "string"},
+        "required": True,
+        "in": "query",
+        "description": "A test parameter"
+    }
+    
+    param = Param(param_def, generator)
+    
+    assert param.name == "test_param"
+    assert param.required == True
+    assert param.location == "query"
+    assert param.description == "A test parameter"
+    assert param.type.lang_type == "string"
+    assert param.type.type == "string"
+    
+    # Test parameter with reference type
+    ref_param_def = {
+        "name": "object_param",
+        "schema": {"$ref": "#/components/schemas/GstElement"},
+        "required": False,
+        "in": "query"
+    }
+    
+    # Create a mock GstElement schema
+    class MockGstElement:
+        def __init__(self):
+            self.name = "GstElement"
+            self.valid_name = "GstElement"
+    
+    generator.schema_objects_cache["GstElement"] = MockGstElement()
+    
+    ref_param = Param(ref_param_def, generator)
+    
+    assert ref_param.name == "object_param"
+    assert ref_param.required == False
+    assert ref_param.type.ref_schema.name == "GstElement"
+    assert ref_param.type.is_ref == True
+    assert ref_param.type.lang_type == "GstElement"
+    
+    # Test Type class directly
+    type_obj = Type({"type": "number"}, generator)
+    assert type_obj.lang_type == "number"
+    
+    # Create a proper mock schema for TestType
+    class MockTestType:
+        def __init__(self):
+            self.name = "TestType"
+            self.valid_name = "TestType"
+    
+    generator.schema_objects_cache["TestType"] = MockTestType()
+    
+    ref_type_obj = Type({"$ref": "#/components/schemas/TestType"}, generator)
+    assert ref_type_obj.ref_schema.name == "TestType"
+    assert ref_type_obj.lang_type == "TestType"
+    
+    print("✓ Param class correctly parses parameter definitions and handles types with new Type class")

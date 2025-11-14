@@ -1,14 +1,15 @@
 {# Enum template - handles both simple enums and enums with methods #}
-{% if is_enum_with_methods %}
-export namespace {{ name }} {
-{% for value in enum_values %}
+{% set values_union = enum.values | map(attribute='value') | map("tojson") | join(' | ') %}
+{% if enum.methods|length > 0 %}
+export namespace {{ enum.name }} {
+  {% for value in enum.values %}
   export const {{ value.const_name }}: '{{ value.value }}' = '{{ value.value }}';
-{% endfor %}
-{% for method in methods %}
-{{ method }}
-{% endfor %}
-}
-export type {{ name }}Value = {{ enum_value_union }};
+  {% endfor %}
+  {% for method in enum.methods %}
+    {{ method.generate() }}
+  {% endfor %}
+  }
+  export type {{ enum.name }}Value = {{ values_union }};
 {% else %}
-export type {{ name }} = {{ enum_value_union }};
+export type {{ enum.name }} = {{ values_union }};
 {% endif %}
