@@ -1,4 +1,5 @@
 var gst_pipeline_get_type;
+var g_type_children;
 var gst_pipeline_new;
 
 function findGTypeClass(address)
@@ -22,11 +23,11 @@ function findGTypeClass(address)
     return gtypeclasses;
 }
 
-function findGType(gtype)
+function findMemoryForGType(gtype)
 {
     console.debug(`Looking for GType ${gtype}`);
     const gtypes = [];
-    /* Find all places where the GstPipeline GType is referenced */
+    /* Find all places where the GType is referenced */
     const ranges = Process.enumerateRanges("rw-");
     for (let i = 0; i < ranges.length; i++) {
         const range = ranges[i];
@@ -45,6 +46,67 @@ function findGType(gtype)
         }
     }
     return gtypes;
+}
+
+function validateIsPipeline(mem)
+{
+    findGTypeClass(mem).forEach(gtypeclass => {
+        console.error(`Looking for a pipeline at ${gtypeclass}`);
+        /* Check that we have a valid name to validate it */
+        try {
+            /* Get the target state is in 0-4 range at GstPipeline->GstElement->target_state (0x20) */
+            let target_state = gtypeclass.add(0x78).readU32();
+            if (target_state < 0 || target_state > 3)
+                return;
+            /* Get the name at GstPipeline->GstElement->GstObject->name (0x20) */
+            let namep = gtypeclass.add(0x20).readPointer();
+            let name = namep.readCString();
+            /* Check it is an ASCII string */
+            if (!name)
+                return;
+            if (!/^[\x00-\x7F]*$/.test(name))
+                return;
+            console.error(`Pipeline found with name '${name}'`);
+            /* Send a message to notify the Python side */
+            send({
+                "kind": "pipeline",
+                "data": {"ptr": gtypeclass.toString(), "name": name}
+            });
+        } catch (error) {
+          console.debug(`Pipeline not found at ${gtypeclass} [${error}]`);
+        }
+    });
+}
+
+function findInstanceOfType(pt)
+{
+    console.error(`Finding instances for ${pt}`);
+    let pm = ptr(pt.toString());
+    let gtypes = findMemoryForGType(pm);
+    gtypes.forEach(gtype => {
+        validateIsPipeline(gtype);
+    });
+    findInstanceOfChildrenTypes(pt);
+}
+
+function findInstanceOfChildrenTypes(type)
+{
+    console.error(`Finding children types for ${type}`);
+    Process.enumerateModules().some(m => {
+        let symb = m.findExportByName('g_type_children');
+        if (symb == null)
+            return false;
+        let n_children_ptr = Memory.alloc(Process.pointerSize);
+        g_type_children = new NativeFunction(symb, 'pointer', ['size_t', 'pointer']);
+        let children = g_type_children(type, n_children_ptr);
+        let n_children = n_children_ptr.readU32();
+        console.error(`Found ${n_children} types inheriting from ${type}`);
+        for (let i = 0; i < n_children; i++) {
+            let pt = children.add(i*Process.pointerSize).readU64();
+            findInstanceOfType(pt);
+        }
+			  return true;
+    });
 }
 
 /*
@@ -74,31 +136,10 @@ function findRunningPipelines()
         gst_pipeline_new = new NativeFunction(symb, 'pointer', []);
 
         let pt = gst_pipeline_get_type();
-        let pm = ptr(pt.toString());
-        let gtypes = findGType(pm);
-        gtypes.forEach(gtype => {
-            findGTypeClass(gtype).forEach(gtypeclass => {
-                console.debug(`Looking for a pipeline at ${gtypeclass}`);
-                /* Check that we have a valid name to validate it */
-                try {
-                    let namep = gtypeclass.add(0x20).readPointer();
-                    let name = namep.readCString();
-                    if (name) {
-                        console.info(`Pipeline found with name ${name}`);
-                        /* Send a message to notify the Python side */
-                        send({
-                            "kind": "pipeline",
-                            "data": {"ptr": gtypeclass.toString(), "name": name}
-                        });
-                    }
-                } catch (error) {
-                  console.debug(`Pipeline not found at ${gtypeclass} [${error}]`);
-                }
-            });
-        });
+        findInstanceOfType(pt);
         return true;
     });
-    /* Register the callback whenever a new GstPipeline is created */
+    /* TODO Register the callback whenever a new GstPipeline is created */
 }
 
 function init()
