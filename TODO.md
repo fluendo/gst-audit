@@ -4,6 +4,10 @@
 * The generator for classes with same methods as the parent have problems, they need
   to be renamed
 * The errors are just about the ES5 target and missing ES2015 features like FinalizationRegistry and Promise,
-  which is expected since we didn't provide a tsconfig.json. Let me verify with the proper target:
+  which is expected since we didn't provide a tsconfig.json. Let me verify with the proper target
+* Properly mark `_free` functions as destructors, specially for GList based destructors and change how a List must be constructed to receive a full destructor
+* The spec for null return types changes among openapi spec version. `nullable: True` for 3.0, `AnyOf: type: "null"` for 3.1.
+
 
 ## GStreamer
+* The GstPlugin feature list should be implemented as a GstIterator to avoid the cookie management

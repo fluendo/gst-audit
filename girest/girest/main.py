@@ -203,6 +203,17 @@ class GIRest():
             logger.warning(f"Unknown type tag: {tag}")
         return ret
 
+    def _transfer_to_str(self, transfer):
+        if transfer == GIRepository.Transfer.NOTHING:
+            transfer_str = "none"
+        elif transfer == GIRepository.Transfer.CONTAINER:
+            transfer_str = "container"
+        elif transfer == GIRepository.Transfer.EVERYTHING:
+            transfer_str = "full"
+        else:
+            transfer_str = "none"
+        return transfer_str
+ 
     def _generate_function(self, bim, bi=None, is_constructor=False, is_destructor=False, is_copy=False):
         api = f"/{bim.get_namespace()}"
         if bi:
@@ -296,16 +307,8 @@ class GIRest():
             may_be_null = GIRepository.arg_info_may_be_null(arg)
             
             # Get transfer ownership information
-            transfer = GIRepository.arg_info_get_ownership_transfer(arg)
-            if transfer == GIRepository.Transfer.NOTHING:
-                transfer_str = "none"
-            elif transfer == GIRepository.Transfer.CONTAINER:
-                transfer_str = "container"
-            elif transfer == GIRepository.Transfer.EVERYTHING:
-                transfer_str = "full"
-            else:
-                transfer_str = "none"
-            
+            transfer_str = self._transfer_to_str(GIRepository.arg_info_get_ownership_transfer(arg))
+           
             params.append({
                 "name": arg_name,
                 "in": "query",
@@ -322,20 +325,12 @@ class GIRest():
         return_schema = self._type_to_schema(return_type)
         if return_schema:
             # Get return value transfer ownership information
-            return_transfer = GIRepository.callable_info_get_caller_owns(bim)
-            if return_transfer == GIRepository.Transfer.NOTHING:
-                return_transfer_str = "none"
-            elif return_transfer == GIRepository.Transfer.CONTAINER:
-                return_transfer_str = "container"
-            elif return_transfer == GIRepository.Transfer.EVERYTHING:
-                return_transfer_str = "full"
-            else:
-                return_transfer_str = "none"
-            
+            return_transfer_str = self._transfer_to_str(GIRepository.callable_info_get_caller_owns(bim))
             # Add transfer information to return schema
             response_props["return"] = {
                 **return_schema,
-                "x-gi-transfer": return_transfer_str
+                "x-gi-transfer": return_transfer_str,
+                "x-gi-null": GIRepository.callable_info_may_return_null(bim)
             }
         
         # Build response schema
@@ -556,7 +551,7 @@ class GIRest():
             
             # Determine if this is a copy or destructor method
             is_copy = False
-            is_destructor_method = False
+            is_destructor = False
             
             # Check copy function
             if copy_func_name and method_name == copy_func_name:
@@ -567,12 +562,12 @@ class GIRest():
                 
             # Check destructor function  
             if free_func_name and method_name == free_func_name:
-                is_destructor_method = True
+                is_destructor = True
             elif not free_func_name and method_name == 'free':
                 logger.warning(f"Using fallback detection for free function '{method_name}' in {bi.get_namespace()}.{bi.get_name()}")
-                is_destructor_method = True
+                is_destructor = True
                 
-            self._generate_function(bim, bi, is_constructor=is_constructor, is_copy=is_copy, is_destructor=is_destructor_method)
+            self._generate_function(bim, bi, is_constructor=is_constructor, is_copy=is_copy, is_destructor=is_destructor)
         
         # Generate endpoints for struct fields
         n_fields = GIRepository.struct_info_get_n_fields(bi)
@@ -583,14 +578,17 @@ class GIRest():
         # Generate get_type function if the struct has a registered GType
         self._generate_get_type_function(bi)
 
-        # Avoid the Type types
-        if bi.get_name() not in ["TypeInstance", "TypeClass"]:
-            # Generate generic new/free endpoints if struct doesn't have constructor/free
-            if not has_constructor:
-                self._generate_generic_struct_new(bi)
-            
-            if not has_destructor:
-                self._generate_generic_struct_free(bi)
+        # Custom cases
+        # Avoid the Type generic free/new because those are not needed and GI explictly marks them
+        # as not exported
+        if bi.get_name() in ["TypeInstance", "TypeClass"]:
+            return
+        # Generate generic new/free endpoints if struct doesn't have constructor/free
+        if not has_constructor:
+            self._generate_generic_struct_new(bi)
+        
+        if not has_destructor:
+            self._generate_generic_struct_free(bi)
 
     def _generate_callback(self, bi):
         """Generate OpenAPI schema for a callback"""
@@ -812,7 +810,10 @@ class GIRest():
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "return": field_schema
+                                    "return": {
+                                        **field_schema,
+                                        "x-gi-null": True if "$ref" in field_schema else False,
+                                    }
                                 }
                             }
                         }

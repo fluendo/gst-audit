@@ -1,0 +1,5 @@
+{# Custom template for GLib.List.get_prev method to set the container type for type safety #}
+{% extends "method.ts.j2" %}
+{% block signature %}
+  async get_prev(): Promise<GLibList<T> | null> {
+{% endblock %}

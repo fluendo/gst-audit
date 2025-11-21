@@ -103,6 +103,22 @@ function initializeCallbackSource(): void {
   }
 }
 
+// Define the core interfaces for objects and structs memory management
+interface ObjectLikeInstance {
+  ref(): Promise<void>;
+  unref(): Promise<void>;
+}
+
+interface StructLikeInstance {
+  free(): Promise<void>;
+  copy(): Promise<void>;
+}
+
+// Combined interface for objects that might need various cleanup
+interface ManagedResource extends Partial<ObjectLikeInstance>, Partial<StructLikeInstance> {}
+
+type transferType = 'none' | 'container' | 'full';
+
 {% for schema in schemas.values() %}
   {{ schema.generate() }}
 {% endfor %}

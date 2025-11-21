@@ -2,22 +2,25 @@
 {% extends "struct.ts.j2" %}
 
 {% block signature %}
-export class {{ name }}<T = any>{% if parent_class %} extends {{ parent_class }}{% endif %} implements AsyncIterable<T>
+export class {{ struct.name }}<T = any> implements AsyncIterable<T> {
 {% endblock %}
 
 {% block properties %}
-  ptr!: string;
-  contentTransfer!: boolean;
-  TargetClass?: new (ptr?: string, transfer?: boolean) => T;
+	ptr!: string;
+	head?: {{ struct.name }}<T>;
+  transferType!: transferType;
+  TargetClass!: new (ptr: string, transferType: transferType) => T;
 {% endblock %}
 
-{% block constructor %}
-  constructor(ptr?: string, contentTransfer: boolean = false, TargetClass?: new (ptr?: string, transfer?: boolean) => T) {
+{% block default_constructor %}
+	constructor(ptr: string, transferType: transferType, TargetClass: new (ptr: string, transferType: transferType) => T, head?: {{ struct.name }}<T>) {
     if (ptr) {
       this.ptr = ptr;
-      this.contentTransfer = contentTransfer;
-      this.TargetClass = TargetClass;
-      {{ destructor_registry }}.register(this, ptr);
+      this.transferType = transferType;
+			this.TargetClass = TargetClass;
+			this.head = head;
+      if (transferType !== 'none' && head === undefined)
+			  {{ struct.name.lower() }}Registry.register(this, ptr);
     }
   }
 {% endblock %}
@@ -50,7 +53,7 @@ export class {{ name }}<T = any>{% if parent_class %} extends {{ parent_class }}
           
           // Create an instance of the target class if TargetClass is provided and data is a pointer
           if (this.TargetClass && data && typeof data === 'string') {
-            const instance = new this.TargetClass(data, this.contentTransfer);
+            const instance = new this.TargetClass(data, this.transferType === 'full' ? 'full' : 'none');
             return { done: false, value: instance };
           }
           

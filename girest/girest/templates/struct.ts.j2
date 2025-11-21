@@ -9,18 +9,20 @@ const {{ registry_name }} = new FinalizationRegistry((ptr: string) => {
 });
 {% endblock %}
 
+{% block signature %}
 export class {{ struct.name }} {
+{% endblock %}
+
 {% block properties %}
   ptr!: string;
 {% endblock %}
 
 {% block constructors %}
   {% block default_constructor %}
-  constructor(ptr?: string) {
-    if (ptr) {
-      this.ptr = ptr;
+  constructor(ptr: string, transferType: transferType) {
+    this.ptr = ptr;
+    if (transferType === 'full')
       {{ struct.name.lower() }}Registry.register(this, ptr);
-    }
   }
   {% endblock %}
   {% for constructor in struct.constructors %}

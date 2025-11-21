@@ -619,6 +619,34 @@ class FridaResolver(GIResolver):
         
         return field_put_handler
 
+    # Custom methods
+    def custom_glib_list_free(self):
+        async def func(*args, **kwargs):
+            converted_kwargs = {}
+            converted_kwargs["this"] = kwargs["self"]["ptr"]
+            _type = {
+                "arguments": [],
+                "is_method": True,
+                "returns": "void",
+            }
+            # Prepend self argument
+            ra = {
+                "name": "this",
+                "skipped": False,
+                "closure": -1,
+                "is_closure": False,
+                "destroy": -1,
+                "is_destroy": False,
+                "direction": GIRepository.Direction.IN,
+                "type": "pointer",
+                "subtype": None
+            }
+            _type["arguments"].append(ra)
+            await asyncio.to_thread(
+                self.scripts[0].exports_sync.call, "g_list_free", _type, *converted_kwargs.values()
+            )
+        return func
+
     # TODO what to access here, the info from GI (_method) or the type info for Frida (_type)
     def create_frida_handler(self):
         """Create handler that calls Frida with the method JSON, converting enum strings to integers,
@@ -755,6 +783,10 @@ class FridaResolver(GIResolver):
             ret = self.create_frida_handler()
             ret.__defaults__ = (method_info, method_json, operation)
             return ret
+        # Custom cases when a function is not exported by GI
+        # In the case of GLibList the free function is not exported by GI, so we need to create it manually
+        elif method_name == 'free' and namespace == 'GLib' and class_name == 'List':
+            return self.custom_glib_list_free()
         # Check for the artificial methods
         elif method_name in ['new', 'free', "get_type"]:
             # Try to find the info (struct, object, enum, or flags)

@@ -263,6 +263,13 @@ class Type(Info):
             self._ref_schema = self.generator.get_schema(self._component_name)
         return self._ref_schema
 
+    @property
+    def subtype(self) -> "Type":
+        et = self.schema_section.get("x-gi-element-type", None)
+        if et:
+            return Type(et, self.generator, self)
+        return None
+
 
 class Param(Info):
     """Represents a method parameter with all its metadata."""
@@ -312,6 +319,10 @@ class ReturnParam(Info):
     @property
     def transfer(self) -> str:
         return self.schema_section.get("x-gi-transfer", "none")
+
+    @property
+    def can_be_null(self) -> str:
+        return self.schema_section.get("x-gi-null", False)
 
     @property
     def description(self) -> str:

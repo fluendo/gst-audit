@@ -18,14 +18,12 @@ export class {{ object.name }}{% if object.parent_schema %} extends {{ object.pa
   {% block default_constructor %}
     {% if object.parent_schema.info_type == 'struct' %}
 
-  constructor(ptr?: string, transfer: boolean = false) {
-	super(ptr);
-    if (ptr) {
-      this.ptr = ptr;
-      {{ object.name.lower() }}Registry.register(this, ptr);
-      if (transfer) {
-        this.ref().catch(() => {});
-      }
+  constructor(ptr: string, transferType: transferType) {
+	super(ptr, 'none');
+    this.ptr = ptr;
+    {{ object.name.lower() }}Registry.register(this, ptr);
+    if (transferType === 'none') {
+      this.ref().catch(() => {});
     }
   }
     {% endif %}

@@ -1,0 +1,5 @@
+{# Custom template for GLib.List.put_next method to set the container type for type safety #}
+{% extends "method.ts.j2" %}
+{% block signature %}
+	async put_next(value_: GLibList<T>): Promise<void> {
+{% endblock %}

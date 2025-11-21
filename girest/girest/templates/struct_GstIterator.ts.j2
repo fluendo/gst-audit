@@ -2,7 +2,7 @@
 {% extends "struct.ts.j2" %}
 
 {% block signature %}
-export class {{ name }}{% if parent_class %} extends {{ parent_class }}{% endif %} implements AsyncIterable<GObjectObject>
+export class {{ struct.name }} implements AsyncIterable<GObjectObject> {
 {% endblock %}
 
 {% block methods %}

@@ -15,18 +15,18 @@
     // Object with explode=false: serialize as comma-separated
 {% if param.required %}
     if ({{ param.valid_name }} && typeof {{ param.valid_name }} === 'object' && 'ptr' in {{ param.valid_name }}) {
-      url.searchParams.append('{{ param.valid_name }}', 'ptr,' + {{ param.valid_name }}.ptr);
+      url.searchParams.append('{{ param.name }}', 'ptr,' + {{ param.valid_name }}.ptr);
     }
 {% else %}
     if ({{ param.valid_name }} !== undefined && typeof {{ param.valid_name }} === 'object' && 'ptr' in {{ param.valid_name }}) {
-      url.searchParams.append('{{ param.valid_name }}', 'ptr,' + {{ param.valid_name }}.ptr);
+      url.searchParams.append('{{ param.name }}', 'ptr,' + {{ param.valid_name }}.ptr);
     }
 {% endif %}
 {% endif %}
 {% else %}
     // Primitive parameter
 {% if param.required %}
-    url.searchParams.append('{{ param.valid_name }}', String({{ param.valid_name }}));
+    url.searchParams.append('{{ param.name }}', String({{ param.valid_name }}));
 {% else %}
     if ({{ param.valid_name }} !== undefined) url.searchParams.append('{{ param.valid_name }}', String({{ param.valid_name }}));
 {% endif %}
