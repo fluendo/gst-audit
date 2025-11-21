@@ -49,6 +49,9 @@ function base_type_convert(t, p)
       return p.readCString();
     case "bool":
       return Boolean(p);
+    case "gtype":
+    case "pointer":
+      return p.isNull() ? null : p;
     default:
       return p;
   }
@@ -59,8 +62,6 @@ function base_type_read(t, p)
   switch (t) {
     case "string":
       return p.readCString();
-    case "gtype":
-      return p.readPointer();
     case "int8":
       return p.readS8();
     case "uint8":
@@ -77,8 +78,11 @@ function base_type_read(t, p)
       return p.readFloat();
     case "double":
       return p.readDouble();
+    case "bool":
+      return base_type_convert(t, p.readS8());
+    case "gtype":
     case "pointer":
-      return p;
+      return base_type_convert(t, p.readPointer());
     default:
       console.error(`Unsupported type ${t} to read`);
       return 0;
