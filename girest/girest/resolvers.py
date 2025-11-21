@@ -310,7 +310,8 @@ class FridaResolver(GIResolver):
                         return "gtype"
                     else:
                         return "struct"
-        
+        if tag == "void" and GIRepository.type_info_is_pointer(t):
+            return "pointer"
         # Map GIRepository type tags to JSON type strings
         type_map = {
             "gboolean": "bool",
