@@ -269,7 +269,7 @@ class FridaResolver(GIResolver):
         levels = {
             "debug": logging.DEBUG,
             "info": logging.INFO,
-            "warn": logging.WARNING,
+            "warning": logging.WARNING,
             "error": logging.ERROR,
         }
         logger.log(levels[level], message)
