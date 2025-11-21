@@ -8,11 +8,10 @@ export default function Home() {
   const config = getConfig();
   const [host, setHost] = useState(config.host);
   const [port, setPort] = useState(config.port.toString());
-  const [basePath, setBasePath] = useState(config.basePath);
 
   const handleSave = () => {
-    updateConfig({ host, port: parseInt(port), basePath });
-    alert('Configuration saved! API will now use: ' + getConfig().baseUrl);
+    updateConfig({ host, port: parseInt(port) });
+    alert('Configuration saved! API will now use: ' + getConfig().gstauditBaseUrl);
   };
 
   return (
@@ -48,19 +47,6 @@ export default function Home() {
                 placeholder="9000"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Base Path</label>
-              <input
-                type="text"
-                value={basePath}
-                onChange={(e) => setBasePath(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-900"
-                placeholder="/foo"
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Optional base path for the API (e.g., /foo for gstaudit-server&apos;s GstAudit API)
-              </p>
-            </div>
             <button
               onClick={handleSave}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -68,7 +54,10 @@ export default function Home() {
               Save Configuration
             </button>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Current API URL: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{getConfig().baseUrl}</code>
+              Current GstAudit API: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{getConfig().gstauditBaseUrl}</code>
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Current GIRest API: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{getConfig().girestBaseUrl}</code>
             </p>
           </div>
         </section>
@@ -80,7 +69,32 @@ export default function Home() {
             <li>React Flow visualization for pipeline topology</li>
             <li>Live auditing of running GStreamer pipelines</li>
             <li>REST API for interacting with GStreamer elements</li>
+            <li>Browse all available GStreamer element factories by category</li>
           </ul>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Quick Links</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link 
+              href="/pipeline" 
+              className="p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <h3 className="text-lg font-semibold mb-2">Pipeline Viewer</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Visualize and inspect running GStreamer pipelines
+              </p>
+            </Link>
+            <Link 
+              href="/factories" 
+              className="p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <h3 className="text-lg font-semibold mb-2">Element Factories</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Browse all available GStreamer elements grouped by category
+              </p>
+            </Link>
+          </div>
         </section>
 
         <section>
@@ -90,11 +104,7 @@ export default function Home() {
             <li>Get the PID of your GStreamer process</li>
             <li>Run the girest-frida server: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">python3 girest-frida.py Gst 1.0 --pid &lt;PID&gt;</code></li>
             <li>Configure the API settings above if needed</li>
-            <li>
-              <Link href="/pipeline" className="text-blue-600 hover:underline">
-                View Pipeline →
-              </Link>
-            </li>
+            <li>Visit the pipeline viewer or browse element factories using the quick links above</li>
           </ol>
         </section>
       </main>
