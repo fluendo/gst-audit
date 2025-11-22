@@ -558,7 +558,7 @@ class FridaResolver(GIResolver):
                         if enum_value == v:
                             result[k] = enum_name
                             break
-        
+        logger.debug(f"Returning converted response: {result}")
         return result
 
     def _create_field_get_handler(self, offset, field_type_json, field_type_info, operation):
