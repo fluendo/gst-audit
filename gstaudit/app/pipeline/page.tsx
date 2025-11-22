@@ -338,7 +338,7 @@ export default function PipelinePage() {
       // Create array to collect nodes
       const nodeArray: Node[] = [];
       
-      const pipeline = new GstPipeline(pipelinePtr, true);
+      const pipeline = new GstPipeline(pipelinePtr, 'none');
       await generateNode(pipeline, nodeArray);
       
       // Generate edges between connected elements
