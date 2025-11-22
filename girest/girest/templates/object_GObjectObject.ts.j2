@@ -4,7 +4,7 @@
 {% block signature %}
 // Type interface for GObject constructors with static get_type method
 interface GObjectConstructor<T extends GObjectObject> {
-  new (ptr?: string, transfer?: boolean): T;
+  new (ptr: string, transferType: transferType): T;
 	get_type(): Promise<string>;
 }
 
@@ -13,7 +13,7 @@ export class GObjectObject extends GObjectTypeInstance {
 
 {% block methods %}
 	castTo<T extends GObjectObject>(TargetClass: GObjectConstructor<T>): T {
-    return new TargetClass(this.ptr, true);
+    return new TargetClass(this.ptr, 'none');
   }
 
 	async isOf<T extends GObjectObject>(TargetClass: GObjectConstructor<T>): Promise<boolean> {
