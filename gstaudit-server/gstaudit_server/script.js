@@ -51,7 +51,7 @@ function findMemoryForGType(gtype)
 function validateIsPipeline(mem)
 {
     findGTypeClass(mem).forEach(gtypeclass => {
-        console.error(`Looking for a pipeline at ${gtypeclass}`);
+        console.debug(`Looking for a pipeline at ${gtypeclass}`);
         /* Check that we have a valid name to validate it */
         try {
             /* Get the target state is in 0-4 range at GstPipeline->GstElement->target_state (0x20) */
@@ -66,7 +66,7 @@ function validateIsPipeline(mem)
                 return;
             if (!/^[\x00-\x7F]*$/.test(name))
                 return;
-            console.error(`Pipeline found with name '${name}'`);
+            console.info(`Pipeline found with name '${name}'`);
             /* Send a message to notify the Python side */
             send({
                 "kind": "pipeline",
@@ -80,7 +80,7 @@ function validateIsPipeline(mem)
 
 function findInstanceOfType(pt)
 {
-    console.error(`Finding instances for ${pt}`);
+    console.debug(`Finding instances for ${pt}`);
     let pm = ptr(pt.toString());
     let gtypes = findMemoryForGType(pm);
     gtypes.forEach(gtype => {
@@ -91,7 +91,7 @@ function findInstanceOfType(pt)
 
 function findInstanceOfChildrenTypes(type)
 {
-    console.error(`Finding children types for ${type}`);
+    console.debug(`Finding children types for ${type}`);
     Process.enumerateModules().some(m => {
         let symb = m.findExportByName('g_type_children');
         if (symb == null)
@@ -100,7 +100,7 @@ function findInstanceOfChildrenTypes(type)
         g_type_children = new NativeFunction(symb, 'pointer', ['size_t', 'pointer']);
         let children = g_type_children(type, n_children_ptr);
         let n_children = n_children_ptr.readU32();
-        console.error(`Found ${n_children} types inheriting from ${type}`);
+        console.debug(`Found ${n_children} types inheriting from ${type}`);
         for (let i = 0; i < n_children; i++) {
             let pt = children.add(i*Process.pointerSize).readU64();
             findInstanceOfType(pt);
@@ -122,7 +122,7 @@ function findInstanceOfChildrenTypes(type)
  */
 function findRunningPipelines()
 {
-    console.debug("Finding running pipelines");
+    console.info("Finding running pipelines");
     /* Get the GType for a GstPipeline */
     Process.enumerateModules().some(m => {
         /* Scan for a GstPipeline */

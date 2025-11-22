@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 import logging
 import os
-
 import argparse
 import threading
+
 from apispec import APISpec
 
 from girest.uri_parser import URITemplateParser
 from girest.app import GIApp
 from girest.resolvers import FridaResolver
 from connexion import AsyncApp
+
+from uvicorn.config import LOGGING_CONFIG
+from uvicorn.logging import DefaultFormatter
 
 from connexion.datastructures import MediaTypeDict
 from connexion.resolver import Resolver
@@ -55,7 +58,7 @@ def _on_log(level, message):
     levels = {
         "debug": logging.DEBUG,
         "info": logging.INFO,
-        "warn": logging.WARNING,
+        "warning": logging.WARNING,
         "error": logging.ERROR,
     }
     logger.log(levels[level], message)
@@ -92,8 +95,15 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-# Logger
+# Setup the log
 logger = logging.getLogger("gstaudit")
+# Use the same logger Uvicorn uses
+handler = logging.StreamHandler()
+handler.setFormatter(DefaultFormatter(fmt=LOGGING_CONFIG["formatters"]["default"]["fmt"]))
+logger = logging.getLogger("gstaudit")
+logger.handlers = []  # Remove any existing handlers
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
 
 # Pipeline tracking
 pipelines = []  # List of discovered pipelines
