@@ -30,7 +30,7 @@ import {
   GstGhostPad,
   GstPadDirection
 } from '@/lib/gst';
-import { ElementNode, GroupNode } from '@/components';
+import { ElementNode, GroupNode, InternalPadEdge } from '@/components';
 import ELK, { ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk.bundled.js';
 
 const elk = new ELK();
@@ -152,6 +152,11 @@ const nodeTypes = {
   group: GroupNode, // Use custom GroupNode for groups that supports handles
 };
 
+// Define custom edge types
+const edgeTypes = {
+  ghostPad: InternalPadEdge, // Custom edge for internal pad connections
+};
+
 export default function PipelinePage() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -261,20 +266,24 @@ export default function PipelinePage() {
             
             // Get the parent element of the peer pad
             const peerParent = await peerPad.get_parent();
-            let peerElement = await peerParent.castTo(GstObject);
-            let peerElementPtr = peerElement.ptr;
+            let peerObject = await peerParent.castTo(GstObject);
+            let peerObjectPtr = peerObject.ptr;
             
             // Get names before potentially changing peerElement
             const elementName = await element.get_name();
-            let peerElementName = await peerElement.get_name();
+            let peerObjectName = await peerObject.get_name();
             const padName = await pad.get_name();
             const peerPadName = await peerPad.get_name();
             
+            // Initialize edge type as default
+            let edgeType = 'default';
+            
             // If the peer element is a ghost pad, use its parent (the bin) instead
-            if (await peerElement.isOf(GstGhostPad)) {
-              const ghostPadParent = await peerElement.get_parent();
-              peerElement = await ghostPadParent.castTo(GstElement);
-              peerElementPtr = peerElement.ptr;
+            if (await peerObject.isOf(GstGhostPad)) {
+              edgeType = 'ghostPad';
+              const ghostPadParent = await peerObject.get_parent();
+              peerObject = await ghostPadParent.castTo(GstElement);
+              peerObjectPtr = peerObject.ptr;
               // Keep the original ghost pad name for handle ID generation
             }
             
@@ -289,13 +298,13 @@ export default function PipelinePage() {
             
             if (padDirection === GstPadDirection.SRC && peerDirection === GstPadDirection.SINK) {
               sourceNodeId = element.ptr;
-              targetNodeId = peerElementPtr;
+              targetNodeId = peerObjectPtr;
               sourceHandleId = `${elementName}-${padName}`;
-              targetHandleId = `${peerElementName}-${peerPadName}`;
+              targetHandleId = `${peerObjectName}-${peerPadName}`;
             } else if (padDirection === GstPadDirection.SINK && peerDirection === GstPadDirection.SRC) {
-              sourceNodeId = peerElementPtr;
+              sourceNodeId = peerObjectPtr;
               targetNodeId = element.ptr;
-              sourceHandleId = `${peerElementName}-${peerPadName}`;
+              sourceHandleId = `${peerObjectName}-${peerPadName}`;
               targetHandleId = `${elementName}-${padName}`;
             } else {
               // Skip invalid connections
@@ -314,7 +323,7 @@ export default function PipelinePage() {
                 target: targetNodeId,
                 sourceHandle: sourceHandleId,
                 targetHandle: targetHandleId,
-                type: 'default',
+                type: edgeType, // Use custom type for ghost pads
                 animated: true,
                 style: {
                   stroke: '#0ea5e9',
@@ -412,6 +421,7 @@ export default function PipelinePage() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           fitView={false}
           defaultViewport={{ x: 50, y: 50, zoom: 0.8 }}
           minZoom={0.1}

@@ -130,13 +130,12 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
 
   return (
     <div 
-      className="bg-purple-50 rounded-lg shadow-sm w-full h-full min-w-[200px] relative"
+      className="bg-white border-2 border-blue-300 rounded-lg px-4 py-2 shadow-sm min-w-[120px]"
       style={{
         width: nodeWidth,
         height: nodeHeight,
         // Override React Flow's default group styling
         border: 'none',
-        backgroundColor: 'rgb(250 245 255)', // purple-50
         borderRadius: '8px'
       }}
     >
