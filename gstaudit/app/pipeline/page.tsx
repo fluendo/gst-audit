@@ -24,11 +24,13 @@ import {
   GstPipeline,
   GstBin,
   GstElement,
+  GstObject,
   GObject,
   GstPad,
+  GstGhostPad,
   GstPadDirection
 } from '@/lib/gst';
-import { ElementNode } from '@/components';
+import { ElementNode, GroupNode } from '@/components';
 import ELK, { ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk.bundled.js';
 
 const elk = new ELK();
@@ -60,9 +62,9 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
     
     const elkNode: ElkNode = {
       id: node.id,
-      // Don't set width/height for group nodes - let ELK calculate based on children
+      // For groups, use minimum size; for elements, use standard size
       ...(isGroup ? {} : { width: nodeWidth, height: nodeHeight }),
-      // For group nodes, we need to add children
+      // For groups, add children and layout options
       ...(isGroup ? {
         children: children.map(child => buildElkNode(child)),
         layoutOptions: {
@@ -70,9 +72,10 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
           'elk.direction': direction === 'LR' ? 'RIGHT' : 'DOWN',
           'elk.spacing.nodeNode': '50',
           'elk.layered.spacing.nodeNodeBetweenLayers': '70',
-          'elk.padding': '[top=50,left=50,bottom=50,right=50]',
-          'nodeSize.constraints': 'NODE_LABELS PORTS PORT_LABELS MINIMUM_SIZE',
-          'nodeSize.minimum': '(200,150)',
+          'elk.padding': '[top=100,left=50,bottom=50,right=50]', // Increased top padding for nested groups and headers
+          'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
+          'nodeSize.constraints': 'MINIMUM_SIZE',
+          'nodeSize.minimum': '(200,120)',
         }
       } : {})
     };
@@ -112,8 +115,9 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
       node.targetPosition = isHorizontal ? Position.Left : Position.Top;
       node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
       
-      // Apply calculated width and height from ELK (important for group nodes)
+      // Apply calculated width and height from ELK
       if (elkNode.width !== undefined && elkNode.height !== undefined) {
+        // Only set style if it's not overridden by React Flow's group handling
         node.style = {
           ...node.style,
           width: elkNode.width,
@@ -145,6 +149,7 @@ const initialEdges: Edge[] = [];
 // Define custom node types
 const nodeTypes = {
   element: ElementNode,
+  group: GroupNode, // Use custom GroupNode for groups that supports handles
 };
 
 export default function PipelinePage() {
@@ -189,7 +194,6 @@ export default function PipelinePage() {
     const isGstBin = await element.isOf(GstBin);
     
     // Create ReactFlow node with GstElement in data
-    console.error(`element found ${elementName} ${element.ptr}`);
     const node: Node = {
       id: element.ptr,
       data: {
@@ -197,7 +201,7 @@ export default function PipelinePage() {
         element: element,
       },
       parentId: bin ? bin.ptr : undefined,
-      type: isGstBin ? 'group' : 'element', // Use 'element' type for non-GstBin elements
+      type: isGstBin ? 'group' : 'element', // Use 'group' for bins so they work properly for containment
       extent: bin ? 'parent' : undefined,
       expandParent: bin ? true : undefined,
       position: {
@@ -257,18 +261,26 @@ export default function PipelinePage() {
             
             // Get the parent element of the peer pad
             const peerParent = await peerPad.get_parent();
-            const peerElement = await peerParent.castTo(GstElement);
-            const peerElementPtr = peerElement.ptr;
+            let peerElement = await peerParent.castTo(GstObject);
+            let peerElementPtr = peerElement.ptr;
+            
+            // Get names before potentially changing peerElement
+            const elementName = await element.get_name();
+            let peerElementName = await peerElement.get_name();
+            const padName = await pad.get_name();
+            const peerPadName = await peerPad.get_name();
+            
+            // If the peer element is a ghost pad, use its parent (the bin) instead
+            if (await peerElement.isOf(GstGhostPad)) {
+              const ghostPadParent = await peerElement.get_parent();
+              peerElement = await ghostPadParent.castTo(GstElement);
+              peerElementPtr = peerElement.ptr;
+              // Keep the original ghost pad name for handle ID generation
+            }
             
             // Get pad directions to determine source/target
             const padDirection = await pad.get_direction();
             const peerDirection = await peerPad.get_direction();
-            
-            // Get element names for handle IDs
-            const elementName = await element.get_name();
-            const peerElementName = await peerElement.get_name();
-            const padName = await pad.get_name();
-            const peerPadName = await peerPad.get_name();
             
             // Create edge based on pad directions
             // Source pads connect TO sink pads
@@ -290,19 +302,18 @@ export default function PipelinePage() {
               console.warn(`Invalid pad connection: ${padDirection} -> ${peerDirection}`);
               continue;
             }
-            
+
             // Verify both nodes exist in our node array
             const sourceNode = nodeArray.find(n => n.id === sourceNodeId);
             const targetNode = nodeArray.find(n => n.id === targetNodeId);
             
             if (sourceNode && targetNode) {
               const edge: Edge = {
-                id: `${sourceNodeId}:${targetNodeId}`,
+                id: `${sourceHandleId}:${targetHandleId}`,
                 source: sourceNodeId,
                 target: targetNodeId,
-                // Don't specify handles - let React Flow connect when they're ready
-                // sourceHandle: sourceHandleId,
-                // targetHandle: targetHandleId,
+                sourceHandle: sourceHandleId,
+                targetHandle: targetHandleId,
                 type: 'default',
                 animated: true,
                 style: {
@@ -401,7 +412,10 @@ export default function PipelinePage() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
-          fitView
+          fitView={false}
+          defaultViewport={{ x: 50, y: 50, zoom: 0.8 }}
+          minZoom={0.1}
+          maxZoom={2}
         >
           <Controls />
           <MiniMap />

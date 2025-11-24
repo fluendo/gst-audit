@@ -11,7 +11,6 @@ interface PadInfo {
   id: string,
   name: string;
   direction: GstPadDirectionValue;
-  pad: GstPad;
 }
 
 const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
@@ -42,8 +41,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
             padList.push({
               id,
               name,
-              direction,
-              pad
+              direction
             });
           } catch (err) {
             console.error('Error processing pad:', err);
@@ -99,61 +97,89 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
       <div className="text-xs text-gray-500">{pads.length} pad(s)</div>
       
       {/* Sink pads (inputs) on the left */}
-      {sinkPads.map((pad, index) => (
-        <React.Fragment key={`sink-${pad.name}`}>
-          <Handle
-            type="target"
-            position={Position.Left}
-            id={pad.id}
-            style={{
-              top: 30 + index * 20,
-              backgroundColor: '#ef4444',
-              width: 8,
-              height: 8,
-              border: '1px solid #dc2626'
-            }}
-          />
-          <div 
-            className="absolute text-xs text-gray-600"
-            style={{
-              left: 12,
-              top: 26 + index * 20,
-              fontSize: '10px'
-            }}
-          >
-            {pad.name}
-          </div>
-        </React.Fragment>
-      ))}
+      {sinkPads.map((pad, index) => {
+        const headerHeight = 40; // Space for element name and info
+        const availableHeight = nodeHeight - headerHeight - 10; // Available space for pads
+        
+        let padPosition;
+        if (sinkPads.length === 1) {
+          // Center single pad
+          padPosition = headerHeight + availableHeight / 2;
+        } else {
+          // For multiple pads, distribute evenly: 1/(n+1), 2/(n+1), 3/(n+1), etc.
+          padPosition = headerHeight + ((index + 1) * availableHeight / (sinkPads.length + 1));
+        }
+        
+        return (
+          <React.Fragment key={`sink-${pad.name}`}>
+            <Handle
+              type="target"
+              position={Position.Left}
+              id={pad.id}
+              style={{
+                top: padPosition,
+                backgroundColor: '#ef4444',
+                width: 8,
+                height: 8,
+                border: '1px solid #dc2626'
+              }}
+            />
+            <div 
+              className="absolute text-xs text-gray-600"
+              style={{
+                left: 12,
+                top: padPosition - 4, // Center text with handle
+                fontSize: '10px'
+              }}
+            >
+              {pad.name}
+            </div>
+          </React.Fragment>
+        );
+      })}
       
       {/* Source pads (outputs) on the right */}
-      {srcPads.map((pad, index) => (
-        <React.Fragment key={`src-${pad.name}`}>
-          <Handle
-            type="source"
-            position={Position.Right}
-            id={pad.id}
-            style={{
-              top: 30 + index * 20,
-              backgroundColor: '#22c55e',
-              width: 8,
-              height: 8,
-              border: '1px solid #16a34a'
-            }}
-          />
-          <div 
-            className="absolute text-xs text-gray-600"
-            style={{
-              right: 12,
-              top: 26 + index * 20,
-              fontSize: '10px',
-              textAlign: 'right'
-            }}
-          >
-            {pad.name}
-          </div>
-        </React.Fragment>
-      ))}
+      {srcPads.map((pad, index) => {
+        const headerHeight = 40; // Space for element name and info
+        const availableHeight = nodeHeight - headerHeight - 10; // Available space for pads
+        
+        let padPosition;
+        if (srcPads.length === 1) {
+          // Center single pad
+          padPosition = headerHeight + availableHeight / 2;
+        } else {
+          // For multiple pads, distribute evenly: 1/(n+1), 2/(n+1), 3/(n+1), etc.
+          padPosition = headerHeight + ((index + 1) * availableHeight / (srcPads.length + 1));
+        }
+        
+        return (
+          <React.Fragment key={`src-${pad.name}`}>
+            <Handle
+              type="source"
+              position={Position.Right}
+              id={pad.id}
+              style={{
+                top: padPosition,
+                backgroundColor: '#22c55e',
+                width: 8,
+                height: 8,
+                border: '1px solid #16a34a'
+              }}
+            />
+            <div 
+              className="absolute text-xs text-gray-600"
+              style={{
+                right: 12,
+                top: padPosition - 4, // Center text with handle
+                fontSize: '10px',
+                textAlign: 'right'
+              }}
+            >
+              {pad.name}
+            </div>
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 };
