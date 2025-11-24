@@ -26,7 +26,9 @@ import {
   GstElement,
   GObject,
   GstPad,
-  GstPadDirection
+  GstPadDirection,
+  GstState,
+  GstStateValue
 } from '@/lib/gst';
 import { ElementNode } from '@/components';
 import ELK, { ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk.bundled.js';
@@ -38,12 +40,12 @@ const nodeHeight = 36;
 
 const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR') => {
   const isHorizontal = direction === 'LR';
-  
+
   // Group nodes by parent to build hierarchy
   const nodesById = new Map(nodes.map(node => [node.id, node]));
   const rootNodes = nodes.filter(node => !node.parentId);
   const childNodesByParent = new Map<string, Node[]>();
-  
+
   nodes.forEach(node => {
     if (node.parentId) {
       if (!childNodesByParent.has(node.parentId)) {
@@ -52,12 +54,12 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
       childNodesByParent.get(node.parentId)!.push(node);
     }
   });
-  
+
   // Build ELK graph structure with support for hierarchical groups
   const buildElkNode = (node: Node): ElkNode => {
     const children = childNodesByParent.get(node.id) || [];
     const isGroup = children.length > 0;
-    
+
     const elkNode: ElkNode = {
       id: node.id,
       // Don't set width/height for group nodes - let ELK calculate based on children
@@ -78,7 +80,7 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
     };
     return elkNode;
   };
-  
+
   const graph: ElkNode = {
     id: 'root',
     layoutOptions: {
@@ -96,9 +98,9 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
       targets: [edge.target],
     } as ElkExtendedEdge)),
   };
-  
+
   const layoutedGraph = await elk.layout(graph);
-  
+
   // Apply positions from ELK to React Flow nodes
   const applyPositions = (elkNode: ElkNode, parentPosition = { x: 0, y: 0 }) => {
     const node = nodesById.get(elkNode.id);
@@ -111,7 +113,7 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
       };
       node.targetPosition = isHorizontal ? Position.Left : Position.Top;
       node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
-      
+
       // Apply calculated width and height from ELK (important for group nodes)
       if (elkNode.width !== undefined && elkNode.height !== undefined) {
         node.style = {
@@ -120,7 +122,7 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
           height: elkNode.height,
         };
       }
-      
+
       // If this node has children, process them recursively
       if (elkNode.children) {
         const absolutePosition = {
@@ -131,11 +133,11 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
       }
     }
   };
-  
+
   if (layoutedGraph.children) {
     layoutedGraph.children.forEach(child => applyPositions(child));
   }
-  
+
   return { nodes, edges };
 };
 
@@ -169,7 +171,7 @@ export default function PipelinePage() {
       const pipelines = await response.json();
       setStatus(`Found ${pipelines.length} pipeline(s)`);
       console.log('Pipelines:', pipelines);
-      
+
       // Set the first pipeline pointer and generate nodes directly
       if (pipelines.length > 0) {
         setStatus('Loading pipeline structure...');
@@ -183,11 +185,11 @@ export default function PipelinePage() {
       setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
-  
+
   const createNode = async (element: GstElement, nodeArray: Node[], bin?: GstBin): Promise<void> => {
     const elementName: string = await element.get_name();
     const isGstBin = await element.isOf(GstBin);
-    
+
     // Create ReactFlow node with GstElement in data
     console.error(`element found ${elementName} ${element.ptr}`);
     const node: Node = {
@@ -214,7 +216,7 @@ export default function PipelinePage() {
     if (await element.isOf(GstBin)) {
       const bin = await element.castTo(GstBin);
       const iterator = await bin.iterate_elements();
-      
+
       for await (const obj of iterator) {
         const child: GstElement = await obj.castTo(GstElement);
         await generateNode(child, nodeArray, bin);
@@ -230,51 +232,51 @@ export default function PipelinePage() {
     try {
       for (const node of nodeArray) {
         const element = node.data.element as GstElement;
-        
+
         // Iterate through all pads of this element
         const iterator = await element.iterate_pads();
-        
+
         for await (const obj of iterator) {
           const pad = await obj.castTo(GstPad);
           const padPtr = pad.ptr;
-          
+
           // Skip if we've already processed this pad
           if (processedPads.has(padPtr)) {
             continue;
           }
-          
+
           // Check if pad is linked
           const isLinked = await pad.is_linked();
           if (isLinked) {
             // Get the peer pad
             const peerPad = await pad.get_peer();
             const peerPadPtr = peerPad.ptr;
-            
+
             // Skip if we've already processed the peer pad
             if (processedPads.has(peerPadPtr)) {
               continue;
             }
-            
+
             // Get the parent element of the peer pad
             const peerParent = await peerPad.get_parent();
             const peerElement = await peerParent.castTo(GstElement);
             const peerElementPtr = peerElement.ptr;
-            
+
             // Get pad directions to determine source/target
             const padDirection = await pad.get_direction();
             const peerDirection = await peerPad.get_direction();
-            
+
             // Get element names for handle IDs
             const elementName = await element.get_name();
             const peerElementName = await peerElement.get_name();
             const padName = await pad.get_name();
             const peerPadName = await peerPad.get_name();
-            
+
             // Create edge based on pad directions
             // Source pads connect TO sink pads
             let sourceNodeId: string, targetNodeId: string;
             let sourceHandleId: string, targetHandleId: string;
-            
+
             if (padDirection === GstPadDirection.SRC && peerDirection === GstPadDirection.SINK) {
               sourceNodeId = element.ptr;
               targetNodeId = peerElementPtr;
@@ -290,11 +292,11 @@ export default function PipelinePage() {
               console.warn(`Invalid pad connection: ${padDirection} -> ${peerDirection}`);
               continue;
             }
-            
+
             // Verify both nodes exist in our node array
             const sourceNode = nodeArray.find(n => n.id === sourceNodeId);
             const targetNode = nodeArray.find(n => n.id === targetNodeId);
-            
+
             if (sourceNode && targetNode) {
               const edge: Edge = {
                 id: `${sourceNodeId}:${targetNodeId}`,
@@ -314,10 +316,10 @@ export default function PipelinePage() {
                   color: '#0ea5e9',
                 },
               };
-              
+
               edgeArray.push(edge);
             }
-            
+
             // Mark both pads as processed
             processedPads.add(padPtr);
             processedPads.add(peerPadPtr);
@@ -337,23 +339,40 @@ export default function PipelinePage() {
     try {
       // Create array to collect nodes
       const nodeArray: Node[] = [];
-      
+
       const pipeline = new GstPipeline(pipelinePtr, 'none');
       await generateNode(pipeline, nodeArray);
-      
+
       // Generate edges between connected elements
       setStatus('Generating edges...');
       const edgeArray = await generateEdges(nodeArray);
-      
+
       // Apply layout to collected nodes and edges
       const layouted = await getLayoutedElements(nodeArray, edgeArray);
-      
+
       setNodes(layouted.nodes);
       setEdges(layouted.edges);
       setStatus(`Pipeline successfully loaded with ${layouted.nodes.length} nodes and ${layouted.edges.length} edges`);
     } catch (error) {
       console.error('Error in direct node generation:', error);
       setStatus(`Error loading pipeline: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const setPipelineState = async (state: GstStateValue) => {
+    if (!pipelinePtr) return;
+
+    try {
+      const stateName = state === GstState.PLAYING ? 'PLAYING' : 'PAUSED';
+      setStatus(`Setting state to ${stateName}...`);
+
+      const pipeline = new GstElement(pipelinePtr, 'none');
+      await pipeline.set_state(state);
+
+      setStatus(`State set to ${stateName}`);
+    } catch (error) {
+      console.error('Error setting pipeline state:', error);
+      setStatus(`Error setting state: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -375,12 +394,26 @@ export default function PipelinePage() {
               Fetch Pipelines
             </button>
             {pipelinePtr && (
-              <button
-                onClick={() => generateNodes(pipelinePtr)}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                Reload Pipeline
-              </button>
+              <>
+                <button
+                  onClick={() => setPipelineState(GstState.PLAYING)}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Play
+                </button>
+                <button
+                  onClick={() => setPipelineState(GstState.PAUSED)}
+                  className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                >
+                  Pause
+                </button>
+                <button
+                  onClick={() => generateNodes(pipelinePtr)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Reload Pipeline
+                </button>
+              </>
             )}
             <Link
               href="/"
