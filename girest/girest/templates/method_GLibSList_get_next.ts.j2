@@ -1,0 +1,5 @@
+{# Custom template for GLib.SList.get_next method to set the container type for type safety #}
+{% extends "method.ts.j2" %}
+{% block signature %}
+  async get_next(): Promise<GLibSList<T> | null> {
+{% endblock %}

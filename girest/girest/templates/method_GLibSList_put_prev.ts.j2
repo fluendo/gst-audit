@@ -1,0 +1,5 @@
+{# Custom template for GLib.SList.put_prev method to set the container type for type safety #}
+{% extends "method.ts.j2" %}
+{% block signature %}
+	async put_prev(value_: GLibSList<T>): Promise<void> {
+{% endblock %}

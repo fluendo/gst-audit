@@ -1,0 +1,5 @@
+{# Custom template for GLib.SList.new method to receive the target class for type safety #}
+{% extends "method.ts.j2" %}
+{% block signature %}
+	static async new<T>(TargetClass: new (ptr: string, transferType: transferType) => T): Promise<GLibSList<T>> {
+{% endblock %}

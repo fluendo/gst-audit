@@ -1,0 +1,72 @@
+{# GLibSList template - handles GLibSList with AsyncIterable interface #}
+{% extends "struct.ts.j2" %}
+
+{% block signature %}
+export class {{ struct.name }}<T = any> implements AsyncIterable<T> {
+{% endblock %}
+
+{% block properties %}
+	ptr!: string;
+	head?: {{ struct.name }}<T>;
+  transferType!: transferType;
+  TargetClass!: new (ptr: string, transferType: transferType) => T;
+{% endblock %}
+
+{% block default_constructor %}
+	constructor(ptr: string, transferType: transferType, TargetClass: new (ptr: string, transferType: transferType) => T, head?: {{ struct.name }}<T>) {
+    if (ptr) {
+      this.ptr = ptr;
+      this.transferType = transferType;
+			this.TargetClass = TargetClass;
+			this.head = head;
+      if (transferType !== 'none' && head === undefined)
+			  {{ struct.name.lower() }}Registry.register(this, ptr);
+    }
+  }
+{% endblock %}
+
+{% block methods %}
+  // Implement AsyncIterable interface
+  [Symbol.asyncIterator](): AsyncIterator<T, any, any> {
+    let currentNode: GLibSList | null = this;
+    
+    return {
+      next: async (): Promise<IteratorResult<T>> => {
+        // Check if current node is null/undefined (reached end of list)
+        if (!currentNode || !currentNode.ptr) {
+          return { done: true, value: undefined };
+        }
+        
+        try {
+          // Get the data from the current node
+          const data = await currentNode.get_data();
+          
+          // Move to the next node
+          const nextNode = await currentNode.get_next();
+          
+          // Check if nextNode has a valid pointer, if not we've reached the end
+          if (nextNode && typeof nextNode === 'object' && 'ptr' in nextNode && nextNode.ptr) {
+            currentNode = nextNode;
+          } else {
+            currentNode = null;
+          }
+          
+          // Create an instance of the target class if TargetClass is provided and data is a pointer
+          if (this.TargetClass && data && typeof data === 'string') {
+            const instance = new this.TargetClass(data, this.transferType === 'full' ? 'full' : 'none');
+            return { done: false, value: instance };
+          }
+          
+          // Otherwise return the raw data cast to type T
+          return { done: false, value: data as T };
+        } catch (error) {
+          // If we get an error, we're probably at the end of the list
+          return { done: true, value: undefined };
+        }
+      }
+    };
+  }
+
+{{ super() }}
+{% endblock %}
+}
