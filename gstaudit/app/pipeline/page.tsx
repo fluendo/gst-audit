@@ -28,7 +28,7 @@ import {
   GObject,
   GstPad,
   GstGhostPad,
-  GstPadDirection
+  GstPadDirection,
   GstState,
   GstStateValue
 } from '@/lib/gst';
@@ -163,7 +163,8 @@ export default function PipelinePage() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [status, setStatus] = useState<string>('Disconnected');
-  const [pipelinePtr, setPipelinePtr] = useState<string | null>(null);
+  const [pipelines, setPipelines] = useState<{ name: string; ptr: string }[]>([]);
+  const [selectedPipeline, setSelectedPipeline] = useState<string | null>(null);
   const config = getConfig();
 
   const onConnect = useCallback(
@@ -178,15 +179,16 @@ export default function PipelinePage() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const pipelines = await response.json();
-      setStatus(`Found ${pipelines.length} pipeline(s)`);
-      console.log('Pipelines:', pipelines);
+      const pipelinesData = await response.json();
+      setStatus(`Found ${pipelinesData.length} pipeline(s)`);
+      console.log('Pipelines:', pipelinesData);
 
-      // Set the first pipeline pointer and generate nodes directly
-      if (pipelines.length > 0) {
-        setStatus('Loading pipeline structure...');
-        setPipelinePtr(pipelines[0].ptr);
-        await generateNodes(pipelines[0].ptr);
+      setPipelines(pipelinesData);
+
+      if (pipelinesData.length > 0) {
+        setSelectedPipeline(pipelinesData[0].ptr); // Default to the first pipeline
+        setStatus(`Pipeline "${pipelinesData[0].name}" selected`);
+        await generateNodes(pipelinesData[0].ptr);
       } else {
         setStatus('No pipelines found');
       }
@@ -355,12 +357,12 @@ export default function PipelinePage() {
   };
 
   // Generate nodes directly by iterating over pipeline elements
-  const generateNodes = async (pipelinePtr: string) => {
+  const generateNodes = async (selectedPipeline: string) => {
     try {
       // Create array to collect nodes
       const nodeArray: Node[] = [];
 
-      const pipeline = new GstPipeline(pipelinePtr, 'none');
+      const pipeline = new GstPipeline(selectedPipeline, 'none');
       await generateNode(pipeline, nodeArray);
 
       // Generate edges between connected elements
@@ -380,13 +382,15 @@ export default function PipelinePage() {
   };
 
   const setPipelineState = async (state: GstStateValue) => {
-    if (!pipelinePtr) return;
+    if (!selectedPipeline) {
+      alert('No pipeline selected!');
+      return;
+    }
 
     try {
       const stateName = state === GstState.PLAYING ? 'PLAYING' : 'PAUSED';
       setStatus(`Setting state to ${stateName}...`);
-
-      const pipeline = new GstElement(pipelinePtr, 'none');
+      const pipeline = new GstPipeline(selectedPipeline, 'none');
       await pipeline.set_state(state);
 
       setEdges((eds) =>
@@ -399,7 +403,7 @@ export default function PipelinePage() {
       setStatus(`State set to ${stateName}`);
     } catch (error) {
       console.error('Error setting pipeline state:', error);
-      setStatus(`Error setting state: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -420,11 +424,30 @@ export default function PipelinePage() {
             >
               Fetch Pipelines
             </button>
-            {pipelinePtr && (
+            {pipelines.length > 0 && (
+              <select
+                value={selectedPipeline || ''}
+                onChange={(e) => setSelectedPipeline(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded"
+              >
+                {pipelines.map((pipeline) => (
+                  <option key={pipeline.ptr} value={pipeline.ptr}>
+                    {pipeline.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {selectedPipeline && (
               <>
                 <button
-                  onClick={() => setPipelineState(GstState.PLAYING)}
+                  onClick={() => generateNodes(selectedPipeline)}
                   className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Load Pipeline
+                </button>
+                <button
+                  onClick={() => setPipelineState(GstState.PLAYING)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
                   Play
                 </button>
@@ -433,12 +456,6 @@ export default function PipelinePage() {
                   className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
                 >
                   Pause
-                </button>
-                <button
-                  onClick={() => generateNodes(pipelinePtr)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Reload Pipeline
                 </button>
               </>
             )}
