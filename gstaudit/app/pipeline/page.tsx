@@ -243,7 +243,6 @@ export default function PipelinePage() {
     const node: Node = {
       id: element.ptr,
       data: {
-        label: elementName,
         element: element,
       },
       parentId: bin ? bin.ptr : undefined,

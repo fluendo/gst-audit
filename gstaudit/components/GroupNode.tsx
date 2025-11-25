@@ -1,18 +1,17 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { NodeProps, useUpdateNodeInternals } from '@xyflow/react';
 import { GstElement } from '@/lib/gst';
 import { usePads } from '@/hooks/usePads';
 import PadHandle from './PadHandle';
 
 interface GroupNodeData {
-  label: string;
   element: GstElement;
-  isGstBin?: boolean;
 }
 
 const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   const nodeData = data as unknown as GroupNodeData;
   const updateNodeInternals = useUpdateNodeInternals();
+  const [elementName, setElementName] = useState<string>('');
 
   // Use the shared usePads hook
   const { sinkPads, srcPads, padtemplates, loading, error } = usePads(nodeData.element);
@@ -20,6 +19,20 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   // Get the actual node dimensions from React Flow/ELK
   const nodeWidth = width || 200;
   const nodeHeight = height || 120;
+
+  // Get element name
+  useEffect(() => {
+    const fetchElementName = async () => {
+      try {
+        const name = await nodeData.element.get_name();
+        setElementName(name);
+      } catch (err) {
+        console.error('Error getting element name:', err);
+        setElementName('Unknown');
+      }
+    };
+    fetchElementName();
+  }, [nodeData.element]);
 
   // Update React Flow internals when pads are loaded
   useEffect(() => {
@@ -46,7 +59,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
         }}
       >
         <div className="p-4">
-          <div className="text-sm font-medium text-purple-800">{nodeData.label}</div>
+          <div className="text-sm font-medium text-purple-800">{elementName}</div>
           <div className="text-xs text-purple-600">Loading pads...</div>
         </div>
       </div>
@@ -64,7 +77,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
         }}
       >
         <div className="p-4">
-          <div className="text-sm font-medium text-red-800">{nodeData.label}</div>
+          <div className="text-sm font-medium text-red-800">{elementName}</div>
           <div className="text-xs text-red-600">Error: {error}</div>
         </div>
       </div>
@@ -85,7 +98,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
       {/* Header area for the bin information */}
       <div className="p-3 border-b border-purple-200 bg-purple-100 rounded-t-lg">
         <div className="text-sm font-medium text-purple-800 mb-1">
-          {nodeData.label} <span className="text-xs font-bold"></span>
+          {elementName} <span className="text-xs font-bold"></span>
         </div>
         <div className="text-xs text-purple-600">{sinkPads.length + srcPads.length} pad(s)</div>
       </div>
