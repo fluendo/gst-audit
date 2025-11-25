@@ -369,6 +369,13 @@ export default function PipelinePage() {
       const pipeline = new GstElement(pipelinePtr, 'none');
       await pipeline.set_state(state);
 
+      setEdges((eds) =>
+        eds.map((e) => ({
+          ...e,
+          animated: state === GstState.PLAYING, // Enable animation for PLAYING, disable for PAUSED
+        })),
+      );
+
       setStatus(`State set to ${stateName}`);
     } catch (error) {
       console.error('Error setting pipeline state:', error);
