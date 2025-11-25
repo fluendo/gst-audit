@@ -24,3 +24,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Override React Flow's default group node styling */
+.react-flow__node-group {
+  border: none !important;
+  background: transparent !important;
+}
+
+.react-flow__node-group .react-flow__node-default {
+  border: none !important;
+}

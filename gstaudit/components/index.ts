@@ -4,3 +4,5 @@
  */
 
 export { default as ElementNode } from './ElementNode';
+export { default as GroupNode } from './GroupNode';
+export { default as InternalPadEdge } from './InternalPadEdge';
