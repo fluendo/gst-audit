@@ -28,7 +28,9 @@ import {
   GObject,
   GstPad,
   GstGhostPad,
-  GstPadDirection
+  GstPadDirection,
+  GstState,
+  GstStateValue
 } from '@/lib/gst';
 import { ElementNode, GroupNode, InternalPadEdge } from '@/components';
 import ELK, { ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk.bundled.js';
@@ -40,12 +42,12 @@ const nodeHeight = 36;
 
 const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR') => {
   const isHorizontal = direction === 'LR';
-  
+
   // Group nodes by parent to build hierarchy
   const nodesById = new Map(nodes.map(node => [node.id, node]));
   const rootNodes = nodes.filter(node => !node.parentId);
   const childNodesByParent = new Map<string, Node[]>();
-  
+
   nodes.forEach(node => {
     if (node.parentId) {
       if (!childNodesByParent.has(node.parentId)) {
@@ -54,12 +56,12 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
       childNodesByParent.get(node.parentId)!.push(node);
     }
   });
-  
+
   // Build ELK graph structure with support for hierarchical groups
   const buildElkNode = (node: Node): ElkNode => {
     const children = childNodesByParent.get(node.id) || [];
     const isGroup = children.length > 0;
-    
+
     const elkNode: ElkNode = {
       id: node.id,
       // For groups, use minimum size; for elements, use standard size
@@ -81,7 +83,7 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
     };
     return elkNode;
   };
-  
+
   const graph: ElkNode = {
     id: 'root',
     layoutOptions: {
@@ -99,9 +101,9 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
       targets: [edge.target],
     } as ElkExtendedEdge)),
   };
-  
+
   const layoutedGraph = await elk.layout(graph);
-  
+
   // Apply positions from ELK to React Flow nodes
   const applyPositions = (elkNode: ElkNode, parentPosition = { x: 0, y: 0 }) => {
     const node = nodesById.get(elkNode.id);
@@ -124,7 +126,7 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
           height: elkNode.height,
         };
       }
-      
+
       // If this node has children, process them recursively
       if (elkNode.children) {
         const absolutePosition = {
@@ -135,11 +137,11 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
       }
     }
   };
-  
+
   if (layoutedGraph.children) {
     layoutedGraph.children.forEach(child => applyPositions(child));
   }
-  
+
   return { nodes, edges };
 };
 
@@ -161,7 +163,8 @@ export default function PipelinePage() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [status, setStatus] = useState<string>('Disconnected');
-  const [pipelinePtr, setPipelinePtr] = useState<string | null>(null);
+  const [pipelines, setPipelines] = useState<{ name: string; ptr: string }[]>([]);
+  const [selectedPipeline, setSelectedPipeline] = useState<string | null>(null);
   const config = getConfig();
 
   const onConnect = useCallback(
@@ -176,15 +179,16 @@ export default function PipelinePage() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const pipelines = await response.json();
-      setStatus(`Found ${pipelines.length} pipeline(s)`);
-      console.log('Pipelines:', pipelines);
-      
-      // Set the first pipeline pointer and generate nodes directly
-      if (pipelines.length > 0) {
-        setStatus('Loading pipeline structure...');
-        setPipelinePtr(pipelines[0].ptr);
-        await generateNodes(pipelines[0].ptr);
+      const pipelinesData = await response.json();
+      setStatus(`Found ${pipelinesData.length} pipeline(s)`);
+      console.log('Pipelines:', pipelinesData);
+
+      setPipelines(pipelinesData);
+
+      if (pipelinesData.length > 0) {
+        setSelectedPipeline(pipelinesData[0].ptr); // Default to the first pipeline
+        setStatus(`Pipeline "${pipelinesData[0].name}" selected`);
+        await generateNodes(pipelinesData[0].ptr);
       } else {
         setStatus('No pipelines found');
       }
@@ -193,11 +197,11 @@ export default function PipelinePage() {
       setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
-  
+
   const createNode = async (element: GstElement, nodeArray: Node[], bin?: GstBin): Promise<void> => {
     const elementName: string = await element.get_name();
     const isGstBin = await element.isOf(GstBin);
-    
+
     // Create ReactFlow node with GstElement in data
     const node: Node = {
       id: element.ptr,
@@ -223,7 +227,7 @@ export default function PipelinePage() {
     if (await element.isOf(GstBin)) {
       const bin = await element.castTo(GstBin);
       const iterator = await bin.iterate_elements();
-      
+
       for await (const obj of iterator) {
         const child: GstElement = await obj.castTo(GstElement);
         await generateNode(child, nodeArray, bin);
@@ -239,31 +243,31 @@ export default function PipelinePage() {
     try {
       for (const node of nodeArray) {
         const element = node.data.element as GstElement;
-        
+
         // Iterate through all pads of this element
         const iterator = await element.iterate_pads();
-        
+
         for await (const obj of iterator) {
           const pad = await obj.castTo(GstPad);
           const padPtr = pad.ptr;
-          
+
           // Skip if we've already processed this pad
           if (processedPads.has(padPtr)) {
             continue;
           }
-          
+
           // Check if pad is linked
           const isLinked = await pad.is_linked();
           if (isLinked) {
             // Get the peer pad
             const peerPad = await pad.get_peer();
             const peerPadPtr = peerPad.ptr;
-            
+
             // Skip if we've already processed the peer pad
             if (processedPads.has(peerPadPtr)) {
               continue;
             }
-            
+
             // Get the parent element of the peer pad
             const peerParent = await peerPad.get_parent();
             let peerObject = await peerParent.castTo(GstObject);
@@ -295,7 +299,7 @@ export default function PipelinePage() {
             // Source pads connect TO sink pads
             let sourceNodeId: string, targetNodeId: string;
             let sourceHandleId: string, targetHandleId: string;
-            
+
             if (padDirection === GstPadDirection.SRC && peerDirection === GstPadDirection.SINK) {
               sourceNodeId = element.ptr;
               targetNodeId = peerObjectPtr;
@@ -315,7 +319,7 @@ export default function PipelinePage() {
             // Verify both nodes exist in our node array
             const sourceNode = nodeArray.find(n => n.id === sourceNodeId);
             const targetNode = nodeArray.find(n => n.id === targetNodeId);
-            
+
             if (sourceNode && targetNode) {
               const edge: Edge = {
                 id: `${sourceHandleId}:${targetHandleId}`,
@@ -334,10 +338,10 @@ export default function PipelinePage() {
                   color: '#0ea5e9',
                 },
               };
-              
+
               edgeArray.push(edge);
             }
-            
+
             // Mark both pads as processed
             processedPads.add(padPtr);
             processedPads.add(peerPadPtr);
@@ -353,27 +357,53 @@ export default function PipelinePage() {
   };
 
   // Generate nodes directly by iterating over pipeline elements
-  const generateNodes = async (pipelinePtr: string) => {
+  const generateNodes = async (selectedPipeline: string) => {
     try {
       // Create array to collect nodes
       const nodeArray: Node[] = [];
-      
-      const pipeline = new GstPipeline(pipelinePtr, 'none');
+
+      const pipeline = new GstPipeline(selectedPipeline, 'none');
       await generateNode(pipeline, nodeArray);
-      
+
       // Generate edges between connected elements
       setStatus('Generating edges...');
       const edgeArray = await generateEdges(nodeArray);
-      
+
       // Apply layout to collected nodes and edges
       const layouted = await getLayoutedElements(nodeArray, edgeArray);
-      
+
       setNodes(layouted.nodes);
       setEdges(layouted.edges);
       setStatus(`Pipeline successfully loaded with ${layouted.nodes.length} nodes and ${layouted.edges.length} edges`);
     } catch (error) {
       console.error('Error in direct node generation:', error);
       setStatus(`Error loading pipeline: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const setPipelineState = async (state: GstStateValue) => {
+    if (!selectedPipeline) {
+      alert('No pipeline selected!');
+      return;
+    }
+
+    try {
+      const stateName = state === GstState.PLAYING ? 'PLAYING' : 'PAUSED';
+      setStatus(`Setting state to ${stateName}...`);
+      const pipeline = new GstPipeline(selectedPipeline, 'none');
+      await pipeline.set_state(state);
+
+      setEdges((eds) =>
+        eds.map((e) => ({
+          ...e,
+          animated: state === GstState.PLAYING, // Enable animation for PLAYING, disable for PAUSED
+        })),
+      );
+
+      setStatus(`State set to ${stateName}`);
+    } catch (error) {
+      console.error('Error setting pipeline state:', error);
+      setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -394,13 +424,40 @@ export default function PipelinePage() {
             >
               Fetch Pipelines
             </button>
-            {pipelinePtr && (
-              <button
-                onClick={() => generateNodes(pipelinePtr)}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            {pipelines.length > 0 && (
+              <select
+                value={selectedPipeline || ''}
+                onChange={(e) => setSelectedPipeline(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded"
               >
-                Reload Pipeline
-              </button>
+                {pipelines.map((pipeline) => (
+                  <option key={pipeline.ptr} value={pipeline.ptr}>
+                    {pipeline.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            {selectedPipeline && (
+              <>
+                <button
+                  onClick={() => generateNodes(selectedPipeline)}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Load Pipeline
+                </button>
+                <button
+                  onClick={() => setPipelineState(GstState.PLAYING)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Play
+                </button>
+                <button
+                  onClick={() => setPipelineState(GstState.PAUSED)}
+                  className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                >
+                  Pause
+                </button>
+              </>
             )}
             <Link
               href="/"
