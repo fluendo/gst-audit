@@ -439,6 +439,11 @@ class Struct(Schema):
         super().__init__(name, schema_def, generator, parent)
         self._methods: List[Method] = self.generator.get_methods_for_schema(self)
 
+    def generate(self) -> str:
+        if self.schema_section.get("x-gi-gtype-struct", False):
+            return ""
+        return super().generate()
+
     @property
     def all_methods(self) -> List["Method"]:
         return self._methods
@@ -475,6 +480,24 @@ class Object(Schema):
     def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
         super().__init__(name, schema_def, generator, parent)
         self._methods: List[Method] = self.generator.get_methods_for_schema(self)
+
+        target_namespace, target_class = schema_def["x-gi-namespace"], schema_def["x-gi-class"]
+        target_path = "/{}/{}".format(target_namespace, target_class)
+        target_component = f"#/components/schemas/{target_namespace}{target_class}"
+        component = f"#/components/schemas/{self.name}"
+
+        for path, data in self.generator.paths.items():
+            if not path.startswith(target_path):
+                continue
+            for m, op in data.items():
+                # Some methods may contain arguments/return values of the original schema, as
+                # `static async new(): Promise<GObjectObjectClass>`. Redefine them to
+                # `static async new(): Promise<GObjectObject>' instead.
+                new_op = Method.rewrite_op_refs(op, target_component, component)
+                m_path = "/{}/".format(schema_def["x-gi-namespace"])
+                method = Method(new_op, m_path, m, self, self.generator)
+                self._methods.append(method)
+
         self._parent_schema = None
         parent_class = self._extract_parent_name()
         if parent_class:
@@ -718,6 +741,22 @@ class Method(Info):
             param = Param(param_def, self.generator, self)
             self.parameters.append(param)
         
+    @classmethod
+    def rewrite_op_refs(cls, obj: dict, old: str, new: str):
+        if isinstance(obj, dict):
+            new_obj = {}
+            for k, v in obj.items():
+                if k == "$ref" and isinstance(v, str):
+                    new_obj[k] = v.replace(old, new)
+                else:
+                    new_obj[k] = cls.rewrite_op_refs(v, old, new)
+            return new_obj
+
+        if isinstance(obj, list):
+            return [cls.rewrite_op_refs(i, old, new) for i in obj]
+
+        return obj
+
     @property
     def params(self) -> List[Param]:
         """Get all parameters for this method."""

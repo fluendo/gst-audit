@@ -96,7 +96,7 @@ class GIRest():
     def _type_to_schema(self, t):
         """Convert GIRepository type to OpenAPI schema"""
         tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(t))
-        
+
         if tag == "void" and GIRepository.type_info_is_pointer(t):
             # Check if this is a void pointer (gpointer)
             # In GIRepository, gpointer is represented as void type with is_pointer=True
@@ -216,12 +216,13 @@ class GIRest():
  
     def _generate_function(self, bim, bi=None, is_constructor=False, is_destructor=False, is_copy=False):
         api = f"/{bim.get_namespace()}"
+
         if bi:
             api += f"/{bi.get_name()}"
         if GIRepository.function_info_get_flags(bim) & 1:
             api += "/{self}"
         api += f"/{bim.get_name()}"
-        
+
         # Handle the parameters
         params = []
         response_props = {}
@@ -372,6 +373,9 @@ class GIRest():
             operation["x-gi-destructor"] = True
         if is_copy:
             operation["x-gi-copy"] = True
+        if bi is not None and GIRepository.struct_info_is_gtype_struct(bi):
+            operation["x-gi-gtype-struct-function"] = True
+
         
         # Add callback schema references if there are callbacks
         if callback_schemas:
@@ -411,6 +415,7 @@ class GIRest():
                     "x-gi-type": "object",
                     "x-gi-namespace": f"{bi.get_namespace()}",
                     "x-gi-name": f"{bi.get_name()}",
+                    "x-gi-class": f"{bi.get_name()}Class"
                 }
            )
         else:
@@ -425,6 +430,7 @@ class GIRest():
                     "x-gi-type": "object",
                     "x-gi-namespace": f"{bi.get_namespace()}",
                     "x-gi-name": f"{bi.get_name()}",
+                    "x-gi-class": f"{bi.get_name()}Class"
                 }
             )
         
@@ -447,7 +453,7 @@ class GIRest():
         except AttributeError:
             # API not available for older GIRepository versions
             pass
-        
+
         # Now the member functions
         for i in range(0, GIRepository.object_info_get_n_methods(bi)):
             bim = GIRepository.object_info_get_method(bi, i)
@@ -476,10 +482,6 @@ class GIRest():
         self._generate_get_type_function(bi)
 
     def _generate_struct(self, bi):
-        if GIRepository.struct_info_is_gtype_struct(bi):
-            return
-        # TODO Structs with a constructor can not be serialized
-
         # For now, generate a basic schema for structs as opaque pointer types
         # This prevents dangling references when structs are used as parameters
         full_name = f"{bi.get_namespace()}{bi.get_name()}"
@@ -497,6 +499,7 @@ class GIRest():
                 "x-gi-type": "struct",
                 "x-gi-namespace": f"{bi.get_namespace()}",
                 "x-gi-name": f"{bi.get_name()}",
+                "x-gi-gtype-struct": GIRepository.struct_info_is_gtype_struct(bi),
             }
         )
         
