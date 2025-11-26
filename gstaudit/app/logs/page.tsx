@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { getConfig } from '@/lib/config';
-import { 
-  setApiConfig, 
-  Gst, 
-  GstDebugCategory, 
+import {
+  setApiConfig,
+  Gst,
+  GstDebugCategory,
   GLibSList,
-  type GstDebugLevelValue 
+  type GstDebugLevelValue
 } from '@/lib/gst';
 
 const DEBUG_LEVELS: GstDebugLevelValue[] = [
@@ -28,72 +28,72 @@ export default function LogsPage() {
   const [logs, setLogs] = useState<string>('');
   const [isLogging, setIsLogging] = useState(false);
   const [status, setStatus] = useState('');
-  
+
   useEffect(() => {
     const conf = getConfig();
-    setApiConfig({ 
-      host: conf.host, 
-      port: conf.port, 
-      basePath: conf.basePath 
+    setApiConfig({
+      host: conf.host,
+      port: conf.port,
+      basePath: conf.basePath
     });
   }, []);
 
-    const fetchCategories = useCallback(async () => {
-        try {
-            setLoading(true);
-            setStatus('Fetching debug categories...');
-            // Fetch the linked list of categories (GLibSList)
-            let list = await Gst.debug_get_all_categories();
+  const fetchCategories = useCallback(async () => {
+    try {
+      setLoading(true);
+      setStatus('Fetching debug categories...');
+      // Fetch the linked list of categories (GLibSList)
+      let list = await Gst.debug_get_all_categories();
 
-            const fetchedCategories: CategoryData[] = [];
-            // Traverse the list (this can be slow if there are many categories, optimizable on the backend)
-            // Note: In a real implementation, it would be ideal to have an endpoint that returns the entire JSON array
-            while (list && list.ptr && list.ptr !== '0x0') {
-                try {
-                    const dataPtr = await list.get_data();
-                    if (dataPtr && dataPtr !== '0x0') {
-                        // Instantiate the category from the pointer
-                        const cat = new GstDebugCategory(dataPtr, 'none');
-                        // Fetch details in parallel
-                        const [name, desc, level] = await Promise.all([
-                            cat.get_name(),
-                            cat.get_description(),
-                            cat.get_threshold()
-                        ]);
-                        fetchedCategories.push({
-                            ptr: dataPtr,
-                            name,
-                            description: desc,
-                            level
-                        });
-                    }
-                    const next = await list.get_next();
-                    // Break if there is no valid next node
-                    if (!next || !next.ptr || next.ptr === '0x0') break;
-                    list = next;
-                } catch (e) {
-                    console.warn("Error fetching category node", e);
-                    break;
-                }
-            }
-            fetchedCategories.sort((a, b) => a.name.localeCompare(b.name));
-            setCategories(fetchedCategories);
-            setStatus(`Loaded ${fetchedCategories.length} categories`);
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-            setStatus('Error loading categories');
-        } finally {
-            setLoading(false);
+      const fetchedCategories: CategoryData[] = [];
+      // Traverse the list (this can be slow if there are many categories, optimizable on the backend)
+      // Note: In a real implementation, it would be ideal to have an endpoint that returns the entire JSON array
+      while (list && list.ptr && list.ptr !== '0x0') {
+        try {
+          const dataPtr = await list.get_data();
+          if (dataPtr && dataPtr !== '0x0') {
+            // Instantiate the category from the pointer
+            const cat = new GstDebugCategory(dataPtr, 'none');
+            // Fetch details in parallel
+            const [name, desc, level] = await Promise.all([
+              cat.get_name(),
+              cat.get_description(),
+              cat.get_threshold()
+            ]);
+            fetchedCategories.push({
+              ptr: dataPtr,
+              name,
+              description: desc,
+              level
+            });
+          }
+          const next = await list.get_next();
+          // Break if there is no valid next node
+          if (!next || !next.ptr || next.ptr === '0x0') break;
+          list = next;
+        } catch (e) {
+          console.warn("Error fetching category node", e);
+          break;
         }
-    }, []);
+      }
+      fetchedCategories.sort((a, b) => a.name.localeCompare(b.name));
+      setCategories(fetchedCategories);
+      setStatus(`Loaded ${fetchedCategories.length} categories`);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      setStatus('Error loading categories');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const handleLevelChange = async (ptr: string, newLevel: GstDebugLevelValue) => {
     try {
       // Re-instantiate the category by pointer to change its level
       const cat = new GstDebugCategory(ptr, 'none');
       await cat.set_threshold(newLevel);
-      
-      setCategories(prev => prev.map(c => 
+
+      setCategories(prev => prev.map(c =>
         c.ptr === ptr ? { ...c, level: newLevel } : c
       ));
     } catch (error) {
@@ -127,14 +127,14 @@ export default function LogsPage() {
           // Attempt to fetch logs
           // If the API returns a pointer (e.g., "0x55..."), girest is not decoding the char* automatically.
           const rawResult = await Gst.debug_ring_buffer_logger_get_logs();
-          
+
           if (rawResult && rawResult.length > 0) {
-             // Basic detection if it's a hexadecimal pointer
-             if (rawResult.startsWith('0x')) {
-                 setLogs(prev => prev + `\n[System returned raw pointer: ${rawResult} - unable to decode text remotely]\n`);
-             } else {
-                 setLogs(prev => prev + rawResult);
-             }
+            // Basic detection if it's a hexadecimal pointer
+            if (rawResult.startsWith('0x')) {
+              setLogs(prev => prev + `\n[System returned raw pointer: ${rawResult} - unable to decode text remotely]\n`);
+            } else {
+              setLogs(prev => prev + rawResult);
+            }
           }
         } catch (e) {
           console.error("Error fetching logs:", e);
@@ -152,16 +152,16 @@ export default function LogsPage() {
           <p className="text-gray-600 dark:text-gray-400">Configure levels and view output</p>
         </div>
         <div className="space-x-4">
-            <Link href="/" className="px-4 py-2 bg-gray-200 dark:bg-gray-800 rounded hover:bg-gray-300 dark:hover:bg-gray-700">
-              Back to Home
-            </Link>
-            <button 
-              onClick={fetchCategories} 
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? 'Loading...' : 'Refresh Categories'}
-            </button>
+          <Link href="/" className="px-4 py-2 bg-gray-200 dark:bg-gray-800 rounded hover:bg-gray-300 dark:hover:bg-gray-700">
+            Back to Home
+          </Link>
+          <button
+            onClick={fetchCategories}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? 'Loading...' : 'Refresh Categories'}
+          </button>
         </div>
       </header>
 
@@ -174,9 +174,9 @@ export default function LogsPage() {
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {categories.length === 0 && !loading && (
-               <div className="text-center p-8 text-gray-500">
-                 No categories found. Click Refresh.
-               </div>
+              <div className="text-center p-8 text-gray-500">
+                No categories found. Click Refresh.
+              </div>
             )}
             {categories.map((cat) => (
               <div key={cat.ptr} className="flex items-center justify-between p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded border border-gray-100 dark:border-gray-800 transition-colors">
@@ -192,13 +192,17 @@ export default function LogsPage() {
                   value={cat.level}
                   onChange={(e) => handleLevelChange(cat.ptr, e.target.value as GstDebugLevelValue)}
                   className={`
-                    p-1 text-xs rounded border cursor-pointer font-medium w-24
-                    ${cat.level === 'none' ? 'text-gray-400 border-gray-200' : ''}
-                    ${cat.level === 'error' || cat.level === 'warning' ? 'text-red-600 border-red-200 bg-red-50' : ''}
-                    ${cat.level === 'info' || cat.level === 'debug' ? 'text-green-600 border-green-200 bg-green-50' : ''}
-                    ${cat.level === 'log' || cat.level === 'trace' ? 'text-purple-600 border-purple-200 bg-purple-50' : ''}
-                  `}
-                >
+                  p-1 text-xs rounded border cursor-pointer font-medium w-24
+                  ${cat.level === 'none' ? 'text-gray-500 border-gray-300 bg-gray-50' : ''}
+                  ${cat.level === 'error' ? 'text-red-600 border-red-300 bg-red-50' : ''}
+                  ${cat.level === 'warning' ? 'text-yellow-600 border-yellow-300 bg-yellow-50' : ''}
+                  ${cat.level === 'fixme' ? 'text-orange-600 border-orange-300 bg-orange-50' : ''}
+                  ${cat.level === 'info' ? 'text-blue-600 border-blue-300 bg-blue-50' : ''}
+                  ${cat.level === 'debug' ? 'text-green-600 border-green-300 bg-green-50' : ''}
+                  ${cat.level === 'log' ? 'text-purple-600 border-purple-300 bg-purple-50' : ''}
+                  ${cat.level === 'trace' ? 'text-pink-600 border-pink-300 bg-pink-50' : ''}
+                  ${cat.level === 'memdump' ? 'text-teal-600 border-teal-300 bg-teal-50' : ''}
+                `}>
                   {DEBUG_LEVELS.map(lvl => (
                     <option key={lvl} value={lvl}>{lvl.toUpperCase()}</option>
                   ))}
@@ -213,17 +217,16 @@ export default function LogsPage() {
           <div className="p-4 border-b border-gray-800 bg-gray-900 flex justify-between items-center">
             <h2 className="text-xl font-semibold text-white">Live Output</h2>
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={() => setLogs('')}
                 className="px-3 py-1 text-xs uppercase font-bold tracking-wide border border-gray-700 rounded hover:bg-gray-800 transition-colors"
               >
                 Clear
               </button>
-              <button 
+              <button
                 onClick={toggleLogging}
-                className={`px-3 py-1 text-xs uppercase font-bold tracking-wide rounded text-white transition-colors ${
-                  isLogging ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
-                }`}
+                className={`px-3 py-1 text-xs uppercase font-bold tracking-wide rounded text-white transition-colors ${isLogging ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
+                  }`}
               >
                 {isLogging ? 'Stop' : 'Start'}
               </button>
