@@ -410,6 +410,22 @@ class Flags(Enum):
     info_type = "flags"
     
 
+class Field(Schema):
+    """Represents a GObject Callback parameter or generic field"""
+    info_type = "field"
+    def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: 'Info'):
+        super().__init__(name, schema_def, generator, parent)
+        self.type = Type(schema_def, generator, self)
+
+    @property
+    def transfer(self) -> str:
+        return self.schema_section.get("x-gi-transfer", "none")
+
+    @property
+    def can_be_null(self) -> str:
+        return self.schema_section.get("x-gi-null", False)
+
+
 class Callback(Schema):
     """Represents a GObject Callback function schema."""
     
