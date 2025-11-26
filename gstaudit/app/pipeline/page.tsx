@@ -145,6 +145,30 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
   return { nodes, edges };
 };
 
+const detectSubpipelines = async (pipeline: GstPipeline | GstBin, parentName = ''): Promise<{ name: string; ptr: string }[]> => {
+  const subpipelines: { name: string; ptr: string }[] = [];
+  const iterator = await pipeline.iterate_elements();
+
+  for await (const obj of iterator) {
+    const element = await obj.castTo(GstElement);
+
+    if (await element.isOf(GstBin)) {
+      const bin = await element.castTo(GstBin);
+      const subpipelineName = await bin.get_name();
+      const fullName = parentName ? `${parentName} > ${subpipelineName}` : subpipelineName;
+
+      // Add the current subpipeline
+      subpipelines.push({ name: fullName, ptr: bin.ptr });
+
+      // Recursively detect subpipelines within this bin
+      const nestedSubpipelines = await detectSubpipelines(bin, fullName);
+      subpipelines.push(...nestedSubpipelines);
+    }
+  }
+
+  return subpipelines;
+};
+
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
 
@@ -180,15 +204,28 @@ export default function PipelinePage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const pipelinesData = await response.json();
-      setStatus(`Found ${pipelinesData.length} pipeline(s)`);
-      console.log('Pipelines:', pipelinesData);
 
-      setPipelines(pipelinesData);
+      const allPipelines: { name: string; ptr: string }[] = [];
 
-      if (pipelinesData.length > 0) {
-        setSelectedPipeline(pipelinesData[0].ptr); // Default to the first pipeline
-        setStatus(`Pipeline "${pipelinesData[0].name}" selected`);
-        await generateNodes(pipelinesData[0].ptr);
+      for (const pipeline of pipelinesData) {
+        const gstPipeline = new GstPipeline(pipeline.ptr, 'none');
+        const pipelineName = pipeline.name;
+
+        // Add the top-level pipeline
+        allPipelines.push({ name: pipelineName, ptr: gstPipeline.ptr });
+
+        // Detect subpipelines recursively
+        const subpipelines = await detectSubpipelines(gstPipeline, pipelineName);
+        allPipelines.push(...subpipelines);
+      }
+
+      setPipelines(allPipelines);
+      setStatus(`Found ${allPipelines.length} pipeline(s)`);
+      console.log('Pipelines:', allPipelines);
+      if (allPipelines.length > 0) {
+        setSelectedPipeline(allPipelines[0].ptr); // Default to the first pipeline
+        setStatus(`Pipeline "${allPipelines[0].name}" selected`);
+        await generateNodes(allPipelines[0].ptr);
       } else {
         setStatus('No pipelines found');
       }
@@ -428,7 +465,7 @@ export default function PipelinePage() {
               <select
                 value={selectedPipeline || ''}
                 onChange={(e) => setSelectedPipeline(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded"
+                className="px-4 py-2 border border-gray-300 rounded bg-white dark:bg-gray-800 dark:border-gray-700"
               >
                 {pipelines.map((pipeline) => (
                   <option key={pipeline.ptr} value={pipeline.ptr}>
