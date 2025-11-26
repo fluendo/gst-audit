@@ -36,6 +36,7 @@ export default function LogsPage() {
       port: conf.port,
       basePath: conf.basePath
     });
+    fetchCategories();
   }, []);
 
   const fetchCategories = useCallback(async () => {
