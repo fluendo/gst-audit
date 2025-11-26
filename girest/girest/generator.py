@@ -437,7 +437,10 @@ class Struct(Schema):
     info_type = "struct"
     def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
         super().__init__(name, schema_def, generator, parent)
-        self._methods: List[Method] = self.generator.get_methods_for_schema(self)
+        self._methods: List[Method] = [
+            m for m in self.generator.get_methods_for_schema(self)
+            if not m.schema_section.get("x-gi-gtype-struct-function", False)
+        ]
 
     @property
     def all_methods(self) -> List["Method"]:
@@ -474,7 +477,20 @@ class Object(Schema):
     info_type = "object"
     def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
         super().__init__(name, schema_def, generator, parent)
-        self._methods: List[Method] = self.generator.get_methods_for_schema(self)
+        if schema_def["x-gi-type"] != "struct":
+            self._methods: List[Method] = self.generator.get_methods_for_schema(self)
+        else:
+            self._methods: List[Method] = []
+
+        target_path = "/{}/{}".format(schema_def["x-gi-namespace"], schema_def["x-gi-class"])
+        for path, data in self.generator.paths.items():
+            if not path.startswith(target_path):
+                continue
+            for m, op in data.items():
+                m_path = "/{}/".format(schema_def["x-gi-namespace"])
+                method = Method(op, m_path, m, self, self.generator)
+                self._methods.append(method)
+
         self._parent_schema = None
         parent_class = self._extract_parent_name()
         if parent_class:
