@@ -133,36 +133,40 @@ export default function LogsPage() {
     } else {
       try {
         // Register the log function callback
-        const logFunction: GstLogFunction = async (
+        const logFunction: GstLogFunction = (
           category: GstDebugCategory,
           level: GstDebugLevelValue,
           file: string,
           function_: string,
           line: number,
           object: GObjectObject,
-          message: GstDebugMessage
+          message: GstDebugMessage,
+          user_data: any
         ) => {
-          try {
-            // Fetch the message text and category name
-            const [messageText, categoryName] = await Promise.all([
-              message.get(),
-              category.get_name()
-            ]);
+          // Process asynchronously but don't block the callback
+          (async () => {
+            try {
+              // Fetch the message text and category name
+              const [messageText, categoryName] = await Promise.all([
+                message.get(),
+                category.get_name()
+              ]);
 
-            const logEntry: LogEntry = {
-              timestamp: Date.now(),
-              category: categoryName,
-              level,
-              file,
-              function: function_,
-              line,
-              message: messageText
-            };
+              const logEntry: LogEntry = {
+                timestamp: Date.now(),
+                category: categoryName,
+                level,
+                file,
+                function: function_,
+                line,
+                message: messageText
+              };
 
-            setLogs(prev => [...prev, logEntry]);
-          } catch (e) {
-            console.error('Error processing log entry:', e);
-          }
+              setLogs(prev => [...prev, logEntry]);
+            } catch (e) {
+              console.error('Error processing log entry:', e);
+            }
+          })();
         };
 
         const callbackId = await Gst.debug_add_log_function(logFunction);
