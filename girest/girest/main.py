@@ -225,7 +225,6 @@ class GIRest():
         # Handle the parameters
         params = []
         response_props = {}
-        callback_schemas = {}  # Track callbacks for x-gi-callback field
         
         # Add self parameter for methods
         if GIRepository.function_info_get_flags(bim) & 1:
@@ -278,10 +277,12 @@ class GIRest():
                     # Generate the callback schema
                     self._generate_callback(interface)
                     full_name = f"{interface.get_namespace()}{interface.get_name()}"
-                    # Track this callback for the x-gi-callback field
-                    callback_schemas[arg_name] = f"#/components/schemas/{full_name}"
                     # Add callback ID to response
-                    response_props[arg_name] = {"type": "integer", "description": "Callback ID"}
+                    response_props[arg_name] = {
+                        "type": "integer",
+                        "description": "Callback ID",
+                        "x-gi-callback": f"#/components/schemas/{full_name}"
+                    }
                     continue
             
             # Handle output parameters - they go in the response
@@ -372,10 +373,6 @@ class GIRest():
             operation["x-gi-destructor"] = True
         if is_copy:
             operation["x-gi-copy"] = True
-        
-        # Add callback schema references if there are callbacks
-        if callback_schemas:
-            operation["x-gi-callbacks"] = callback_schemas
         
         # Add paths, components, etc. programmatically
         self.spec.path(path=api, operations={
