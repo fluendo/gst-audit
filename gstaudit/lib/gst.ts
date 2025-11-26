@@ -60,7 +60,11 @@ const objectRegistry = new FinalizationRegistry((ptr: string) => {
 });
 
 // Callback dispatcher for handling callbacks from the server
-const callbackDispatcher = new Map<string, Function>();
+interface CallbackEntry {
+  converter: (data: any) => any[];
+  userFunction: Function;
+}
+const callbackDispatcher = new Map<string, CallbackEntry>();
 
 let callbackSource: EventSource | null = null;
 let isReinitializing = false;
@@ -84,9 +88,10 @@ function initializeCallbackSource(): void {
     callbackSource.onmessage = (ev) => {
       try {
         const json = JSON.parse(ev.data);
-        const cb = callbackDispatcher.get(json.id.toString());
-        if (cb) {
-          cb(...Object.values(json.data));
+        const callbackEntry = callbackDispatcher.get(json.id.toString());
+        if (callbackEntry) {
+          const convertedArgs = callbackEntry.converter(json.data);
+          callbackEntry.userFunction(...convertedArgs);
         }
       } catch (error) {
         console.error('Error processing callback:', error);
@@ -4031,6 +4036,11 @@ return Promise.reject("Call failed");
 
 }
   export type GLibDestroyNotify = (data_: Pointer) => void;
+
+export function convertGLibDestroyNotifyArgs(data: any): Parameters<GLibDestroyNotify> {
+  return [
+    data.data  ];
+}
   
 // Finalization registry for GLibVariant
 const glibvariantRegistry = new FinalizationRegistry((ptr: string) => {
@@ -4396,7 +4406,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.notify !== undefined) {
-        callbackDispatcher.set(data.notify.toString(), notify);
+        callbackDispatcher.set(data.notify.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: notify
+        });
       }
         const result: any = {};
       // Handle return parameter: notify
@@ -8594,6 +8607,16 @@ return Promise.reject("Call failed");
 
 }
   export type GObjectmarshal = (closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: GObjectValue, invocation_hint: Pointer, marshal_data: Pointer) => void;
+
+export function convertGObjectmarshalArgs(data: any): Parameters<GObjectmarshal> {
+  return [
+    new GObjectClosure(data.closure, 'none'),
+    new GObjectValue(data.return_value, 'none'),
+    data.n_param_values,
+    new GObjectValue(data.param_values, 'none'),
+    data.invocation_hint,
+    data.marshal_data  ];
+}
   
 // Finalization registry for GObjectClosureNotifyData
 const gobjectclosurenotifydataRegistry = new FinalizationRegistry((ptr: string) => {
@@ -11523,6 +11546,11 @@ export class GObjectParameter {
   export type GObjectSignalFlags = "run_first" | "run_last" | "run_cleanup" | "no_recurse" | "detailed" | "action" | "no_hooks" | "must_collect" | "deprecated" | "accumulator_first_run";
 
   export type GObjectCallback = () => void;
+
+export function convertGObjectCallbackArgs(data: any): Parameters<GObjectCallback> {
+  return [
+  ];
+}
   
 export class GObjectSignalGroup extends GObjectObject {
 
@@ -11637,7 +11665,10 @@ export class GObjectSignalGroup extends GObjectObject {
       const data = await response.json();
       // Register callbacks
       if (data.c_handler !== undefined) {
-        callbackDispatcher.set(data.c_handler.toString(), c_handler);
+        callbackDispatcher.set(data.c_handler.toString(), {
+          converter: convertGObjectCallbackArgs,
+          userFunction: c_handler
+        });
       }
     return data.c_handler;
 
@@ -11669,7 +11700,10 @@ export class GObjectSignalGroup extends GObjectObject {
       const data = await response.json();
       // Register callbacks
       if (data.c_handler !== undefined) {
-        callbackDispatcher.set(data.c_handler.toString(), c_handler);
+        callbackDispatcher.set(data.c_handler.toString(), {
+          converter: convertGObjectCallbackArgs,
+          userFunction: c_handler
+        });
       }
     return data.c_handler;
 
@@ -12163,6 +12197,13 @@ export class GObjectTypeValueTable {
 
 }
   export type GLibCompareDataFunc = (a: Pointer, b: Pointer, user_data: Pointer) => number;
+
+export function convertGLibCompareDataFuncArgs(data: any): Parameters<GLibCompareDataFunc> {
+  return [
+    data.a,
+    data.b,
+    data.user_data  ];
+}
   
 // Finalization registry for GObjectValueArray
 const gobjectvaluearrayRegistry = new FinalizationRegistry((ptr: string) => {
@@ -12452,7 +12493,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.compare_func !== undefined) {
-        callbackDispatcher.set(data.compare_func.toString(), compare_func);
+        callbackDispatcher.set(data.compare_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: compare_func
+        });
       }
         const result: any = {};
       // Handle return parameter: compare_func
@@ -12656,11 +12700,52 @@ export class GObjectWeakRef {
 
 }
   export type GObjectBoxedCopyFunc = (boxed: Pointer) => Pointer;
+
+export function convertGObjectBoxedCopyFuncArgs(data: any): Parameters<GObjectBoxedCopyFunc> {
+  return [
+    data.boxed  ];
+}
   export type GObjectBoxedFreeFunc = (boxed: Pointer) => void;
+
+export function convertGObjectBoxedFreeFuncArgs(data: any): Parameters<GObjectBoxedFreeFunc> {
+  return [
+    data.boxed  ];
+}
   export type GObjectSignalEmissionHook = (ihint: GObjectSignalInvocationHint, n_param_values: number, param_values: Pointer, data_: Pointer) => boolean;
+
+export function convertGObjectSignalEmissionHookArgs(data: any): Parameters<GObjectSignalEmissionHook> {
+  return [
+    new GObjectSignalInvocationHint(data.ihint, 'none'),
+    data.n_param_values,
+    data.param_values,
+    data.data  ];
+}
   export type GObjectSignalAccumulator = (ihint: GObjectSignalInvocationHint, return_accu: GObjectValue, handler_return: GObjectValue, data_: Pointer) => boolean;
+
+export function convertGObjectSignalAccumulatorArgs(data: any): Parameters<GObjectSignalAccumulator> {
+  return [
+    new GObjectSignalInvocationHint(data.ihint, 'none'),
+    new GObjectValue(data.return_accu, 'none'),
+    new GObjectValue(data.handler_return, 'none'),
+    data.data  ];
+}
   export type GObjectClosureMarshal = (closure: GObjectClosure, return_value: GObjectValue, n_param_values: number, param_values: Pointer, invocation_hint: Pointer, marshal_data: Pointer) => void;
+
+export function convertGObjectClosureMarshalArgs(data: any): Parameters<GObjectClosureMarshal> {
+  return [
+    new GObjectClosure(data.closure, 'none'),
+    new GObjectValue(data.return_value, 'none'),
+    data.n_param_values,
+    data.param_values,
+    data.invocation_hint,
+    data.marshal_data  ];
+}
   export type GLibSourceFunc = (user_data: Pointer) => boolean;
+
+export function convertGLibSourceFuncArgs(data: any): Parameters<GLibSourceFunc> {
+  return [
+    data.user_data  ];
+}
   
 // Finalization registry for GLibSource
 const glibsourceRegistry = new FinalizationRegistry((ptr: string) => {
@@ -13288,7 +13373,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibSourceFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -14325,7 +14413,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.function !== undefined) {
-        callbackDispatcher.set(data.function.toString(), function_);
+        callbackDispatcher.set(data.function.toString(), {
+          converter: convertGLibSourceFuncArgs,
+          userFunction: function_
+        });
       }
     return data.function;
 
@@ -16200,7 +16291,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -16232,7 +16326,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -16364,7 +16461,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -16394,7 +16494,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -20321,6 +20424,12 @@ return Promise.reject("Call failed");
   export type GLibBookmarkFileError = "invalid_uri" | "invalid_value" | "app_not_registered" | "uri_not_found" | "read" | "unknown_encoding" | "write" | "file_not_found";
 
   export type GLibCompareFunc = (a: Pointer, b: Pointer) => number;
+
+export function convertGLibCompareFuncArgs(data: any): Parameters<GLibCompareFunc> {
+  return [
+    data.a,
+    data.b  ];
+}
   
 // Finalization registry for GLibByteArray
 const glibbytearrayRegistry = new FinalizationRegistry((ptr: string) => {
@@ -20720,7 +20829,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.compare_func !== undefined) {
-        callbackDispatcher.set(data.compare_func.toString(), compare_func);
+        callbackDispatcher.set(data.compare_func.toString(), {
+          converter: convertGLibCompareFuncArgs,
+          userFunction: compare_func
+        });
       }
     return data.compare_func;
 
@@ -20752,7 +20864,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.compare_func !== undefined) {
-        callbackDispatcher.set(data.compare_func.toString(), compare_func);
+        callbackDispatcher.set(data.compare_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: compare_func
+        });
       }
     return data.compare_func;
 
@@ -20953,6 +21068,13 @@ return Promise.reject("Call failed");
 
 }
   export type GLibHFunc = (key: Pointer, value_: Pointer, user_data: Pointer) => void;
+
+export function convertGLibHFuncArgs(data: any): Parameters<GLibHFunc> {
+  return [
+    data.key,
+    data.value,
+    data.user_data  ];
+}
   
 // Finalization registry for GLibCache
 const glibcacheRegistry = new FinalizationRegistry((ptr: string) => {
@@ -21092,7 +21214,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -21146,7 +21271,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -21784,7 +21912,19 @@ return Promise.reject("Call failed");
 
 }
   export type GLibCompletionFunc = (item: Pointer) => string;
+
+export function convertGLibCompletionFuncArgs(data: any): Parameters<GLibCompletionFunc> {
+  return [
+    data.item  ];
+}
   export type GLibCompletionStrncmpFunc = (s1: string, s2: string, n: number) => number;
+
+export function convertGLibCompletionStrncmpFuncArgs(data: any): Parameters<GLibCompletionStrncmpFunc> {
+  return [
+    data.s1,
+    data.s2,
+    data.n  ];
+}
   export type GLibConvertError = "no_conversion" | "illegal_sequence" | "failed" | "partial_input" | "bad_uri" | "not_absolute_path" | "no_memory" | "embedded_nul";
 
   
@@ -23492,8 +23632,24 @@ return Promise.reject("Call failed");
 
 }
   export type GLibErrorInitFunc = (error_: Pointer) => void;
+
+export function convertGLibErrorInitFuncArgs(data: any): Parameters<GLibErrorInitFunc> {
+  return [
+    data.error  ];
+}
   export type GLibErrorCopyFunc = (src_error: Pointer, dest_error: Pointer) => void;
+
+export function convertGLibErrorCopyFuncArgs(data: any): Parameters<GLibErrorCopyFunc> {
+  return [
+    data.src_error,
+    data.dest_error  ];
+}
   export type GLibErrorClearFunc = (error_: Pointer) => void;
+
+export function convertGLibErrorClearFuncArgs(data: any): Parameters<GLibErrorClearFunc> {
+  return [
+    data.error  ];
+}
   
 // Finalization registry for GLibError
 const gliberrorRegistry = new FinalizationRegistry((ptr: string) => {
@@ -23645,13 +23801,22 @@ export class GLibError {
       const data = await response.json();
       // Register callbacks
       if (data.error_type_init !== undefined) {
-        callbackDispatcher.set(data.error_type_init.toString(), error_type_init);
+        callbackDispatcher.set(data.error_type_init.toString(), {
+          converter: convertGLibErrorInitFuncArgs,
+          userFunction: error_type_init
+        });
       }
       if (data.error_type_copy !== undefined) {
-        callbackDispatcher.set(data.error_type_copy.toString(), error_type_copy);
+        callbackDispatcher.set(data.error_type_copy.toString(), {
+          converter: convertGLibErrorCopyFuncArgs,
+          userFunction: error_type_copy
+        });
       }
       if (data.error_type_clear !== undefined) {
-        callbackDispatcher.set(data.error_type_clear.toString(), error_type_clear);
+        callbackDispatcher.set(data.error_type_clear.toString(), {
+          converter: convertGLibErrorClearFuncArgs,
+          userFunction: error_type_clear
+        });
       }
         const result: any = {};
       // Handle return parameter: error_type_init
@@ -23705,13 +23870,22 @@ export class GLibError {
       const data = await response.json();
       // Register callbacks
       if (data.error_type_init !== undefined) {
-        callbackDispatcher.set(data.error_type_init.toString(), error_type_init);
+        callbackDispatcher.set(data.error_type_init.toString(), {
+          converter: convertGLibErrorInitFuncArgs,
+          userFunction: error_type_init
+        });
       }
       if (data.error_type_copy !== undefined) {
-        callbackDispatcher.set(data.error_type_copy.toString(), error_type_copy);
+        callbackDispatcher.set(data.error_type_copy.toString(), {
+          converter: convertGLibErrorCopyFuncArgs,
+          userFunction: error_type_copy
+        });
       }
       if (data.error_type_clear !== undefined) {
-        callbackDispatcher.set(data.error_type_clear.toString(), error_type_clear);
+        callbackDispatcher.set(data.error_type_clear.toString(), {
+          converter: convertGLibErrorClearFuncArgs,
+          userFunction: error_type_clear
+        });
       }
         const result: any = {};
       // Handle return parameter: error_type_init
@@ -23930,6 +24104,13 @@ export class GLibError {
   export type GLibFormatSizeFlags = "default" | "long_format" | "iec_units" | "bits" | "only_value" | "only_unit";
 
   export type GLibHRFunc = (key: Pointer, value_: Pointer, user_data: Pointer) => boolean;
+
+export function convertGLibHRFuncArgs(data: any): Parameters<GLibHRFunc> {
+  return [
+    data.key,
+    data.value,
+    data.user_data  ];
+}
   
 // Finalization registry for GLibHashTable
 const glibhashtableRegistry = new FinalizationRegistry((ptr: string) => {
@@ -24105,7 +24286,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.predicate !== undefined) {
-        callbackDispatcher.set(data.predicate.toString(), predicate);
+        callbackDispatcher.set(data.predicate.toString(), {
+          converter: convertGLibHRFuncArgs,
+          userFunction: predicate
+        });
       }
         const result: any = {};
       // Handle return parameter: predicate
@@ -24147,7 +24331,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -24179,7 +24366,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHRFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -24221,7 +24411,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHRFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -25323,6 +25516,12 @@ return Promise.reject("Call failed");
 
 }
   export type GLibHookCompareFunc = (new_hook: GLibHook, sibling: GLibHook) => number;
+
+export function convertGLibHookCompareFuncArgs(data: any): Parameters<GLibHookCompareFunc> {
+  return [
+    new GLibHook(data.new_hook, 'none'),
+    new GLibHook(data.sibling, 'none')  ];
+}
   
 // Finalization registry for GLibHook
 const glibhookRegistry = new FinalizationRegistry((ptr: string) => {
@@ -25554,7 +25753,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHookCompareFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -26039,7 +26241,19 @@ return Promise.reject("Call failed");
 
 }
   export type GLibHookMarshaller = (hook: GLibHook, marshal_data: Pointer) => void;
+
+export function convertGLibHookMarshallerArgs(data: any): Parameters<GLibHookMarshaller> {
+  return [
+    new GLibHook(data.hook, 'none'),
+    data.marshal_data  ];
+}
   export type GLibHookCheckMarshaller = (hook: GLibHook, marshal_data: Pointer) => boolean;
+
+export function convertGLibHookCheckMarshallerArgs(data: any): Parameters<GLibHookCheckMarshaller> {
+  return [
+    new GLibHook(data.hook, 'none'),
+    data.marshal_data  ];
+}
   
 // Finalization registry for GLibHookList
 const glibhooklistRegistry = new FinalizationRegistry((ptr: string) => {
@@ -26225,7 +26439,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.marshaller !== undefined) {
-        callbackDispatcher.set(data.marshaller.toString(), marshaller);
+        callbackDispatcher.set(data.marshaller.toString(), {
+          converter: convertGLibHookMarshallerArgs,
+          userFunction: marshaller
+        });
       }
     return data.marshaller;
 
@@ -26257,7 +26474,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.marshaller !== undefined) {
-        callbackDispatcher.set(data.marshaller.toString(), marshaller);
+        callbackDispatcher.set(data.marshaller.toString(), {
+          converter: convertGLibHookCheckMarshallerArgs,
+          userFunction: marshaller
+        });
       }
     return data.marshaller;
 
@@ -26626,6 +26846,12 @@ return Promise.reject("Call failed");
 
 }
   export type GLibHookFinalizeFunc = (hook_list: GLibHookList, hook: GLibHook) => void;
+
+export function convertGLibHookFinalizeFuncArgs(data: any): Parameters<GLibHookFinalizeFunc> {
+  return [
+    new GLibHookList(data.hook_list, 'none'),
+    new GLibHook(data.hook, 'none')  ];
+}
   export type GLibHookFlagMask = "active" | "in_call" | "mask";
 
   
@@ -31604,7 +31830,10 @@ export class GLibMarkupParseContext {
       const data = await response.json();
       // Register callbacks
       if (data.user_data_dnotify !== undefined) {
-        callbackDispatcher.set(data.user_data_dnotify.toString(), user_data_dnotify);
+        callbackDispatcher.set(data.user_data_dnotify.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: user_data_dnotify
+        });
       }
         const result: any = {};
       // Handle return parameter: user_data_dnotify
@@ -32487,6 +32716,13 @@ return Promise.reject("Call failed");
 
 }
   export type GLibRegexEvalCallback = (match_info: GLibMatchInfo, result_: GLibString, user_data: Pointer) => boolean;
+
+export function convertGLibRegexEvalCallbackArgs(data: any): Parameters<GLibRegexEvalCallback> {
+  return [
+    new GLibMatchInfo(data.match_info, 'none'),
+    new GLibString(data.result, 'none'),
+    data.user_data  ];
+}
   
 // Finalization registry for GLibRegex
 const glibregexRegistry = new FinalizationRegistry((ptr: string) => {
@@ -33010,7 +33246,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.eval !== undefined) {
-        callbackDispatcher.set(data.eval.toString(), eval_);
+        callbackDispatcher.set(data.eval.toString(), {
+          converter: convertGLibRegexEvalCallbackArgs,
+          userFunction: eval_
+        });
       }
         const result: any = {};
       // Handle return parameter: eval
@@ -33633,7 +33872,19 @@ export class GLibMemVTable {
 
 }
   export type GLibNodeForeachFunc = (node: GLibNode, data_: Pointer) => void;
+
+export function convertGLibNodeForeachFuncArgs(data: any): Parameters<GLibNodeForeachFunc> {
+  return [
+    new GLibNode(data.node, 'none'),
+    data.data  ];
+}
   export type GLibNodeTraverseFunc = (node: GLibNode, data_: Pointer) => boolean;
+
+export function convertGLibNodeTraverseFuncArgs(data: any): Parameters<GLibNodeTraverseFunc> {
+  return [
+    new GLibNode(data.node, 'none'),
+    data.data  ];
+}
   
 // Finalization registry for GLibNode
 const glibnodeRegistry = new FinalizationRegistry((ptr: string) => {
@@ -33783,7 +34034,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibNodeForeachFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -33999,7 +34253,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibNodeTraverseFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -34725,6 +34982,12 @@ return Promise.reject("Call failed");
   export type GLibOptionArg = "none" | "string" | "int" | "callback" | "filename" | "string_array" | "filename_array" | "double" | "int64";
 
   export type GLibTranslateFunc = (str: string, data_: Pointer) => string;
+
+export function convertGLibTranslateFuncArgs(data: any): Parameters<GLibTranslateFunc> {
+  return [
+    data.str,
+    data.data  ];
+}
   
 // Finalization registry for GLibOptionContext
 const gliboptioncontextRegistry = new FinalizationRegistry((ptr: string) => {
@@ -35287,7 +35550,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibTranslateFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -35366,7 +35632,10 @@ export class GLibOptionGroup {
       const data = await response.json();
       // Register callbacks
       if (data.destroy !== undefined) {
-        callbackDispatcher.set(data.destroy.toString(), destroy);
+        callbackDispatcher.set(data.destroy.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: destroy
+        });
       }
         const result: any = {};
       // Handle return parameter: destroy
@@ -35488,7 +35757,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibTranslateFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -36460,6 +36732,12 @@ export class GLibPtrArray {
 
 }
   export type GLibFunc = (data_: Pointer, user_data: Pointer) => void;
+
+export function convertGLibFuncArgs(data: any): Parameters<GLibFunc> {
+  return [
+    data.data,
+    data.user_data  ];
+}
   
 // Finalization registry for GLibQueue
 const glibqueueRegistry = new FinalizationRegistry((ptr: string) => {
@@ -36571,7 +36849,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.free_func !== undefined) {
-        callbackDispatcher.set(data.free_func.toString(), free_func);
+        callbackDispatcher.set(data.free_func.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: free_func
+        });
       }
     return data.free_func;
 
@@ -36601,7 +36882,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -36631,7 +36915,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.free_func !== undefined) {
-        callbackDispatcher.set(data.free_func.toString(), free_func);
+        callbackDispatcher.set(data.free_func.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: free_func
+        });
       }
     return data.free_func;
 
@@ -36739,7 +37026,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -37107,7 +37397,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.compare_func !== undefined) {
-        callbackDispatcher.set(data.compare_func.toString(), compare_func);
+        callbackDispatcher.set(data.compare_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: compare_func
+        });
       }
     return data.compare_func;
 
@@ -38684,7 +38977,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -39726,7 +40022,21 @@ export class GLibScannerConfig {
 
 }
   export type GLibScannerMsgFunc = (scanner: GLibScanner, message: string, error_: boolean) => void;
+
+export function convertGLibScannerMsgFuncArgs(data: any): Parameters<GLibScannerMsgFunc> {
+  return [
+    new GLibScanner(data.scanner, 'none'),
+    data.message,
+    data.error  ];
+}
   export type GLibSequenceIterCompareFunc = (a: GLibSequenceIter, b: GLibSequenceIter, data_: Pointer) => number;
+
+export function convertGLibSequenceIterCompareFuncArgs(data: any): Parameters<GLibSequenceIterCompareFunc> {
+  return [
+    new GLibSequenceIter(data.a, 'none'),
+    new GLibSequenceIter(data.b, 'none'),
+    data.data  ];
+}
   
 // Finalization registry for GLibSequence
 const glibsequenceRegistry = new FinalizationRegistry((ptr: string) => {
@@ -39848,7 +40158,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -39998,7 +40311,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.cmp_func !== undefined) {
-        callbackDispatcher.set(data.cmp_func.toString(), cmp_func);
+        callbackDispatcher.set(data.cmp_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: cmp_func
+        });
       }
         const result: any = {};
       // Handle return parameter: cmp_func
@@ -40044,7 +40360,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.iter_cmp !== undefined) {
-        callbackDispatcher.set(data.iter_cmp.toString(), iter_cmp);
+        callbackDispatcher.set(data.iter_cmp.toString(), {
+          converter: convertGLibSequenceIterCompareFuncArgs,
+          userFunction: iter_cmp
+        });
       }
         const result: any = {};
       // Handle return parameter: iter_cmp
@@ -40116,7 +40435,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.cmp_func !== undefined) {
-        callbackDispatcher.set(data.cmp_func.toString(), cmp_func);
+        callbackDispatcher.set(data.cmp_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: cmp_func
+        });
       }
         const result: any = {};
       // Handle return parameter: cmp_func
@@ -40162,7 +40484,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.iter_cmp !== undefined) {
-        callbackDispatcher.set(data.iter_cmp.toString(), iter_cmp);
+        callbackDispatcher.set(data.iter_cmp.toString(), {
+          converter: convertGLibSequenceIterCompareFuncArgs,
+          userFunction: iter_cmp
+        });
       }
         const result: any = {};
       // Handle return parameter: iter_cmp
@@ -40240,7 +40565,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.cmp_func !== undefined) {
-        callbackDispatcher.set(data.cmp_func.toString(), cmp_func);
+        callbackDispatcher.set(data.cmp_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: cmp_func
+        });
       }
         const result: any = {};
       // Handle return parameter: cmp_func
@@ -40286,7 +40614,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.iter_cmp !== undefined) {
-        callbackDispatcher.set(data.iter_cmp.toString(), iter_cmp);
+        callbackDispatcher.set(data.iter_cmp.toString(), {
+          converter: convertGLibSequenceIterCompareFuncArgs,
+          userFunction: iter_cmp
+        });
       }
         const result: any = {};
       // Handle return parameter: iter_cmp
@@ -40330,7 +40661,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.cmp_func !== undefined) {
-        callbackDispatcher.set(data.cmp_func.toString(), cmp_func);
+        callbackDispatcher.set(data.cmp_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: cmp_func
+        });
       }
     return data.cmp_func;
 
@@ -40360,7 +40694,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.cmp_func !== undefined) {
-        callbackDispatcher.set(data.cmp_func.toString(), cmp_func);
+        callbackDispatcher.set(data.cmp_func.toString(), {
+          converter: convertGLibSequenceIterCompareFuncArgs,
+          userFunction: cmp_func
+        });
       }
     return data.cmp_func;
 
@@ -40398,7 +40735,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -40684,7 +41024,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.cmp_func !== undefined) {
-        callbackDispatcher.set(data.cmp_func.toString(), cmp_func);
+        callbackDispatcher.set(data.cmp_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: cmp_func
+        });
       }
     return data.cmp_func;
 
@@ -40718,7 +41061,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.iter_cmp !== undefined) {
-        callbackDispatcher.set(data.iter_cmp.toString(), iter_cmp);
+        callbackDispatcher.set(data.iter_cmp.toString(), {
+          converter: convertGLibSequenceIterCompareFuncArgs,
+          userFunction: iter_cmp
+        });
       }
     return data.iter_cmp;
 
@@ -42216,6 +42562,11 @@ return Promise.reject("Call failed");
   export type GLibTestTrapFlags = "default" | "silence_stdout" | "silence_stderr" | "inherit_stdin";
 
   export type GLibThreadFunc = (data_: Pointer) => Pointer;
+
+export function convertGLibThreadFuncArgs(data: any): Parameters<GLibThreadFunc> {
+  return [
+    data.data  ];
+}
   
 // Finalization registry for GLibThread
 const glibthreadRegistry = new FinalizationRegistry((ptr: string) => {
@@ -42253,7 +42604,10 @@ export class GLibThread {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibThreadFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -42299,7 +42653,10 @@ export class GLibThread {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibThreadFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -43677,7 +44034,20 @@ return Promise.reject("Call failed");
 
 }
   export type GLibTraverseFunc = (key: Pointer, value_: Pointer, data_: Pointer) => boolean;
+
+export function convertGLibTraverseFuncArgs(data: any): Parameters<GLibTraverseFunc> {
+  return [
+    data.key,
+    data.value,
+    data.data  ];
+}
   export type GLibTraverseNodeFunc = (node: GLibTreeNode, data_: Pointer) => boolean;
+
+export function convertGLibTraverseNodeFuncArgs(data: any): Parameters<GLibTraverseNodeFunc> {
+  return [
+    new GLibTreeNode(data.node, 'none'),
+    data.data  ];
+}
   
 // Finalization registry for GLibTree
 const glibtreeRegistry = new FinalizationRegistry((ptr: string) => {
@@ -43713,10 +44083,16 @@ export class GLibTree {
       const data = await response.json();
       // Register callbacks
       if (data.key_compare_func !== undefined) {
-        callbackDispatcher.set(data.key_compare_func.toString(), key_compare_func);
+        callbackDispatcher.set(data.key_compare_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: key_compare_func
+        });
       }
       if (data.key_destroy_func !== undefined) {
-        callbackDispatcher.set(data.key_destroy_func.toString(), key_destroy_func);
+        callbackDispatcher.set(data.key_destroy_func.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: key_destroy_func
+        });
       }
         const result: any = {};
       // Handle return parameter: key_compare_func
@@ -43811,7 +44187,10 @@ export class GLibTree {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibTraverseFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -43841,7 +44220,10 @@ export class GLibTree {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibTraverseNodeFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -44318,7 +44700,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.search_func !== undefined) {
-        callbackDispatcher.set(data.search_func.toString(), search_func);
+        callbackDispatcher.set(data.search_func.toString(), {
+          converter: convertGLibCompareFuncArgs,
+          userFunction: search_func
+        });
       }
         const result: any = {};
       // Handle return parameter: search_func
@@ -44358,7 +44743,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.search_func !== undefined) {
-        callbackDispatcher.set(data.search_func.toString(), search_func);
+        callbackDispatcher.set(data.search_func.toString(), {
+          converter: convertGLibCompareFuncArgs,
+          userFunction: search_func
+        });
       }
         const result: any = {};
       // Handle return parameter: search_func
@@ -44432,7 +44820,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.traverse_func !== undefined) {
-        callbackDispatcher.set(data.traverse_func.toString(), traverse_func);
+        callbackDispatcher.set(data.traverse_func.toString(), {
+          converter: convertGLibTraverseFuncArgs,
+          userFunction: traverse_func
+        });
       }
     return data.traverse_func;
 
@@ -47390,14 +47781,70 @@ return Promise.reject("Call failed");
   export type GLibVariantParseError = "failed" | "basic_type_expected" | "cannot_infer_type" | "definite_type_expected" | "input_not_at_end" | "invalid_character" | "invalid_format_string" | "invalid_object_path" | "invalid_signature" | "invalid_type_string" | "no_common_type" | "number_out_of_range" | "number_too_big" | "type_error" | "unexpected_token" | "unknown_keyword" | "unterminated_string_constant" | "value_expected" | "recursion";
 
   export type GLibVoidFunc = () => void;
+
+export function convertGLibVoidFuncArgs(data: any): Parameters<GLibVoidFunc> {
+  return [
+  ];
+}
   export type GLibChildWatchFunc = (pid: number, wait_status: number, user_data: Pointer) => void;
+
+export function convertGLibChildWatchFuncArgs(data: any): Parameters<GLibChildWatchFunc> {
+  return [
+    data.pid,
+    data.wait_status,
+    data.user_data  ];
+}
   export type GLibDataForeachFunc = (key_id: number, data_: Pointer, user_data: Pointer) => void;
+
+export function convertGLibDataForeachFuncArgs(data: any): Parameters<GLibDataForeachFunc> {
+  return [
+    data.key_id,
+    data.data,
+    data.user_data  ];
+}
   export type GLibIOFunc = (source: GLibIOChannel, condition: GLibIOConditionValue, data_: Pointer) => boolean;
+
+export function convertGLibIOFuncArgs(data: any): Parameters<GLibIOFunc> {
+  return [
+    new GLibIOChannel(data.source, 'none'),
+    data.condition,
+    data.data  ];
+}
   export type GLibLogFunc = (log_domain: string, log_level: GLibLogLevelFlags, message: string, user_data: Pointer) => void;
+
+export function convertGLibLogFuncArgs(data: any): Parameters<GLibLogFunc> {
+  return [
+    data.log_domain,
+    data.log_level,
+    data.message,
+    data.user_data  ];
+}
   export type GLibSpawnChildSetupFunc = (data_: Pointer) => void;
+
+export function convertGLibSpawnChildSetupFuncArgs(data: any): Parameters<GLibSpawnChildSetupFunc> {
+  return [
+    data.data  ];
+}
   export type GLibTestDataFunc = (user_data: Pointer) => void;
+
+export function convertGLibTestDataFuncArgs(data: any): Parameters<GLibTestDataFunc> {
+  return [
+    data.user_data  ];
+}
   export type GLibTestFunc = () => void;
+
+export function convertGLibTestFuncArgs(data: any): Parameters<GLibTestFunc> {
+  return [
+  ];
+}
   export type GLibUnixFDSourceFunc = (fd: number, condition: GLibIOConditionValue, user_data: Pointer) => boolean;
+
+export function convertGLibUnixFDSourceFuncArgs(data: any): Parameters<GLibUnixFDSourceFunc> {
+  return [
+    data.fd,
+    data.condition,
+    data.user_data  ];
+}
   
 // Finalization registry for GstAllocationParams
 const gstallocationparamsRegistry = new FinalizationRegistry((ptr: string) => {
@@ -48876,7 +49323,10 @@ export class GstMemory {
       const data = await response.json();
       // Register callbacks
       if (data.notify !== undefined) {
-        callbackDispatcher.set(data.notify.toString(), notify);
+        callbackDispatcher.set(data.notify.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: notify
+        });
       }
         const result: any = {};
       // Handle return parameter: notify
@@ -49897,7 +50347,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.destroy !== undefined) {
-        callbackDispatcher.set(data.destroy.toString(), destroy);
+        callbackDispatcher.set(data.destroy.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: destroy
+        });
       }
     return data.destroy;
 
@@ -50520,8 +50973,23 @@ return Promise.reject("Call failed");
   export type GstLockFlagsValue = "read" | "write" | "exclusive" | "last";
 
   export type GstMiniObjectCopyFunction = (obj: GstMiniObject) => GstMiniObject;
+
+export function convertGstMiniObjectCopyFunctionArgs(data: any): Parameters<GstMiniObjectCopyFunction> {
+  return [
+    new GstMiniObject(data.obj, 'none')  ];
+}
   export type GstMiniObjectDisposeFunction = (obj: GstMiniObject) => boolean;
+
+export function convertGstMiniObjectDisposeFunctionArgs(data: any): Parameters<GstMiniObjectDisposeFunction> {
+  return [
+    new GstMiniObject(data.obj, 'none')  ];
+}
   export type GstMiniObjectFreeFunction = (obj: GstMiniObject) => void;
+
+export function convertGstMiniObjectFreeFunctionArgs(data: any): Parameters<GstMiniObjectFreeFunction> {
+  return [
+    new GstMiniObject(data.obj, 'none')  ];
+}
   export namespace GstAllocatorFlags {
   export const CUSTOM_ALLOC: 'custom_alloc' = 'custom_alloc';
   export const NO_COPY: 'no_copy' = 'no_copy';
@@ -50820,7 +51288,20 @@ return Promise.reject("Call failed");
 
 }
   export type GstElementCallAsyncFunc = (element: GstElement, user_data: Pointer) => void;
+
+export function convertGstElementCallAsyncFuncArgs(data: any): Parameters<GstElementCallAsyncFunc> {
+  return [
+    new GstElement(data.element, 'none'),
+    data.user_data  ];
+}
   export type GstElementForeachPadFunc = (element: GstElement, pad: GstPad, user_data: Pointer) => boolean;
+
+export function convertGstElementForeachPadFuncArgs(data: any): Parameters<GstElementForeachPadFunc> {
+  return [
+    new GstElement(data.element, 'none'),
+    new GstPad(data.pad, 'none'),
+    data.user_data  ];
+}
   
 export class GstElement extends GstObject {
 
@@ -51111,7 +51592,10 @@ export class GstElement extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstElementCallAsyncFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -51247,7 +51731,10 @@ export class GstElement extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstElementForeachPadFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -51287,7 +51774,10 @@ export class GstElement extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstElementForeachPadFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -51327,7 +51817,10 @@ export class GstElement extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstElementForeachPadFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -53684,7 +54177,18 @@ return Promise.reject("Call failed");
   export type GstURITypeValue = "unknown" | "sink" | "src";
 
   export type GstPluginInitFunc = (plugin: GstPlugin) => boolean;
+
+export function convertGstPluginInitFuncArgs(data: any): Parameters<GstPluginInitFunc> {
+  return [
+    new GstPlugin(data.plugin, 'none')  ];
+}
   export type GstPluginInitFullFunc = (plugin: GstPlugin, user_data: Pointer) => boolean;
+
+export function convertGstPluginInitFullFuncArgs(data: any): Parameters<GstPluginInitFullFunc> {
+  return [
+    new GstPlugin(data.plugin, 'none'),
+    data.user_data  ];
+}
   
 export class GstPlugin extends GstObject {
 
@@ -53820,7 +54324,10 @@ export class GstPlugin extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.init_func !== undefined) {
-        callbackDispatcher.set(data.init_func.toString(), init_func);
+        callbackDispatcher.set(data.init_func.toString(), {
+          converter: convertGstPluginInitFuncArgs,
+          userFunction: init_func
+        });
       }
         const result: any = {};
       // Handle return parameter: init_func
@@ -53878,7 +54385,10 @@ export class GstPlugin extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.init_full_func !== undefined) {
-        callbackDispatcher.set(data.init_full_func.toString(), init_full_func);
+        callbackDispatcher.set(data.init_full_func.toString(), {
+          converter: convertGstPluginInitFullFuncArgs,
+          userFunction: init_full_func
+        });
       }
         const result: any = {};
       // Handle return parameter: init_full_func
@@ -54520,8 +55030,29 @@ return Promise.reject("Call failed");
   export type GstPluginDependencyFlagsValue = "none" | "recurse" | "paths_are_default_only" | "file_name_is_suffix" | "file_name_is_prefix" | "paths_are_relative_to_exe";
 
   export type GstStructureFilterMapFunc = (field_id: number, value_: GObjectValue, user_data: Pointer) => boolean;
+
+export function convertGstStructureFilterMapFuncArgs(data: any): Parameters<GstStructureFilterMapFunc> {
+  return [
+    data.field_id,
+    new GObjectValue(data.value, 'none'),
+    data.user_data  ];
+}
   export type GstStructureForeachFunc = (field_id: number, value_: GObjectValue, user_data: Pointer) => boolean;
+
+export function convertGstStructureForeachFuncArgs(data: any): Parameters<GstStructureForeachFunc> {
+  return [
+    data.field_id,
+    new GObjectValue(data.value, 'none'),
+    data.user_data  ];
+}
   export type GstStructureMapFunc = (field_id: number, value_: GObjectValue, user_data: Pointer) => boolean;
+
+export function convertGstStructureMapFuncArgs(data: any): Parameters<GstStructureMapFunc> {
+  return [
+    data.field_id,
+    new GObjectValue(data.value, 'none'),
+    data.user_data  ];
+}
   
 // Finalization registry for GstStructure
 const gststructureRegistry = new FinalizationRegistry((ptr: string) => {
@@ -54779,7 +55310,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstStructureFilterMapFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -55011,7 +55545,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstStructureForeachFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -56077,7 +56614,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstStructureMapFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -57627,20 +58167,122 @@ return Promise.reject("Call failed");
   export type GstStateValue = "void_pending" | "null" | "ready" | "paused" | "playing";
 
   export type GstPadProbeCallback = (pad: GstPad, info: GstPadProbeInfo, user_data: Pointer) => GstPadProbeReturnValue;
+
+export function convertGstPadProbeCallbackArgs(data: any): Parameters<GstPadProbeCallback> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstPadProbeInfo(data.info, 'none'),
+    data.user_data  ];
+}
   export type GstPadForwardFunction = (pad: GstPad, user_data: Pointer) => boolean;
+
+export function convertGstPadForwardFunctionArgs(data: any): Parameters<GstPadForwardFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    data.user_data  ];
+}
   export type GstPadActivateFunction = (pad: GstPad, parent: GstObject) => boolean;
+
+export function convertGstPadActivateFunctionArgs(data: any): Parameters<GstPadActivateFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none')  ];
+}
   export type GstPadActivateModeFunction = (pad: GstPad, parent: GstObject, mode: GstPadModeValue, active: boolean) => boolean;
+
+export function convertGstPadActivateModeFunctionArgs(data: any): Parameters<GstPadActivateModeFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none'),
+    data.mode,
+    data.active  ];
+}
   export type GstPadChainFunction = (pad: GstPad, parent: GstObject, buffer: GstBuffer) => GstFlowReturnValue;
+
+export function convertGstPadChainFunctionArgs(data: any): Parameters<GstPadChainFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none'),
+    new GstBuffer(data.buffer, 'full')  ];
+}
   export type GstPadChainListFunction = (pad: GstPad, parent: GstObject, list: GstBufferList) => GstFlowReturnValue;
+
+export function convertGstPadChainListFunctionArgs(data: any): Parameters<GstPadChainListFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none'),
+    new GstBufferList(data.list, 'full')  ];
+}
   export type GstPadEventFullFunction = (pad: GstPad, parent: GstObject, event: GstEvent) => GstFlowReturnValue;
+
+export function convertGstPadEventFullFunctionArgs(data: any): Parameters<GstPadEventFullFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none'),
+    new GstEvent(data.event, 'full')  ];
+}
   export type GstPadEventFunction = (pad: GstPad, parent: GstObject, event: GstEvent) => boolean;
+
+export function convertGstPadEventFunctionArgs(data: any): Parameters<GstPadEventFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none'),
+    new GstEvent(data.event, 'full')  ];
+}
   export type GstPadGetRangeFunction = (pad: GstPad, parent: GstObject, offset: number, length: number, buffer: GstBuffer) => GstFlowReturnValue;
+
+export function convertGstPadGetRangeFunctionArgs(data: any): Parameters<GstPadGetRangeFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none'),
+    data.offset,
+    data.length,
+    new GstBuffer(data.buffer, 'none')  ];
+}
   export type GstPadIterIntLinkFunction = (pad: GstPad, parent: GstObject) => GstIterator;
+
+export function convertGstPadIterIntLinkFunctionArgs(data: any): Parameters<GstPadIterIntLinkFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none')  ];
+}
   export type GstPadLinkFunction = (pad: GstPad, parent: GstObject, peer: GstPad) => GstPadLinkReturnValue;
+
+export function convertGstPadLinkFunctionArgs(data: any): Parameters<GstPadLinkFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none'),
+    new GstPad(data.peer, 'none')  ];
+}
   export type GstPadQueryFunction = (pad: GstPad, parent: GstObject, query: GstQuery) => boolean;
+
+export function convertGstPadQueryFunctionArgs(data: any): Parameters<GstPadQueryFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none'),
+    new GstQuery(data.query, 'none')  ];
+}
   export type GstPadUnlinkFunction = (pad: GstPad, parent: GstObject) => void;
+
+export function convertGstPadUnlinkFunctionArgs(data: any): Parameters<GstPadUnlinkFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstObject(data.parent, 'none')  ];
+}
   export type GstTaskFunction = (user_data: Pointer) => void;
+
+export function convertGstTaskFunctionArgs(data: any): Parameters<GstTaskFunction> {
+  return [
+    data.user_data  ];
+}
   export type GstPadStickyEventsForeachFunction = (pad: GstPad, event: GstEvent, user_data: Pointer) => boolean;
+
+export function convertGstPadStickyEventsForeachFunctionArgs(data: any): Parameters<GstPadStickyEventsForeachFunction> {
+  return [
+    new GstPad(data.pad, 'none'),
+    new GstEvent(data.event, 'none'),
+    data.user_data  ];
+}
   
 export class GstPad extends GstObject {
 
@@ -57835,7 +58477,10 @@ export class GstPad extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.callback !== undefined) {
-        callbackDispatcher.set(data.callback.toString(), callback);
+        callbackDispatcher.set(data.callback.toString(), {
+          converter: convertGstPadProbeCallbackArgs,
+          userFunction: callback
+        });
       }
         const result: any = {};
       // Handle return parameter: callback
@@ -58057,7 +58702,10 @@ export class GstPad extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.forward !== undefined) {
-        callbackDispatcher.set(data.forward.toString(), forward);
+        callbackDispatcher.set(data.forward.toString(), {
+          converter: convertGstPadForwardFunctionArgs,
+          userFunction: forward
+        });
       }
         const result: any = {};
       // Handle return parameter: forward
@@ -59654,7 +60302,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.activate !== undefined) {
-        callbackDispatcher.set(data.activate.toString(), activate);
+        callbackDispatcher.set(data.activate.toString(), {
+          converter: convertGstPadActivateFunctionArgs,
+          userFunction: activate
+        });
       }
     return data.activate;
 
@@ -59684,7 +60335,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.activatemode !== undefined) {
-        callbackDispatcher.set(data.activatemode.toString(), activatemode);
+        callbackDispatcher.set(data.activatemode.toString(), {
+          converter: convertGstPadActivateModeFunctionArgs,
+          userFunction: activatemode
+        });
       }
     return data.activatemode;
 
@@ -59742,7 +60396,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.chain !== undefined) {
-        callbackDispatcher.set(data.chain.toString(), chain);
+        callbackDispatcher.set(data.chain.toString(), {
+          converter: convertGstPadChainFunctionArgs,
+          userFunction: chain
+        });
       }
     return data.chain;
 
@@ -59772,7 +60429,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.chainlist !== undefined) {
-        callbackDispatcher.set(data.chainlist.toString(), chainlist);
+        callbackDispatcher.set(data.chainlist.toString(), {
+          converter: convertGstPadChainListFunctionArgs,
+          userFunction: chainlist
+        });
       }
     return data.chainlist;
 
@@ -59826,7 +60486,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.event !== undefined) {
-        callbackDispatcher.set(data.event.toString(), event);
+        callbackDispatcher.set(data.event.toString(), {
+          converter: convertGstPadEventFullFunctionArgs,
+          userFunction: event
+        });
       }
     return data.event;
 
@@ -59856,7 +60519,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.event !== undefined) {
-        callbackDispatcher.set(data.event.toString(), event);
+        callbackDispatcher.set(data.event.toString(), {
+          converter: convertGstPadEventFunctionArgs,
+          userFunction: event
+        });
       }
     return data.event;
 
@@ -59886,7 +60552,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.get !== undefined) {
-        callbackDispatcher.set(data.get.toString(), get);
+        callbackDispatcher.set(data.get.toString(), {
+          converter: convertGstPadGetRangeFunctionArgs,
+          userFunction: get
+        });
       }
     return data.get;
 
@@ -59916,7 +60585,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.iterintlink !== undefined) {
-        callbackDispatcher.set(data.iterintlink.toString(), iterintlink);
+        callbackDispatcher.set(data.iterintlink.toString(), {
+          converter: convertGstPadIterIntLinkFunctionArgs,
+          userFunction: iterintlink
+        });
       }
     return data.iterintlink;
 
@@ -59946,7 +60618,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.link !== undefined) {
-        callbackDispatcher.set(data.link.toString(), link);
+        callbackDispatcher.set(data.link.toString(), {
+          converter: convertGstPadLinkFunctionArgs,
+          userFunction: link
+        });
       }
     return data.link;
 
@@ -60000,7 +60675,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.query !== undefined) {
-        callbackDispatcher.set(data.query.toString(), query);
+        callbackDispatcher.set(data.query.toString(), {
+          converter: convertGstPadQueryFunctionArgs,
+          userFunction: query
+        });
       }
     return data.query;
 
@@ -60030,7 +60708,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.unlink !== undefined) {
-        callbackDispatcher.set(data.unlink.toString(), unlink);
+        callbackDispatcher.set(data.unlink.toString(), {
+          converter: convertGstPadUnlinkFunctionArgs,
+          userFunction: unlink
+        });
       }
     return data.unlink;
 
@@ -60060,7 +60741,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstTaskFunctionArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -60100,7 +60784,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.foreach_func !== undefined) {
-        callbackDispatcher.set(data.foreach_func.toString(), foreach_func);
+        callbackDispatcher.set(data.foreach_func.toString(), {
+          converter: convertGstPadStickyEventsForeachFunctionArgs,
+          userFunction: foreach_func
+        });
       }
     return data.foreach_func;
 
@@ -60917,8 +61604,29 @@ return Promise.reject("Call failed");
   export type GstPadPresenceValue = "always" | "sometimes" | "request";
 
   export type GstCapsFilterMapFunc = (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean;
+
+export function convertGstCapsFilterMapFuncArgs(data: any): Parameters<GstCapsFilterMapFunc> {
+  return [
+    new GstCapsFeatures(data.features, 'none'),
+    new GstStructure(data.structure, 'none'),
+    data.user_data  ];
+}
   export type GstCapsForeachFunc = (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean;
+
+export function convertGstCapsForeachFuncArgs(data: any): Parameters<GstCapsForeachFunc> {
+  return [
+    new GstCapsFeatures(data.features, 'none'),
+    new GstStructure(data.structure, 'none'),
+    data.user_data  ];
+}
   export type GstCapsMapFunc = (features: GstCapsFeatures, structure: GstStructure, user_data: Pointer) => boolean;
+
+export function convertGstCapsMapFuncArgs(data: any): Parameters<GstCapsMapFunc> {
+  return [
+    new GstCapsFeatures(data.features, 'none'),
+    new GstStructure(data.structure, 'none'),
+    data.user_data  ];
+}
   
 // Finalization registry for GstCaps
 const gstcapsRegistry = new FinalizationRegistry((ptr: string) => {
@@ -61244,7 +61952,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstCapsFilterMapFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -61304,7 +62015,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstCapsForeachFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -61796,7 +62510,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstCapsMapFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -63798,6 +64515,13 @@ return Promise.reject("Call failed");
 
 }
   export type GstBufferForeachMetaFunc = (buffer: GstBuffer, meta: GstMeta, user_data: Pointer) => boolean;
+
+export function convertGstBufferForeachMetaFuncArgs(data: any): Parameters<GstBufferForeachMetaFunc> {
+  return [
+    new GstBuffer(data.buffer, 'none'),
+    new GstMeta(data.meta, 'full'),
+    data.user_data  ];
+}
   
 // Finalization registry for GstBuffer
 const gstbufferRegistry = new FinalizationRegistry((ptr: string) => {
@@ -64015,7 +64739,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.notify !== undefined) {
-        callbackDispatcher.set(data.notify.toString(), notify);
+        callbackDispatcher.set(data.notify.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: notify
+        });
       }
         const result: any = {};
       // Handle return parameter: notify
@@ -64622,7 +65349,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstBufferForeachMetaFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -66285,6 +67015,16 @@ return Promise.reject("Call failed");
 
 }
   export type GstCustomMetaTransformFunction = (transbuf: GstBuffer, meta: GstCustomMeta, buffer: GstBuffer, type_: number, data_: Pointer, user_data: Pointer) => boolean;
+
+export function convertGstCustomMetaTransformFunctionArgs(data: any): Parameters<GstCustomMetaTransformFunction> {
+  return [
+    new GstBuffer(data.transbuf, 'none'),
+    new GstCustomMeta(data.meta, 'none'),
+    new GstBuffer(data.buffer, 'none'),
+    data.type,
+    data.data,
+    data.user_data  ];
+}
   
 // Finalization registry for GstMeta
 const gstmetaRegistry = new FinalizationRegistry((ptr: string) => {
@@ -66660,7 +67400,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.transform_func !== undefined) {
-        callbackDispatcher.set(data.transform_func.toString(), transform_func);
+        callbackDispatcher.set(data.transform_func.toString(), {
+          converter: convertGstCustomMetaTransformFunctionArgs,
+          userFunction: transform_func
+        });
       }
         const result: any = {};
       // Handle return parameter: transform_func
@@ -67365,11 +68108,55 @@ return Promise.reject("Call failed");
 
 }
   export type GstMetaInitFunction = (meta: GstMeta, params: Pointer, buffer: GstBuffer) => boolean;
+
+export function convertGstMetaInitFunctionArgs(data: any): Parameters<GstMetaInitFunction> {
+  return [
+    new GstMeta(data.meta, 'none'),
+    data.params,
+    new GstBuffer(data.buffer, 'none')  ];
+}
   export type GstMetaFreeFunction = (meta: GstMeta, buffer: GstBuffer) => void;
+
+export function convertGstMetaFreeFunctionArgs(data: any): Parameters<GstMetaFreeFunction> {
+  return [
+    new GstMeta(data.meta, 'none'),
+    new GstBuffer(data.buffer, 'none')  ];
+}
   export type GstMetaTransformFunction = (transbuf: GstBuffer, meta: GstMeta, buffer: GstBuffer, type_: number, data_: Pointer) => boolean;
+
+export function convertGstMetaTransformFunctionArgs(data: any): Parameters<GstMetaTransformFunction> {
+  return [
+    new GstBuffer(data.transbuf, 'none'),
+    new GstMeta(data.meta, 'none'),
+    new GstBuffer(data.buffer, 'none'),
+    data.type,
+    data.data  ];
+}
   export type GstMetaSerializeFunction = (meta: GstMeta, data_: GstByteArrayInterface, version: number) => boolean;
+
+export function convertGstMetaSerializeFunctionArgs(data: any): Parameters<GstMetaSerializeFunction> {
+  return [
+    new GstMeta(data.meta, 'none'),
+    new GstByteArrayInterface(data.data, 'none'),
+    data.version  ];
+}
   export type GstMetaDeserializeFunction = (info: GstMetaInfo, buffer: GstBuffer, data_: number, size: number, version: number) => GstMeta;
+
+export function convertGstMetaDeserializeFunctionArgs(data: any): Parameters<GstMetaDeserializeFunction> {
+  return [
+    new GstMetaInfo(data.info, 'none'),
+    new GstBuffer(data.buffer, 'none'),
+    data.data,
+    data.size,
+    data.version  ];
+}
   export type GstMetaClearFunction = (buffer: GstBuffer, meta: GstMeta) => void;
+
+export function convertGstMetaClearFunctionArgs(data: any): Parameters<GstMetaClearFunction> {
+  return [
+    new GstBuffer(data.buffer, 'none'),
+    new GstMeta(data.meta, 'none')  ];
+}
   export namespace GstMetaFlags {
   export const NONE: 'none' = 'none';
   export const READONLY: 'readonly' = 'readonly';
@@ -68872,6 +69659,13 @@ export class GstBufferPoolAcquireParams {
   export type GstFlowReturnValue = "custom_success_2" | "custom_success_1" | "custom_success" | "ok" | "not_linked" | "flushing" | "eos" | "not_negotiated" | "error" | "not_supported" | "custom_error" | "custom_error_1" | "custom_error_2";
 
   export type GstBufferListFunc = (buffer: GstBuffer, idx: number, user_data: Pointer) => boolean;
+
+export function convertGstBufferListFuncArgs(data: any): Parameters<GstBufferListFunc> {
+  return [
+    new GstBuffer(data.buffer, 'full'),
+    data.idx,
+    data.user_data  ];
+}
   
 // Finalization registry for GstBufferList
 const gstbufferlistRegistry = new FinalizationRegistry((ptr: string) => {
@@ -69049,7 +69843,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstBufferListFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -71789,7 +72586,20 @@ export class GstFormatDefinition {
 
 }
   export type GstIteratorFoldFunction = (item: GObjectValue, ret: GObjectValue, user_data: Pointer) => boolean;
+
+export function convertGstIteratorFoldFunctionArgs(data: any): Parameters<GstIteratorFoldFunction> {
+  return [
+    new GObjectValue(data.item, 'none'),
+    new GObjectValue(data.ret, 'none'),
+    data.user_data  ];
+}
   export type GstIteratorForeachFunction = (item: GObjectValue, user_data: Pointer) => void;
+
+export function convertGstIteratorForeachFunctionArgs(data: any): Parameters<GstIteratorForeachFunction> {
+  return [
+    new GObjectValue(data.item, 'none'),
+    data.user_data  ];
+}
   
 // Finalization registry for GstIterator
 const gstiteratorRegistry = new FinalizationRegistry((ptr: string) => {
@@ -71956,7 +72766,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibCompareFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -72004,7 +72817,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibCompareFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -72048,7 +72864,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstIteratorFoldFunctionArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -72088,7 +72907,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstIteratorForeachFunctionArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -72832,7 +73654,19 @@ return Promise.reject("Call failed");
   export type GstIteratorResultValue = "done" | "ok" | "resync" | "error";
 
   export type GstIteratorCopyFunction = (it: GstIterator, copy: GstIterator) => void;
+
+export function convertGstIteratorCopyFunctionArgs(data: any): Parameters<GstIteratorCopyFunction> {
+  return [
+    new GstIterator(data.it, 'none'),
+    new GstIterator(data.copy, 'none')  ];
+}
   export type GstIteratorNextFunction = (it: GstIterator, result_: GObjectValue) => GstIteratorResultValue;
+
+export function convertGstIteratorNextFunctionArgs(data: any): Parameters<GstIteratorNextFunction> {
+  return [
+    new GstIterator(data.it, 'none'),
+    new GObjectValue(data.result, 'none')  ];
+}
   export namespace GstIteratorItem {
   export const SKIP: 'skip' = 'skip';
   export const PASS: 'pass' = 'pass';
@@ -72867,8 +73701,24 @@ return Promise.reject("Call failed");
   export type GstIteratorItemValue = "skip" | "pass" | "end";
 
   export type GstIteratorItemFunction = (it: GstIterator, item: GObjectValue) => GstIteratorItemValue;
+
+export function convertGstIteratorItemFunctionArgs(data: any): Parameters<GstIteratorItemFunction> {
+  return [
+    new GstIterator(data.it, 'none'),
+    new GObjectValue(data.item, 'none')  ];
+}
   export type GstIteratorResyncFunction = (it: GstIterator) => void;
+
+export function convertGstIteratorResyncFunctionArgs(data: any): Parameters<GstIteratorResyncFunction> {
+  return [
+    new GstIterator(data.it, 'none')  ];
+}
   export type GstIteratorFreeFunction = (it: GstIterator) => void;
+
+export function convertGstIteratorFreeFunctionArgs(data: any): Parameters<GstIteratorFreeFunction> {
+  return [
+    new GstIterator(data.it, 'none')  ];
+}
   export namespace GstEventType {
   export const UNKNOWN: 'unknown' = 'unknown';
   export const FLUSH_START: 'flush_start' = 'flush_start';
@@ -78379,6 +79229,14 @@ return Promise.reject("Call failed");
 
 }
   export type GstClockCallback = (clock: GstClock, time: number, id: Pointer, user_data: Pointer) => boolean;
+
+export function convertGstClockCallbackArgs(data: any): Parameters<GstClockCallback> {
+  return [
+    new GstClock(data.clock, 'none'),
+    data.time,
+    data.id,
+    data.user_data  ];
+}
   
 export class GstClock extends GstObject {
 
@@ -78643,7 +79501,10 @@ export class GstClock extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstClockCallbackArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -80117,6 +80978,13 @@ return Promise.reject("Call failed");
   export type GstProgressTypeValue = "start" | "continue" | "complete" | "canceled" | "error";
 
   export type GstTagForeachFunc = (list: GstTagList, tag: string, user_data: Pointer) => void;
+
+export function convertGstTagForeachFuncArgs(data: any): Parameters<GstTagForeachFunc> {
+  return [
+    new GstTagList(data.list, 'none'),
+    data.tag,
+    data.user_data  ];
+}
   
 // Finalization registry for GstTagList
 const gsttaglistRegistry = new FinalizationRegistry((ptr: string) => {
@@ -80298,7 +81166,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstTagForeachFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -87059,7 +87930,21 @@ return Promise.reject("Call failed");
   export type GstStateChangeValue = "null_to_ready" | "ready_to_paused" | "paused_to_playing" | "playing_to_paused" | "paused_to_ready" | "ready_to_null" | "null_to_null" | "ready_to_ready" | "paused_to_paused" | "playing_to_playing";
 
   export type GstBusFunc = (bus: GstBus, message: GstMessage, user_data: Pointer) => boolean;
+
+export function convertGstBusFuncArgs(data: any): Parameters<GstBusFunc> {
+  return [
+    new GstBus(data.bus, 'none'),
+    new GstMessage(data.message, 'none'),
+    data.user_data  ];
+}
   export type GstBusSyncHandler = (bus: GstBus, message: GstMessage, user_data: Pointer) => GstBusSyncReplyValue;
+
+export function convertGstBusSyncHandlerArgs(data: any): Parameters<GstBusSyncHandler> {
+  return [
+    new GstBus(data.bus, 'none'),
+    new GstMessage(data.message, 'none'),
+    data.user_data  ];
+}
   
 export class GstBus extends GstObject {
 
@@ -87164,7 +88049,10 @@ export class GstBus extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstBusFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -87590,7 +88478,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstBusSyncHandlerArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -93822,6 +94713,12 @@ return Promise.reject("Call failed");
 
 }
   export type GstPromiseChangeFunc = (promise: GstPromise, user_data: Pointer) => void;
+
+export function convertGstPromiseChangeFuncArgs(data: any): Parameters<GstPromiseChangeFunc> {
+  return [
+    new GstPromise(data.promise, 'none'),
+    data.user_data  ];
+}
   
 // Finalization registry for GstPromise
 const gstpromiseRegistry = new FinalizationRegistry((ptr: string) => {
@@ -93887,7 +94784,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstPromiseChangeFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -94199,7 +95099,19 @@ export class GstProxyPadPrivate {
 
 }
   export type GstPluginFeatureFilter = (feature: GstPluginFeature, user_data: Pointer) => boolean;
+
+export function convertGstPluginFeatureFilterArgs(data: any): Parameters<GstPluginFeatureFilter> {
+  return [
+    new GstPluginFeature(data.feature, 'none'),
+    data.user_data  ];
+}
   export type GstPluginFilter = (plugin: GstPlugin, user_data: Pointer) => boolean;
+
+export function convertGstPluginFilterArgs(data: any): Parameters<GstPluginFilter> {
+  return [
+    new GstPlugin(data.plugin, 'none'),
+    data.user_data  ];
+}
   
 export class GstRegistry extends GstObject {
 
@@ -94402,7 +95314,10 @@ export class GstRegistry extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.filter !== undefined) {
-        callbackDispatcher.set(data.filter.toString(), filter);
+        callbackDispatcher.set(data.filter.toString(), {
+          converter: convertGstPluginFeatureFilterArgs,
+          userFunction: filter
+        });
       }
         const result: any = {};
       // Handle return parameter: filter
@@ -94706,7 +95621,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.filter !== undefined) {
-        callbackDispatcher.set(data.filter.toString(), filter);
+        callbackDispatcher.set(data.filter.toString(), {
+          converter: convertGstPluginFilterArgs,
+          userFunction: filter
+        });
       }
         const result: any = {};
       // Handle return parameter: filter
@@ -94964,6 +95882,11 @@ export class GstRegistryPrivate {
   export type GstSearchModeValue = "exact" | "before" | "after";
 
   export type GstTaskPoolFunction = (user_data: Pointer) => void;
+
+export function convertGstTaskPoolFunctionArgs(data: any): Parameters<GstTaskPoolFunction> {
+  return [
+    data.user_data  ];
+}
   
 export class GstTaskPool extends GstObject {
 
@@ -95112,7 +96035,10 @@ export class GstTaskPool extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstTaskPoolFunctionArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -95578,6 +96504,13 @@ export class GstSystemClockPrivate {
   export type GstTagFlagValue = "undefined" | "meta" | "encoded" | "decoded" | "count";
 
   export type GstTaskThreadFunc = (task: GstTask, thread: GLibThread, user_data: Pointer) => void;
+
+export function convertGstTaskThreadFuncArgs(data: any): Parameters<GstTaskThreadFunc> {
+  return [
+    new GstTask(data.task, 'none'),
+    new GLibThread(data.thread, 'none'),
+    data.user_data  ];
+}
   
 export class GstTask extends GstObject {
 
@@ -95601,7 +96534,10 @@ export class GstTask extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstTaskFunctionArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -95805,7 +96741,10 @@ export class GstTask extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.enter_func !== undefined) {
-        callbackDispatcher.set(data.enter_func.toString(), enter_func);
+        callbackDispatcher.set(data.enter_func.toString(), {
+          converter: convertGstTaskThreadFuncArgs,
+          userFunction: enter_func
+        });
       }
     return data.enter_func;
 
@@ -95835,7 +96774,10 @@ export class GstTask extends GstObject {
       const data = await response.json();
       // Register callbacks
       if (data.leave_func !== undefined) {
-        callbackDispatcher.set(data.leave_func.toString(), leave_func);
+        callbackDispatcher.set(data.leave_func.toString(), {
+          converter: convertGstTaskThreadFuncArgs,
+          userFunction: leave_func
+        });
       }
     return data.leave_func;
 
@@ -96320,6 +97262,12 @@ export class GstTracerRecord extends GstObject {
   export type GstTracerValueScopeValue = "process" | "thread" | "element" | "pad";
 
   export type GstTypeFindFunction = (find: GstTypeFind, user_data: Pointer) => void;
+
+export function convertGstTypeFindFunctionArgs(data: any): Parameters<GstTypeFindFunction> {
+  return [
+    new GstTypeFind(data.find, 'none'),
+    data.user_data  ];
+}
   
 // Finalization registry for GstTypeFind
 const gsttypefindRegistry = new FinalizationRegistry((ptr: string) => {
@@ -96533,7 +97481,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstTypeFindFunctionArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -96710,8 +97661,27 @@ return Promise.reject("Call failed");
 
 }
   export type Gstpeek = (data_: Pointer, offset: number, size: number) => number;
+
+export function convertGstpeekArgs(data: any): Parameters<Gstpeek> {
+  return [
+    data.data,
+    data.offset,
+    data.size  ];
+}
   export type Gstsuggest = (data_: Pointer, probability: number, caps: GstCaps) => void;
+
+export function convertGstsuggestArgs(data: any): Parameters<Gstsuggest> {
+  return [
+    data.data,
+    data.probability,
+    new GstCaps(data.caps, 'none')  ];
+}
   export type Gstget_length = (data_: Pointer) => number;
+
+export function convertGstget_lengthArgs(data: any): Parameters<Gstget_length> {
+  return [
+    data.data  ];
+}
   
 export class GstTypeFindFactory extends GstPluginFeature {
 
@@ -99033,6 +100003,128 @@ export class GstValueTable {
 
 }
   export type GstLogFunction = (category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, object: GObjectObject, message: GstDebugMessage, user_data: Pointer) => void;
+
+export function convertGstLogFunctionArgs(data: any): Parameters<GstLogFunction> {
+  return [
+    new GstDebugCategory(data.category, 'none'),
+    data.level,
+    data.file,
+    data.function,
+    data.line,
+    new GObjectObject(data.object, 'none'),
+    new GstDebugMessage(data.message, 'none'),
+    data.user_data  ];
+}
+  export namespace GModule {
+  
+
+
+
+
+
+ 
+  export async function module_build_path(module_name: string, directory?: string): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_build_path`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (directory !== undefined) url.searchParams.append('directory', String(directory));
+    // Primitive parameter
+    url.searchParams.append('module_name', String(module_name));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function module_error(): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function module_error_quark(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error_quark`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function module_supported(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_supported`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+}
   export namespace GObject {
   
 
@@ -99111,10 +100203,16 @@ export class GstValueTable {
       const data = await response.json();
       // Register callbacks
       if (data.boxed_copy !== undefined) {
-        callbackDispatcher.set(data.boxed_copy.toString(), boxed_copy);
+        callbackDispatcher.set(data.boxed_copy.toString(), {
+          converter: convertGObjectBoxedCopyFuncArgs,
+          userFunction: boxed_copy
+        });
       }
       if (data.boxed_free !== undefined) {
-        callbackDispatcher.set(data.boxed_free.toString(), boxed_free);
+        callbackDispatcher.set(data.boxed_free.toString(), {
+          converter: convertGObjectBoxedFreeFuncArgs,
+          userFunction: boxed_free
+        });
       }
         const result: any = {};
       // Handle return parameter: boxed_copy
@@ -101800,7 +102898,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.hook_func !== undefined) {
-        callbackDispatcher.set(data.hook_func.toString(), hook_func);
+        callbackDispatcher.set(data.hook_func.toString(), {
+          converter: convertGObjectSignalEmissionHookArgs,
+          userFunction: hook_func
+        });
       }
         const result: any = {};
       // Handle return parameter: hook_func
@@ -102514,10 +103615,16 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.accumulator !== undefined) {
-        callbackDispatcher.set(data.accumulator.toString(), accumulator);
+        callbackDispatcher.set(data.accumulator.toString(), {
+          converter: convertGObjectSignalAccumulatorArgs,
+          userFunction: accumulator
+        });
       }
       if (data.c_marshaller !== undefined) {
-        callbackDispatcher.set(data.c_marshaller.toString(), c_marshaller);
+        callbackDispatcher.set(data.c_marshaller.toString(), {
+          converter: convertGObjectClosureMarshalArgs,
+          userFunction: c_marshaller
+        });
       }
         const result: any = {};
       // Handle return parameter: accumulator
@@ -102596,7 +103703,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.class_handler !== undefined) {
-        callbackDispatcher.set(data.class_handler.toString(), class_handler);
+        callbackDispatcher.set(data.class_handler.toString(), {
+          converter: convertGObjectCallbackArgs,
+          userFunction: class_handler
+        });
       }
     return data.class_handler;
 
@@ -104631,7 +105741,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstLogFunctionArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -105215,7 +106328,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstLogFunctionArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -106432,7 +107548,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.transform_func !== undefined) {
-        callbackDispatcher.set(data.transform_func.toString(), transform_func);
+        callbackDispatcher.set(data.transform_func.toString(), {
+          converter: convertGstCustomMetaTransformFunctionArgs,
+          userFunction: transform_func
+        });
       }
         const result: any = {};
       // Handle return parameter: transform_func
@@ -107947,7 +109066,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGObjectCallbackArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -108017,7 +109139,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstTypeFindFunctionArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -108471,7 +109596,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.search_func !== undefined) {
-        callbackDispatcher.set(data.search_func.toString(), search_func);
+        callbackDispatcher.set(data.search_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: search_func
+        });
       }
         const result: any = {};
       // Handle return parameter: search_func
@@ -111913,7 +113041,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibVoidFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -112749,7 +113880,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.clear_func !== undefined) {
-        callbackDispatcher.set(data.clear_func.toString(), clear_func);
+        callbackDispatcher.set(data.clear_func.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: clear_func
+        });
       }
     return data.clear_func;
 
@@ -113772,7 +114906,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.compare_func !== undefined) {
-        callbackDispatcher.set(data.compare_func.toString(), compare_func);
+        callbackDispatcher.set(data.compare_func.toString(), {
+          converter: convertGLibCompareFuncArgs,
+          userFunction: compare_func
+        });
       }
     return data.compare_func;
 
@@ -113804,7 +114941,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.compare_func !== undefined) {
-        callbackDispatcher.set(data.compare_func.toString(), compare_func);
+        callbackDispatcher.set(data.compare_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: compare_func
+        });
       }
     return data.compare_func;
 
@@ -114018,7 +115158,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.function !== undefined) {
-        callbackDispatcher.set(data.function.toString(), function_);
+        callbackDispatcher.set(data.function.toString(), {
+          converter: convertGLibChildWatchFuncArgs,
+          userFunction: function_
+        });
       }
         const result: any = {};
       // Handle return parameter: function
@@ -114562,7 +115705,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibDataForeachFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -114798,7 +115944,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibDataForeachFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -115582,13 +116731,22 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.error_type_init !== undefined) {
-        callbackDispatcher.set(data.error_type_init.toString(), error_type_init);
+        callbackDispatcher.set(data.error_type_init.toString(), {
+          converter: convertGLibErrorInitFuncArgs,
+          userFunction: error_type_init
+        });
       }
       if (data.error_type_copy !== undefined) {
-        callbackDispatcher.set(data.error_type_copy.toString(), error_type_copy);
+        callbackDispatcher.set(data.error_type_copy.toString(), {
+          converter: convertGLibErrorCopyFuncArgs,
+          userFunction: error_type_copy
+        });
       }
       if (data.error_type_clear !== undefined) {
-        callbackDispatcher.set(data.error_type_clear.toString(), error_type_clear);
+        callbackDispatcher.set(data.error_type_clear.toString(), {
+          converter: convertGLibErrorClearFuncArgs,
+          userFunction: error_type_clear
+        });
       }
         const result: any = {};
       // Handle return parameter: error_type_init
@@ -115642,13 +116800,22 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.error_type_init !== undefined) {
-        callbackDispatcher.set(data.error_type_init.toString(), error_type_init);
+        callbackDispatcher.set(data.error_type_init.toString(), {
+          converter: convertGLibErrorInitFuncArgs,
+          userFunction: error_type_init
+        });
       }
       if (data.error_type_copy !== undefined) {
-        callbackDispatcher.set(data.error_type_copy.toString(), error_type_copy);
+        callbackDispatcher.set(data.error_type_copy.toString(), {
+          converter: convertGLibErrorCopyFuncArgs,
+          userFunction: error_type_copy
+        });
       }
       if (data.error_type_clear !== undefined) {
-        callbackDispatcher.set(data.error_type_clear.toString(), error_type_clear);
+        callbackDispatcher.set(data.error_type_clear.toString(), {
+          converter: convertGLibErrorClearFuncArgs,
+          userFunction: error_type_clear
+        });
       }
         const result: any = {};
       // Handle return parameter: error_type_init
@@ -117361,7 +118528,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.predicate !== undefined) {
-        callbackDispatcher.set(data.predicate.toString(), predicate);
+        callbackDispatcher.set(data.predicate.toString(), {
+          converter: convertGLibHRFuncArgs,
+          userFunction: predicate
+        });
       }
         const result: any = {};
       // Handle return parameter: predicate
@@ -117403,7 +118573,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -117435,7 +118608,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHRFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -117477,7 +118653,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHRFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -118051,7 +119230,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibHookCompareFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -118283,7 +119465,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.function !== undefined) {
-        callbackDispatcher.set(data.function.toString(), function_);
+        callbackDispatcher.set(data.function.toString(), {
+          converter: convertGLibSourceFuncArgs,
+          userFunction: function_
+        });
       }
         const result: any = {};
       // Handle return parameter: function
@@ -118561,7 +119746,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibIOFuncArgs,
+          userFunction: func
+        });
       }
         const result: any = {};
       // Handle return parameter: func
@@ -119049,7 +120237,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.log_func !== undefined) {
-        callbackDispatcher.set(data.log_func.toString(), log_func);
+        callbackDispatcher.set(data.log_func.toString(), {
+          converter: convertGLibLogFuncArgs,
+          userFunction: log_func
+        });
       }
         const result: any = {};
       // Handle return parameter: log_func
@@ -120873,7 +122064,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.compare_func !== undefined) {
-        callbackDispatcher.set(data.compare_func.toString(), compare_func);
+        callbackDispatcher.set(data.compare_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: compare_func
+        });
       }
     return data.compare_func;
 
@@ -121319,7 +122513,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.clear_func !== undefined) {
-        callbackDispatcher.set(data.clear_func.toString(), clear_func);
+        callbackDispatcher.set(data.clear_func.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: clear_func
+        });
       }
     return data.clear_func;
 
@@ -121991,7 +123188,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), func);
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGLibFuncArgs,
+          userFunction: func
+        });
       }
     return data.func;
 
@@ -122277,7 +123477,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.cmp_func !== undefined) {
-        callbackDispatcher.set(data.cmp_func.toString(), cmp_func);
+        callbackDispatcher.set(data.cmp_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: cmp_func
+        });
       }
     return data.cmp_func;
 
@@ -122311,7 +123514,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.iter_cmp !== undefined) {
-        callbackDispatcher.set(data.iter_cmp.toString(), iter_cmp);
+        callbackDispatcher.set(data.iter_cmp.toString(), {
+          converter: convertGLibSequenceIterCompareFuncArgs,
+          userFunction: iter_cmp
+        });
       }
     return data.iter_cmp;
 
@@ -123032,7 +124238,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.child_setup !== undefined) {
-        callbackDispatcher.set(data.child_setup.toString(), child_setup);
+        callbackDispatcher.set(data.child_setup.toString(), {
+          converter: convertGLibSpawnChildSetupFuncArgs,
+          userFunction: child_setup
+        });
       }
         const result: any = {};
       // Handle return parameter: child_setup
@@ -123091,7 +124300,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.child_setup !== undefined) {
-        callbackDispatcher.set(data.child_setup.toString(), child_setup);
+        callbackDispatcher.set(data.child_setup.toString(), {
+          converter: convertGLibSpawnChildSetupFuncArgs,
+          userFunction: child_setup
+        });
       }
         const result: any = {};
       // Handle return parameter: child_setup
@@ -123144,7 +124356,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.child_setup !== undefined) {
-        callbackDispatcher.set(data.child_setup.toString(), child_setup);
+        callbackDispatcher.set(data.child_setup.toString(), {
+          converter: convertGLibSpawnChildSetupFuncArgs,
+          userFunction: child_setup
+        });
       }
         const result: any = {};
       // Handle return parameter: child_setup
@@ -123224,7 +124439,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.child_setup !== undefined) {
-        callbackDispatcher.set(data.child_setup.toString(), child_setup);
+        callbackDispatcher.set(data.child_setup.toString(), {
+          converter: convertGLibSpawnChildSetupFuncArgs,
+          userFunction: child_setup
+        });
       }
         const result: any = {};
       // Handle return parameter: child_setup
@@ -123500,7 +124718,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.child_setup !== undefined) {
-        callbackDispatcher.set(data.child_setup.toString(), child_setup);
+        callbackDispatcher.set(data.child_setup.toString(), {
+          converter: convertGLibSpawnChildSetupFuncArgs,
+          userFunction: child_setup
+        });
       }
         const result: any = {};
       // Handle return parameter: child_setup
@@ -124853,7 +126074,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.test_func !== undefined) {
-        callbackDispatcher.set(data.test_func.toString(), test_func);
+        callbackDispatcher.set(data.test_func.toString(), {
+          converter: convertGLibTestDataFuncArgs,
+          userFunction: test_func
+        });
       }
     return data.test_func;
 
@@ -124887,7 +126111,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.test_func !== undefined) {
-        callbackDispatcher.set(data.test_func.toString(), test_func);
+        callbackDispatcher.set(data.test_func.toString(), {
+          converter: convertGLibTestDataFuncArgs,
+          userFunction: test_func
+        });
       }
     return data.test_func;
 
@@ -124919,7 +126146,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.test_func !== undefined) {
-        callbackDispatcher.set(data.test_func.toString(), test_func);
+        callbackDispatcher.set(data.test_func.toString(), {
+          converter: convertGLibTestFuncArgs,
+          userFunction: test_func
+        });
       }
     return data.test_func;
 
@@ -125233,7 +126463,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.destroy_func !== undefined) {
-        callbackDispatcher.set(data.destroy_func.toString(), destroy_func);
+        callbackDispatcher.set(data.destroy_func.toString(), {
+          converter: convertGLibDestroyNotifyArgs,
+          userFunction: destroy_func
+        });
       }
     return data.destroy_func;
 
@@ -126085,7 +127318,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.function !== undefined) {
-        callbackDispatcher.set(data.function.toString(), function_);
+        callbackDispatcher.set(data.function.toString(), {
+          converter: convertGLibSourceFuncArgs,
+          userFunction: function_
+        });
       }
         const result: any = {};
       // Handle return parameter: function
@@ -126129,7 +127365,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.function !== undefined) {
-        callbackDispatcher.set(data.function.toString(), function_);
+        callbackDispatcher.set(data.function.toString(), {
+          converter: convertGLibSourceFuncArgs,
+          userFunction: function_
+        });
       }
         const result: any = {};
       // Handle return parameter: function
@@ -127720,7 +128959,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.function !== undefined) {
-        callbackDispatcher.set(data.function.toString(), function_);
+        callbackDispatcher.set(data.function.toString(), {
+          converter: convertGLibUnixFDSourceFuncArgs,
+          userFunction: function_
+        });
       }
         const result: any = {};
       // Handle return parameter: function
@@ -127886,7 +129128,10 @@ return Promise.reject("Call failed");
       const data = await response.json();
       // Register callbacks
       if (data.handler !== undefined) {
-        callbackDispatcher.set(data.handler.toString(), handler);
+        callbackDispatcher.set(data.handler.toString(), {
+          converter: convertGLibSourceFuncArgs,
+          userFunction: handler
+        });
       }
         const result: any = {};
       // Handle return parameter: handler
@@ -130176,116 +131421,6 @@ return Promise.reject("Call failed");
 
       })();
       return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-}
-  export namespace GModule {
-  
-
-
-
-
-
- 
-  export async function module_build_path(module_name: string, directory?: string): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_build_path`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (directory !== undefined) url.searchParams.append('directory', String(directory));
-    // Primitive parameter
-    url.searchParams.append('module_name', String(module_name));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function module_error(): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function module_error_quark(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error_quark`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function module_supported(): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_supported`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
 
     } catch (error) {
       // If there's an error, unref the objects we ref'd

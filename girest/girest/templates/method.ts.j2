@@ -81,7 +81,10 @@
       // Register callbacks
 {% for cb in method.callback_params %}
       if (data.{{ cb.name }} !== undefined) {
-        callbackDispatcher.set(data.{{ cb.name }}.toString(), {{ cb.valid_name }});
+        callbackDispatcher.set(data.{{ cb.name }}.toString(), {
+          converter: convert{{ cb.callback.name }}Args,
+          userFunction: {{ cb.valid_name }}
+        });
       }
 {% endfor %}
 {% endif %}
