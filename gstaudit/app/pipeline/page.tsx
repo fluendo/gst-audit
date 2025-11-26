@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -402,6 +402,7 @@ export default function PipelinePage() {
       await generateNode(pipeline, nodeArray);
 
       // Generate edges between connected elements
+      console.error("Generating edges");
       setStatus('Generating edges...');
       const edgeArray = await generateEdges(nodeArray);
 
@@ -411,6 +412,7 @@ export default function PipelinePage() {
       setNodes(layouted.nodes);
       setEdges(layouted.edges);
       setStatus(`Pipeline successfully loaded with ${layouted.nodes.length} nodes and ${layouted.edges.length} edges`);
+      console.error("Generating edges done");
     } catch (error) {
       console.error('Error in direct node generation:', error);
       setStatus(`Error loading pipeline: ${error instanceof Error ? error.message : 'Unknown error'}`);

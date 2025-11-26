@@ -33,6 +33,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
   // Update React Flow internals when pads are loaded
   useEffect(() => {
     if (!loading && !error) {
+      console.error(`Updating internals for ElementNode: ${elementName}`);
       updateNodeInternals(id);
     }
   }, [sinkPads, srcPads, loading, error, updateNodeInternals, id]);
@@ -75,7 +76,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
       {/* Render sink pads using PadHandle component */}
       {sinkPads.map((pad, index) => (
         <PadHandle
-          key={`sink-${index}`}
+          key={`${elementName}-sink-${index}`}
           pad={pad}
           index={index}
           count={sinkPads.length}
@@ -86,7 +87,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
       {/* Render source pads using PadHandle component */}
       {srcPads.map((pad, index) => (
         <PadHandle
-          key={`src-${index}`}
+          key={`${elementName}-src-${index}`}
           pad={pad}
           index={index}
           count={srcPads.length}
