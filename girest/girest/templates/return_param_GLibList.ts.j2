@@ -1,0 +1,20 @@
+{% set transferType = return_param.transfer %}
+{% set head = 'undefined' %}
+{% set subType = return_param.type.subtype.lang_type %}
+{% if return_param.parent.parent.parent.valid_name == 'GLibList' %}
+  {% set transferType = 'none' %}
+  {% set subType = 'this.TargetClass' %}
+	{% if return_param.parent.parent.valid_name != 'new' %}
+    {% set head = 'this.head' %}
+	{% else %}
+    {% set subType = 'TargetClass' %}
+	{% endif %}
+{% endif %}
+{# We need to know if the return comes from a method of GList itself, in that case the head is this.head #}
+// Return value is a List, instantiate it from the ptr
+if (data.{{ return_param.name }} && typeof data.{{ return_param.name }} === 'object' && 'ptr' in data.{{ return_param.name }}) {
+  const instance = new {{ return_param.type.ref_schema.valid_name }}(data.{{ return_param.name }}.ptr, '{{ transferType }}', {{ subType }}, {{ head }});
+  return instance;
+}
+return Promise.reject("Call failed");
+

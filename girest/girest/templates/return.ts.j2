@@ -1,1 +1,16 @@
-      return data.return;
+{# Return template #}
+{% if return.return_params|length == 1 %}
+  {# Single return parameter - return the first param value directly #}
+  {% set return_param = return.return_params[0] %}
+  {{ return_param.generate() }}
+{% else %}
+  {# Multiple return parameters - aggregate them into a single dict #}
+      const result: any = {};
+  {% for return_param in return.return_params %}
+      // Handle return parameter: {{ return_param.name }}
+      result.{{ return_param.name }} = (() => {
+        {{ return_param.generate()|indent(8) }}
+      })();
+  {% endfor %}
+      return result;
+{% endif %}

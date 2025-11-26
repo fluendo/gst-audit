@@ -1,2 +1,9 @@
 {# Callback template - handles callback function types as TypeScript type aliases #}
-export type {{ callback.name }} = {{ callback.callback_signature }};
+{% set params = [] %}
+{% for param in callback.parameters %}
+  {% set ts_type = param.type.lang_type %}
+  {% set _ = params.append(param.valid_name + ": " + ts_type) %}
+{% endfor %}
+{% set params_string = params | join(", ") %}
+{% set return_type = callback.return_param.type.lang_type if callback.return_param else 'void' %}
+export type {{ callback.name }} = ({{ params_string }}) => {{ return_type }};
