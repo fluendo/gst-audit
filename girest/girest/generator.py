@@ -443,7 +443,7 @@ class Enum(Schema):
 
 
 class Flags(Enum):
-    """Represents a GOBject flags schema (bitfield enum)."""
+    """Represents a GObject flags schema (bitfield enum)."""
     
     info_type = "flags"
     
