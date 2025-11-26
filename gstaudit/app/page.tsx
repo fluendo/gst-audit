@@ -94,6 +94,15 @@ export default function Home() {
                 Browse all available GStreamer elements grouped by category
               </p>
             </Link>
+            <Link 
+              href="/logs" 
+              className="block p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-blue-500 transition-colors"
+            >
+              <h3 className="text-xl font-semibold mb-2">Debug Logs</h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Inspect live debug output and configure log levels dynamically.
+              </p>
+            </Link>
           </div>
         </section>
 
