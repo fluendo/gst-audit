@@ -42,6 +42,8 @@ export default function LogsPage() {
   const [status, setStatus] = useState('');
   const logsEndRef = useRef<HTMLDivElement>(null);
   const logFunctionIdRef = useRef<number | null>(null);
+  const logsBufferRef = useRef<LogEntry[]>([]);
+  const flushIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const conf = getConfig();
@@ -52,6 +54,46 @@ export default function LogsPage() {
     });
     fetchCategories();
   }, []);
+
+  // Función para vaciar el buffer y actualizar el estado
+  const flushLogs = useCallback(() => {
+    // 1. Capturamos el contenido actual del buffer (copia síncrona inmediata)
+    const bufferToFlush = logsBufferRef.current;
+    
+    // 2. Si está vacío, no hacemos nada
+    if (bufferToFlush.length === 0) return;
+
+    // 3. Vaciamos el buffer GLOBAL inmediatamente para que los nuevos logs entren en un array limpio
+    // (Importante: asignamos un nuevo array vacío, no usamos .length = 0 para no mutar lo que pasamos a React)
+    logsBufferRef.current = [];
+
+    // 4. Actualizamos el estado usando la COPIA capturada (bufferToFlush)
+    setLogs(prev => {
+      const combined = [...prev, ...bufferToFlush];
+      return combined.slice(-500);
+    });
+  }, []);
+
+  // Configurar el intervalo de flush cuando se activa el logging
+  useEffect(() => {
+    if (isLogging) {
+      // Flush cada 100ms para balance entre rendimiento y actualización visual
+      flushIntervalRef.current = setInterval(flushLogs, 100);
+    } else {
+      if (flushIntervalRef.current) {
+        clearInterval(flushIntervalRef.current);
+        flushIntervalRef.current = null;
+      }
+      // Flush final al detener
+      flushLogs();
+    }
+
+    return () => {
+      if (flushIntervalRef.current) {
+        clearInterval(flushIntervalRef.current);
+      }
+    };
+  }, [isLogging, flushLogs]);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -162,7 +204,8 @@ export default function LogsPage() {
                 message: messageText
               };
 
-              setLogs(prev => [...prev, logEntry]);
+              // Ingesta rápida: solo agregar al buffer, sin actualizar estado
+              logsBufferRef.current.push(logEntry);
             } catch (e) {
               console.error('Error processing log entry:', e);
             }
@@ -180,10 +223,13 @@ export default function LogsPage() {
     }
   };
 
-  // Auto-scroll to bottom when new logs arrive
+  // Auto-scroll optimizado: solo cuando hay nuevos logs y el logging está activo
   useEffect(() => {
-    if (logsEndRef.current && isLogging) {
-      logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (logsEndRef.current && isLogging && logs.length > 0) {
+      // Usar requestAnimationFrame para optimizar el scroll
+      requestAnimationFrame(() => {
+        logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      });
     }
   }, [logs, isLogging]);
 
