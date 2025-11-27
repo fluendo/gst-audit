@@ -3,11 +3,14 @@ import { NodeProps, useUpdateNodeInternals } from '@xyflow/react';
 import { GstElement, GstPad } from '@/lib/gst';
 import { usePads } from '@/hooks';
 import PadHandle from './PadHandle';
+import type { PadConnectionInfo } from './types';
 
 interface ElementNodeData {
   element: GstElement;
   onPadAdded?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void;
   onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void;
+  onConnectionAdded?: (connection: PadConnectionInfo) => void;
+  onConnectionRemoved?: (connection: PadConnectionInfo) => void;
 }
 
 const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
@@ -19,7 +22,9 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
   const { sinkPads, srcPads, padtemplates, loading, error } = usePads(
     nodeData.element,
     nodeData.onPadAdded,
-    nodeData.onPadRemoved
+    nodeData.onPadRemoved,
+    nodeData.onConnectionAdded,
+    nodeData.onConnectionRemoved
   );
   
   // Get element name

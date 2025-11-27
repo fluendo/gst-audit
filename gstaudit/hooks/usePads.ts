@@ -14,7 +14,9 @@ interface UsePadsReturn {
 export function usePads(
   element: GstElement,
   onPadAdded?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void,
-  onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void
+  onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void,
+  onConnectionAdded?: (connection: PadConnectionInfo) => void,
+  onConnectionRemoved?: (connection: PadConnectionInfo) => void
 ): UsePadsReturn {
   const [sinkPads, setSinkPads] = useState<GstPad[]>([]);
   const [srcPads, setSrcPads] = useState<GstPad[]>([]);
@@ -26,6 +28,7 @@ export function usePads(
   // Keep track of previous pad state for comparison
   const [prevSinkPads, setPrevSinkPads] = useState<GstPad[]>([]);
   const [prevSrcPads, setPrevSrcPads] = useState<GstPad[]>([]);
+  const [prevConnections, setPrevConnections] = useState<PadConnectionInfo[]>([]);
 
   const fetchPads = useCallback(async (): Promise<void> => {
     try {
@@ -206,6 +209,47 @@ export function usePads(
     setPrevSinkPads(sinkPads);
     setPrevSrcPads(srcPads);
   }, [sinkPads, srcPads, prevSinkPads, prevSrcPads, loading, error, element, onPadAdded, onPadRemoved]);
+
+  // Effect to track connection changes and trigger callbacks
+  useEffect(() => {
+    if (loading || error || (!onConnectionAdded && !onConnectionRemoved)) return;
+
+    // Check for new connections
+    const addedConnections = connections.filter(conn => 
+      !prevConnections.some(prevConn => 
+        prevConn.sourceNodeId === conn.sourceNodeId &&
+        prevConn.targetNodeId === conn.targetNodeId &&
+        prevConn.sourceHandleId === conn.sourceHandleId &&
+        prevConn.targetHandleId === conn.targetHandleId
+      )
+    );
+
+    addedConnections.forEach(conn => {
+      // Schedule callback for next render to avoid state updates during render
+      setTimeout(() => {
+        onConnectionAdded?.(conn);
+      }, 0);
+    });
+
+    // Check for removed connections
+    const removedConnections = prevConnections.filter(prevConn => 
+      !connections.some(conn => 
+        conn.sourceNodeId === prevConn.sourceNodeId &&
+        conn.targetNodeId === prevConn.targetNodeId &&
+        conn.sourceHandleId === prevConn.sourceHandleId &&
+        conn.targetHandleId === prevConn.targetHandleId
+      )
+    );
+
+    removedConnections.forEach(conn => {
+      setTimeout(() => {
+        onConnectionRemoved?.(conn);
+      }, 0);
+    });
+
+    // Update previous connections state
+    setPrevConnections(connections);
+  }, [connections, prevConnections, loading, error, onConnectionAdded, onConnectionRemoved]);
 
   return {
     sinkPads,

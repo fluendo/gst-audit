@@ -8,7 +8,6 @@ import {
   Background,
   useNodesState,
   useEdgesState,
-  addEdge,
   BackgroundVariant,
   Node,
   Edge,
@@ -18,6 +17,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import Link from 'next/link';
 import { getConfig, getLayoutedElements, NodeTreeManager, NodeTree } from '@/lib';
+import type { PadConnectionInfo } from '@/components/types';
 import {
   GObjectObject,
   GObjectValue,
@@ -85,7 +85,49 @@ export default function PipelinePage() {
   // Initialize the node tree manager
   const nodeTreeManager = useRef(new NodeTreeManager()).current;
   
+  // Track all edges separately for validation
+  const allEdgesRef = useRef<Edge[]>([]);
+  
   const config = getConfig();
+
+  // Validate edges against available handles in NodeTree
+  const validateEdges = () => {
+    const validated = allEdgesRef.current.filter(edge => {
+      const sourceNode = nodeTreeManager.findNode(edge.source);
+      const targetNode = nodeTreeManager.findNode(edge.target);
+      
+      if (!sourceNode || !targetNode) return false;
+      
+      // Check if both handles exist
+      const sourceHandleExists = edge.sourceHandle 
+        ? sourceNode.handles.includes(edge.sourceHandle)
+        : true; // If no specific handle, consider it valid
+      
+      const targetHandleExists = edge.targetHandle
+        ? targetNode.handles.includes(edge.targetHandle)
+        : true;
+      
+      return sourceHandleExists && targetHandleExists;
+    });
+    
+    setEdges(validated);
+  };
+
+  // Add edge to tracking and validate
+  const addEdgeToTracking = (newEdge: Edge) => {
+    // Check if edge already exists
+    const exists = allEdgesRef.current.some(e => 
+      e.source === newEdge.source && 
+      e.target === newEdge.target &&
+      e.sourceHandle === newEdge.sourceHandle &&
+      e.targetHandle === newEdge.targetHandle
+    );
+    
+    if (!exists) {
+      allEdgesRef.current = [...allEdgesRef.current, newEdge];
+      validateEdges();
+    }
+  };
 
   // Auto-layout when tree changes
   useEffect(() => {
@@ -93,7 +135,7 @@ export default function PipelinePage() {
     if (nodeTree) {
       const relayout = async () => {
         try {
-          await getLayoutedElements(nodeTree);
+          await getLayoutedElements(nodeTree, edges);
           
           // Extract all nodes from the tree structure after layout
           const layoutedNodes = nodeTreeManager.getAllNodes();
@@ -104,11 +146,15 @@ export default function PipelinePage() {
       };
       relayout();
     }
-  }, [treeVersion]);
+  }, [treeVersion, edges]);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges],
+    (params: Connection) => {
+      // Manual connection handling if needed
+      // For now, connections are managed through onConnectionAdded
+      console.log('Manual connection attempt:', params);
+    },
+    [],
   );
 
   const fetchPipelines = async () => {
@@ -161,6 +207,9 @@ export default function PipelinePage() {
       
       // Add handle to the NodeTree
       nodeTreeManager.addHandleToNode(elementId, handleId);
+      
+      // Validate edges since a new handle is available
+      validateEdges();
     } catch (error) {
       console.error('Error handling pad addition:', error);
     }
@@ -177,9 +226,46 @@ export default function PipelinePage() {
       
       // Remove handle from the NodeTree
       nodeTreeManager.removeHandleFromNode(elementId, handleId);
+      
+      // Validate edges since a handle was removed
+      validateEdges();
     } catch (error) {
       console.error('Error handling pad removal:', error);
     }
+  }, []);
+
+  // Callback function to handle connection addition
+  const onConnectionAdded = useCallback((connection: PadConnectionInfo) => {
+    console.log('Connection added:', connection);
+    
+    // Create an edge from the connection info
+    const newEdge: Edge = {
+      id: `${connection.sourceHandleId}-${connection.targetHandleId}`,
+      source: connection.sourceNodeId,
+      target: connection.targetNodeId,
+      sourceHandle: connection.sourceHandleId,
+      targetHandle: connection.targetHandleId,
+      type: 'default',
+    };
+    
+    // Add edge to tracking
+    addEdgeToTracking(newEdge);
+  }, []);
+
+  // Callback function to handle connection removal
+  const onConnectionRemoved = useCallback((connection: PadConnectionInfo) => {
+    console.log('Connection removed:', connection);
+    
+    // Remove the edge from tracking
+    allEdgesRef.current = allEdgesRef.current.filter(edge => 
+      !(edge.sourceHandle === connection.sourceHandleId &&
+        edge.targetHandle === connection.targetHandleId &&
+        edge.source === connection.sourceNodeId &&
+        edge.target === connection.targetNodeId)
+    );
+    
+    // Validate edges after removal
+    validateEdges();
   }, []);
 
   // Callback function to handle element removal
@@ -228,10 +314,14 @@ export default function PipelinePage() {
           onElementRemoved: onElementRemoved,
           onPadAdded: onPadAdded,
           onPadRemoved: onPadRemoved,
+          onConnectionAdded: onConnectionAdded,
+          onConnectionRemoved: onConnectionRemoved,
         } : {
           element: element,
           onPadAdded: onPadAdded,
           onPadRemoved: onPadRemoved,
+          onConnectionAdded: onConnectionAdded,
+          onConnectionRemoved: onConnectionRemoved,
         },
         parentId: parentId,
         type: isGstBin ? 'group' : 'element',
@@ -281,6 +371,8 @@ export default function PipelinePage() {
           onElementRemoved: onElementRemoved,
           onPadAdded: onPadAdded,
           onPadRemoved: onPadRemoved,
+          onConnectionAdded: onConnectionAdded,
+          onConnectionRemoved: onConnectionRemoved,
         },
         type: 'group',
         position: {

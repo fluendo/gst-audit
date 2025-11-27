@@ -1,5 +1,5 @@
-import { Position } from '@xyflow/react';
-import ELK, { ElkNode } from 'elkjs/lib/elk.bundled.js';
+import { Position, Edge } from '@xyflow/react';
+import ELK, { ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk.bundled.js';
 import { NodeTree } from './NodeTreeManager';
 
 const elk = new ELK();
@@ -7,7 +7,7 @@ const elk = new ELK();
 const nodeWidth = 172;
 const nodeHeight = 36;
 
-export const getLayoutedElements = async (nodeTree: NodeTree, direction = 'LR') => {
+export const getLayoutedElements = async (nodeTree: NodeTree, edges: Edge[] = [], direction = 'LR') => {
   const isHorizontal = direction === 'LR';
 
   // Build ELK graph structure directly from tree
@@ -37,6 +37,16 @@ export const getLayoutedElements = async (nodeTree: NodeTree, direction = 'LR') 
   };
 
   const elkGraph = buildElkNode(nodeTree);
+  
+  // Add edges to the ELK graph
+  const elkEdges: ElkExtendedEdge[] = edges.map(edge => ({
+    id: edge.id,
+    sources: [edge.source],
+    targets: [edge.target],
+  }));
+  
+  elkGraph.edges = elkEdges;
+  
   const layoutedGraph = await elk.layout(elkGraph);
 
   // Apply positions from ELK back to React Flow nodes

@@ -3,6 +3,7 @@ import { NodeProps, useUpdateNodeInternals } from '@xyflow/react';
 import { GstElement, GstBin, GstPad } from '@/lib/gst';
 import { usePads } from '@/hooks';
 import PadHandle from './PadHandle';
+import type { PadConnectionInfo } from './types';
 
 interface GroupNodeData {
   bin: GstBin;
@@ -10,6 +11,8 @@ interface GroupNodeData {
   onElementRemoved?: (parentId: string, parentBin: GstBin, element: GstElement) => Promise<void>;
   onPadAdded?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void;
   onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void;
+  onConnectionAdded?: (connection: PadConnectionInfo) => void;
+  onConnectionRemoved?: (connection: PadConnectionInfo) => void;
 }
 
 const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
@@ -21,7 +24,9 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   const { sinkPads, srcPads, padtemplates, loading, error } = usePads(
     nodeData.bin,
     nodeData.onPadAdded,
-    nodeData.onPadRemoved
+    nodeData.onPadRemoved,
+    nodeData.onConnectionAdded,
+    nodeData.onConnectionRemoved
   );
 
   // Get the actual node dimensions from React Flow/ELK
