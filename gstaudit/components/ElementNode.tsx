@@ -33,7 +33,6 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
   // Update React Flow internals when pads are loaded
   useEffect(() => {
     if (!loading && !error) {
-      console.error(`Updating internals for ElementNode: ${elementName}`);
       updateNodeInternals(id);
     }
   }, [sinkPads, srcPads, loading, error, updateNodeInternals, id]);

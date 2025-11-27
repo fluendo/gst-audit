@@ -40,41 +40,32 @@ const elk = new ELK();
 const nodeWidth = 172;
 const nodeHeight = 36;
 
-const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR') => {
+// Tree structure for hierarchical nodes
+interface NodeTree {
+  node: Node;
+  children: NodeTree[];
+}
+
+const getLayoutedElements = async (nodeTree: NodeTree, direction = 'LR') => {
   const isHorizontal = direction === 'LR';
 
-  // Group nodes by parent to build hierarchy
-  const nodesById = new Map(nodes.map(node => [node.id, node]));
-  const rootNodes = nodes.filter(node => !node.parentId);
-  const childNodesByParent = new Map<string, Node[]>();
-
-  nodes.forEach(node => {
-    if (node.parentId) {
-      if (!childNodesByParent.has(node.parentId)) {
-        childNodesByParent.set(node.parentId, []);
-      }
-      childNodesByParent.get(node.parentId)!.push(node);
-    }
-  });
-
-  // Build ELK graph structure with support for hierarchical groups
-  const buildElkNode = (node: Node): ElkNode => {
-    const children = childNodesByParent.get(node.id) || [];
-    const isGroup = children.length > 0;
+  // Build ELK graph structure directly from tree
+  const buildElkNode = (tree: NodeTree): ElkNode => {
+    const isGroup = tree.children.length > 0;
 
     const elkNode: ElkNode = {
-      id: node.id,
+      id: tree.node.id,
       // For groups, use minimum size; for elements, use standard size
       ...(isGroup ? {} : { width: nodeWidth, height: nodeHeight }),
       // For groups, add children and layout options
       ...(isGroup ? {
-        children: children.map(child => buildElkNode(child)),
+        children: tree.children.map(child => buildElkNode(child)),
         layoutOptions: {
           'elk.algorithm': 'layered',
           'elk.direction': direction === 'LR' ? 'RIGHT' : 'DOWN',
           'elk.spacing.nodeNode': '50',
           'elk.layered.spacing.nodeNodeBetweenLayers': '70',
-          'elk.padding': '[top=100,left=50,bottom=50,right=50]', // Increased top padding for nested groups and headers
+          'elk.padding': '[top=100,left=50,bottom=50,right=50]',
           'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
           'nodeSize.constraints': 'MINIMUM_SIZE',
           'nodeSize.minimum': '(200,120)',
@@ -84,65 +75,44 @@ const getLayoutedElements = async (nodes: Node[], edges: Edge[], direction = 'LR
     return elkNode;
   };
 
-  const graph: ElkNode = {
-    id: 'root',
-    layoutOptions: {
-      'elk.algorithm': 'layered',
-      'elk.direction': direction === 'LR' ? 'RIGHT' : 'DOWN',
-      'elk.spacing.nodeNode': '50',
-      'elk.layered.spacing.nodeNodeBetweenLayers': '70',
-      'elk.padding': '[top=50,left=50,bottom=50,right=50]',
-      'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
-    },
-    children: rootNodes.map(node => buildElkNode(node)),
-    edges: edges.map(edge => ({
-      id: edge.id,
-      sources: [edge.source],
-      targets: [edge.target],
-    } as ElkExtendedEdge)),
-  };
+  const elkGraph = buildElkNode(nodeTree);
+  const layoutedGraph = await elk.layout(elkGraph);
 
-  const layoutedGraph = await elk.layout(graph);
-
-  // Apply positions from ELK to React Flow nodes
-  const applyPositions = (elkNode: ElkNode, parentPosition = { x: 0, y: 0 }) => {
-    const node = nodesById.get(elkNode.id);
-    if (node && elkNode.x !== undefined && elkNode.y !== undefined) {
-      // For child nodes, positions are relative to parent
-      // For root nodes, positions are absolute
-      node.position = {
-        x: node.parentId ? elkNode.x : elkNode.x + parentPosition.x,
-        y: node.parentId ? elkNode.y : elkNode.y + parentPosition.y,
+  // Apply positions from ELK back to React Flow nodes
+  const applyPositions = (elkNode: ElkNode, tree: NodeTree, parentPosition = { x: 0, y: 0 }) => {
+    if (elkNode.x !== undefined && elkNode.y !== undefined) {
+      tree.node.position = {
+        x: tree.node.parentId ? elkNode.x : elkNode.x + parentPosition.x,
+        y: tree.node.parentId ? elkNode.y : elkNode.y + parentPosition.y,
       };
-      node.targetPosition = isHorizontal ? Position.Left : Position.Top;
-      node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
+      tree.node.targetPosition = isHorizontal ? Position.Left : Position.Top;
+      tree.node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
       
       // Apply calculated width and height from ELK
       if (elkNode.width !== undefined && elkNode.height !== undefined) {
-        // Only set style if it's not overridden by React Flow's group handling
-        node.style = {
-          ...node.style,
+        tree.node.style = {
+          ...tree.node.style,
           width: elkNode.width,
           height: elkNode.height,
         };
       }
 
-      // If this node has children, process them recursively
-      if (elkNode.children) {
+      // Process children recursively
+      if (elkNode.children && tree.children) {
         const absolutePosition = {
           x: (elkNode.x ?? 0) + parentPosition.x,
           y: (elkNode.y ?? 0) + parentPosition.y,
         };
-        elkNode.children.forEach(child => applyPositions(child, absolutePosition));
+        elkNode.children.forEach((childElk, index) => {
+          if (tree.children[index]) {
+            applyPositions(childElk, tree.children[index], absolutePosition);
+          }
+        });
       }
     }
   };
 
-  if (layoutedGraph.children) {
-    layoutedGraph.children.forEach(child => applyPositions(child));
-  }
-
-  return { nodes, edges };
+  applyPositions(layoutedGraph, nodeTree);
 };
 
 const detectSubpipelines = async (pipeline: GstPipeline | GstBin, parentName = ''): Promise<{ name: string; ptr: string }[]> => {
@@ -189,7 +159,105 @@ export default function PipelinePage() {
   const [status, setStatus] = useState<string>('Disconnected');
   const [pipelines, setPipelines] = useState<{ name: string; ptr: string }[]>([]);
   const [selectedPipeline, setSelectedPipeline] = useState<string | null>(null);
+  
+  // Tree structure for ELK layout
+  const [nodeTree, setNodeTree] = useState<NodeTree | null>(null);
+  
+  // Helper function to find node in tree
+  const findNodeInTree = (tree: NodeTree, nodeId: string): NodeTree | null => {
+    if (tree.node.id === nodeId) return tree;
+    for (const child of tree.children) {
+      const found = findNodeInTree(child, nodeId);
+      if (found) return found;
+    }
+    return null;
+  };
+
+  // Helper function to add node to tree
+  const addNodeToTree = (parentId: string, newNode: Node) => {
+    setNodeTree((prevTree) => {
+      if (!prevTree) return null;
+      
+      // Deep clone the tree to avoid mutations
+      const cloneTree = (tree: NodeTree): NodeTree => ({
+        node: tree.node,
+        children: tree.children.map(child => cloneTree(child))
+      });
+      
+      const newTree = cloneTree(prevTree);
+      const parent = findNodeInTree(newTree, parentId);
+      
+      if (parent) {
+        parent.children.push({ node: newNode, children: [] });
+      }
+      
+      return newTree;
+    });
+  };
+
+  // Helper function to remove node from tree
+  const removeNodeFromTree = (nodeId: string) => {
+    setNodeTree((prevTree) => {
+      if (!prevTree) return null;
+      
+      // Deep clone the tree to avoid mutations
+      const cloneTree = (tree: NodeTree): NodeTree => ({
+        node: tree.node,
+        children: tree.children.map(child => cloneTree(child))
+      });
+      
+      // Recursive function to remove node from tree
+      const removeFromTree = (tree: NodeTree): NodeTree | null => {
+        // If this is the node to remove, return null
+        if (tree.node.id === nodeId) {
+          return null;
+        }
+        
+        // Otherwise, filter children recursively
+        tree.children = tree.children
+          .map(child => removeFromTree(child))
+          .filter((child): child is NodeTree => child !== null);
+        
+        return tree;
+      };
+      
+      return removeFromTree(cloneTree(prevTree));
+    });
+  };
+
+  // Helper function to clear tree (useful when loading new pipeline)
+  const clearNodeTree = () => {
+    setNodeTree(null);
+  };
+  
   const config = getConfig();
+
+  // Auto-layout when tree changes
+  useEffect(() => {
+    if (nodeTree) {
+      const relayout = async () => {
+        try {
+          await getLayoutedElements(nodeTree);
+          
+          // Extract all nodes from the tree structure after layout
+          const getAllNodesFromTree = (tree: NodeTree): Node[] => {
+            const nodes = [tree.node];
+            tree.children.forEach(child => {
+              nodes.push(...getAllNodesFromTree(child));
+            });
+            return nodes;
+          };
+          
+          // Update React Flow nodes state with layouted positions
+          const layoutedNodes = getAllNodesFromTree(nodeTree);
+          setNodes(layoutedNodes);
+        } catch (error) {
+          console.error('Error during layout:', error);
+        }
+      };
+      relayout();
+    }
+  }, [nodeTree]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -235,162 +303,79 @@ export default function PipelinePage() {
     }
   };
 
-  const createNode = async (element: GstElement, nodeArray: Node[], bin?: GstBin): Promise<void> => {
-    const elementName: string = await element.get_name();
-    const isGstBin = await element.isOf(GstBin);
-
-    // Create ReactFlow node with GstElement in data
-    const node: Node = {
-      id: element.ptr,
-      data: {
-        element: element,
-      },
-      parentId: bin ? bin.ptr : undefined,
-      type: isGstBin ? 'group' : 'element', // Use 'group' for bins so they work properly for containment
-      extent: bin ? 'parent' : undefined,
-      expandParent: bin ? true : undefined,
-      position: {
-        x: 0, // Initial position, will be overridden by layout
-        y: 0,
-      }
-    };
-    nodeArray.push(node);
-  }
-
-  const generateNode = async (element: GstElement, nodeArray: Node[], parentElement?: GstBin) => {
-    await createNode(element, nodeArray, parentElement);
-
-    if (await element.isOf(GstBin)) {
-      const bin = await element.castTo(GstBin);
-      const iterator = await bin.iterate_elements();
-
-      for await (const obj of iterator) {
-        const child: GstElement = await obj.castTo(GstElement);
-        await generateNode(child, nodeArray, bin);
-      }
-    }
-  }
-
-  // Generate edges between connected pads
-  const generateEdges = async (nodeArray: Node[]): Promise<Edge[]> => {
-    const edgeArray: Edge[] = [];
-    const processedPads = new Set<string>(); // Track processed pads to avoid duplicates
-
+  // Callback function to handle element removal
+  const onElementRemoved = useCallback(async (parentId: string, parentBin: GstBin, element: GstElement) => {
     try {
-      for (const node of nodeArray) {
-        const element = node.data.element as GstElement;
+      // Helper function to get all descendant node IDs recursively
+      const getDescendantIds = (nodes: Node[], nodeId: string): string[] => {
+        const descendants: string[] = [nodeId];
+        const children = nodes.filter(node => node.parentId === nodeId);
+        
+        children.forEach(child => {
+          descendants.push(...getDescendantIds(nodes, child.id));
+        });
+        
+        return descendants;
+      };
 
-        // Iterate through all pads of this element
-        const iterator = await element.iterate_pads();
+      setStatus(`Pipeline successfully loaded with ${nodes.length} nodes and ${edges.length} edges`);
+      // Remove the element and all its descendants from nodes
+      setNodes((prevNodes) => {
+        const idsToRemove = getDescendantIds(prevNodes, element.ptr);
+        return prevNodes.filter(node => !idsToRemove.includes(node.id));
+      });
 
-        for await (const obj of iterator) {
-          const pad = await obj.castTo(GstPad);
-          const padPtr = pad.ptr;
-
-          // Skip if we've already processed this pad
-          if (processedPads.has(padPtr)) {
-            continue;
-          }
-
-          // Check if pad is linked
-          const isLinked = await pad.is_linked();
-          if (isLinked) {
-            // Get the peer pad
-            const peerPad = await pad.get_peer();
-            const peerPadPtr = peerPad.ptr;
-
-            // Skip if we've already processed the peer pad
-            if (processedPads.has(peerPadPtr)) {
-              continue;
-            }
-
-            // Get the parent element of the peer pad
-            const peerParent = await peerPad.get_parent();
-            let peerObject = await peerParent.castTo(GstObject);
-            let peerObjectPtr = peerObject.ptr;
-            
-            // Get names before potentially changing peerElement
-            const elementName = await element.get_name();
-            let peerObjectName = await peerObject.get_name();
-            const padName = await pad.get_name();
-            const peerPadName = await peerPad.get_name();
-            
-            // Initialize edge type as default
-            let edgeType = 'default';
-            
-            // If the peer element is a ghost pad, use its parent (the bin) instead
-            if (await peerObject.isOf(GstGhostPad)) {
-              edgeType = 'ghostPad';
-              const ghostPadParent = await peerObject.get_parent();
-              peerObject = await ghostPadParent.castTo(GstElement);
-              peerObjectPtr = peerObject.ptr;
-              // Keep the original ghost pad name for handle ID generation
-            }
-            
-            // Get pad directions to determine source/target
-            const padDirection = await pad.get_direction();
-            const peerDirection = await peerPad.get_direction();
-            
-            // Create edge based on pad directions
-            // Source pads connect TO sink pads
-            let sourceNodeId: string, targetNodeId: string;
-            let sourceHandleId: string, targetHandleId: string;
-
-            if (padDirection === GstPadDirection.SRC && peerDirection === GstPadDirection.SINK) {
-              sourceNodeId = element.ptr;
-              targetNodeId = peerObjectPtr;
-              sourceHandleId = `${elementName}-${padName}`;
-              targetHandleId = `${peerObjectName}-${peerPadName}`;
-            } else if (padDirection === GstPadDirection.SINK && peerDirection === GstPadDirection.SRC) {
-              sourceNodeId = peerObjectPtr;
-              targetNodeId = element.ptr;
-              sourceHandleId = `${peerObjectName}-${peerPadName}`;
-              targetHandleId = `${elementName}-${padName}`;
-            } else {
-              // Skip invalid connections
-              console.warn(`Invalid pad connection: ${padDirection} -> ${peerDirection}`);
-              continue;
-            }
-
-            // Verify both nodes exist in our node array
-            const sourceNode = nodeArray.find(n => n.id === sourceNodeId);
-            const targetNode = nodeArray.find(n => n.id === targetNodeId);
-
-            if (sourceNode && targetNode) {
-              const edge: Edge = {
-                id: `${sourceHandleId}:${targetHandleId}`,
-                source: sourceNodeId,
-                target: targetNodeId,
-                sourceHandle: sourceHandleId,
-                targetHandle: targetHandleId,
-                type: edgeType, // Use custom type for ghost pads
-                animated: true,
-                style: {
-                  stroke: '#0ea5e9',
-                  strokeWidth: 2,
-                },
-                markerEnd: {
-                  type: 'arrowclosed',
-                  color: '#0ea5e9',
-                },
-              };
-
-              edgeArray.push(edge);
-            }
-
-            // Mark both pads as processed
-            processedPads.add(padPtr);
-            processedPads.add(peerPadPtr);
-          }
-        }
-      }
+      // Remove the node from the tree structure as well
+      removeNodeFromTree(element.ptr);
     } catch (error) {
-      console.error('Error generating edges:', error);
+      console.error('Error handling element removal:', error);
     }
+  }, []);
 
-    console.log(`Generated ${edgeArray.length} edges`);
-    return edgeArray;
-  };
+  // Callback function to handle element addition
+  const onElementAdded = useCallback(async (parentId: string, parentBin: GstBin, element: GstElement) => {
+    try {
+      const elementName: string = await element.get_name();
+      const isGstBin = await element.isOf(GstBin);
+
+      // Create a new node
+      const newNode: Node = {
+        id: element.ptr,
+        data: isGstBin ? {
+          bin: await element.castTo(GstBin),
+          onElementAdded: onElementAdded,
+          onElementRemoved: onElementRemoved,
+        } : {
+          element: element,
+        },
+        parentId: parentId,
+        type: isGstBin ? 'group' : 'element',
+        extent: 'parent' as const,
+        expandParent: true,
+        position: {
+          x: Math.random() * 200,
+          y: Math.random() * 200,
+        },
+        // Initial size, will be overridden by layout. This is important to avoid a continuos resizing loop
+        ...(isGstBin && {
+          style: {
+            width: 300,
+            height: 200,
+            minWidth: 250,
+            minHeight: 150,
+          }
+        }),
+      };
+
+      setStatus(`Pipeline successfully loaded with ${nodes.length} nodes and ${edges.length} edges`);
+      // Add the new node to the state
+      setNodes((prevNodes) => [...prevNodes, newNode]);
+      // Update tree hierarchy
+      addNodeToTree(parentId, newNode);
+    } catch (error) {
+      console.error('Error handling element added:', error);
+    }
+  }, []);
 
   // Generate nodes directly by iterating over pipeline elements
   const generateNodes = async (selectedPipeline: string) => {
@@ -399,20 +384,36 @@ export default function PipelinePage() {
       const nodeArray: Node[] = [];
 
       const pipeline = new GstPipeline(selectedPipeline, 'none');
-      await generateNode(pipeline, nodeArray);
-
-      // Generate edges between connected elements
-      console.error("Generating edges");
-      setStatus('Generating edges...');
-      const edgeArray = await generateEdges(nodeArray);
-
-      // Apply layout to collected nodes and edges
-      const layouted = await getLayoutedElements(nodeArray, edgeArray);
-
-      setNodes(layouted.nodes);
-      setEdges(layouted.edges);
-      setStatus(`Pipeline successfully loaded with ${layouted.nodes.length} nodes and ${layouted.edges.length} edges`);
-      console.error("Generating edges done");
+      const pipelineName = await pipeline.get_name();
+      
+      const pipelineNode: Node = {
+        id: pipeline.ptr,
+        data: {
+          bin: pipeline,
+          onElementAdded: onElementAdded,
+          onElementRemoved: onElementRemoved,
+        },
+        type: 'group',
+        position: {
+          x: 100,
+          y: 100,
+        },
+        style: {
+          width: 400,
+          height: 300,
+          minWidth: 350,
+          minHeight: 250,
+        }
+      };
+      
+      setNodes([pipelineNode]);
+      
+      // Initialize the node tree with the pipeline as root
+      const pipelineTree: NodeTree = {
+        node: pipelineNode,
+        children: []
+      };
+      setNodeTree(pipelineTree);
     } catch (error) {
       console.error('Error in direct node generation:', error);
       setStatus(`Error loading pipeline: ${error instanceof Error ? error.message : 'Unknown error'}`);

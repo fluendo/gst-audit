@@ -1,11 +1,13 @@
 import React, { memo, useEffect, useState } from 'react';
 import { NodeProps, useUpdateNodeInternals } from '@xyflow/react';
-import { GstElement } from '@/lib/gst';
+import { GstElement, GstBin } from '@/lib/gst';
 import { usePads } from '@/hooks/usePads';
 import PadHandle from './PadHandle';
 
 interface GroupNodeData {
-  element: GstElement;
+  bin: GstBin;
+  onElementAdded?: (parentId: string, parentBin: GstBin, element: GstElement) => Promise<void>;
+  onElementRemoved?: (parentId: string, parentBin: GstBin, element: GstElement) => Promise<void>;
 }
 
 const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
@@ -14,7 +16,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   const [elementName, setElementName] = useState<string>('');
 
   // Use the shared usePads hook
-  const { sinkPads, srcPads, padtemplates, loading, error } = usePads(nodeData.element);
+  const { sinkPads, srcPads, padtemplates, loading, error } = usePads(nodeData.bin);
 
   // Get the actual node dimensions from React Flow/ELK
   const nodeWidth = width || 200;
@@ -24,7 +26,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   useEffect(() => {
     const fetchElementName = async () => {
       try {
-        const name = await nodeData.element.get_name();
+        const name = await nodeData.bin.get_name();
         setElementName(name);
       } catch (err) {
         console.error('Error getting element name:', err);
@@ -32,7 +34,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
       }
     };
     fetchElementName();
-  }, [nodeData.element]);
+  }, [nodeData.bin]);
 
   // Update React Flow internals when pads are loaded
   useEffect(() => {
@@ -40,6 +42,39 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
       updateNodeInternals(id);
     }
   }, [sinkPads, srcPads, loading, error, updateNodeInternals, id]);
+
+  useEffect(() => {
+      let isMounted = true;
+      
+      const addChildren = async () => {
+          if (!isMounted) return;
+          
+          const iterator = await nodeData.bin.iterate_elements();
+
+          for await (const obj of iterator) {
+            if (!isMounted) return;
+            
+            const child: GstElement = await obj.castTo(GstElement);
+            await nodeData.onElementAdded?.(id, nodeData.bin, child);
+          }
+      }
+      
+      addChildren();
+      
+      return () => {
+          isMounted = false;
+          
+          const removeChildren = async () =>  {
+              const iterator = await nodeData.bin.iterate_elements();
+
+              for await (const obj of iterator) {
+                const child: GstElement = await obj.castTo(GstElement);
+                await nodeData.onElementRemoved?.(id, nodeData.bin, child);
+              }
+          }
+          removeChildren().catch(console.error);
+      }
+  }, []);
 
   // Container dimensions for PadHandle component
   const containerDimensions = {
