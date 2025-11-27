@@ -157,7 +157,6 @@ export function usePads(
     fetchPads();
   }, [fetchPads]);
 
-  console.error(`Pads loaded: ${sinkPads.length} sink, ${srcPads.length} src and ${connections.length} connections for element ${element.ptr}`);
   return {
     sinkPads,
     srcPads,

@@ -91,7 +91,6 @@ const PadHandle: React.FC<PadHandleProps> = ({
   const position = isSink ? Position.Left : Position.Right;
   const backgroundColor = isSink ? '#ef4444' : '#22c55e'; // Red for sink, green for source
 
-  //console.error(`Pad id is ${padInfo.id}, name is ${padInfo.name}, isGhost: ${padInfo.isGhost}, internalName: ${padInfo.internalName}`);
   return (
     <React.Fragment>
       {/* Main Handle (ghost or regular) */}

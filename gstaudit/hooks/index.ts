@@ -1,0 +1,1 @@
+export { usePads } from './usePads';

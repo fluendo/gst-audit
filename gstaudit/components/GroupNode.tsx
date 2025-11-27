@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import { NodeProps, useUpdateNodeInternals } from '@xyflow/react';
 import { GstElement, GstBin } from '@/lib/gst';
-import { usePads } from '@/hooks/usePads';
+import { usePads } from '@/hooks';
 import PadHandle from './PadHandle';
 
 interface GroupNodeData {

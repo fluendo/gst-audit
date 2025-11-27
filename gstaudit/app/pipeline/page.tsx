@@ -17,7 +17,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import Link from 'next/link';
-import { getConfig } from '@/lib/config';
+import { getConfig, getLayoutedElements, NodeTreeManager, NodeTree } from '@/lib';
 import {
   GObjectObject,
   GObjectValue,
@@ -33,87 +33,8 @@ import {
   GstStateValue
 } from '@/lib/gst';
 import { ElementNode, GroupNode, InternalPadEdge } from '@/components';
-import ELK, { ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk.bundled.js';
 
-const elk = new ELK();
 
-const nodeWidth = 172;
-const nodeHeight = 36;
-
-// Tree structure for hierarchical nodes
-interface NodeTree {
-  node: Node;
-  children: NodeTree[];
-}
-
-const getLayoutedElements = async (nodeTree: NodeTree, direction = 'LR') => {
-  const isHorizontal = direction === 'LR';
-
-  // Build ELK graph structure directly from tree
-  const buildElkNode = (tree: NodeTree): ElkNode => {
-    const isGroup = tree.children.length > 0;
-
-    const elkNode: ElkNode = {
-      id: tree.node.id,
-      // For groups, use minimum size; for elements, use standard size
-      ...(isGroup ? {} : { width: nodeWidth, height: nodeHeight }),
-      // For groups, add children and layout options
-      ...(isGroup ? {
-        children: tree.children.map(child => buildElkNode(child)),
-        layoutOptions: {
-          'elk.algorithm': 'layered',
-          'elk.direction': direction === 'LR' ? 'RIGHT' : 'DOWN',
-          'elk.spacing.nodeNode': '50',
-          'elk.layered.spacing.nodeNodeBetweenLayers': '70',
-          'elk.padding': '[top=100,left=50,bottom=50,right=50]',
-          'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
-          'nodeSize.constraints': 'MINIMUM_SIZE',
-          'nodeSize.minimum': '(200,120)',
-        }
-      } : {})
-    };
-    return elkNode;
-  };
-
-  const elkGraph = buildElkNode(nodeTree);
-  const layoutedGraph = await elk.layout(elkGraph);
-
-  // Apply positions from ELK back to React Flow nodes
-  const applyPositions = (elkNode: ElkNode, tree: NodeTree, parentPosition = { x: 0, y: 0 }) => {
-    if (elkNode.x !== undefined && elkNode.y !== undefined) {
-      tree.node.position = {
-        x: tree.node.parentId ? elkNode.x : elkNode.x + parentPosition.x,
-        y: tree.node.parentId ? elkNode.y : elkNode.y + parentPosition.y,
-      };
-      tree.node.targetPosition = isHorizontal ? Position.Left : Position.Top;
-      tree.node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
-      
-      // Apply calculated width and height from ELK
-      if (elkNode.width !== undefined && elkNode.height !== undefined) {
-        tree.node.style = {
-          ...tree.node.style,
-          width: elkNode.width,
-          height: elkNode.height,
-        };
-      }
-
-      // Process children recursively
-      if (elkNode.children && tree.children) {
-        const absolutePosition = {
-          x: (elkNode.x ?? 0) + parentPosition.x,
-          y: (elkNode.y ?? 0) + parentPosition.y,
-        };
-        elkNode.children.forEach((childElk, index) => {
-          if (tree.children[index]) {
-            applyPositions(childElk, tree.children[index], absolutePosition);
-          }
-        });
-      }
-    }
-  };
-
-  applyPositions(layoutedGraph, nodeTree);
-};
 
 const detectSubpipelines = async (pipeline: GstPipeline | GstBin, parentName = ''): Promise<{ name: string; ptr: string }[]> => {
   const subpipelines: { name: string; ptr: string }[] = [];
@@ -159,97 +80,23 @@ export default function PipelinePage() {
   const [status, setStatus] = useState<string>('Disconnected');
   const [pipelines, setPipelines] = useState<{ name: string; ptr: string }[]>([]);
   const [selectedPipeline, setSelectedPipeline] = useState<string | null>(null);
+  const [treeVersion, setTreeVersion] = useState(0); // Track tree changes
   
-  // Tree structure for ELK layout
-  const [nodeTree, setNodeTree] = useState<NodeTree | null>(null);
-  
-  // Helper function to find node in tree
-  const findNodeInTree = (tree: NodeTree, nodeId: string): NodeTree | null => {
-    if (tree.node.id === nodeId) return tree;
-    for (const child of tree.children) {
-      const found = findNodeInTree(child, nodeId);
-      if (found) return found;
-    }
-    return null;
-  };
-
-  // Helper function to add node to tree
-  const addNodeToTree = (parentId: string, newNode: Node) => {
-    setNodeTree((prevTree) => {
-      if (!prevTree) return null;
-      
-      // Deep clone the tree to avoid mutations
-      const cloneTree = (tree: NodeTree): NodeTree => ({
-        node: tree.node,
-        children: tree.children.map(child => cloneTree(child))
-      });
-      
-      const newTree = cloneTree(prevTree);
-      const parent = findNodeInTree(newTree, parentId);
-      
-      if (parent) {
-        parent.children.push({ node: newNode, children: [] });
-      }
-      
-      return newTree;
-    });
-  };
-
-  // Helper function to remove node from tree
-  const removeNodeFromTree = (nodeId: string) => {
-    setNodeTree((prevTree) => {
-      if (!prevTree) return null;
-      
-      // Deep clone the tree to avoid mutations
-      const cloneTree = (tree: NodeTree): NodeTree => ({
-        node: tree.node,
-        children: tree.children.map(child => cloneTree(child))
-      });
-      
-      // Recursive function to remove node from tree
-      const removeFromTree = (tree: NodeTree): NodeTree | null => {
-        // If this is the node to remove, return null
-        if (tree.node.id === nodeId) {
-          return null;
-        }
-        
-        // Otherwise, filter children recursively
-        tree.children = tree.children
-          .map(child => removeFromTree(child))
-          .filter((child): child is NodeTree => child !== null);
-        
-        return tree;
-      };
-      
-      return removeFromTree(cloneTree(prevTree));
-    });
-  };
-
-  // Helper function to clear tree (useful when loading new pipeline)
-  const clearNodeTree = () => {
-    setNodeTree(null);
-  };
+  // Initialize the node tree manager
+  const nodeTreeManager = useRef(new NodeTreeManager()).current;
   
   const config = getConfig();
 
   // Auto-layout when tree changes
   useEffect(() => {
+    const nodeTree = nodeTreeManager.getTree();
     if (nodeTree) {
       const relayout = async () => {
         try {
           await getLayoutedElements(nodeTree);
           
           // Extract all nodes from the tree structure after layout
-          const getAllNodesFromTree = (tree: NodeTree): Node[] => {
-            const nodes = [tree.node];
-            tree.children.forEach(child => {
-              nodes.push(...getAllNodesFromTree(child));
-            });
-            return nodes;
-          };
-          
-          // Update React Flow nodes state with layouted positions
-          const layoutedNodes = getAllNodesFromTree(nodeTree);
+          const layoutedNodes = nodeTreeManager.getAllNodes();
           setNodes(layoutedNodes);
         } catch (error) {
           console.error('Error during layout:', error);
@@ -257,7 +104,7 @@ export default function PipelinePage() {
       };
       relayout();
     }
-  }, [nodeTree]);
+  }, [treeVersion]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -326,7 +173,9 @@ export default function PipelinePage() {
       });
 
       // Remove the node from the tree structure as well
-      removeNodeFromTree(element.ptr);
+      if (nodeTreeManager.removeNodeFromTree(element.ptr)) {
+        setTreeVersion(prev => prev + 1);
+      }
     } catch (error) {
       console.error('Error handling element removal:', error);
     }
@@ -371,7 +220,9 @@ export default function PipelinePage() {
       // Add the new node to the state
       setNodes((prevNodes) => [...prevNodes, newNode]);
       // Update tree hierarchy
-      addNodeToTree(parentId, newNode);
+      if (nodeTreeManager.addNodeToTree(parentId, newNode)) {
+        setTreeVersion(prev => prev + 1);
+      }
     } catch (error) {
       console.error('Error handling element added:', error);
     }
@@ -409,11 +260,8 @@ export default function PipelinePage() {
       setNodes([pipelineNode]);
       
       // Initialize the node tree with the pipeline as root
-      const pipelineTree: NodeTree = {
-        node: pipelineNode,
-        children: []
-      };
-      setNodeTree(pipelineTree);
+      nodeTreeManager.initializeTree(pipelineNode);
+      setTreeVersion(prev => prev + 1);
     } catch (error) {
       console.error('Error in direct node generation:', error);
       setStatus(`Error loading pipeline: ${error instanceof Error ? error.message : 'Unknown error'}`);
