@@ -4,6 +4,7 @@ import { Node } from '@xyflow/react';
 export interface NodeTree {
   node: Node;
   children: NodeTree[];
+  handles: string[]; // Track handles (pad IDs) for this node
 }
 
 export class NodeTreeManager {
@@ -35,7 +36,8 @@ export class NodeTreeManager {
   private cloneTree(tree: NodeTree): NodeTree {
     return {
       node: { ...tree.node },
-      children: tree.children.map(child => this.cloneTree(child))
+      children: tree.children.map(child => this.cloneTree(child)),
+      handles: [...tree.handles]
     };
   }
 
@@ -47,7 +49,7 @@ export class NodeTreeManager {
     const parent = this.findNodeInTree(cloned, parentId);
     
     if (parent) {
-      parent.children.push({ node: newNode, children: [] });
+      parent.children.push({ node: newNode, children: [], handles: [] });
       this.root = cloned;
       return true;
     }
@@ -98,7 +100,8 @@ export class NodeTreeManager {
   initializeTree(rootNode: Node): NodeTree {
     const tree: NodeTree = {
       node: rootNode,
-      children: []
+      children: [],
+      handles: []
     };
     this.root = tree;
     return tree;
@@ -118,5 +121,48 @@ export class NodeTreeManager {
   // Get all nodes as a flat array
   getAllNodes(): Node[] {
     return this.getAllNodesFromTree();
+  }
+
+  // Add handle to a specific node
+  addHandleToNode(nodeId: string, handleId: string): boolean {
+    if (!this.root) return false;
+    
+    const cloned = this.cloneTree(this.root);
+    const targetNode = this.findNodeInTree(cloned, nodeId);
+    
+    if (targetNode && !targetNode.handles.includes(handleId)) {
+      targetNode.handles.push(handleId);
+      this.root = cloned;
+      return true;
+    }
+    
+    return false;
+  }
+
+  // Remove handle from a specific node
+  removeHandleFromNode(nodeId: string, handleId: string): boolean {
+    if (!this.root) return false;
+    
+    const cloned = this.cloneTree(this.root);
+    const targetNode = this.findNodeInTree(cloned, nodeId);
+    
+    if (targetNode) {
+      const handleIndex = targetNode.handles.indexOf(handleId);
+      if (handleIndex > -1) {
+        targetNode.handles.splice(handleIndex, 1);
+        this.root = cloned;
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  // Get handles for a specific node
+  getNodeHandles(nodeId: string): string[] {
+    if (!this.root) return [];
+    
+    const targetNode = this.findNodeInTree(this.root, nodeId);
+    return targetNode ? [...targetNode.handles] : [];
   }
 }

@@ -12,7 +12,9 @@ interface UsePadsReturn {
 }
 
 export function usePads(
-  element: GstElement
+  element: GstElement,
+  onPadAdded?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void,
+  onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void
 ): UsePadsReturn {
   const [sinkPads, setSinkPads] = useState<GstPad[]>([]);
   const [srcPads, setSrcPads] = useState<GstPad[]>([]);
@@ -20,6 +22,10 @@ export function usePads(
   const [connections, setConnections] = useState<PadConnectionInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Keep track of previous pad state for comparison
+  const [prevSinkPads, setPrevSinkPads] = useState<GstPad[]>([]);
+  const [prevSrcPads, setPrevSrcPads] = useState<GstPad[]>([]);
 
   const fetchPads = useCallback(async (): Promise<void> => {
     try {
@@ -156,6 +162,50 @@ export function usePads(
     console.error(`useEffect triggered for fetch`);
     fetchPads();
   }, [fetchPads]);
+
+  // Effect to track pad changes and trigger callbacks
+  useEffect(() => {
+    if (loading || error || (!onPadAdded && !onPadRemoved)) return;
+
+    const elementId = element.ptr;
+
+    // Check for added sink pads
+    const addedSinkPads = sinkPads.filter(pad => !prevSinkPads.some(prevPad => prevPad.ptr === pad.ptr));
+    addedSinkPads.forEach(pad => {
+      // Schedule callback for next render to avoid state updates during render
+      setTimeout(() => {
+        onPadAdded?.(elementId, element, pad, 'sink');
+      }, 0);
+    });
+
+    // Check for removed sink pads
+    const removedSinkPads = prevSinkPads.filter(pad => !sinkPads.some(currentPad => currentPad.ptr === pad.ptr));
+    removedSinkPads.forEach(pad => {
+      setTimeout(() => {
+        onPadRemoved?.(elementId, element, pad, 'sink');
+      }, 0);
+    });
+
+    // Check for added src pads
+    const addedSrcPads = srcPads.filter(pad => !prevSrcPads.some(prevPad => prevPad.ptr === pad.ptr));
+    addedSrcPads.forEach(pad => {
+      setTimeout(() => {
+        onPadAdded?.(elementId, element, pad, 'src');
+      }, 0);
+    });
+
+    // Check for removed src pads
+    const removedSrcPads = prevSrcPads.filter(pad => !srcPads.some(currentPad => currentPad.ptr === pad.ptr));
+    removedSrcPads.forEach(pad => {
+      setTimeout(() => {
+        onPadRemoved?.(elementId, element, pad, 'src');
+      }, 0);
+    });
+
+    // Update previous pad state
+    setPrevSinkPads(sinkPads);
+    setPrevSrcPads(srcPads);
+  }, [sinkPads, srcPads, prevSinkPads, prevSrcPads, loading, error, element, onPadAdded, onPadRemoved]);
 
   return {
     sinkPads,

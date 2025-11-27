@@ -1,11 +1,13 @@
 import React, { memo, useEffect, useState } from 'react';
 import { NodeProps, useUpdateNodeInternals } from '@xyflow/react';
-import { GstElement } from '@/lib/gst';
+import { GstElement, GstPad } from '@/lib/gst';
 import { usePads } from '@/hooks';
 import PadHandle from './PadHandle';
 
 interface ElementNodeData {
   element: GstElement;
+  onPadAdded?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void;
+  onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void;
 }
 
 const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
@@ -13,8 +15,12 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
   const updateNodeInternals = useUpdateNodeInternals();
   const [elementName, setElementName] = useState<string>('');
   
-  // Use the shared usePads hook
-  const { sinkPads, srcPads, padtemplates, loading, error } = usePads(nodeData.element);
+  // Use the shared usePads hook with callbacks
+  const { sinkPads, srcPads, padtemplates, loading, error } = usePads(
+    nodeData.element,
+    nodeData.onPadAdded,
+    nodeData.onPadRemoved
+  );
   
   // Get element name
   useEffect(() => {

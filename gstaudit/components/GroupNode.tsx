@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import { NodeProps, useUpdateNodeInternals } from '@xyflow/react';
-import { GstElement, GstBin } from '@/lib/gst';
+import { GstElement, GstBin, GstPad } from '@/lib/gst';
 import { usePads } from '@/hooks';
 import PadHandle from './PadHandle';
 
@@ -8,6 +8,8 @@ interface GroupNodeData {
   bin: GstBin;
   onElementAdded?: (parentId: string, parentBin: GstBin, element: GstElement) => Promise<void>;
   onElementRemoved?: (parentId: string, parentBin: GstBin, element: GstElement) => Promise<void>;
+  onPadAdded?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void;
+  onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void;
 }
 
 const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
@@ -15,8 +17,12 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   const updateNodeInternals = useUpdateNodeInternals();
   const [elementName, setElementName] = useState<string>('');
 
-  // Use the shared usePads hook
-  const { sinkPads, srcPads, padtemplates, loading, error } = usePads(nodeData.bin);
+  // Use the shared usePads hook with callbacks
+  const { sinkPads, srcPads, padtemplates, loading, error } = usePads(
+    nodeData.bin,
+    nodeData.onPadAdded,
+    nodeData.onPadRemoved
+  );
 
   // Get the actual node dimensions from React Flow/ELK
   const nodeWidth = width || 200;

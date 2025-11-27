@@ -150,6 +150,38 @@ export default function PipelinePage() {
     }
   };
 
+  // Callback function to handle pad addition
+  const onPadAdded = useCallback(async (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => {
+    try {
+      const elementName = await element.get_name();
+      const padName = await pad.get_name();
+      const handleId = `${elementName}-${padName}`;
+      
+      console.log(`Pad added: ${type} pad "${padName}" on element "${elementName}" (${elementId})`);
+      
+      // Add handle to the NodeTree
+      nodeTreeManager.addHandleToNode(elementId, handleId);
+    } catch (error) {
+      console.error('Error handling pad addition:', error);
+    }
+  }, []);
+
+  // Callback function to handle pad removal
+  const onPadRemoved = useCallback(async (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => {
+    try {
+      const elementName = await element.get_name();
+      const padName = await pad.get_name();
+      const handleId = `${elementName}-${padName}`;
+      
+      console.log(`Pad removed: ${type} pad "${padName}" from element "${elementName}" (${elementId})`);
+      
+      // Remove handle from the NodeTree
+      nodeTreeManager.removeHandleFromNode(elementId, handleId);
+    } catch (error) {
+      console.error('Error handling pad removal:', error);
+    }
+  }, []);
+
   // Callback function to handle element removal
   const onElementRemoved = useCallback(async (parentId: string, parentBin: GstBin, element: GstElement) => {
     try {
@@ -194,8 +226,12 @@ export default function PipelinePage() {
           bin: await element.castTo(GstBin),
           onElementAdded: onElementAdded,
           onElementRemoved: onElementRemoved,
+          onPadAdded: onPadAdded,
+          onPadRemoved: onPadRemoved,
         } : {
           element: element,
+          onPadAdded: onPadAdded,
+          onPadRemoved: onPadRemoved,
         },
         parentId: parentId,
         type: isGstBin ? 'group' : 'element',
@@ -243,6 +279,8 @@ export default function PipelinePage() {
           bin: pipeline,
           onElementAdded: onElementAdded,
           onElementRemoved: onElementRemoved,
+          onPadAdded: onPadAdded,
+          onPadRemoved: onPadRemoved,
         },
         type: 'group',
         position: {
