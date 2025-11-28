@@ -197,6 +197,11 @@ export default function PipelinePage() {
     return unscheduleValidation;
   }, [connectionVersion]);
 
+  // Update status when nodes, allEdges, or edges change
+  useEffect(() => {
+    setStatus(`Pipeline: ${nodes.length} nodes, ${allEdges.length} edges (${edges.length} validated)`);
+  }, [nodes.length, allEdges.length, edges.length]);
+
   const fetchPipelines = async () => {
     try {
       setStatus('Fetching pipelines...');
@@ -386,7 +391,6 @@ export default function PipelinePage() {
         return descendants;
       };
 
-      setStatus(`Pipeline successfully loaded with ${nodes.length} nodes and ${edges.length} edges`);
       // Remove the element and all its descendants from nodes
       setNodes((prevNodes) => {
         const idsToRemove = getDescendantIds(prevNodes, element.ptr);
@@ -445,7 +449,6 @@ export default function PipelinePage() {
         }),
       };
 
-      setStatus(`Pipeline successfully loaded with ${nodes.length} nodes and ${edges.length} edges`);
       // Add the new node to the state
       setNodes((prevNodes) => [...prevNodes, newNode]);
       // Update tree hierarchy
