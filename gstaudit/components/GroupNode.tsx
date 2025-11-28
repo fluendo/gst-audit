@@ -60,12 +60,12 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
     fetchElementName();
   }, [nodeData.bin]);
 
-  // Update React Flow internals when pads are loaded
+  // Update React Flow internals when pads are loaded or dimensions change
   useEffect(() => {
     if (!loading && !error) {
       updateNodeInternals(id);
     }
-  }, [sinkPads, srcPads, loading, error, updateNodeInternals, id]);
+  }, [sinkPads, srcPads, loading, error, updateNodeInternals, id, width, height]);
 
   useEffect(() => {
       let isMounted = true;
