@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { GstPad, GstPadDirection, GstPadDirectionValue, GstGhostPad, GstElement } from '@/lib/gst';
 import type { PadConnectionInfo } from './types';
@@ -38,7 +38,9 @@ const PadHandle: React.FC<PadHandleProps> = ({
 }) => {
   const [padInfo, setPadInfo] = useState<PadInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [connection, setConnection] = useState<PadConnectionInfo | null>(null);
+  
+  // Use ref to track connection for cleanup
+  const connectionRef = useRef<PadConnectionInfo | null>(null);
 
   useEffect(() => {
     const fetchPadInfo = async () => {
@@ -136,10 +138,29 @@ const PadHandle: React.FC<PadHandleProps> = ({
           sourceHandleId: currentHandleId,
           targetHandleId: peerHandleId,
           sourcePadPtr: pad.ptr,
-          targetPadPtr: peerPad.ptr
+          targetPadPtr: peerPad.ptr,
+          reportedBy: 'source'
         };
         
-        setConnection(connectionInfo);
+        connectionRef.current = connectionInfo;
+        
+        // Schedule callback to avoid state updates during render
+        setTimeout(() => {
+          onConnectionAdded(connectionInfo);
+        }, 0);
+      } else if (padInfo.direction === GstPadDirection.SINK) {
+        // Sink pads also report their connections for validation
+        const connectionInfo: PadConnectionInfo = {
+          sourceNodeId: peerElementPtr,
+          targetNodeId: padInfo.elementPtr,
+          sourceHandleId: peerHandleId,
+          targetHandleId: currentHandleId,
+          sourcePadPtr: peerPad.ptr,
+          targetPadPtr: pad.ptr,
+          reportedBy: 'target'
+        };
+        
+        connectionRef.current = connectionInfo;
         
         // Schedule callback to avoid state updates during render
         setTimeout(() => {
@@ -154,19 +175,21 @@ const PadHandle: React.FC<PadHandleProps> = ({
   // Effect to detect and track connections
   useEffect(() => {
     analyzeConnection();
-  }, [padInfo, pad, onConnectionAdded]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [padInfo]); // Only run when padInfo changes (on mount)
 
-  // Effect to cleanup connection on unmount
+  // Effect to cleanup connection on unmount ONLY
   useEffect(() => {
     return () => {
-      if (connection && onConnectionRemoved) {
+      if (connectionRef.current && onConnectionRemoved) {
         // Schedule callback to avoid state updates during render
         setTimeout(() => {
-          onConnectionRemoved?.(connection);
+          onConnectionRemoved(connectionRef.current!);
         }, 0);
       }
     };
-  }, [connection, onConnectionRemoved]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only runs on mount/unmount
 
   if (loading || !padInfo) {
     return null; // Don't render anything while loading
