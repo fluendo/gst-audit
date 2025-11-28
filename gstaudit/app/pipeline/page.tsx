@@ -152,8 +152,8 @@ export default function PipelinePage() {
     if (!nodeTree) return;
 
     try {
-      // Use all edges for layout (validated or not)
-      await getLayoutedElements(nodeTree, allEdges);
+      // Use validated edges for layout (only edges with both nodes present)
+      await getLayoutedElements(nodeTree, edges);
       
       // Extract all nodes from the tree structure after layout
       const layoutedNodes = nodeTreeManager.getAllNodes();
@@ -181,12 +181,12 @@ export default function PipelinePage() {
     }
   };
 
-  // Auto-layout when tree changes or allEdges change
+  // Auto-layout when tree changes or validated edges change
   useEffect(() => {
     scheduleLayout();
     // Cleanup timeout on unmount
     return unscheduleLayout;
-  }, [treeVersion, allEdges]);
+  }, [treeVersion, edges]);
 
   // Validate connections when pending connections change
   useEffect(() => {
