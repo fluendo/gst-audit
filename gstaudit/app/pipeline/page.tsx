@@ -242,13 +242,13 @@ export default function PipelinePage() {
   };
 
   // Callback function to handle pad addition
-  const onPadAdded = useCallback(async (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => {
+  const onPadAdded = useCallback(async (elementId: string, element: GstElement, pad: GstPad) => {
     try {
       const elementName = await element.get_name();
       const padName = await pad.get_name();
       const handleId = `${elementName}-${padName}`;
       
-      console.log(`Pad added: ${type} pad "${padName}" on element "${elementName}" (${elementId})`);
+      console.log(`Pad added: pad "${padName}" on element "${elementName}" (${elementId})`);
       
       // Add handle to the NodeTree
       nodeTreeManager.addHandleToNode(elementId, handleId);
@@ -258,13 +258,13 @@ export default function PipelinePage() {
   }, []);
 
   // Callback function to handle pad removal
-  const onPadRemoved = useCallback(async (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => {
+  const onPadRemoved = useCallback(async (elementId: string, element: GstElement, pad: GstPad) => {
     try {
       const elementName = await element.get_name();
       const padName = await pad.get_name();
       const handleId = `${elementName}-${padName}`;
       
-      console.log(`Pad removed: ${type} pad "${padName}" from element "${elementName}" (${elementId})`);
+      console.log(`Pad removed: pad "${padName}" from element "${elementName}" (${elementId})`);
       
       // Remove handle from the NodeTree (for tracking purposes, not for validation)
       nodeTreeManager.removeHandleFromNode(elementId, handleId);

@@ -43,6 +43,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
   const connectionRef = useRef<PadConnectionInfo | null>(null);
 
   useEffect(() => {
+    console.log(`🎯 [PadHandle] Effect triggered for pad ${pad.ptr}`);
     const fetchPadInfo = async () => {
       try {
         const name = await pad.get_name();
@@ -51,6 +52,8 @@ const PadHandle: React.FC<PadHandleProps> = ({
         const elementName = parent ? await parent.get_name() : 'unknown';
         const elementPtr = parent ? parent.ptr : 'unknown';
         const id = `${elementName}-${name}`;
+        
+        console.log(`📝 [PadHandle] Pad info fetched: ${id}, direction: ${direction}`);
         
         // Check if this is a ghost pad
         const isGhost = await pad.isOf(GstGhostPad);
@@ -68,7 +71,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
           }
         }
 
-        setPadInfo({
+        const padInfoData: PadInfo = {
           name,
           direction,
           id,
@@ -76,8 +79,13 @@ const PadHandle: React.FC<PadHandleProps> = ({
           internalName,
           elementPtr,
           elementName
-        });
-        console.log(`PadHandle rendered: ${id} (${direction})`);
+        };
+        
+        setPadInfo(padInfoData);
+        
+        // Analyze connection once after padInfo is ready
+        console.log(`🔗 [PadHandle] About to analyze connection for ${id}`);
+        await analyzeConnection(padInfoData);
       } catch (error) {
         console.error('Error fetching pad info:', error);
       } finally {
@@ -86,11 +94,12 @@ const PadHandle: React.FC<PadHandleProps> = ({
     };
 
     fetchPadInfo();
-  }, [pad]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pad]); // Only run when pad reference changes
 
   // Analyze pad connections and create connection info
-  const analyzeConnection = async () => {
-    if (!padInfo || !onConnectionAdded) return;
+  const analyzeConnection = async (info: PadInfo) => {
+    if (!info || !onConnectionAdded) return;
 
     try {
       const isLinked = await pad.is_linked();
@@ -126,14 +135,14 @@ const PadHandle: React.FC<PadHandleProps> = ({
         peerPadName = await peerPad.get_name();
       }
       
-      const currentHandleId = padInfo.id;
+      const currentHandleId = info.id;
       const peerHandleId = `${peerElementName}-${peerPadName}`;
       
       // Only create connections for source pads to avoid duplicates
       // (each connection will be created once by the source pad)
-      if (padInfo.direction === GstPadDirection.SRC) {
+      if (info.direction === GstPadDirection.SRC) {
         const connectionInfo: PadConnectionInfo = {
-          sourceNodeId: padInfo.elementPtr,
+          sourceNodeId: info.elementPtr,
           targetNodeId: peerElementPtr,
           sourceHandleId: currentHandleId,
           targetHandleId: peerHandleId,
@@ -148,11 +157,11 @@ const PadHandle: React.FC<PadHandleProps> = ({
         setTimeout(() => {
           onConnectionAdded(connectionInfo);
         }, 0);
-      } else if (padInfo.direction === GstPadDirection.SINK) {
+      } else if (info.direction === GstPadDirection.SINK) {
         // Sink pads also report their connections for validation
         const connectionInfo: PadConnectionInfo = {
           sourceNodeId: peerElementPtr,
-          targetNodeId: padInfo.elementPtr,
+          targetNodeId: info.elementPtr,
           sourceHandleId: peerHandleId,
           targetHandleId: currentHandleId,
           sourcePadPtr: peerPad.ptr,
@@ -171,12 +180,6 @@ const PadHandle: React.FC<PadHandleProps> = ({
       console.error('Error analyzing connection:', err);
     }
   };
-
-  // Effect to detect and track connections
-  useEffect(() => {
-    analyzeConnection();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [padInfo]); // Only run when padInfo changes (on mount)
 
   // Effect to cleanup connection on unmount ONLY
   useEffect(() => {
