@@ -85,18 +85,27 @@ export default function PipelinePage() {
   // Initialize the node tree manager
   const nodeTreeManager = useRef(new NodeTreeManager()).current;
   
-  // Track all edges separately for validation
-  const allEdgesRef = useRef<Edge[]>([]);
+  // Track all edges separately for validation and layout
+  const [allEdges, setAllEdges] = useState<Edge[]>([]);
+  
+  // Debounce validation to avoid multiple calls
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Debounce layout to avoid multiple calls
+  const layoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const config = getConfig();
 
   // Validate edges against available handles in NodeTree
   const validateEdges = () => {
-    const validated = allEdgesRef.current.filter(edge => {
+    const validated = allEdges.filter(edge => {
       const sourceNode = nodeTreeManager.findNode(edge.source);
       const targetNode = nodeTreeManager.findNode(edge.target);
       
-      if (!sourceNode || !targetNode) return false;
+      if (!sourceNode || !targetNode) {
+        console.log(`Edge validation failed: node not found for edge ${edge.id}`);
+        return false;
+      }
       
       // Check if both handles exist
       const sourceHandleExists = edge.sourceHandle 
@@ -107,55 +116,115 @@ export default function PipelinePage() {
         ? targetNode.handles.includes(edge.targetHandle)
         : true;
       
-      return sourceHandleExists && targetHandleExists;
+      const isValid = sourceHandleExists && targetHandleExists;
+      
+      if (isValid) {
+        console.log(`Edge validated: ${edge.id} (${edge.sourceHandle} -> ${edge.targetHandle})`);
+      } else {
+        console.log(`Edge validation failed: ${edge.id} - source handle exists: ${sourceHandleExists}, target handle exists: ${targetHandleExists}`);
+      }
+      
+      return isValid;
     });
+    
+    console.log(`Validated ${validated.length} of ${allEdges.length} edges`);
     
     setEdges(validated);
   };
 
-  // Add edge to tracking and validate
-  const addEdgeToTracking = (newEdge: Edge) => {
-    // Check if edge already exists
-    const exists = allEdgesRef.current.some(e => 
-      e.source === newEdge.source && 
-      e.target === newEdge.target &&
-      e.sourceHandle === newEdge.sourceHandle &&
-      e.targetHandle === newEdge.targetHandle
-    );
+  // Debounced validation - waits for all pad additions to complete
+  const scheduleValidation = () => {
+    // Clear any existing timeout
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
+    }
     
-    if (!exists) {
-      allEdgesRef.current = [...allEdgesRef.current, newEdge];
+    // Schedule new validation after delay
+    validationTimeoutRef.current = setTimeout(() => {
       validateEdges();
+    }, 200); // Wait for all pads to be added and rendered
+  };
+
+  // Cancel any pending validation
+  const unscheduleValidation = () => {
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
     }
   };
 
-  // Auto-layout when tree changes
-  useEffect(() => {
+  // Perform layout calculation and update nodes
+  const layout = async () => {
     const nodeTree = nodeTreeManager.getTree();
-    if (nodeTree) {
-      const relayout = async () => {
-        try {
-          await getLayoutedElements(nodeTree, edges);
-          
-          // Extract all nodes from the tree structure after layout
-          const layoutedNodes = nodeTreeManager.getAllNodes();
-          setNodes(layoutedNodes);
-        } catch (error) {
-          console.error('Error during layout:', error);
-        }
-      };
-      relayout();
-    }
-  }, [treeVersion, edges]);
+    if (!nodeTree) return;
 
-  const onConnect = useCallback(
-    (params: Connection) => {
-      // Manual connection handling if needed
-      // For now, connections are managed through onConnectionAdded
-      console.log('Manual connection attempt:', params);
-    },
-    [],
-  );
+    try {
+      // Use all tracked edges for layout, not just validated ones
+      await getLayoutedElements(nodeTree, allEdges);
+      
+      // Extract all nodes from the tree structure after layout
+      const layoutedNodes = nodeTreeManager.getAllNodes();
+      setNodes(layoutedNodes);
+    } catch (error) {
+      console.error('Error during layout:', error);
+    }
+  };
+
+  // Debounced layout - waits for all changes to complete
+  const scheduleLayout = () => {
+    // Clear any existing timeout
+    if (layoutTimeoutRef.current) {
+      clearTimeout(layoutTimeoutRef.current);
+    }
+    
+    // Schedule layout after delay
+    layoutTimeoutRef.current = setTimeout(() => {
+      layout();
+    }, 200); // Wait for all changes to settle
+  };
+
+  // Cancel any pending layout
+  const unscheduleLayout = () => {
+    if (layoutTimeoutRef.current) {
+      clearTimeout(layoutTimeoutRef.current);
+    }
+  };
+
+  // Add edge to tracking
+  const addEdgeToTracking = (newEdge: Edge) => {
+    setAllEdges(currentEdges => {
+      // Check if edge already exists
+      const exists = currentEdges.some(e => 
+        e.source === newEdge.source && 
+        e.target === newEdge.target &&
+        e.sourceHandle === newEdge.sourceHandle &&
+        e.targetHandle === newEdge.targetHandle
+      );
+      
+      if (!exists) {
+        console.log(`Adding edge to tracking: ${newEdge.id} (${newEdge.sourceHandle} -> ${newEdge.targetHandle})`);
+        return [...currentEdges, newEdge];
+      } else {
+        console.log(`Edge already exists, skipping: ${newEdge.id} (${newEdge.sourceHandle} -> ${newEdge.targetHandle})`);
+        return currentEdges;
+      }
+    });
+  };
+
+  // Auto-layout when tree changes or edges are added
+  useEffect(() => {
+    scheduleLayout();
+    // Cleanup timeout on unmount
+    return unscheduleLayout;
+  }, [treeVersion, allEdges]);
+
+  // Validate edges when allEdges changes
+  useEffect(() => {
+    if (allEdges.length > 0) {
+      scheduleValidation();
+    }
+    // Cleanup timeout on unmount
+    return unscheduleValidation;
+  }, [allEdges]);
 
   const fetchPipelines = async () => {
     try {
@@ -208,8 +277,8 @@ export default function PipelinePage() {
       // Add handle to the NodeTree
       nodeTreeManager.addHandleToNode(elementId, handleId);
       
-      // Validate edges since a new handle is available
-      validateEdges();
+      // Schedule debounced validation - will wait for all pads to be added
+      scheduleValidation();
     } catch (error) {
       console.error('Error handling pad addition:', error);
     }
@@ -228,7 +297,7 @@ export default function PipelinePage() {
       nodeTreeManager.removeHandleFromNode(elementId, handleId);
       
       // Validate edges since a handle was removed
-      validateEdges();
+      scheduleValidation();
     } catch (error) {
       console.error('Error handling pad removal:', error);
     }
@@ -238,6 +307,10 @@ export default function PipelinePage() {
   const onConnectionAdded = useCallback((connection: PadConnectionInfo) => {
     console.log('Connection added:', connection);
     
+    // Determine edge type based on whether it involves ghost pads
+    // In the main branch, ghost pads use 'ghostPad' type
+    const edgeType = 'default'; // Could be enhanced to detect ghost pads
+    
     // Create an edge from the connection info
     const newEdge: Edge = {
       id: `${connection.sourceHandleId}-${connection.targetHandleId}`,
@@ -245,7 +318,16 @@ export default function PipelinePage() {
       target: connection.targetNodeId,
       sourceHandle: connection.sourceHandleId,
       targetHandle: connection.targetHandleId,
-      type: 'default',
+      type: edgeType,
+      animated: true,
+      style: {
+        stroke: '#0ea5e9',
+        strokeWidth: 2,
+      },
+      markerEnd: {
+        type: 'arrowclosed',
+        color: '#0ea5e9',
+      },
     };
     
     // Add edge to tracking
@@ -257,15 +339,14 @@ export default function PipelinePage() {
     console.log('Connection removed:', connection);
     
     // Remove the edge from tracking
-    allEdgesRef.current = allEdgesRef.current.filter(edge => 
-      !(edge.sourceHandle === connection.sourceHandleId &&
-        edge.targetHandle === connection.targetHandleId &&
-        edge.source === connection.sourceNodeId &&
-        edge.target === connection.targetNodeId)
+    setAllEdges(currentEdges => 
+      currentEdges.filter(edge => 
+        !(edge.sourceHandle === connection.sourceHandleId &&
+          edge.targetHandle === connection.targetHandleId &&
+          edge.source === connection.sourceNodeId &&
+          edge.target === connection.targetNodeId)
+      )
     );
-    
-    // Validate edges after removal
-    validateEdges();
   }, []);
 
   // Callback function to handle element removal
@@ -493,7 +574,6 @@ export default function PipelinePage() {
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView={false}

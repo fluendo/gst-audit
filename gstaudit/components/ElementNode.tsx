@@ -11,6 +11,7 @@ interface ElementNodeData {
   onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void;
   onConnectionAdded?: (connection: PadConnectionInfo) => void;
   onConnectionRemoved?: (connection: PadConnectionInfo) => void;
+  onHandleReady?: (handleId: string) => void;
 }
 
 const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
@@ -22,9 +23,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
   const { sinkPads, srcPads, padtemplates, loading, error } = usePads(
     nodeData.element,
     nodeData.onPadAdded,
-    nodeData.onPadRemoved,
-    nodeData.onConnectionAdded,
-    nodeData.onConnectionRemoved
+    nodeData.onPadRemoved
   );
   
   // Get element name
@@ -91,6 +90,8 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
           index={index}
           count={sinkPads.length}
           containerDimensions={containerDimensions}
+          onConnectionAdded={nodeData.onConnectionAdded}
+          onConnectionRemoved={nodeData.onConnectionRemoved}
         />
       ))}
       
@@ -102,6 +103,8 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
           index={index}
           count={srcPads.length}
           containerDimensions={containerDimensions}
+          onConnectionAdded={nodeData.onConnectionAdded}
+          onConnectionRemoved={nodeData.onConnectionRemoved}
         />
       ))}
     </div>

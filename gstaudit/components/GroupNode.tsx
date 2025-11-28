@@ -13,6 +13,7 @@ interface GroupNodeData {
   onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad, type: 'sink' | 'src') => void;
   onConnectionAdded?: (connection: PadConnectionInfo) => void;
   onConnectionRemoved?: (connection: PadConnectionInfo) => void;
+  onHandleReady?: (handleId: string) => void;
 }
 
 const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
@@ -24,9 +25,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   const { sinkPads, srcPads, padtemplates, loading, error } = usePads(
     nodeData.bin,
     nodeData.onPadAdded,
-    nodeData.onPadRemoved,
-    nodeData.onConnectionAdded,
-    nodeData.onConnectionRemoved
+    nodeData.onPadRemoved
   );
 
   // Get the actual node dimensions from React Flow/ELK
@@ -160,6 +159,8 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
           index={index}
           count={sinkPads.length}
           containerDimensions={containerDimensions}
+          onConnectionAdded={nodeData.onConnectionAdded}
+          onConnectionRemoved={nodeData.onConnectionRemoved}
         />
       ))}
       
@@ -171,6 +172,8 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
           index={index}
           count={srcPads.length}
           containerDimensions={containerDimensions}
+          onConnectionAdded={nodeData.onConnectionAdded}
+          onConnectionRemoved={nodeData.onConnectionRemoved}
         />
       ))}
     </div>

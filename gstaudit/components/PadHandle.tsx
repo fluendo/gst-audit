@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { GstPad, GstPadDirection, GstPadDirectionValue, GstGhostPad } from '@/lib/gst';
+import { GstPad, GstPadDirection, GstPadDirectionValue, GstGhostPad, GstElement } from '@/lib/gst';
+import type { PadConnectionInfo } from './types';
 
 interface ContainerDimensions {
   width: number;
@@ -13,6 +14,8 @@ interface PadHandleProps {
   index: number;
   count: number;
   containerDimensions: ContainerDimensions;
+  onConnectionAdded?: (connection: PadConnectionInfo) => void;
+  onConnectionRemoved?: (connection: PadConnectionInfo) => void;
 }
 
 interface PadInfo {
@@ -21,16 +24,21 @@ interface PadInfo {
   id: string;
   isGhost: boolean;
   internalName?: string;
+  elementPtr: string;
+  elementName: string;
 }
 
 const PadHandle: React.FC<PadHandleProps> = ({
   pad,
   index,
   count,
-  containerDimensions
+  containerDimensions,
+  onConnectionAdded,
+  onConnectionRemoved
 }) => {
   const [padInfo, setPadInfo] = useState<PadInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [connection, setConnection] = useState<PadConnectionInfo | null>(null);
 
   useEffect(() => {
     const fetchPadInfo = async () => {
@@ -39,6 +47,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
         const direction = await pad.get_direction();
         const parent = await pad.get_parent();
         const elementName = parent ? await parent.get_name() : 'unknown';
+        const elementPtr = parent ? parent.ptr : 'unknown';
         const id = `${elementName}-${name}`;
         
         // Check if this is a ghost pad
@@ -62,8 +71,11 @@ const PadHandle: React.FC<PadHandleProps> = ({
           direction,
           id,
           isGhost,
-          internalName
+          internalName,
+          elementPtr,
+          elementName
         });
+        console.log(`PadHandle rendered: ${id} (${direction})`);
       } catch (error) {
         console.error('Error fetching pad info:', error);
       } finally {
@@ -73,6 +85,88 @@ const PadHandle: React.FC<PadHandleProps> = ({
 
     fetchPadInfo();
   }, [pad]);
+
+  // Analyze pad connections and create connection info
+  const analyzeConnection = async () => {
+    if (!padInfo || !onConnectionAdded) return;
+
+    try {
+      const isLinked = await pad.is_linked();
+      if (!isLinked) {
+        return;
+      }
+
+      const peerPad = await pad.get_peer();
+      
+      // Get the peer pad's parent - could be a GstElement or GstGhostPad
+      const peerParent = await peerPad.get_parent();
+      let peerElement: GstElement;
+      let peerElementPtr: string;
+      let peerElementName: string;
+      let peerPadName: string;
+      
+      // Check if peer parent is a ghost pad (internal pad case)
+      if (await peerParent.isOf(GstGhostPad)) {
+        // The peer is an internal pad of a ghost pad
+        const ghostPad = await peerParent.castTo(GstGhostPad);
+        const ghostParent = await ghostPad.get_parent();
+        peerElement = await ghostParent.castTo(GstElement);
+        peerElementPtr = peerElement.ptr;
+        peerElementName = await peerElement.get_name();
+        
+        // For ghost pads, use the ghost pad name, not the internal pad name
+        peerPadName = await ghostPad.get_name();
+      } else {
+        // Normal case - peer parent is directly a GstElement
+        peerElement = await peerParent.castTo(GstElement);
+        peerElementPtr = peerElement.ptr;
+        peerElementName = await peerElement.get_name();
+        peerPadName = await peerPad.get_name();
+      }
+      
+      const currentHandleId = padInfo.id;
+      const peerHandleId = `${peerElementName}-${peerPadName}`;
+      
+      // Only create connections for source pads to avoid duplicates
+      // (each connection will be created once by the source pad)
+      if (padInfo.direction === GstPadDirection.SRC) {
+        const connectionInfo: PadConnectionInfo = {
+          sourceNodeId: padInfo.elementPtr,
+          targetNodeId: peerElementPtr,
+          sourceHandleId: currentHandleId,
+          targetHandleId: peerHandleId,
+          sourcePadPtr: pad.ptr,
+          targetPadPtr: peerPad.ptr
+        };
+        
+        setConnection(connectionInfo);
+        
+        // Schedule callback to avoid state updates during render
+        setTimeout(() => {
+          onConnectionAdded(connectionInfo);
+        }, 0);
+      }
+    } catch (err) {
+      console.error('Error analyzing connection:', err);
+    }
+  };
+
+  // Effect to detect and track connections
+  useEffect(() => {
+    analyzeConnection();
+  }, [padInfo, pad, onConnectionAdded]);
+
+  // Effect to cleanup connection on unmount
+  useEffect(() => {
+    return () => {
+      if (connection && onConnectionRemoved) {
+        // Schedule callback to avoid state updates during render
+        setTimeout(() => {
+          onConnectionRemoved?.(connection);
+        }, 0);
+      }
+    };
+  }, [connection, onConnectionRemoved]);
 
   if (loading || !padInfo) {
     return null; // Don't render anything while loading
