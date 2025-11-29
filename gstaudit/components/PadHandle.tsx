@@ -228,59 +228,50 @@ const PadHandle: React.FC<PadHandleProps> = ({
   const isSink = padInfo.direction === GstPadDirection.SINK;
   const handleType = isSink ? 'target' : 'source';
   const position = isSink ? Position.Left : Position.Right;
-  const backgroundColor = isSink ? '#ef4444' : '#22c55e'; // Red for sink, green for source
+  const handleClassName = isSink ? 'gst-audit-pad-handle gst-audit-pad-handle--sink' : 'gst-audit-pad-handle gst-audit-pad-handle--src';
+
+  // If this is a ghost pad, we need to stack both pads vertically
+  const isGhost = padInfo.isGhost && padInfo.internalName;
+  const containerHeight = isGhost ? 50 : 20; // Taller container for stacked pads
+  
+  // Handles don't need positioning - flexbox in container handles it
+  const handleStyle = {};
+  const internalHandleStyle = {};
+
+  // Container classes
+  const containerClass = isGhost 
+    ? `gst-audit-pad-container gst-audit-pad-container--ghost ${isSink ? 'gst-audit-pad-container--sink' : 'gst-audit-pad-container--src'}`
+    : `gst-audit-pad-container ${isSink ? 'gst-audit-pad-container--sink' : 'gst-audit-pad-container--src'}`;
 
   return (
-    <React.Fragment>
-      {/* Main Handle (ghost or regular) */}
+    <div 
+      className={containerClass}
+      style={{ top: padPosition - (containerHeight / 2) }}
+    >
+      {/* Main Handle (ghost or regular) with pad name inside */}
       <Handle
         type={handleType}
         position={position}
         id={padInfo.id}
-        style={{
-          top: padPosition,
-          backgroundColor,
-          width: 8,
-          height: 8,
-          border: '1px solid #1f2937',
-          zIndex: 10
-        }}
-      />
+        className={handleClassName}
+        style={handleStyle}
+      >
+        {padInfo.name}
+      </Handle>
       
-      {/* Ghost pad internal handle */}
-      {padInfo.isGhost && padInfo.internalName && (
+      {/* Ghost pad internal handle - positioned below the ghost pad */}
+      {isGhost && (
         <Handle
           type={isSink ? 'source' : 'target'} // Opposite type for internal
           position={position}
           id={`${padInfo.elementName}-${padInfo.name}-${padInfo.internalName}`}
-          style={{
-            top: padPosition,
-            [isSink ? 'left' : 'right']: 10, // Position inside the container
-            backgroundColor: '#3b82f6', // Blue for internal
-            width: 8,
-            height: 8,
-            border: '1px solid #1f2937',
-            borderRadius: '50%',
-            zIndex: 9
-          }}
-        />
+          className="gst-audit-pad-handle gst-audit-pad-handle--internal"
+          style={internalHandleStyle}
+        >
+          {padInfo.internalName}
+        </Handle>
       )}
-      
-      {/* Pad Label */}
-      <div
-        className="absolute text-xs"
-        style={{
-          [isSink ? 'left' : 'right']: 12,
-          top: padPosition - 4, // Center text with handle
-          fontSize: '10px',
-          textAlign: isSink ? 'left' : 'right',
-          color: '#374151',
-          zIndex: 5
-        }}
-      >
-        {padInfo.name}
-      </div>
-    </React.Fragment>
+    </div>
   );
 };
 

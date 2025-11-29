@@ -4,6 +4,7 @@ import { GstElement, GstPad } from '@/lib/gst';
 import { usePads, useSinkSrcPads } from '@/hooks';
 import PadHandle from './PadHandle';
 import type { PadConnectionInfo } from './types';
+import { getTheme } from '@/lib/theme';
 
 interface ElementNodeData {
   element: GstElement;
@@ -63,38 +64,60 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
 
   if (loading) {
     return (
-      <div className="bg-white border-2 border-gray-300 rounded-lg px-4 py-2 shadow-sm min-w-[120px]">
-        <div className="text-sm font-medium text-gray-800">{elementName}</div>
-        <div className="text-xs text-gray-500">Loading pads...</div>
+      <div className="gst-audit-element-node gst-audit-element-node--loading">
+        <div className="gst-audit-element-node__header">
+          <div className="gst-audit-element-node__name">{elementName}</div>
+          <div className="gst-audit-element-node__info">Loading pads...</div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border-2 border-red-300 rounded-lg px-4 py-2 shadow-sm min-w-[120px]">
-        <div className="text-sm font-medium text-red-800">{elementName}</div>
-        <div className="text-xs text-red-600">Error: {error}</div>
+      <div className="gst-audit-element-node gst-audit-element-node--error">
+        <div className="gst-audit-element-node__header">
+          <div className="gst-audit-element-node__name">{elementName}</div>
+          <div className="gst-audit-element-node__info">Error: {error}</div>
+        </div>
       </div>
     );
   }
 
   // Calculate node height based on pad counts
-  const nodeHeight = Math.max(60, Math.max(sinkPads.length, srcPads.length) * 20 + 40);
+  // Ghost pads need more space (50px) vs regular pads (32px)
+  const theme = getTheme();
+  const nodeHeight = Math.max(
+    theme.node.elementMinHeight, 
+    Math.max(sinkPads.length, srcPads.length) * theme.pad.spacing + theme.node.headerHeight
+  );
   const containerDimensions = {
-    width: 120, // Fixed width for elements
+    width: theme.node.elementWidth,
     height: nodeHeight,
-    headerHeight: 40
+    headerHeight: theme.node.headerHeight
   };
+
+  // Determine element class based on pad types
+  const hasSink = sinkPads.length > 0;
+  const hasSrc = srcPads.length > 0;
+  let padTypeClass = '';
+  if (hasSink && hasSrc) {
+    padTypeClass = 'gst-audit-element-node--both-pads';
+  } else if (hasSink) {
+    padTypeClass = 'gst-audit-element-node--sink-only';
+  } else if (hasSrc) {
+    padTypeClass = 'gst-audit-element-node--src-only';
+  }
 
   return (
     <div 
-      className="bg-white border-2 border-blue-300 rounded-lg px-4 py-2 shadow-sm min-w-[120px] relative"
-      style={{ height: nodeHeight }}
+      className={`gst-audit-element-node ${padTypeClass}`}
+      style={{ height: nodeHeight, position: 'relative' }}
     >
-      {/* Element name */}
-      <div className="text-sm font-medium text-gray-800 mb-1">{elementName}</div>
-      <div className="text-xs text-gray-500">{sinkPads.length + srcPads.length} pad(s)</div>
+      <div className="gst-audit-element-node__header">
+        <div className="gst-audit-element-node__name">{elementName}</div>
+        <div className="gst-audit-element-node__info">{sinkPads.length + srcPads.length} pad(s)</div>
+      </div>
       
       {/* Render sink pads using PadHandle component */}
       {sinkPads.map((pad, index) => (

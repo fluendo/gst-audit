@@ -15,6 +15,7 @@ import {
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import '../pipeline-theme.css';
 import Link from 'next/link';
 import { getConfig, getLayoutedElements, NodeTreeManager, NodeTree } from '@/lib';
 import type { PadConnectionInfo } from '@/components/types';
@@ -283,7 +284,7 @@ export default function PipelinePage() {
     // Determine edge type based on whether this is an internal connection
     const edgeType = connection.isInternal ? 'internal' : 'default';
     
-    // Create edge object
+    // Create edge object with className for styling
     const newEdge: Edge = {
       id: connectionId,
       source: connection.sourceNodeId,
@@ -291,14 +292,9 @@ export default function PipelinePage() {
       sourceHandle: connection.sourceHandleId,
       targetHandle: connection.targetHandleId,
       type: edgeType,
-      animated: true,
-      style: {
-        stroke: '#0ea5e9',
-        strokeWidth: 2,
-      },
+      animated: false,
       markerEnd: {
         type: 'arrowclosed',
-        color: '#0ea5e9',
       },
     };
     

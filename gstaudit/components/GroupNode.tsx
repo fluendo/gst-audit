@@ -110,16 +110,16 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   if (loading) {
     return (
       <div 
-        className="bg-purple-50 rounded-lg shadow-sm w-full h-full min-w-[200px] relative"
+        className="gst-audit-group-node gst-audit-group-node--loading"
         style={{
-          minHeight: 120,
-          border: 'none',
-          backgroundColor: 'rgb(250 245 255)'
+          minHeight: 150,
+          width: '100%',
+          height: '100%'
         }}
       >
-        <div className="p-4">
-          <div className="text-sm font-medium text-purple-800">{elementName}</div>
-          <div className="text-xs text-purple-600">Loading pads...</div>
+        <div className="gst-audit-group-node__header">
+          <div className="gst-audit-group-node__name">{elementName}</div>
+          <div className="gst-audit-group-node__info">Loading pads...</div>
         </div>
       </div>
     );
@@ -128,16 +128,16 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   if (error) {
     return (
       <div 
-        className="bg-red-50 rounded-lg shadow-sm w-full h-full min-w-[200px] relative"
+        className="gst-audit-group-node gst-audit-group-node--error"
         style={{
-          minHeight: 120,
-          border: 'none',
-          backgroundColor: 'rgb(254 242 242)'
+          minHeight: 150,
+          width: '100%',
+          height: '100%'
         }}
       >
-        <div className="p-4">
-          <div className="text-sm font-medium text-red-800">{elementName}</div>
-          <div className="text-xs text-red-600">Error: {error}</div>
+        <div className="gst-audit-group-node__header">
+          <div className="gst-audit-group-node__name">{elementName}</div>
+          <div className="gst-audit-group-node__info">Error: {error}</div>
         </div>
       </div>
     );
@@ -145,25 +145,18 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
 
   return (
     <div 
-      className="bg-white border-2 border-blue-300 rounded-lg px-4 py-2 shadow-sm min-w-[120px]"
+      className="gst-audit-group-node"
       style={{
         width: nodeWidth,
-        height: nodeHeight,
-        // Override React Flow's default group styling
-        border: 'none',
-        borderRadius: '8px'
+        height: nodeHeight
       }}
     >
-      {/* Header area for the bin information */}
-      <div className="p-3 border-b border-purple-200 bg-purple-100 rounded-t-lg">
-        <div className="text-sm font-medium text-purple-800 mb-1">
-          {elementName} <span className="text-xs font-bold"></span>
-        </div>
-        <div className="text-xs text-purple-600">{sinkPads.length + srcPads.length} pad(s)</div>
+      <div className="gst-audit-group-node__header">
+        <div className="gst-audit-group-node__name">{elementName}</div>
+        <div className="gst-audit-group-node__info">{sinkPads.length + srcPads.length} pad(s)</div>
       </div>
       
-      {/* Content area for children - React Flow will position children here */}
-      <div className="flex-1 min-h-[60px]"></div>
+      <div className="gst-audit-group-node__content"></div>
       
       {/* Render sink pads using PadHandle component */}
       {sinkPads.map((pad, index) => (

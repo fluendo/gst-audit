@@ -1,0 +1,338 @@
+/* GStreamer Pipeline Theme - Classic Dot Graph Style */
+
+/* ============================================
+   CSS Custom Properties (Theme Variables)
+   These are synchronized with TypeScript theme config
+   ============================================ */
+:root {
+  /* Node dimensions */
+  --node-element-width: 140px;
+  --node-header-height: 36px;
+  --node-group-min-width: 200px;
+  --node-group-min-height: 120px;
+  
+  /* Pad dimensions */
+  --pad-min-width: 50px;
+  --pad-min-height: 20px;
+  --pad-offset: 8px;
+  --pad-ghost-height: 54px;
+  --pad-ghost-padding: 4px;
+  
+  /* Colors - can be overridden per theme */
+  --color-element-bg: #ffffff;
+  --color-element-border: #000000;
+  --color-element-text: #000000;
+  --color-element-info: #666666;
+  
+  --color-group-bg: #ffffff;
+  --color-group-border: #000000;
+  --color-group-header-bg: #f0f0f0;
+  --color-group-header-border: #cccccc;
+  
+  --color-sink: #aaaaff;
+  --color-src: #ffaaaa;
+  --color-pad-internal: #cccccc;
+  --color-sinksrc: #aaffaa;
+  --color-pad-border: #000000;
+  --color-pad-text: #000000;
+  
+  --color-edge: #000000;
+  --color-edge-animated: #0066cc;
+  --color-edge-internal: #666666;
+}
+
+/* ============================================
+   Element Nodes (Leaf Nodes)
+   ============================================ */
+.gst-audit-element-node {
+  background: var(--color-element-bg);
+  border: 2px solid var(--color-element-border);
+  border-radius: 8px;
+  box-shadow: none;
+  padding: 8px 12px;
+  min-width: var(--node-element-width);
+  font-family: monospace;
+  position: relative;
+}
+
+.gst-audit-element-node__header {
+  margin-bottom: 4px;
+}
+
+.gst-audit-element-node__name {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--color-element-text);
+  font-family: monospace;
+}
+
+.gst-audit-element-node__info {
+  font-size: 10px;
+  color: var(--color-element-info);
+  font-family: monospace;
+}
+
+.gst-audit-element-node--loading {
+  background: #f5f5f5;
+  border-color: #999999;
+}
+
+.gst-audit-element-node--error {
+  background: #ffe0e0;
+  border-color: #cc0000;
+}
+
+.gst-audit-element-node--error .gst-audit-element-node__name {
+  color: #cc0000;
+}
+
+.gst-audit-element-node--error .gst-audit-element-node__info {
+  color: #cc0000;
+}
+
+/* Element background colors based on pad types */
+.gst-audit-element-node--sink-only {
+  background: var(--color-sink);
+}
+
+.gst-audit-element-node--src-only {
+  background: var(--color-src);
+}
+
+.gst-audit-element-node--both-pads {
+  background: var(--color-sinksrc);
+}
+
+/* ============================================
+   Group Nodes (Bins/Pipelines)
+   ============================================ */
+.gst-audit-group-node {
+  background: var(--color-group-bg);
+  border: 3px dashed var(--color-group-border);
+  border-radius: 8px;
+  box-shadow: none;
+  padding: 0;
+  min-width: var(--node-group-min-width);
+  min-height: var(--node-group-min-height);
+  position: relative;
+}
+
+.gst-audit-group-node__header {
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--color-group-header-border);
+  background: var(--color-group-header-bg);
+  border-radius: 6px 6px 0 0;
+}
+
+.gst-audit-group-node__name {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--color-element-text);
+  font-family: monospace;
+  margin-bottom: 4px;
+}
+
+.gst-audit-group-node__info {
+  font-size: 10px;
+  color: var(--color-element-info);
+  font-family: monospace;
+}
+
+.gst-audit-group-node__content {
+  flex: 1;
+  min-height: 80px;
+}
+
+.gst-audit-group-node--loading {
+  background: #f5f5f5;
+  border-color: #999999;
+}
+
+.gst-audit-group-node--loading .gst-audit-group-node__header {
+  background: #e8e8e8;
+}
+
+.gst-audit-group-node--error {
+  background: #ffe0e0;
+  border-color: #cc0000;
+}
+
+.gst-audit-group-node--error .gst-audit-group-node__header {
+  background: #ffcccc;
+}
+
+.gst-audit-group-node--error .gst-audit-group-node__name {
+  color: #cc0000;
+}
+
+.gst-audit-group-node--error .gst-audit-group-node__info {
+  color: #cc0000;
+}
+
+/* ============================================
+   Pad Handles
+   ============================================ */
+
+/* Pad Container - wraps one or more pads */
+.gst-audit-pad-container {
+  position: absolute;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.gst-audit-pad-container--sink {
+  left: var(--pad-offset);
+}
+
+.gst-audit-pad-container--src {
+  right: var(--pad-offset);
+}
+
+/* Ghost pad container with black border grouping */
+.gst-audit-pad-container--ghost {
+  border: 2px solid var(--color-pad-border);
+  border-radius: 0;
+  background: transparent;
+  padding: var(--pad-ghost-padding);
+  min-width: calc(var(--pad-min-width) + 4px);
+  height: var(--pad-ghost-height);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: stretch;
+  gap: 4px;
+}
+
+/* Pad Handle styles */
+.gst-audit-pad-handle {
+  width: auto !important;
+  height: auto !important;
+  min-width: var(--pad-min-width);
+  min-height: var(--pad-min-height);
+  border: 1px solid var(--color-pad-border);
+  border-radius: 0;
+  z-index: 10;
+  padding: 3px 6px;
+  font-family: monospace;
+  font-size: 9px;
+  color: var(--color-pad-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: none !important;
+  line-height: 1;
+  pointer-events: auto;
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+.gst-audit-pad-handle--sink {
+  background: var(--color-sink);
+}
+
+.gst-audit-pad-handle--src {
+  background: var(--color-src);
+}
+
+.gst-audit-pad-handle--internal {
+  background: var(--color-pad-internal);
+  border-radius: 0;
+  z-index: 9;
+}
+
+.gst-audit-pad-label {
+  display: none;
+}
+
+/* ============================================
+   Edges (Connections)
+   ============================================ */
+.react-flow__edge-path {
+  stroke: var(--color-edge);
+  stroke-width: 2;
+  fill: none;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke: var(--color-edge-animated);
+  stroke-width: 2.5;
+}
+
+.react-flow__edge-internal .react-flow__edge-path {
+  stroke: var(--color-edge-internal);
+  stroke-width: 1.5;
+  stroke-dasharray: 5, 5;
+}
+
+.react-flow__edge-internal.animated .react-flow__edge-path {
+  stroke: var(--color-edge-animated);
+  stroke-dasharray: 5, 5;
+}
+
+/* Edge markers */
+.react-flow__arrowhead {
+  fill: var(--color-edge);
+}
+
+.react-flow__edge.animated .react-flow__arrowhead {
+  fill: var(--color-edge-animated);
+}
+
+.react-flow__edge-internal .react-flow__arrowhead {
+  fill: var(--color-edge-internal);
+}
+
+.react-flow__edge-internal.animated .react-flow__arrowhead {
+  fill: var(--color-edge-animated);
+}
+
+/* ============================================
+   React Flow Overrides
+   ============================================ */
+.react-flow__node {
+  padding: 0;
+}
+
+.react-flow__node.selected .gst-audit-element-node,
+.react-flow__node.selected .gst-audit-group-node {
+  outline: 3px solid #0066cc;
+  outline-offset: 2px;
+}
+
+.react-flow__node-group {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* ============================================
+   Pipeline Page Overrides
+   ============================================ */
+.react-flow__minimap {
+  background: #f5f5f5;
+  border: 1px solid #cccccc;
+}
+
+.react-flow__minimap-node {
+  fill: #dddddd;
+  stroke: #000000;
+  stroke-width: 1;
+}
+
+.react-flow__controls {
+  border: 1px solid #cccccc;
+  background: #ffffff;
+}
+
+.react-flow__controls-button {
+  border-bottom: 1px solid #cccccc;
+  background: #ffffff;
+}
+
+.react-flow__controls-button:hover {
+  background: #f0f0f0;
+}
+

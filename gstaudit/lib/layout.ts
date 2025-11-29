@@ -1,35 +1,45 @@
 import { Position, Edge } from '@xyflow/react';
 import ELK, { ElkNode, ElkExtendedEdge } from 'elkjs/lib/elk.bundled.js';
 import { NodeTree } from './NodeTreeManager';
+import { getTheme } from './theme';
 
 const elk = new ELK();
 
-const nodeWidth = 172;
-const nodeHeight = 36;
-
 export const getLayoutedElements = async (nodeTree: NodeTree, edges: Edge[] = [], direction = 'LR') => {
   const isHorizontal = direction === 'LR';
+  const theme = getTheme();
 
   // Build ELK graph structure directly from tree
   const buildElkNode = (tree: NodeTree): ElkNode => {
     const isGroup = tree.children.length > 0;
 
+    // For element nodes, use the actual height if it's been set (from pad calculations)
+    // Otherwise fall back to theme minimum height
+    const elementHeight = !isGroup && tree.node.style?.height 
+      ? (typeof tree.node.style.height === 'number' 
+          ? tree.node.style.height 
+          : parseFloat(tree.node.style.height as string))
+      : theme.node.elementMinHeight;
+
     const elkNode: ElkNode = {
       id: tree.node.id,
-      // For groups, use minimum size; for elements, use standard size
-      ...(isGroup ? {} : { width: nodeWidth, height: nodeHeight }),
+      // For groups, use minimum size; for elements, use actual or standard size
+      ...(isGroup ? {} : { 
+        width: theme.node.elementWidth, 
+        height: elementHeight 
+      }),
       // For groups, add children and layout options
       ...(isGroup ? {
         children: tree.children.map(child => buildElkNode(child)),
         layoutOptions: {
           'elk.algorithm': 'layered',
           'elk.direction': direction === 'LR' ? 'RIGHT' : 'DOWN',
-          'elk.spacing.nodeNode': '50',
-          'elk.layered.spacing.nodeNodeBetweenLayers': '70',
-          'elk.padding': '[top=100,left=50,bottom=50,right=50]',
+          'elk.spacing.nodeNode': `${theme.layout.nodeSpacing}`,
+          'elk.layered.spacing.nodeNodeBetweenLayers': `${theme.layout.layerSpacing}`,
+          'elk.padding': `[top=${theme.layout.groupPaddingTop},left=${theme.layout.groupPaddingLeft},bottom=${theme.layout.groupPaddingBottom},right=${theme.layout.groupPaddingRight}]`,
           'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
           'nodeSize.constraints': 'MINIMUM_SIZE',
-          'nodeSize.minimum': '(200,120)',
+          'nodeSize.minimum': `(${theme.node.groupMinWidth},${theme.node.groupMinHeight})`,
         }
       } : {})
     };

@@ -49,13 +49,7 @@ export const InternalPadEdge: React.FC<InternalPadEdgeProps> = ({
     <>
       <path
         id="internal-pad-edge"
-        style={{
-          ...style,
-          strokeDasharray: '5,5', // Dashed line to indicate internal connection
-          stroke: '#0ea5e9',
-          strokeWidth: 2,
-        }}
-        className="react-flow__edge-path"
+        className="react-flow__edge-path react-flow__edge-internal"
         d={edgePath}
         markerEnd={markerEnd}
       />
