@@ -595,6 +595,9 @@ export default function PipelinePage() {
           defaultViewport={{ x: 50, y: 50, zoom: 0.8 }}
           minZoom={0.1}
           maxZoom={2}
+          panOnScroll={true}
+          selectionOnDrag={true}
+          panOnDrag={false}
         >
           <Controls />
           <MiniMap />
