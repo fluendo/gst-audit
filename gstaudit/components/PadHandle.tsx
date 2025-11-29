@@ -43,7 +43,6 @@ const PadHandle: React.FC<PadHandleProps> = ({
   const connectionRef = useRef<PadConnectionInfo | null>(null);
 
   useEffect(() => {
-    console.log(`🎯 [PadHandle] Effect triggered for pad ${pad.ptr}`);
     const fetchPadInfo = async () => {
       try {
         const name = await pad.get_name();
@@ -52,8 +51,6 @@ const PadHandle: React.FC<PadHandleProps> = ({
         const elementName = parent ? await parent.get_name() : 'unknown';
         const elementPtr = parent ? parent.ptr : 'unknown';
         const id = `${elementName}-${name}`;
-        
-        console.log(`📝 [PadHandle] Pad info fetched: ${id}, direction: ${direction}`);
         
         // Check if this is a ghost pad
         const isGhost = await pad.isOf(GstGhostPad);
@@ -84,7 +81,6 @@ const PadHandle: React.FC<PadHandleProps> = ({
         setPadInfo(padInfoData);
         
         // Analyze connection once after padInfo is ready
-        console.log(`🔗 [PadHandle] About to analyze connection for ${id}`);
         await analyzeConnection(padInfoData);
       } catch (error) {
         console.error('Error fetching pad info:', error);
@@ -94,8 +90,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
     };
 
     fetchPadInfo();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pad]); // Only run when pad reference changes
+  }, [pad]);
 
   // Analyze pad connections and create connection info
   const analyzeConnection = async (info: PadInfo) => {
@@ -125,8 +120,10 @@ const PadHandle: React.FC<PadHandleProps> = ({
         peerElementPtr = peerElement.ptr;
         peerElementName = await peerElement.get_name();
         
-        // For ghost pads, use the ghost pad name, not the internal pad name
-        peerPadName = await ghostPad.get_name();
+        // For ghost pads, construct the internal pad handle ID (triple name format)
+        const ghostPadName = await ghostPad.get_name();
+        const internalPadName = await peerPad.get_name();
+        peerPadName = `${ghostPadName}-${internalPadName}`;
       } else {
         // Normal case - peer parent is directly a GstElement
         peerElement = await peerParent.castTo(GstElement);
@@ -138,43 +135,63 @@ const PadHandle: React.FC<PadHandleProps> = ({
       const currentHandleId = info.id;
       const peerHandleId = `${peerElementName}-${peerPadName}`;
       
-      // Only create connections for source pads to avoid duplicates
-      // (each connection will be created once by the source pad)
-      if (info.direction === GstPadDirection.SRC) {
-        const connectionInfo: PadConnectionInfo = {
-          sourceNodeId: info.elementPtr,
-          targetNodeId: peerElementPtr,
-          sourceHandleId: currentHandleId,
-          targetHandleId: peerHandleId,
-          sourcePadPtr: pad.ptr,
-          targetPadPtr: peerPad.ptr,
-          reportedBy: 'source'
-        };
-        
-        connectionRef.current = connectionInfo;
-        
-        // Schedule callback to avoid state updates during render
-        setTimeout(() => {
-          onConnectionAdded(connectionInfo);
-        }, 0);
-      } else if (info.direction === GstPadDirection.SINK) {
-        // Sink pads also report their connections for validation
-        const connectionInfo: PadConnectionInfo = {
-          sourceNodeId: peerElementPtr,
-          targetNodeId: info.elementPtr,
-          sourceHandleId: peerHandleId,
-          targetHandleId: currentHandleId,
-          sourcePadPtr: peerPad.ptr,
-          targetPadPtr: pad.ptr,
-          reportedBy: 'target'
-        };
-        
-        connectionRef.current = connectionInfo;
-        
-        // Schedule callback to avoid state updates during render
-        setTimeout(() => {
-          onConnectionAdded(connectionInfo);
-        }, 0);
+      // Determine connection direction and reportedBy based on pad direction
+      const isSrc = info.direction === GstPadDirection.SRC;
+      const connectionInfo: PadConnectionInfo = {
+        sourceNodeId: isSrc ? info.elementPtr : peerElementPtr,
+        targetNodeId: isSrc ? peerElementPtr : info.elementPtr,
+        sourceHandleId: isSrc ? currentHandleId : peerHandleId,
+        targetHandleId: isSrc ? peerHandleId : currentHandleId,
+        sourcePadPtr: isSrc ? pad.ptr : peerPad.ptr,
+        targetPadPtr: isSrc ? peerPad.ptr : pad.ptr,
+        reportedBy: isSrc ? 'source' : 'target'
+      };
+      
+      connectionRef.current = connectionInfo;
+      
+      // Schedule callback to avoid state updates during render
+      setTimeout(() => {
+        onConnectionAdded(connectionInfo);
+      }, 0);
+      
+      // If this is a ghost pad, also emit the internal connection
+      if (info.isGhost && info.internalName) {
+        try {
+          const ghostPad = await pad.castTo(GstGhostPad);
+          const internalPad = await ghostPad.get_internal();
+          const internalPeer = await internalPad.get_peer();
+          
+          if (internalPeer) {
+            const internalPeerParent = await internalPeer.get_parent();
+            const internalPeerElement = await internalPeerParent.castTo(GstElement);
+            const internalPeerElementPtr = internalPeerElement.ptr;
+            const internalPeerElementName = await internalPeerElement.get_name();
+            const internalPeerPadName = await internalPeer.get_name();
+            
+            // Use the internal pad handle ID (triple name format)
+            const internalHandleId = `${info.elementName}-${info.name}-${info.internalName}`;
+            const internalPeerHandleId = `${internalPeerElementName}-${internalPeerPadName}`;
+            
+            // For ghost pads:
+            // - SINK ghost pad: internal connection flows FROM internal pad TO internal element (ghost acts as source)
+            // - SRC ghost pad: internal connection flows FROM internal element TO internal pad (ghost acts as target)
+            const internalConnectionInfo: PadConnectionInfo = {
+              sourceNodeId: isSrc ? internalPeerElementPtr : info.elementPtr,
+              targetNodeId: isSrc ? info.elementPtr : internalPeerElementPtr,
+              sourceHandleId: isSrc ? internalPeerHandleId : internalHandleId,
+              targetHandleId: isSrc ? internalHandleId : internalPeerHandleId,
+              sourcePadPtr: isSrc ? internalPeer.ptr : internalPad.ptr,
+              targetPadPtr: isSrc ? internalPad.ptr : internalPeer.ptr,
+              reportedBy: isSrc ? 'target' : 'source'
+            };
+            
+            setTimeout(() => {
+              onConnectionAdded(internalConnectionInfo);
+            }, 0);
+          }
+        } catch (err) {
+          console.error('Error analyzing ghost pad internal connection:', err);
+        }
       }
     } catch (err) {
       console.error('Error analyzing connection:', err);
@@ -191,11 +208,11 @@ const PadHandle: React.FC<PadHandleProps> = ({
         }, 0);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty deps - only runs on mount/unmount
+  }, []);
 
+  // Don't render anything while loading
   if (loading || !padInfo) {
-    return null; // Don't render anything while loading
+    return null;
   }
 
   // Calculate pad position
@@ -233,7 +250,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
         <Handle
           type={isSink ? 'source' : 'target'} // Opposite type for internal
           position={position}
-          id={`${padInfo.name}-${padInfo.internalName}`}
+          id={`${padInfo.elementName}-${padInfo.name}-${padInfo.internalName}`}
           style={{
             top: padPosition,
             [isSink ? 'left' : 'right']: 10, // Position inside the container
