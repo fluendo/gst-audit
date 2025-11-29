@@ -332,6 +332,7 @@
    ============================================ */
 .react-flow__node {
   padding: 0;
+  z-index: -1 !important;
 }
 
 .react-flow__node.selected .gst-audit-element-node,

@@ -3,6 +3,8 @@ import {
   getBezierPath,
   EdgeProps,
   Position,
+  MarkerType,
+  BaseEdge,
 } from '@xyflow/react';
 import { getTheme } from '@/lib/theme';
 
@@ -15,56 +17,67 @@ export const LinkEdge: React.FC<EdgeProps> = ({
   targetPosition,
   data,
 }) => {
-  // Adjust coordinates to account for pad handle positioning
-  // Pads are positioned with offsetFromBorder distance from the element edge
-  // The connection point should be at the center of the pad handle
+  // Adjust coordinates for internal pad connections
+  // Internal connections flow left-to-right within a group (opposite of normal external flow)
   const theme = getTheme();
-  const padOffset = theme.pad.offsetFromBorder;
   const padWidth = theme.pad.width;
   
   let adjustedSourceX = sourceX;
+  let adjustedSourceY = sourceY;
   let adjustedTargetX = targetX;
+  let adjustedTargetY = targetY;
+  let adjustedSourcePosition = sourcePosition;
+  let adjustedTargetPosition = targetPosition;
   
-  // If source is on the left (sink pad acting as source for internal connections)
-  // add the offset + half pad width to get to center of pad
+  // For internal connections: source is on Left
   if (sourcePosition === Position.Left) {
-    adjustedSourceX = sourceX + padOffset + (padWidth / 2);
-  }
-  // If source is on the right (normal source pad)
-  // subtract the offset + half pad width to get to center of pad
-  else if (sourcePosition === Position.Right) {
-    adjustedSourceX = sourceX - padOffset - (padWidth / 2);
+    adjustedSourcePosition = Position.Right;
+    // Move source to the right boundary of the pad (add pad width)
+    adjustedSourceX = sourceX + padWidth;
   }
   
-  // If target is on the left (normal sink pad)
-  // add the offset + half pad width to get to center of pad
-  if (targetPosition === Position.Left) {
-    adjustedTargetX = targetX + padOffset + (padWidth / 2);
-  }
-  // If target is on the right (source pad acting as target for internal connections)
-  // subtract the offset + half pad width to get to center of pad
-  else if (targetPosition === Position.Right) {
-    adjustedTargetX = targetX - padOffset - (padWidth / 2);
+  // For internal connections: target is on Right
+  if (targetPosition === Position.Right) {
+    adjustedTargetPosition = Position.Left;
+    // Move target to the left boundary of the pad (subtract pad width)
+    adjustedTargetX = targetX - padWidth;
   }
   
-  // For internal pad connections, we want a more controlled path
-  // that doesn't curve outside the group boundaries
+  // Get edge path
   const [edgePath] = getBezierPath({
     sourceX: adjustedSourceX,
-    sourceY,
-    sourcePosition: Position.Right,
+    sourceY: adjustedSourceY,
+    sourcePosition: adjustedSourcePosition,
     targetX: adjustedTargetX,
-    targetY,
-    targetPosition: Position.Left,
+    targetY: adjustedTargetY,
+    targetPosition: adjustedTargetPosition,
   });
 
   return (
     <>
-      <path
-        id="link-edge"
-        className="react-flow__edge-path"
-        d={edgePath}
-        markerEnd="arrowclosed"
+      <defs>
+        <marker
+          id="link-edge-arrow"
+          markerWidth="12"
+          markerHeight="12"
+          viewBox="-10 -10 20 20"
+          orient="auto"
+          refX="0"
+          refY="0"
+        >
+          <polyline
+            stroke="var(--color-edge)"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1"
+            fill="var(--color-edge)"
+            points="-5,-4 0,0 -5,4 -5,-4"
+          />
+        </marker>
+      </defs>
+      <BaseEdge 
+        path={edgePath} 
+        markerEnd="url(#link-edge-arrow)"
       />
     </>
   );
