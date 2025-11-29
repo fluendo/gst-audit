@@ -290,9 +290,6 @@ export default function PipelinePage() {
       targetHandle: connection.targetHandleId,
       type: 'link',
       animated: false,
-      markerEnd: {
-        type: 'arrowclosed',
-      },
       data: connection as unknown as Record<string, unknown>, // Pass full connection info to LinkEdge
     };
     

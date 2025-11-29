@@ -4,8 +4,6 @@ import {
   EdgeProps,
   Position,
 } from '@xyflow/react';
-import type { PadConnectionInfo } from './types';
-import { GstPad, GstPadDirection, GstGhostPad } from '@/lib/gst';
 import { getTheme } from '@/lib/theme';
 
 export const LinkEdge: React.FC<EdgeProps> = ({
@@ -15,47 +13,8 @@ export const LinkEdge: React.FC<EdgeProps> = ({
   targetY,
   sourcePosition,
   targetPosition,
-  style = {},
-  markerEnd,
   data,
 }) => {
-  const [edgeStyle, setEdgeStyle] = React.useState<React.CSSProperties>({});
-
-  React.useEffect(() => {
-    const determineEdgeStyle = () => {
-      // Access the connection info from data (cast from unknown)
-      const connection = data as unknown as PadConnectionInfo;
-      
-      if (!connection) {
-        setEdgeStyle({});
-        return;
-      }
-
-      let strokeDasharray: string | undefined;
-      let strokeWidth: number = 2;
-      let stroke: string | undefined;
-
-      if (connection.isInternal) {
-        // Internal connection (ghost pad's internal pad to/from internal element)
-        strokeDasharray = '5,5';
-        strokeWidth = 1.5;
-        stroke = '#9ca3af'; // gray-400
-      } else {
-        // Normal pad to normal pad or external ghost pad connections
-        strokeWidth = 2;
-        stroke = '#10b981'; // green-500
-      }
-
-      setEdgeStyle({
-        strokeDasharray,
-        strokeWidth,
-        stroke,
-      });
-    };
-
-    determineEdgeStyle();
-  }, [data]);
-
   // Adjust coordinates to account for pad handle positioning
   // Pads are positioned with offsetFromBorder distance from the element edge
   // The connection point should be at the center of the pad handle
@@ -105,8 +64,7 @@ export const LinkEdge: React.FC<EdgeProps> = ({
         id="link-edge"
         className="react-flow__edge-path"
         d={edgePath}
-        markerEnd={markerEnd}
-        style={edgeStyle}
+        markerEnd="arrowclosed"
       />
     </>
   );
