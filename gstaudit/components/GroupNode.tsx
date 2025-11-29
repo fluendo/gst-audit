@@ -19,6 +19,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   const nodeData = data as unknown as GroupNodeData;
   const updateNodeInternals = useUpdateNodeInternals();
   const [elementName, setElementName] = useState<string>('');
+  const [factoryName, setFactoryName] = useState<string>('');
 
   // Get local accumulation handlers
   const { sinkPads, srcPads, handlePadAdded, handlePadRemoved } = useSinkSrcPads();
@@ -45,18 +46,23 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   const nodeWidth = width || 200;
   const nodeHeight = height || 120;
 
-  // Get element name
+  // Get element name and factory name
   useEffect(() => {
-    const fetchElementName = async () => {
+    const fetchElementInfo = async () => {
       try {
         const name = await nodeData.bin.get_name();
         setElementName(name);
+        
+        const factory = await nodeData.bin.get_factory();
+        const factoryNameStr = await factory.get_name();
+        setFactoryName(factoryNameStr);
       } catch (err) {
-        console.error('Error getting element name:', err);
+        console.error('Error getting element info:', err);
         setElementName('Unknown');
+        setFactoryName('Unknown');
       }
     };
-    fetchElementName();
+    fetchElementInfo();
   }, [nodeData.bin]);
 
   // Update React Flow internals when pads are loaded or dimensions change
@@ -118,7 +124,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
       >
         <div className="gst-audit-group-node__header">
           <div className="gst-audit-group-node__name">{elementName}</div>
-          <div className="gst-audit-group-node__info">Loading pads...</div>
+          <div className="gst-audit-group-node__factory">{factoryName || 'Loading...'}</div>
         </div>
       </div>
     );
@@ -136,7 +142,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
       >
         <div className="gst-audit-group-node__header">
           <div className="gst-audit-group-node__name">{elementName}</div>
-          <div className="gst-audit-group-node__info">Error: {error}</div>
+          <div className="gst-audit-group-node__factory">Error: {error}</div>
         </div>
       </div>
     );
@@ -152,7 +158,7 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
     >
       <div className="gst-audit-group-node__header">
         <div className="gst-audit-group-node__name">{elementName}</div>
-        <div className="gst-audit-group-node__info">{sinkPads.length + srcPads.length} pad(s)</div>
+        <div className="gst-audit-group-node__factory">{factoryName}</div>
       </div>
       
       <div className="gst-audit-group-node__content"></div>

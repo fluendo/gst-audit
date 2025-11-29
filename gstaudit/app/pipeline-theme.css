@@ -66,7 +66,7 @@
   font-family: monospace;
 }
 
-.gst-audit-element-node__info {
+.gst-audit-element-node__factory {
   font-size: 10px;
   color: var(--color-element-info);
   font-family: monospace;
@@ -86,7 +86,7 @@
   color: #cc0000;
 }
 
-.gst-audit-element-node--error .gst-audit-element-node__info {
+.gst-audit-element-node--error .gst-audit-element-node__factory {
   color: #cc0000;
 }
 
@@ -132,7 +132,7 @@
   margin-bottom: 4px;
 }
 
-.gst-audit-group-node__info {
+.gst-audit-group-node__factory {
   font-size: 10px;
   color: var(--color-element-info);
   font-family: monospace;
@@ -165,7 +165,7 @@
   color: #cc0000;
 }
 
-.gst-audit-group-node--error .gst-audit-group-node__info {
+.gst-audit-group-node--error .gst-audit-group-node__factory {
   color: #cc0000;
 }
 

@@ -18,6 +18,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
   const nodeData = data as unknown as ElementNodeData;
   const updateNodeInternals = useUpdateNodeInternals();
   const [elementName, setElementName] = useState<string>('');
+  const [factoryName, setFactoryName] = useState<string>('');
   
   // Get local accumulation handlers
   const { sinkPads, srcPads, handlePadAdded, handlePadRemoved } = useSinkSrcPads();
@@ -40,18 +41,23 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
     onPadRemoved
   );
   
-  // Get element name
+  // Get element name and factory name
   useEffect(() => {
-    const fetchElementName = async () => {
+    const fetchElementInfo = async () => {
       try {
         const name = await nodeData.element.get_name();
         setElementName(name);
+        
+        const factory = await nodeData.element.get_factory();
+        const factoryNameStr = await factory.get_name();
+        setFactoryName(factoryNameStr);
       } catch (err) {
-        console.error('Error getting element name:', err);
+        console.error('Error getting element info:', err);
         setElementName('Unknown');
+        setFactoryName('Unknown');
       }
     };
-    fetchElementName();
+    fetchElementInfo();
   }, [nodeData.element]);
   
   // Update React Flow internals when pads are loaded
@@ -66,7 +72,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
       <div className="gst-audit-element-node gst-audit-element-node--loading">
         <div className="gst-audit-element-node__header">
           <div className="gst-audit-element-node__name">{elementName}</div>
-          <div className="gst-audit-element-node__info">Loading pads...</div>
+          <div className="gst-audit-element-node__factory">{factoryName || 'Loading...'}</div>
         </div>
       </div>
     );
@@ -77,7 +83,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
       <div className="gst-audit-element-node gst-audit-element-node--error">
         <div className="gst-audit-element-node__header">
           <div className="gst-audit-element-node__name">{elementName}</div>
-          <div className="gst-audit-element-node__info">Error: {error}</div>
+          <div className="gst-audit-element-node__factory">Error: {error}</div>
         </div>
       </div>
     );
@@ -115,7 +121,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
     >
       <div className="gst-audit-element-node__header">
         <div className="gst-audit-element-node__name">{elementName}</div>
-        <div className="gst-audit-element-node__info">{sinkPads.length + srcPads.length} pad(s)</div>
+        <div className="gst-audit-element-node__factory">{factoryName}</div>
       </div>
       
       {/* Render sink pads using PadHandle component */}
