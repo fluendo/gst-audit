@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { GstPad, GstPadDirection, GstPadDirectionValue, GstGhostPad, GstElement } from '@/lib/gst';
 import type { PadConnectionInfo } from './types';
+import { getTheme } from '@/lib/theme';
 
 interface ContainerDimensions {
   width: number;
@@ -231,11 +232,12 @@ const PadHandle: React.FC<PadHandleProps> = ({
   const position = isSink ? Position.Left : Position.Right;
   const handleClassName = isSink ? 'gst-audit-pad-handle gst-audit-pad-handle--sink' : 'gst-audit-pad-handle gst-audit-pad-handle--src';
 
-  // If this is a ghost pad, we need to stack both pads vertically
+  // Use theme values for consistent sizing
+  const theme = getTheme();
   const isGhost = padInfo.isGhost && padInfo.internalName;
-  const containerHeight = isGhost ? 50 : 20; // Taller container for stacked pads
+  const containerHeight = isGhost ? theme.pad.ghostContainerHeight : theme.pad.height;
   
-  // Handles don't need positioning - flexbox in container handles it
+  // Handles have fixed dimensions and don't need additional styling
   const handleStyle = {};
   const internalHandleStyle = {};
 
@@ -257,7 +259,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
         className={handleClassName}
         style={handleStyle}
       >
-        {padInfo.name}
+        <span className="gst-audit-pad-handle__text">{padInfo.name}</span>
       </Handle>
       
       {/* Ghost pad internal handle - positioned below the ghost pad */}
@@ -269,7 +271,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
           className="gst-audit-pad-handle gst-audit-pad-handle--internal"
           style={internalHandleStyle}
         >
-          {padInfo.internalName}
+          <span className="gst-audit-pad-handle__text">{padInfo.internalName}</span>
         </Handle>
       )}
     </div>

@@ -18,8 +18,9 @@ export interface PipelineTheme {
   
   // Pad dimensions
   pad: {
-    minWidth: number;
-    minHeight: number;
+    width: number; // Fixed width of pad handle
+    height: number; // Fixed height of pad handle
+    padding: number; // Horizontal padding inside pad handle
     spacing: number; // Space between pads vertically
     offsetFromBorder: number; // Distance from element border
     ghostContainerHeight: number;
@@ -52,8 +53,9 @@ export const gstDotTheme: PipelineTheme = {
   },
   
   pad: {
-    minWidth: 50,
-    minHeight: 20,
+    width: 58,
+    height: 20,
+    padding: 6,
     spacing: 50, // Total space per pad (including pad + gap)
     offsetFromBorder: 8,
     ghostContainerHeight: 54,
@@ -96,8 +98,9 @@ const updateCSSVariables = (theme: PipelineTheme): void => {
   root.style.setProperty('--node-group-min-height', `${theme.node.groupMinHeight}px`);
   
   // Pad dimensions
-  root.style.setProperty('--pad-min-width', `${theme.pad.minWidth}px`);
-  root.style.setProperty('--pad-min-height', `${theme.pad.minHeight}px`);
+  root.style.setProperty('--pad-width', `${theme.pad.width}px`);
+  root.style.setProperty('--pad-height', `${theme.pad.height}px`);
+  root.style.setProperty('--pad-padding', `${theme.pad.padding}px`);
   root.style.setProperty('--pad-offset', `${theme.pad.offsetFromBorder}px`);
   root.style.setProperty('--pad-ghost-height', `${theme.pad.ghostContainerHeight}px`);
   root.style.setProperty('--pad-ghost-padding', `${theme.pad.ghostContainerPadding}px`);

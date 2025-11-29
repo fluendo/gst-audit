@@ -12,8 +12,9 @@
   --node-group-min-height: 120px;
   
   /* Pad dimensions */
-  --pad-min-width: 50px;
-  --pad-min-height: 20px;
+  --pad-width: 58px;
+  --pad-height: 20px;
+  --pad-padding: 6px;
   --pad-offset: 8px;
   --pad-ghost-height: 54px;
   --pad-ghost-padding: 4px;
@@ -219,25 +220,25 @@
   border-radius: 0;
   background: transparent;
   padding: var(--pad-ghost-padding);
-  min-width: calc(var(--pad-min-width) + 4px);
+  /* Width should contain the pad width + padding on both sides + border compensation */
+  width: calc(var(--pad-width) + 2 * var(--pad-ghost-padding) + 4px);
   height: var(--pad-ghost-height);
+  box-sizing: border-box;
+  /* Use flex to center content vertically */
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  align-items: stretch;
+  justify-content: center;
   gap: 4px;
 }
 
 /* Pad Handle styles */
 .gst-audit-pad-handle {
-  width: auto !important;
-  height: auto !important;
-  min-width: var(--pad-min-width);
-  min-height: var(--pad-min-height);
+  width: var(--pad-width) !important;
+  height: var(--pad-height) !important;
   border: 1px solid var(--color-pad-border);
   border-radius: 0;
   z-index: 10;
-  padding: 3px 6px;
+  padding: 0 var(--pad-padding);
   font-family: monospace;
   font-size: 9px;
   color: var(--color-pad-text);
@@ -252,6 +253,18 @@
   left: auto !important;
   right: auto !important;
   bottom: auto !important;
+  box-sizing: border-box;
+  /* Ensure flex child can shrink */
+  min-width: 0;
+}
+
+/* Text inside pad handle - enables proper ellipsis */
+.gst-audit-pad-handle__text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
 }
 
 .gst-audit-pad-handle--sink {
