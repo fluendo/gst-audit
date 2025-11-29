@@ -57,6 +57,13 @@
 
 .gst-audit-element-node__header {
   margin-bottom: 4px;
+  /* Enforce fixed height to match theme.node.headerHeight */
+  height: var(--node-header-height);
+  max-height: var(--node-header-height);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .gst-audit-element-node__name {
@@ -64,12 +71,20 @@
   font-weight: bold;
   color: var(--color-element-text);
   font-family: monospace;
+  /* Truncate long names with ellipsis */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gst-audit-element-node__factory {
   font-size: 10px;
   color: var(--color-element-info);
   font-family: monospace;
+  /* Truncate long factory names with ellipsis */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gst-audit-element-node--loading {
@@ -122,6 +137,8 @@
   border-bottom: 2px solid var(--color-group-header-border);
   background: var(--color-group-header-bg);
   border-radius: 6px 6px 0 0;
+  /* Prevent header from growing */
+  overflow: hidden;
 }
 
 .gst-audit-group-node__name {
@@ -130,12 +147,20 @@
   color: var(--color-element-text);
   font-family: monospace;
   margin-bottom: 4px;
+  /* Truncate long names with ellipsis */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gst-audit-group-node__factory {
   font-size: 10px;
   color: var(--color-element-info);
   font-family: monospace;
+  /* Truncate long factory names with ellipsis */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gst-audit-group-node__content {

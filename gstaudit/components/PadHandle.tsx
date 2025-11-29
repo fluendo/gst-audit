@@ -219,7 +219,8 @@ const PadHandle: React.FC<PadHandleProps> = ({
 
   // Calculate pad position
   const { width, height, headerHeight } = containerDimensions;
-  const availableHeight = height - headerHeight - 20; // Account for padding
+  // Available height is the area below the header
+  const availableHeight = height - headerHeight;
 
   // Use consistent formula: distribute evenly using (index + 1) / (count + 1)
   const padPosition = headerHeight + ((index + 1) * availableHeight / (count + 1));
