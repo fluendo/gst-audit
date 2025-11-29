@@ -71,7 +71,7 @@ const nodeTypes = {
 
 // Define custom edge types
 const edgeTypes = {
-  ghostPad: InternalPadEdge, // Custom edge for internal pad connections
+  internal: InternalPadEdge, // Custom edge for internal pad connections
 };
 
 export default function PipelinePage() {
@@ -280,9 +280,8 @@ export default function PipelinePage() {
     // Create a unique connection ID based on source and target
     const connectionId = `${connection.sourceHandleId}-${connection.targetHandleId}`;
     
-    // Determine edge type based on whether it involves ghost pads
-    // In the main branch, ghost pads use 'ghostPad' type
-    const edgeType = 'default'; // Could be enhanced to detect ghost pads
+    // Determine edge type based on whether this is an internal connection
+    const edgeType = connection.isInternal ? 'internal' : 'default';
     
     // Create edge object
     const newEdge: Edge = {

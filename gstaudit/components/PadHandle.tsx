@@ -144,7 +144,8 @@ const PadHandle: React.FC<PadHandleProps> = ({
         targetHandleId: isSrc ? peerHandleId : currentHandleId,
         sourcePadPtr: isSrc ? pad.ptr : peerPad.ptr,
         targetPadPtr: isSrc ? peerPad.ptr : pad.ptr,
-        reportedBy: isSrc ? 'source' : 'target'
+        reportedBy: isSrc ? 'source' : 'target',
+        isInternal: false // External connection (ghost or regular pad to external element)
       };
       
       connectionRef.current = connectionInfo;
@@ -182,7 +183,8 @@ const PadHandle: React.FC<PadHandleProps> = ({
               targetHandleId: isSrc ? internalHandleId : internalPeerHandleId,
               sourcePadPtr: isSrc ? internalPeer.ptr : internalPad.ptr,
               targetPadPtr: isSrc ? internalPad.ptr : internalPeer.ptr,
-              reportedBy: isSrc ? 'target' : 'source'
+              reportedBy: isSrc ? 'target' : 'source',
+              isInternal: true // Internal connection (ghost pad's internal pad to/from internal element)
             };
             
             setTimeout(() => {
