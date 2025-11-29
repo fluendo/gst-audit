@@ -5,6 +5,7 @@ export interface NodeTree {
   node: Node;
   children: NodeTree[];
   handles: string[]; // Track handles (pad IDs) for this node
+  level: number; // Hierarchy level (0 for root)
 }
 
 export class NodeTreeManager {
@@ -37,7 +38,8 @@ export class NodeTreeManager {
     return {
       node: { ...tree.node },
       children: tree.children.map(child => this.cloneTree(child)),
-      handles: [...tree.handles]
+      handles: [...tree.handles],
+      level: tree.level
     };
   }
 
@@ -49,7 +51,8 @@ export class NodeTreeManager {
     const parent = this.findNodeInTree(cloned, parentId);
     
     if (parent) {
-      parent.children.push({ node: newNode, children: [], handles: [] });
+      const childLevel = parent.level + 1;
+      parent.children.push({ node: newNode, children: [], handles: [], level: childLevel });
       this.root = cloned;
       return true;
     }
@@ -101,7 +104,8 @@ export class NodeTreeManager {
     const tree: NodeTree = {
       node: rootNode,
       children: [],
-      handles: []
+      handles: [],
+      level: 0 // Root node is at level 0
     };
     this.root = tree;
     return tree;
@@ -164,5 +168,13 @@ export class NodeTreeManager {
     
     const targetNode = this.findNodeInTree(this.root, nodeId);
     return targetNode ? [...targetNode.handles] : [];
+  }
+
+  // Get the level of a specific node
+  getNodeLevel(nodeId: string): number {
+    if (!this.root) return 0;
+    
+    const targetNode = this.findNodeInTree(this.root, nodeId);
+    return targetNode ? targetNode.level : 0;
   }
 }

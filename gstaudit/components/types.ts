@@ -14,12 +14,3 @@ export interface PadConnectionInfo {
   // Indicates if this is an internal connection (ghost pad's internal pad to/from internal element)
   isInternal: boolean;
 }
-
-export interface HandleReadyCallback {
-  (nodeId: string, currentConnections: PadConnectionInfo[], previousConnections: PadConnectionInfo[]): void;
-}
-
-export interface NodeData {
-  element: import('@/lib/gst').GstElement;
-  onHandlesReady?: HandleReadyCallback;
-}

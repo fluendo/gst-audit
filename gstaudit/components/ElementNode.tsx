@@ -12,7 +12,6 @@ interface ElementNodeData {
   onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad) => void;
   onConnectionAdded?: (connection: PadConnectionInfo) => void;
   onConnectionRemoved?: (connection: PadConnectionInfo) => void;
-  onHandleReady?: (handleId: string) => void;
 }
 
 const ElementNode: React.FC<NodeProps> = ({ data, id }) => {

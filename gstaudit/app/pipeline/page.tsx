@@ -33,7 +33,7 @@ import {
   GstState,
   GstStateValue
 } from '@/lib/gst';
-import { ElementNode, GroupNode, InternalPadEdge } from '@/components';
+import { ElementNode, GroupNode, LinkEdge } from '@/components';
 
 
 
@@ -72,7 +72,7 @@ const nodeTypes = {
 
 // Define custom edge types
 const edgeTypes = {
-  internal: InternalPadEdge, // Custom edge for internal pad connections
+  link: LinkEdge, // Custom edge for all pad connections
 };
 
 export default function PipelinePage() {
@@ -281,21 +281,19 @@ export default function PipelinePage() {
     // Create a unique connection ID based on source and target
     const connectionId = `${connection.sourceHandleId}-${connection.targetHandleId}`;
     
-    // Determine edge type based on whether this is an internal connection
-    const edgeType = connection.isInternal ? 'internal' : 'default';
-    
-    // Create edge object with className for styling
+    // Always use 'link' edge type with connection data
     const newEdge: Edge = {
       id: connectionId,
       source: connection.sourceNodeId,
       target: connection.targetNodeId,
       sourceHandle: connection.sourceHandleId,
       targetHandle: connection.targetHandleId,
-      type: edgeType,
+      type: 'link',
       animated: false,
       markerEnd: {
         type: 'arrowclosed',
       },
+      data: connection as unknown as Record<string, unknown>, // Pass full connection info to LinkEdge
     };
     
     // Add to allEdges if not already there (for layout)

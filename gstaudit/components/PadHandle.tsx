@@ -152,7 +152,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
       
       // Schedule callback to avoid state updates during render
       setTimeout(() => {
-        onConnectionAdded(connectionInfo);
+        onConnectionAdded?.(connectionInfo);
       }, 0);
       
       // If this is a ghost pad, also emit the internal connection
@@ -188,7 +188,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
             };
             
             setTimeout(() => {
-              onConnectionAdded(internalConnectionInfo);
+              onConnectionAdded?.(internalConnectionInfo);
             }, 0);
           }
         } catch (err) {
@@ -206,7 +206,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
       if (connectionRef.current && onConnectionRemoved) {
         // Schedule callback to avoid state updates during render
         setTimeout(() => {
-          onConnectionRemoved(connectionRef.current!);
+          onConnectionRemoved?.(connectionRef.current!);
         }, 0);
       }
     };
