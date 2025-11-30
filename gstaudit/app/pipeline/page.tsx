@@ -244,8 +244,9 @@ export default function PipelinePage() {
     }
   };
 
-  // Callback function to handle pad addition
-  const onPadAdded = useCallback(async (elementId: string, element: GstElement, pad: GstPad) => {
+  // Implementation functions (decoupled from callbacks)
+  
+  const handlePadAdded = async (elementId: string, element: GstElement, pad: GstPad) => {
     try {
       const elementName = await element.get_name();
       const padName = await pad.get_name();
@@ -258,10 +259,9 @@ export default function PipelinePage() {
     } catch (error) {
       console.error('Error handling pad addition:', error);
     }
-  }, []);
+  };
 
-  // Callback function to handle pad removal
-  const onPadRemoved = useCallback(async (elementId: string, element: GstElement, pad: GstPad) => {
+  const handlePadRemoved = async (elementId: string, element: GstElement, pad: GstPad) => {
     try {
       const elementName = await element.get_name();
       const padName = await pad.get_name();
@@ -274,10 +274,9 @@ export default function PipelinePage() {
     } catch (error) {
       console.error('Error handling pad removal:', error);
     }
-  }, []);
+  };
 
-  // Callback function to handle connection addition
-  const onConnectionAdded = useCallback((connection: PadConnectionInfo) => {
+  const handleConnectionAdded = (connection: PadConnectionInfo) => {
     console.log('Connection reported:', connection, 'by:', connection.reportedBy);
     
     // Create a unique connection ID based on source and target
@@ -327,10 +326,9 @@ export default function PipelinePage() {
     
     // Trigger validation
     setConnectionVersion(prev => prev + 1);
-  }, []);
+  };
 
-  // Callback function to handle connection removal
-  const onConnectionRemoved = useCallback((connection: PadConnectionInfo) => {
+  const handleConnectionRemoved = (connection: PadConnectionInfo) => {
     console.log('Connection removal reported:', connection, 'by:', connection.reportedBy);
     
     const connectionId = `${connection.sourceHandleId}-${connection.targetHandleId}`;
@@ -366,10 +364,9 @@ export default function PipelinePage() {
       // Trigger validation to update displayed edges
       setConnectionVersion(prev => prev + 1);
     }
-  }, []);
+  };
 
-  // Callback function to handle element removal
-  const onElementRemoved = useCallback(async (parentId: string, parentBin: GstBin, element: GstElement) => {
+  const handleElementRemoved = async (parentId: string, parentBin: GstBin, element: GstElement) => {
     try {
       // Helper function to get all descendant node IDs recursively
       const getDescendantIds = (nodes: Node[], nodeId: string): string[] => {
@@ -396,10 +393,9 @@ export default function PipelinePage() {
     } catch (error) {
       console.error('Error handling element removal:', error);
     }
-  }, []);
+  };
 
-  // Callback function to handle element addition
-  const onElementAdded = useCallback(async (parentId: string, parentBin: GstBin, element: GstElement) => {
+  const handleElementAdded = async (parentId: string, parentBin: GstBin, element: GstElement) => {
     try {
       const elementName = (await element.get_name()) ?? 'unknown';
       const isGstBin = await element.isOf(GstBin);
@@ -450,6 +446,38 @@ export default function PipelinePage() {
     } catch (error) {
       console.error('Error handling element added:', error);
     }
+  };
+
+  // Callback handlers (lightweight wrappers that call implementation functions)
+
+  // Callback function to handle pad addition
+  const onPadAdded = useCallback(async (elementId: string, element: GstElement, pad: GstPad) => {
+    await handlePadAdded(elementId, element, pad);
+  }, []);
+
+  // Callback function to handle pad removal
+  const onPadRemoved = useCallback(async (elementId: string, element: GstElement, pad: GstPad) => {
+    await handlePadRemoved(elementId, element, pad);
+  }, []);
+
+  // Callback function to handle connection addition
+  const onConnectionAdded = useCallback((connection: PadConnectionInfo) => {
+    handleConnectionAdded(connection);
+  }, []);
+
+  // Callback function to handle connection removal
+  const onConnectionRemoved = useCallback((connection: PadConnectionInfo) => {
+    handleConnectionRemoved(connection);
+  }, []);
+
+  // Callback function to handle element removal
+  const onElementRemoved = useCallback(async (parentId: string, parentBin: GstBin, element: GstElement) => {
+    await handleElementRemoved(parentId, parentBin, element);
+  }, []);
+
+  // Callback function to handle element addition
+  const onElementAdded = useCallback(async (parentId: string, parentBin: GstBin, element: GstElement) => {
+    await handleElementAdded(parentId, parentBin, element);
   }, []);
 
   // Generate nodes directly by iterating over pipeline elements
