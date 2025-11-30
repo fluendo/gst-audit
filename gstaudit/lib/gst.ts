@@ -154,7 +154,7 @@ export class GObjectTypeInstance {
 
 
  
-  async get_private(private_type: string): Promise<Pointer> {
+  async get_private(private_type: string): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInstance/ptr,${this.ptr}/get_private`, apiConfig.baseUrl);
     // Primitive parameter
@@ -182,7 +182,7 @@ export class GObjectTypeInstance {
 
 
  
-  async get_g_class(): Promise<GObjectTypeClass> {
+  async get_g_class(): Promise<GObjectTypeClass | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeInstance/ptr,${this.ptr}/fields/g_class`, apiConfig.baseUrl);
     try {
@@ -579,7 +579,7 @@ export class GObjectObject extends GObjectTypeInstance {
 
 
  
-  async get_data(key: string): Promise<Pointer> {
+  async get_data(key: string): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/get_data`, apiConfig.baseUrl);
     // Primitive parameter
@@ -635,7 +635,7 @@ export class GObjectObject extends GObjectTypeInstance {
 
 
  
-  async get_qdata(quark: number): Promise<Pointer> {
+  async get_qdata(quark: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/get_qdata`, apiConfig.baseUrl);
     // Primitive parameter
@@ -875,7 +875,7 @@ export class GObjectObject extends GObjectTypeInstance {
 
 
  
-  async steal_data(key: string): Promise<Pointer> {
+  async steal_data(key: string): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/steal_data`, apiConfig.baseUrl);
     // Primitive parameter
@@ -903,7 +903,7 @@ export class GObjectObject extends GObjectTypeInstance {
 
 
  
-  async steal_qdata(quark: number): Promise<Pointer> {
+  async steal_qdata(quark: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Object/ptr,${this.ptr}/steal_qdata`, apiConfig.baseUrl);
     // Primitive parameter
@@ -1013,7 +1013,7 @@ export class GObjectBinding extends GObjectObject {
 
 
  
-  async dup_source(): Promise<GObjectObject> {
+  async dup_source(): Promise<GObjectObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Binding/ptr,${this.ptr}/dup_source`, apiConfig.baseUrl);
     try {
@@ -1044,7 +1044,7 @@ export class GObjectBinding extends GObjectObject {
 
 
  
-  async dup_target(): Promise<GObjectObject> {
+  async dup_target(): Promise<GObjectObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Binding/ptr,${this.ptr}/dup_target`, apiConfig.baseUrl);
     try {
@@ -1101,7 +1101,7 @@ export class GObjectBinding extends GObjectObject {
 
 
  
-  async get_source(): Promise<GObjectObject> {
+  async get_source(): Promise<GObjectObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Binding/ptr,${this.ptr}/get_source`, apiConfig.baseUrl);
     try {
@@ -1158,7 +1158,7 @@ export class GObjectBinding extends GObjectObject {
 
 
  
-  async get_target(): Promise<GObjectObject> {
+  async get_target(): Promise<GObjectObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Binding/ptr,${this.ptr}/get_target`, apiConfig.baseUrl);
     try {
@@ -1617,7 +1617,7 @@ export class GObjectTypeClass {
 
 
  
-  async get_private(private_type: string): Promise<Pointer> {
+  async get_private(private_type: string): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/TypeClass/ptr,${this.ptr}/get_private`, apiConfig.baseUrl);
     // Primitive parameter
@@ -1894,7 +1894,7 @@ export class GObjectParamSpec extends GObjectTypeInstance {
 
 
  
-  async get_blurb(): Promise<string> {
+  async get_blurb(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpec/ptr,${this.ptr}/get_blurb`, apiConfig.baseUrl);
     try {
@@ -2028,7 +2028,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_qdata(quark: number): Promise<Pointer> {
+  async get_qdata(quark: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpec/ptr,${this.ptr}/get_qdata`, apiConfig.baseUrl);
     // Primitive parameter
@@ -2056,7 +2056,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_redirect_target(): Promise<GObjectParamSpec> {
+  async get_redirect_target(): Promise<GObjectParamSpec | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpec/ptr,${this.ptr}/get_redirect_target`, apiConfig.baseUrl);
     try {
@@ -2135,7 +2135,7 @@ return Promise.reject("Call failed");
 
 
  
-  async steal_qdata(quark: number): Promise<Pointer> {
+  async steal_qdata(quark: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpec/ptr,${this.ptr}/steal_qdata`, apiConfig.baseUrl);
     // Primitive parameter
@@ -2286,7 +2286,7 @@ return Promise.reject("Call failed");
 
 
  
-  async dup_object(): Promise<GObjectObject> {
+  async dup_object(): Promise<GObjectObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/dup_object`, apiConfig.baseUrl);
     try {
@@ -2317,7 +2317,7 @@ return Promise.reject("Call failed");
 
 
  
-  async dup_string(): Promise<string> {
+  async dup_string(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/dup_string`, apiConfig.baseUrl);
     try {
@@ -2343,7 +2343,7 @@ return Promise.reject("Call failed");
 
 
  
-  async dup_variant(): Promise<GLibVariant> {
+  async dup_variant(): Promise<GLibVariant | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/dup_variant`, apiConfig.baseUrl);
     try {
@@ -2425,7 +2425,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_boxed(): Promise<Pointer> {
+  async get_boxed(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/get_boxed`, apiConfig.baseUrl);
     try {
@@ -2685,7 +2685,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_object(): Promise<GObjectObject> {
+  async get_object(): Promise<GObjectObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/get_object`, apiConfig.baseUrl);
     try {
@@ -2747,7 +2747,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_pointer(): Promise<Pointer> {
+  async get_pointer(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/get_pointer`, apiConfig.baseUrl);
     try {
@@ -2799,7 +2799,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_string(): Promise<string> {
+  async get_string(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/get_string`, apiConfig.baseUrl);
     try {
@@ -2929,7 +2929,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_variant(): Promise<GLibVariant> {
+  async get_variant(): Promise<GLibVariant | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/get_variant`, apiConfig.baseUrl);
     try {
@@ -3017,7 +3017,7 @@ return Promise.reject("Call failed");
 
 
  
-  async peek_pointer(): Promise<Pointer> {
+  async peek_pointer(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/peek_pointer`, apiConfig.baseUrl);
     try {
@@ -3727,7 +3727,7 @@ return Promise.reject("Call failed");
 
 
  
-  async steal_string(): Promise<string> {
+  async steal_string(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/steal_string`, apiConfig.baseUrl);
     try {
@@ -3965,7 +3965,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<Pointer> {
+  async get_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Value/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
     try {
@@ -5431,7 +5431,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<Pointer> {
+  async get_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Variant/ptr,${this.ptr}/get_data`, apiConfig.baseUrl);
     try {
@@ -5617,7 +5617,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_maybe(): Promise<GLibVariant> {
+  async get_maybe(): Promise<GLibVariant | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Variant/ptr,${this.ptr}/get_maybe`, apiConfig.baseUrl);
     try {
@@ -7627,7 +7627,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<{size: number, return: Pointer}> {
+  async get_data(): Promise<{size: number, return: Pointer | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Bytes/ptr,${this.ptr}/get_data`, apiConfig.baseUrl);
     try {
@@ -7663,7 +7663,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_region(element_size: number, offset: number, n_elements: number): Promise<Pointer> {
+  async get_region(element_size: number, offset: number, n_elements: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Bytes/ptr,${this.ptr}/get_region`, apiConfig.baseUrl);
     // Primitive parameter
@@ -8504,7 +8504,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_marshal(): Promise<GObjectmarshal> {
+  async get_marshal(): Promise<GObjectmarshal | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/marshal`, apiConfig.baseUrl);
     try {
@@ -8530,7 +8530,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<Pointer> {
+  async get_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
     try {
@@ -8556,7 +8556,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_notifiers(): Promise<GObjectClosureNotifyData> {
+  async get_notifiers(): Promise<GObjectClosureNotifyData | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/Closure/ptr,${this.ptr}/fields/notifiers`, apiConfig.baseUrl);
     try {
@@ -8752,7 +8752,7 @@ export class GObjectBindingGroup extends GObjectObject {
 
 
  
-  async dup_source(): Promise<GObjectObject> {
+  async dup_source(): Promise<GObjectObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/BindingGroup/ptr,${this.ptr}/dup_source`, apiConfig.baseUrl);
     try {
@@ -9826,7 +9826,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_closure(): Promise<GObjectClosure> {
+  async get_closure(): Promise<GObjectClosure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/ptr,${this.ptr}/fields/closure`, apiConfig.baseUrl);
     try {
@@ -9882,7 +9882,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_callback(): Promise<Pointer> {
+  async get_callback(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/CClosure/ptr,${this.ptr}/fields/callback`, apiConfig.baseUrl);
     try {
@@ -10784,7 +10784,7 @@ return Promise.reject("Call failed");
 
 
  
-  async lookup(param_name: string, owner_type: string, walk_ancestors: boolean): Promise<GObjectParamSpec> {
+  async lookup(param_name: string, owner_type: string, walk_ancestors: boolean): Promise<GObjectParamSpec | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ParamSpecPool/ptr,${this.ptr}/lookup`, apiConfig.baseUrl);
     // Primitive parameter
@@ -11015,7 +11015,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<Pointer> {
+  async get_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/List/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
     try {
@@ -11721,7 +11721,7 @@ export class GObjectSignalGroup extends GObjectObject {
 
 
  
-  async dup_target(): Promise<GObjectObject> {
+  async dup_target(): Promise<GObjectObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/SignalGroup/ptr,${this.ptr}/dup_target`, apiConfig.baseUrl);
     try {
@@ -12578,7 +12578,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_values(): Promise<GObjectValue> {
+  async get_values(): Promise<GObjectValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/ValueArray/ptr,${this.ptr}/fields/values`, apiConfig.baseUrl);
     try {
@@ -12989,7 +12989,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_context(): Promise<GLibMainContext> {
+  async get_context(): Promise<GLibMainContext | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/get_context`, apiConfig.baseUrl);
     try {
@@ -13071,7 +13071,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_name(): Promise<string> {
+  async get_name(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/get_name`, apiConfig.baseUrl);
     try {
@@ -13704,7 +13704,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_callback_data(): Promise<Pointer> {
+  async get_callback_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/callback_data`, apiConfig.baseUrl);
     try {
@@ -13730,7 +13730,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_callback_funcs(): Promise<GLibSourceCallbackFuncs> {
+  async get_callback_funcs(): Promise<GLibSourceCallbackFuncs | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/callback_funcs`, apiConfig.baseUrl);
     try {
@@ -13760,7 +13760,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_source_funcs(): Promise<GLibSourceFuncs> {
+  async get_source_funcs(): Promise<GLibSourceFuncs | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/source_funcs`, apiConfig.baseUrl);
     try {
@@ -13868,7 +13868,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_poll_fds(): Promise<GLibSList> {
+  async get_poll_fds(): Promise<GLibSList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/poll_fds`, apiConfig.baseUrl);
     try {
@@ -13898,7 +13898,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_prev(): Promise<GLibSource> {
+  async get_prev(): Promise<GLibSource | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/prev`, apiConfig.baseUrl);
     try {
@@ -13928,7 +13928,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_next(): Promise<GLibSource> {
+  async get_next(): Promise<GLibSource | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
     try {
@@ -13958,7 +13958,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_priv(): Promise<GLibSourcePrivate> {
+  async get_priv(): Promise<GLibSourcePrivate | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Source/ptr,${this.ptr}/fields/priv`, apiConfig.baseUrl);
     try {
@@ -14823,7 +14823,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async get_thread_default(): Promise<GLibMainContext> {
+  static async get_thread_default(): Promise<GLibMainContext | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MainContext/get_thread_default`, apiConfig.baseUrl);
     try {
@@ -15124,7 +15124,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_p(): Promise<Pointer> {
+  async get_p(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cond/ptr,${this.ptr}/fields/p`, apiConfig.baseUrl);
     try {
@@ -15150,7 +15150,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_i(): Promise<Pointer> {
+  async get_i(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cond/ptr,${this.ptr}/fields/i`, apiConfig.baseUrl);
     try {
@@ -15271,7 +15271,7 @@ return Promise.reject("Call failed");
 
 
  
-  async to_iso8601(): Promise<string> {
+  async to_iso8601(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TimeVal/ptr,${this.ptr}/to_iso8601`, apiConfig.baseUrl);
     try {
@@ -15567,7 +15567,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<Pointer> {
+  async get_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/SList/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
     try {
@@ -15617,7 +15617,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_next(): Promise<GLibSList> {
+  async get_next(): Promise<GLibSList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/SList/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
     try {
@@ -16153,7 +16153,7 @@ return Promise.reject("Call failed");
 
 
  
-  async pop(): Promise<Pointer> {
+  async pop(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/pop`, apiConfig.baseUrl);
     try {
@@ -16179,7 +16179,7 @@ return Promise.reject("Call failed");
 
 
  
-  async pop_unlocked(): Promise<Pointer> {
+  async pop_unlocked(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/pop_unlocked`, apiConfig.baseUrl);
     try {
@@ -16515,7 +16515,7 @@ return Promise.reject("Call failed");
 
 
  
-  async timed_pop(end_time: GLibTimeVal): Promise<Pointer> {
+  async timed_pop(end_time: GLibTimeVal): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/timed_pop`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -16545,7 +16545,7 @@ return Promise.reject("Call failed");
 
 
  
-  async timed_pop_unlocked(end_time: GLibTimeVal): Promise<Pointer> {
+  async timed_pop_unlocked(end_time: GLibTimeVal): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/timed_pop_unlocked`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -16575,7 +16575,7 @@ return Promise.reject("Call failed");
 
 
  
-  async timeout_pop(timeout: number): Promise<Pointer> {
+  async timeout_pop(timeout: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/timeout_pop`, apiConfig.baseUrl);
     // Primitive parameter
@@ -16603,7 +16603,7 @@ return Promise.reject("Call failed");
 
 
  
-  async timeout_pop_unlocked(timeout: number): Promise<Pointer> {
+  async timeout_pop_unlocked(timeout: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/timeout_pop_unlocked`, apiConfig.baseUrl);
     // Primitive parameter
@@ -16631,7 +16631,7 @@ return Promise.reject("Call failed");
 
 
  
-  async try_pop(): Promise<Pointer> {
+  async try_pop(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/try_pop`, apiConfig.baseUrl);
     try {
@@ -16657,7 +16657,7 @@ return Promise.reject("Call failed");
 
 
  
-  async try_pop_unlocked(): Promise<Pointer> {
+  async try_pop_unlocked(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/AsyncQueue/ptr,${this.ptr}/try_pop_unlocked`, apiConfig.baseUrl);
     try {
@@ -18307,7 +18307,7 @@ export class GLibDateTime {
 
 
  
-  static async new(tz: GLibTimeZone, year: number, month: number, day: number, hour: number, minute: number, seconds: number): Promise<GLibDateTime> {
+  static async new(tz: GLibTimeZone, year: number, month: number, day: number, hour: number, minute: number, seconds: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -18353,7 +18353,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_iso8601(text: string, default_tz?: GLibTimeZone): Promise<GLibDateTime> {
+  static async new_from_iso8601(text: string, default_tz?: GLibTimeZone): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_from_iso8601`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18389,7 +18389,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_timeval_local(tv: GLibTimeVal): Promise<GLibDateTime> {
+  static async new_from_timeval_local(tv: GLibTimeVal): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_from_timeval_local`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -18423,7 +18423,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_timeval_utc(tv: GLibTimeVal): Promise<GLibDateTime> {
+  static async new_from_timeval_utc(tv: GLibTimeVal): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_from_timeval_utc`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -18457,7 +18457,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_unix_local(t: number): Promise<GLibDateTime> {
+  static async new_from_unix_local(t: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_from_unix_local`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18489,7 +18489,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_unix_local_usec(usecs: number): Promise<GLibDateTime> {
+  static async new_from_unix_local_usec(usecs: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_from_unix_local_usec`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18521,7 +18521,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_unix_utc(t: number): Promise<GLibDateTime> {
+  static async new_from_unix_utc(t: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_from_unix_utc`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18553,7 +18553,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_unix_utc_usec(usecs: number): Promise<GLibDateTime> {
+  static async new_from_unix_utc_usec(usecs: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_from_unix_utc_usec`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18585,7 +18585,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_local(year: number, month: number, day: number, hour: number, minute: number, seconds: number): Promise<GLibDateTime> {
+  static async new_local(year: number, month: number, day: number, hour: number, minute: number, seconds: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_local`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18627,7 +18627,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_now(tz: GLibTimeZone): Promise<GLibDateTime> {
+  static async new_now(tz: GLibTimeZone): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_now`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -18661,7 +18661,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_now_local(): Promise<GLibDateTime> {
+  static async new_now_local(): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_now_local`, apiConfig.baseUrl);
     try {
@@ -18691,7 +18691,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_now_utc(): Promise<GLibDateTime> {
+  static async new_now_utc(): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_now_utc`, apiConfig.baseUrl);
     try {
@@ -18721,7 +18721,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_utc(year: number, month: number, day: number, hour: number, minute: number, seconds: number): Promise<GLibDateTime> {
+  static async new_utc(year: number, month: number, day: number, hour: number, minute: number, seconds: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/new_utc`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18787,7 +18787,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add(timespan: number): Promise<GLibDateTime> {
+  async add(timespan: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/add`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18819,7 +18819,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_days(days: number): Promise<GLibDateTime> {
+  async add_days(days: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/add_days`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18851,7 +18851,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_full(years: number, months: number, days: number, hours: number, minutes: number, seconds: number): Promise<GLibDateTime> {
+  async add_full(years: number, months: number, days: number, hours: number, minutes: number, seconds: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/add_full`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18893,7 +18893,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_hours(hours: number): Promise<GLibDateTime> {
+  async add_hours(hours: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/add_hours`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18925,7 +18925,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_minutes(minutes: number): Promise<GLibDateTime> {
+  async add_minutes(minutes: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/add_minutes`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18957,7 +18957,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_months(months: number): Promise<GLibDateTime> {
+  async add_months(months: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/add_months`, apiConfig.baseUrl);
     // Primitive parameter
@@ -18989,7 +18989,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_seconds(seconds: number): Promise<GLibDateTime> {
+  async add_seconds(seconds: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/add_seconds`, apiConfig.baseUrl);
     // Primitive parameter
@@ -19021,7 +19021,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_weeks(weeks: number): Promise<GLibDateTime> {
+  async add_weeks(weeks: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/add_weeks`, apiConfig.baseUrl);
     // Primitive parameter
@@ -19053,7 +19053,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_years(years: number): Promise<GLibDateTime> {
+  async add_years(years: number): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/add_years`, apiConfig.baseUrl);
     // Primitive parameter
@@ -19175,7 +19175,7 @@ return Promise.reject("Call failed");
 
 
  
-  async format(format: string): Promise<string> {
+  async format(format: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/format`, apiConfig.baseUrl);
     // Primitive parameter
@@ -19203,7 +19203,7 @@ return Promise.reject("Call failed");
 
 
  
-  async format_iso8601(): Promise<string> {
+  async format_iso8601(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/format_iso8601`, apiConfig.baseUrl);
     try {
@@ -19746,7 +19746,7 @@ return Promise.reject("Call failed");
 
 
  
-  async to_local(): Promise<GLibDateTime> {
+  async to_local(): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/to_local`, apiConfig.baseUrl);
     try {
@@ -19806,7 +19806,7 @@ return Promise.reject("Call failed");
 
 
  
-  async to_timezone(tz: GLibTimeZone): Promise<GLibDateTime> {
+  async to_timezone(tz: GLibTimeZone): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/to_timezone`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -19892,7 +19892,7 @@ return Promise.reject("Call failed");
 
 
  
-  async to_utc(): Promise<GLibDateTime> {
+  async to_utc(): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/DateTime/ptr,${this.ptr}/to_utc`, apiConfig.baseUrl);
     try {
@@ -20019,7 +20019,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_identifier(identifier?: string): Promise<GLibTimeZone> {
+  static async new_identifier(identifier?: string): Promise<GLibTimeZone | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TimeZone/new_identifier`, apiConfig.baseUrl);
     // Primitive parameter
@@ -21174,7 +21174,7 @@ return Promise.reject("Call failed");
 
 
  
-  async insert(key?: Pointer): Promise<Pointer> {
+  async insert(key?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Cache/ptr,${this.ptr}/insert`, apiConfig.baseUrl);
     // Primitive parameter
@@ -21309,7 +21309,7 @@ export class GLibChecksum {
 
 
  
-  static async new(checksum_type: GLibChecksumType): Promise<GLibChecksum> {
+  static async new(checksum_type: GLibChecksumType): Promise<GLibChecksum | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Checksum/new`, apiConfig.baseUrl);
     // Primitive parameter
@@ -21653,7 +21653,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_items(): Promise<GLibList> {
+  async get_items(): Promise<GLibList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/items`, apiConfig.baseUrl);
     try {
@@ -21710,7 +21710,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_func(): Promise<GLibCompletionFunc> {
+  async get_func(): Promise<GLibCompletionFunc | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
     try {
@@ -21810,7 +21810,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_cache(): Promise<GLibList> {
+  async get_cache(): Promise<GLibList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/cache`, apiConfig.baseUrl);
     try {
@@ -21867,7 +21867,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_strncmp_func(): Promise<GLibCompletionStrncmpFunc> {
+  async get_strncmp_func(): Promise<GLibCompletionStrncmpFunc | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Completion/ptr,${this.ptr}/fields/strncmp_func`, apiConfig.baseUrl);
     try {
@@ -24272,7 +24272,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async find(hash_table: Pointer, predicate: GLibHRFunc): Promise<{predicate: number, return: Pointer}> {
+  static async find(hash_table: Pointer, predicate: GLibHRFunc): Promise<{predicate: number, return: Pointer | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/find`, apiConfig.baseUrl);
     // Primitive parameter
@@ -24474,7 +24474,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async lookup(hash_table: Pointer, key?: Pointer): Promise<Pointer> {
+  static async lookup(hash_table: Pointer, key?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTable/lookup`, apiConfig.baseUrl);
     // Primitive parameter
@@ -25098,7 +25098,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dummy1(): Promise<Pointer> {
+  async get_dummy1(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/fields/dummy1`, apiConfig.baseUrl);
     try {
@@ -25124,7 +25124,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dummy2(): Promise<Pointer> {
+  async get_dummy2(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/fields/dummy2`, apiConfig.baseUrl);
     try {
@@ -25150,7 +25150,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dummy3(): Promise<Pointer> {
+  async get_dummy3(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/fields/dummy3`, apiConfig.baseUrl);
     try {
@@ -25228,7 +25228,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dummy6(): Promise<Pointer> {
+  async get_dummy6(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HashTableIter/ptr,${this.ptr}/fields/dummy6`, apiConfig.baseUrl);
     try {
@@ -25271,7 +25271,7 @@ export class GLibHmac {
 
 
  
-  static async new(digest_type: GLibChecksumType, key: Pointer, key_len: number): Promise<GLibHmac> {
+  static async new(digest_type: GLibChecksumType, key: Pointer, key_len: number): Promise<GLibHmac | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hmac/new`, apiConfig.baseUrl);
     // Primitive parameter
@@ -25834,7 +25834,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<Pointer> {
+  async get_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
     try {
@@ -25884,7 +25884,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_next(): Promise<GLibHook> {
+  async get_next(): Promise<GLibHook | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
     try {
@@ -25940,7 +25940,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_prev(): Promise<GLibHook> {
+  async get_prev(): Promise<GLibHook | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/prev`, apiConfig.baseUrl);
     try {
@@ -26146,7 +26146,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_func(): Promise<Pointer> {
+  async get_func(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
     try {
@@ -26196,7 +26196,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_destroy(): Promise<GLibDestroyNotify> {
+  async get_destroy(): Promise<GLibDestroyNotify | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Hook/ptr,${this.ptr}/fields/destroy`, apiConfig.baseUrl);
     try {
@@ -26645,7 +26645,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_hooks(): Promise<GLibHook> {
+  async get_hooks(): Promise<GLibHook | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/hooks`, apiConfig.baseUrl);
     try {
@@ -26701,7 +26701,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dummy3(): Promise<Pointer> {
+  async get_dummy3(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/dummy3`, apiConfig.baseUrl);
     try {
@@ -26751,7 +26751,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_finalize_hook(): Promise<GLibHookFinalizeFunc> {
+  async get_finalize_hook(): Promise<GLibHookFinalizeFunc | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/finalize_hook`, apiConfig.baseUrl);
     try {
@@ -26801,7 +26801,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dummy(): Promise<Pointer> {
+  async get_dummy(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/HookList/ptr,${this.ptr}/fields/dummy`, apiConfig.baseUrl);
     try {
@@ -27959,7 +27959,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_funcs(): Promise<GLibIOFuncs> {
+  async get_funcs(): Promise<GLibIOFuncs | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/funcs`, apiConfig.baseUrl);
     try {
@@ -27989,7 +27989,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_read_cd(): Promise<Pointer> {
+  async get_read_cd(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/read_cd`, apiConfig.baseUrl);
     try {
@@ -28015,7 +28015,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_write_cd(): Promise<Pointer> {
+  async get_write_cd(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/write_cd`, apiConfig.baseUrl);
     try {
@@ -28093,7 +28093,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_read_buf(): Promise<GLibString> {
+  async get_read_buf(): Promise<GLibString | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/read_buf`, apiConfig.baseUrl);
     try {
@@ -28123,7 +28123,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_encoded_read_buf(): Promise<GLibString> {
+  async get_encoded_read_buf(): Promise<GLibString | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/encoded_read_buf`, apiConfig.baseUrl);
     try {
@@ -28153,7 +28153,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_write_buf(): Promise<GLibString> {
+  async get_write_buf(): Promise<GLibString | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/write_buf`, apiConfig.baseUrl);
     try {
@@ -28183,7 +28183,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_partial_write_buf(): Promise<Pointer> {
+  async get_partial_write_buf(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/partial_write_buf`, apiConfig.baseUrl);
     try {
@@ -28339,7 +28339,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_reserved1(): Promise<Pointer> {
+  async get_reserved1(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/reserved1`, apiConfig.baseUrl);
     try {
@@ -28365,7 +28365,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_reserved2(): Promise<Pointer> {
+  async get_reserved2(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/IOChannel/ptr,${this.ptr}/fields/reserved2`, apiConfig.baseUrl);
     try {
@@ -28571,7 +28571,7 @@ return Promise.reject("Call failed");
 
 
  
-  async free(free_segment: boolean): Promise<string> {
+  async free(free_segment: boolean): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/String/ptr,${this.ptr}/free`, apiConfig.baseUrl);
     // Primitive parameter
@@ -30112,7 +30112,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_locale_for_key(group_name: string, key: string, locale?: string): Promise<string> {
+  async get_locale_for_key(group_name: string, key: string, locale?: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/KeyFile/ptr,${this.ptr}/get_locale_for_key`, apiConfig.baseUrl);
     // Primitive parameter
@@ -30218,7 +30218,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_start_group(): Promise<string> {
+  async get_start_group(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/KeyFile/ptr,${this.ptr}/get_start_group`, apiConfig.baseUrl);
     try {
@@ -32007,7 +32007,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_user_data(): Promise<Pointer> {
+  async get_user_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MarkupParseContext/ptr,${this.ptr}/get_user_data`, apiConfig.baseUrl);
     try {
@@ -32063,7 +32063,7 @@ return Promise.reject("Call failed");
 
 
  
-  async pop(): Promise<Pointer> {
+  async pop(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MarkupParseContext/ptr,${this.ptr}/pop`, apiConfig.baseUrl);
     try {
@@ -32287,7 +32287,7 @@ return Promise.reject("Call failed");
 
 
  
-  async expand_references(string_to_expand: string): Promise<string> {
+  async expand_references(string_to_expand: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MatchInfo/ptr,${this.ptr}/expand_references`, apiConfig.baseUrl);
     // Primitive parameter
@@ -32315,7 +32315,7 @@ return Promise.reject("Call failed");
 
 
  
-  async fetch(match_num: number): Promise<string> {
+  async fetch(match_num: number): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MatchInfo/ptr,${this.ptr}/fetch`, apiConfig.baseUrl);
     // Primitive parameter
@@ -32369,7 +32369,7 @@ return Promise.reject("Call failed");
 
 
  
-  async fetch_named(name: string): Promise<string> {
+  async fetch_named(name: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MatchInfo/ptr,${this.ptr}/fetch_named`, apiConfig.baseUrl);
     // Primitive parameter
@@ -32746,7 +32746,7 @@ export class GLibRegex {
 
 
  
-  static async new(pattern: string, compile_options: GLibRegexCompileFlags, match_options: GLibRegexMatchFlags): Promise<GLibRegex> {
+  static async new(pattern: string, compile_options: GLibRegexCompileFlags, match_options: GLibRegexMatchFlags): Promise<GLibRegex | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Regex/new`, apiConfig.baseUrl);
     // Primitive parameter
@@ -33696,7 +33696,7 @@ return Promise.reject("Call failed");
 
 
  
-  async alloc(): Promise<Pointer> {
+  async alloc(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MemChunk/ptr,${this.ptr}/alloc`, apiConfig.baseUrl);
     try {
@@ -33722,7 +33722,7 @@ return Promise.reject("Call failed");
 
 
  
-  async alloc0(): Promise<Pointer> {
+  async alloc0(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/MemChunk/ptr,${this.ptr}/alloc0`, apiConfig.baseUrl);
     try {
@@ -34344,7 +34344,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<Pointer> {
+  async get_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
     try {
@@ -34394,7 +34394,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_next(): Promise<GLibNode> {
+  async get_next(): Promise<GLibNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
     try {
@@ -34450,7 +34450,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_prev(): Promise<GLibNode> {
+  async get_prev(): Promise<GLibNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/prev`, apiConfig.baseUrl);
     try {
@@ -34506,7 +34506,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_parent(): Promise<GLibNode> {
+  async get_parent(): Promise<GLibNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
     try {
@@ -34562,7 +34562,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_children(): Promise<GLibNode> {
+  async get_children(): Promise<GLibNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Node/ptr,${this.ptr}/fields/children`, apiConfig.baseUrl);
     try {
@@ -34883,7 +34883,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_status(): Promise<GLibOnceStatus> {
+  async get_status(): Promise<GLibOnceStatus | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Once/ptr,${this.ptr}/fields/status`, apiConfig.baseUrl);
     try {
@@ -34933,7 +34933,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_retval(): Promise<Pointer> {
+  async get_retval(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Once/ptr,${this.ptr}/fields/retval`, apiConfig.baseUrl);
     try {
@@ -35966,7 +35966,7 @@ return Promise.reject("Call failed");
 
 
  
-  async clear_to_path(): Promise<Pointer> {
+  async clear_to_path(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/PathBuf/ptr,${this.ptr}/clear_to_path`, apiConfig.baseUrl);
     try {
@@ -35992,7 +35992,7 @@ return Promise.reject("Call failed");
 
 
  
-  async free_to_path(): Promise<Pointer> {
+  async free_to_path(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/PathBuf/ptr,${this.ptr}/free_to_path`, apiConfig.baseUrl);
     try {
@@ -36194,7 +36194,7 @@ return Promise.reject("Call failed");
 
 
  
-  async to_path(): Promise<Pointer> {
+  async to_path(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/PathBuf/ptr,${this.ptr}/to_path`, apiConfig.baseUrl);
     try {
@@ -36250,7 +36250,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dummy(): Promise<Pointer> {
+  async get_dummy(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/PathBuf/ptr,${this.ptr}/fields/dummy`, apiConfig.baseUrl);
     try {
@@ -36566,7 +36566,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get(): Promise<Pointer> {
+  async get(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Private/ptr,${this.ptr}/get`, apiConfig.baseUrl);
     try {
@@ -36640,7 +36640,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_p(): Promise<Pointer> {
+  async get_p(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Private/ptr,${this.ptr}/fields/p`, apiConfig.baseUrl);
     try {
@@ -36666,7 +36666,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_notify(): Promise<GLibDestroyNotify> {
+  async get_notify(): Promise<GLibDestroyNotify | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Private/ptr,${this.ptr}/fields/notify`, apiConfig.baseUrl);
     try {
@@ -36692,7 +36692,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_future(): Promise<Pointer> {
+  async get_future(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Private/ptr,${this.ptr}/fields/future`, apiConfig.baseUrl);
     try {
@@ -37073,7 +37073,7 @@ return Promise.reject("Call failed");
 
 
  
-  async peek_head(): Promise<Pointer> {
+  async peek_head(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/peek_head`, apiConfig.baseUrl);
     try {
@@ -37099,7 +37099,7 @@ return Promise.reject("Call failed");
 
 
  
-  async peek_nth(n: number): Promise<Pointer> {
+  async peek_nth(n: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/peek_nth`, apiConfig.baseUrl);
     // Primitive parameter
@@ -37127,7 +37127,7 @@ return Promise.reject("Call failed");
 
 
  
-  async peek_tail(): Promise<Pointer> {
+  async peek_tail(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/peek_tail`, apiConfig.baseUrl);
     try {
@@ -37153,7 +37153,7 @@ return Promise.reject("Call failed");
 
 
  
-  async pop_head(): Promise<Pointer> {
+  async pop_head(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/pop_head`, apiConfig.baseUrl);
     try {
@@ -37179,7 +37179,7 @@ return Promise.reject("Call failed");
 
 
  
-  async pop_nth(n: number): Promise<Pointer> {
+  async pop_nth(n: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/pop_nth`, apiConfig.baseUrl);
     // Primitive parameter
@@ -37207,7 +37207,7 @@ return Promise.reject("Call failed");
 
 
  
-  async pop_tail(): Promise<Pointer> {
+  async pop_tail(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/pop_tail`, apiConfig.baseUrl);
     try {
@@ -37418,7 +37418,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_head(): Promise<GLibList> {
+  async get_head(): Promise<GLibList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/fields/head`, apiConfig.baseUrl);
     try {
@@ -37475,7 +37475,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_tail(): Promise<GLibList> {
+  async get_tail(): Promise<GLibList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Queue/ptr,${this.ptr}/fields/tail`, apiConfig.baseUrl);
     try {
@@ -37787,7 +37787,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_p(): Promise<Pointer> {
+  async get_p(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RWLock/ptr,${this.ptr}/fields/p`, apiConfig.baseUrl);
     try {
@@ -37813,7 +37813,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_i(): Promise<Pointer> {
+  async get_i(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RWLock/ptr,${this.ptr}/fields/i`, apiConfig.baseUrl);
     try {
@@ -38379,7 +38379,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_p(): Promise<Pointer> {
+  async get_p(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RecMutex/ptr,${this.ptr}/fields/p`, apiConfig.baseUrl);
     try {
@@ -38405,7 +38405,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_i(): Promise<Pointer> {
+  async get_i(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/RecMutex/ptr,${this.ptr}/fields/i`, apiConfig.baseUrl);
     try {
@@ -38881,7 +38881,7 @@ return Promise.reject("Call failed");
 
 
  
-  async lookup_symbol(symbol: string): Promise<Pointer> {
+  async lookup_symbol(symbol: string): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/lookup_symbol`, apiConfig.baseUrl);
     // Primitive parameter
@@ -38998,7 +38998,7 @@ return Promise.reject("Call failed");
 
 
  
-  async scope_lookup_symbol(scope_id: number, symbol: string): Promise<Pointer> {
+  async scope_lookup_symbol(scope_id: number, symbol: string): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/scope_lookup_symbol`, apiConfig.baseUrl);
     // Primitive parameter
@@ -39138,7 +39138,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_user_data(): Promise<Pointer> {
+  async get_user_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/user_data`, apiConfig.baseUrl);
     try {
@@ -39338,7 +39338,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_qdata(): Promise<GLibData> {
+  async get_qdata(): Promise<GLibData | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/qdata`, apiConfig.baseUrl);
     try {
@@ -39394,7 +39394,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_config(): Promise<GLibScannerConfig> {
+  async get_config(): Promise<GLibScannerConfig | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/config`, apiConfig.baseUrl);
     try {
@@ -39450,7 +39450,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_token(): Promise<GLibTokenType> {
+  async get_token(): Promise<GLibTokenType | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/token`, apiConfig.baseUrl);
     try {
@@ -39500,7 +39500,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_value(): Promise<Pointer> {
+  async get_value(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/value`, apiConfig.baseUrl);
     try {
@@ -39650,7 +39650,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_next_value(): Promise<Pointer> {
+  async get_next_value(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/next_value`, apiConfig.baseUrl);
     try {
@@ -39800,7 +39800,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_symbol_table(): Promise<Pointer> {
+  async get_symbol_table(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/symbol_table`, apiConfig.baseUrl);
     try {
@@ -39956,7 +39956,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_msg_handler(): Promise<GLibScannerMsgFunc> {
+  async get_msg_handler(): Promise<GLibScannerMsgFunc | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Scanner/ptr,${this.ptr}/fields/msg_handler`, apiConfig.baseUrl);
     try {
@@ -40421,7 +40421,7 @@ return Promise.reject("Call failed");
 
 
  
-  async lookup(cmp_func: GLibCompareDataFunc, data_?: Pointer): Promise<{cmp_func: number, return: GLibSequenceIter}> {
+  async lookup(cmp_func: GLibCompareDataFunc, data_?: Pointer): Promise<{cmp_func: number, return: GLibSequenceIter | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/lookup`, apiConfig.baseUrl);
     // Primitive parameter
@@ -40470,7 +40470,7 @@ return Promise.reject("Call failed");
 
 
  
-  async lookup_iter(iter_cmp: GLibSequenceIterCompareFunc, data_?: Pointer): Promise<{iter_cmp: number, return: GLibSequenceIter}> {
+  async lookup_iter(iter_cmp: GLibSequenceIterCompareFunc, data_?: Pointer): Promise<{iter_cmp: number, return: GLibSequenceIter | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/ptr,${this.ptr}/lookup_iter`, apiConfig.baseUrl);
     // Primitive parameter
@@ -40756,7 +40756,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async get(iter: GLibSequenceIter): Promise<Pointer> {
+  static async get(iter: GLibSequenceIter): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Sequence/get`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -42055,7 +42055,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<GLibString> {
+  async get_data(): Promise<GLibString | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogBuffer/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
     try {
@@ -42085,7 +42085,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_msgs(): Promise<GLibSList> {
+  async get_msgs(): Promise<GLibSList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogBuffer/ptr,${this.ptr}/fields/msgs`, apiConfig.baseUrl);
     try {
@@ -42186,7 +42186,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_log_type(): Promise<GLibTestLogType> {
+  async get_log_type(): Promise<GLibTestLogType | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/log_type`, apiConfig.baseUrl);
     try {
@@ -42386,7 +42386,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_nums(): Promise<Pointer> {
+  async get_nums(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestLogMsg/ptr,${this.ptr}/fields/nums`, apiConfig.baseUrl);
     try {
@@ -42712,7 +42712,7 @@ export class GLibThread {
 
 
  
-  async join(): Promise<Pointer> {
+  async join(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/join`, apiConfig.baseUrl);
     try {
@@ -42892,7 +42892,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_func(): Promise<GLibThreadFunc> {
+  async get_func(): Promise<GLibThreadFunc | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
     try {
@@ -42918,7 +42918,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<Pointer> {
+  async get_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
     try {
@@ -42970,7 +42970,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_priority(): Promise<Pointer> {
+  async get_priority(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Thread/ptr,${this.ptr}/fields/priority`, apiConfig.baseUrl);
     try {
@@ -43409,7 +43409,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_func(): Promise<GLibFunc> {
+  async get_func(): Promise<GLibFunc | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ThreadPool/ptr,${this.ptr}/fields/func`, apiConfig.baseUrl);
     try {
@@ -43459,7 +43459,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_user_data(): Promise<Pointer> {
+  async get_user_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/ThreadPool/ptr,${this.ptr}/fields/user_data`, apiConfig.baseUrl);
     try {
@@ -43895,7 +43895,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async peek(stack_p: GLibTrashStack): Promise<Pointer> {
+  static async peek(stack_p: GLibTrashStack): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TrashStack/peek`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -43925,7 +43925,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async pop(stack_p: GLibTrashStack): Promise<Pointer> {
+  static async pop(stack_p: GLibTrashStack): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TrashStack/pop`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -43983,7 +43983,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_next(): Promise<GLibTrashStack> {
+  async get_next(): Promise<GLibTrashStack | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TrashStack/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
     try {
@@ -44293,7 +44293,7 @@ export class GLibTree {
 
 
  
-  async insert_node(key?: Pointer, value_?: Pointer): Promise<GLibTreeNode> {
+  async insert_node(key?: Pointer, value_?: Pointer): Promise<GLibTreeNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/insert_node`, apiConfig.baseUrl);
     // Primitive parameter
@@ -44327,7 +44327,7 @@ return Promise.reject("Call failed");
 
 
  
-  async lookup(key?: Pointer): Promise<Pointer> {
+  async lookup(key?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/lookup`, apiConfig.baseUrl);
     // Primitive parameter
@@ -44398,7 +44398,7 @@ return Promise.reject("Call failed");
 
 
  
-  async lookup_node(key?: Pointer): Promise<GLibTreeNode> {
+  async lookup_node(key?: Pointer): Promise<GLibTreeNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/lookup_node`, apiConfig.baseUrl);
     // Primitive parameter
@@ -44430,7 +44430,7 @@ return Promise.reject("Call failed");
 
 
  
-  async lower_bound(key?: Pointer): Promise<GLibTreeNode> {
+  async lower_bound(key?: Pointer): Promise<GLibTreeNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/lower_bound`, apiConfig.baseUrl);
     // Primitive parameter
@@ -44488,7 +44488,7 @@ return Promise.reject("Call failed");
 
 
  
-  async node_first(): Promise<GLibTreeNode> {
+  async node_first(): Promise<GLibTreeNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/node_first`, apiConfig.baseUrl);
     try {
@@ -44518,7 +44518,7 @@ return Promise.reject("Call failed");
 
 
  
-  async node_last(): Promise<GLibTreeNode> {
+  async node_last(): Promise<GLibTreeNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/node_last`, apiConfig.baseUrl);
     try {
@@ -44654,7 +44654,7 @@ return Promise.reject("Call failed");
 
 
  
-  async replace_node(key?: Pointer, value_?: Pointer): Promise<GLibTreeNode> {
+  async replace_node(key?: Pointer, value_?: Pointer): Promise<GLibTreeNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/replace_node`, apiConfig.baseUrl);
     // Primitive parameter
@@ -44688,7 +44688,7 @@ return Promise.reject("Call failed");
 
 
  
-  async search(search_func: GLibCompareFunc): Promise<{search_func: number, return: Pointer}> {
+  async search(search_func: GLibCompareFunc): Promise<{search_func: number, return: Pointer | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/search`, apiConfig.baseUrl);
     try {
@@ -44731,7 +44731,7 @@ return Promise.reject("Call failed");
 
 
  
-  async search_node(search_func: GLibCompareFunc): Promise<{search_func: number, return: GLibTreeNode}> {
+  async search_node(search_func: GLibCompareFunc): Promise<{search_func: number, return: GLibTreeNode | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/search_node`, apiConfig.baseUrl);
     try {
@@ -44863,7 +44863,7 @@ return Promise.reject("Call failed");
 
 
  
-  async upper_bound(key?: Pointer): Promise<GLibTreeNode> {
+  async upper_bound(key?: Pointer): Promise<GLibTreeNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tree/ptr,${this.ptr}/upper_bound`, apiConfig.baseUrl);
     // Primitive parameter
@@ -44992,7 +44992,7 @@ return Promise.reject("Call failed");
 
 
  
-  async key(): Promise<Pointer> {
+  async key(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TreeNode/ptr,${this.ptr}/key`, apiConfig.baseUrl);
     try {
@@ -45018,7 +45018,7 @@ return Promise.reject("Call failed");
 
 
  
-  async next(): Promise<GLibTreeNode> {
+  async next(): Promise<GLibTreeNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TreeNode/ptr,${this.ptr}/next`, apiConfig.baseUrl);
     try {
@@ -45048,7 +45048,7 @@ return Promise.reject("Call failed");
 
 
  
-  async previous(): Promise<GLibTreeNode> {
+  async previous(): Promise<GLibTreeNode | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TreeNode/ptr,${this.ptr}/previous`, apiConfig.baseUrl);
     try {
@@ -45078,7 +45078,7 @@ return Promise.reject("Call failed");
 
 
  
-  async value_(): Promise<Pointer> {
+  async value_(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TreeNode/ptr,${this.ptr}/value`, apiConfig.baseUrl);
     try {
@@ -45197,7 +45197,7 @@ return Promise.reject("Call failed");
 
 
  
-  async index(index_: number, field: number): Promise<Pointer> {
+  async index(index_: number, field: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Tuples/ptr,${this.ptr}/index`, apiConfig.baseUrl);
     // Primitive parameter
@@ -45760,7 +45760,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_auth_params(): Promise<string> {
+  async get_auth_params(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/ptr,${this.ptr}/get_auth_params`, apiConfig.baseUrl);
     try {
@@ -45812,7 +45812,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_fragment(): Promise<string> {
+  async get_fragment(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/ptr,${this.ptr}/get_fragment`, apiConfig.baseUrl);
     try {
@@ -45838,7 +45838,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_host(): Promise<string> {
+  async get_host(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/ptr,${this.ptr}/get_host`, apiConfig.baseUrl);
     try {
@@ -45864,7 +45864,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_password(): Promise<string> {
+  async get_password(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/ptr,${this.ptr}/get_password`, apiConfig.baseUrl);
     try {
@@ -45942,7 +45942,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_query(): Promise<string> {
+  async get_query(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/ptr,${this.ptr}/get_query`, apiConfig.baseUrl);
     try {
@@ -45994,7 +45994,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_user(): Promise<string> {
+  async get_user(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/ptr,${this.ptr}/get_user`, apiConfig.baseUrl);
     try {
@@ -46020,7 +46020,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_userinfo(): Promise<string> {
+  async get_userinfo(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/ptr,${this.ptr}/get_userinfo`, apiConfig.baseUrl);
     try {
@@ -46534,7 +46534,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async parse_scheme(uri: string): Promise<string> {
+  static async parse_scheme(uri: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/parse_scheme`, apiConfig.baseUrl);
     // Primitive parameter
@@ -46562,7 +46562,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async peek_scheme(uri: string): Promise<string> {
+  static async peek_scheme(uri: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/peek_scheme`, apiConfig.baseUrl);
     // Primitive parameter
@@ -46858,7 +46858,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async unescape_segment(escaped_string?: string, escaped_string_end?: string, illegal_characters?: string): Promise<string> {
+  static async unescape_segment(escaped_string?: string, escaped_string_end?: string, illegal_characters?: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/unescape_segment`, apiConfig.baseUrl);
     // Primitive parameter
@@ -46890,7 +46890,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async unescape_string(escaped_string: string, illegal_characters?: string): Promise<string> {
+  static async unescape_string(escaped_string: string, illegal_characters?: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/Uri/unescape_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -47122,7 +47122,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dummy1(): Promise<Pointer> {
+  async get_dummy1(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/UriParamsIter/ptr,${this.ptr}/fields/dummy1`, apiConfig.baseUrl);
     try {
@@ -47148,7 +47148,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dummy2(): Promise<Pointer> {
+  async get_dummy2(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/UriParamsIter/ptr,${this.ptr}/fields/dummy2`, apiConfig.baseUrl);
     try {
@@ -47174,7 +47174,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dummy3(): Promise<Pointer> {
+  async get_dummy3(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/UriParamsIter/ptr,${this.ptr}/fields/dummy3`, apiConfig.baseUrl);
     try {
@@ -47642,7 +47642,7 @@ return Promise.reject("Call failed");
 
 
  
-  async lookup_value(key: string, expected_type?: GLibVariantType): Promise<GLibVariant> {
+  async lookup_value(key: string, expected_type?: GLibVariantType): Promise<GLibVariant | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/VariantDict/ptr,${this.ptr}/lookup_value`, apiConfig.baseUrl);
     // Primitive parameter
@@ -47922,7 +47922,7 @@ return Promise.reject("Call failed");
 
 
  
-  async copy(): Promise<GstAllocationParams> {
+  async copy(): Promise<GstAllocationParams | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/copy`, apiConfig.baseUrl);
     try {
@@ -47974,7 +47974,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_flags(): Promise<GstMemoryFlagsValue> {
+  async get_flags(): Promise<GstMemoryFlagsValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
     try {
@@ -48174,7 +48174,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get__gst_reserved(): Promise<Pointer> {
+  async get__gst_reserved(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AllocationParams/ptr,${this.ptr}/fields/_gst_reserved`, apiConfig.baseUrl);
     try {
@@ -48474,7 +48474,7 @@ export class GstObject extends GObjectInitiallyUnowned {
 
 
  
-  async get_control_binding(property_name: string): Promise<GstControlBinding> {
+  async get_control_binding(property_name: string): Promise<GstControlBinding | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Object/ptr,${this.ptr}/get_control_binding`, apiConfig.baseUrl);
     // Primitive parameter
@@ -48569,7 +48569,7 @@ export class GstObject extends GObjectInitiallyUnowned {
 
 
  
-  async get_name(): Promise<string> {
+  async get_name(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Object/ptr,${this.ptr}/get_name`, apiConfig.baseUrl);
     try {
@@ -48595,7 +48595,7 @@ export class GstObject extends GObjectInitiallyUnowned {
 
 
  
-  async get_parent(): Promise<GstObject> {
+  async get_parent(): Promise<GstObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Object/ptr,${this.ptr}/get_parent`, apiConfig.baseUrl);
     try {
@@ -48652,7 +48652,7 @@ export class GstObject extends GObjectInitiallyUnowned {
 
 
  
-  async get_value(property_name: string, timestamp: number): Promise<GObjectValue> {
+  async get_value(property_name: string, timestamp: number): Promise<GObjectValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Object/ptr,${this.ptr}/get_value`, apiConfig.baseUrl);
     // Primitive parameter
@@ -49104,7 +49104,7 @@ export class GstAllocator extends GstObject {
 
 
  
-  static async find(name?: string): Promise<GstAllocator> {
+  static async find(name?: string): Promise<GstAllocator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Allocator/find`, apiConfig.baseUrl);
     // Primitive parameter
@@ -49174,7 +49174,7 @@ export class GstAllocator extends GstObject {
 
 
  
-  async alloc(size: number, params?: GstAllocationParams): Promise<GstMemory> {
+  async alloc(size: number, params?: GstAllocationParams): Promise<GstMemory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Allocator/ptr,${this.ptr}/alloc`, apiConfig.baseUrl);
     // Primitive parameter
@@ -49301,7 +49301,7 @@ export class GstMemory {
 
 
  
-  static async new_wrapped(flags: GstMemoryFlagsValue, data_: Pointer, maxsize: number, offset: number, size: number, notify: GLibDestroyNotify): Promise<{notify: number, return: GstMemory}> {
+  static async new_wrapped(flags: GstMemoryFlagsValue, data_: Pointer, maxsize: number, offset: number, size: number, notify: GLibDestroyNotify): Promise<{notify: number, return: GstMemory | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/new_wrapped`, apiConfig.baseUrl);
     // Primitive parameter
@@ -49382,7 +49382,7 @@ export class GstMemory {
 
 
  
-  async copy(offset: number, size: number): Promise<GstMemory> {
+  async copy(offset: number, size: number): Promise<GstMemory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/copy`, apiConfig.baseUrl);
     // Primitive parameter
@@ -49525,7 +49525,7 @@ return Promise.reject("Call failed");
 
 
  
-  async make_mapped(info: GstMapInfo, flags: GstMapFlagsValue): Promise<GstMemory> {
+  async make_mapped(info: GstMapInfo, flags: GstMapFlagsValue): Promise<GstMemory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/make_mapped`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -49679,7 +49679,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_mini_object(): Promise<GstMiniObject> {
+  async get_mini_object(): Promise<GstMiniObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
     try {
@@ -49735,7 +49735,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_allocator(): Promise<GstAllocator> {
+  async get_allocator(): Promise<GstAllocator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/allocator`, apiConfig.baseUrl);
     try {
@@ -49792,7 +49792,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_parent(): Promise<GstMemory> {
+  async get_parent(): Promise<GstMemory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Memory/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
     try {
@@ -50223,7 +50223,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_qdata(quark: number): Promise<Pointer> {
+  async get_qdata(quark: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/get_qdata`, apiConfig.baseUrl);
     // Primitive parameter
@@ -50368,7 +50368,7 @@ return Promise.reject("Call failed");
 
 
  
-  async steal_qdata(quark: number): Promise<Pointer> {
+  async steal_qdata(quark: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/steal_qdata`, apiConfig.baseUrl);
     // Primitive parameter
@@ -50716,7 +50716,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_copy(): Promise<GstMiniObjectCopyFunction> {
+  async get_copy(): Promise<GstMiniObjectCopyFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/copy`, apiConfig.baseUrl);
     try {
@@ -50766,7 +50766,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_dispose(): Promise<GstMiniObjectDisposeFunction> {
+  async get_dispose(): Promise<GstMiniObjectDisposeFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/dispose`, apiConfig.baseUrl);
     try {
@@ -50816,7 +50816,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_free(): Promise<GstMiniObjectFreeFunction> {
+  async get_free(): Promise<GstMiniObjectFreeFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/free`, apiConfig.baseUrl);
     try {
@@ -50892,7 +50892,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_priv_pointer(): Promise<Pointer> {
+  async get_priv_pointer(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MiniObject/ptr,${this.ptr}/fields/priv_pointer`, apiConfig.baseUrl);
     try {
@@ -51147,7 +51147,7 @@ return Promise.reject("Call failed");
 
 
  
-  async peek(): Promise<Pointer> {
+  async peek(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AtomicQueue/ptr,${this.ptr}/peek`, apiConfig.baseUrl);
     try {
@@ -51173,7 +51173,7 @@ return Promise.reject("Call failed");
 
 
  
-  async pop(): Promise<Pointer> {
+  async pop(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/AtomicQueue/ptr,${this.ptr}/pop`, apiConfig.baseUrl);
     try {
@@ -51874,7 +51874,7 @@ export class GstElement extends GstObject {
 
 
  
-  async get_bus(): Promise<GstBus> {
+  async get_bus(): Promise<GstBus | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_bus`, apiConfig.baseUrl);
     try {
@@ -51905,7 +51905,7 @@ export class GstElement extends GstObject {
 
 
  
-  async get_clock(): Promise<GstClock> {
+  async get_clock(): Promise<GstClock | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_clock`, apiConfig.baseUrl);
     try {
@@ -51936,7 +51936,7 @@ export class GstElement extends GstObject {
 
 
  
-  async get_compatible_pad(pad: GstPad, caps?: GstCaps): Promise<GstPad> {
+  async get_compatible_pad(pad: GstPad, caps?: GstCaps): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_compatible_pad`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -51975,7 +51975,7 @@ export class GstElement extends GstObject {
 
 
  
-  async get_compatible_pad_template(compattempl: GstPadTemplate): Promise<GstPadTemplate> {
+  async get_compatible_pad_template(compattempl: GstPadTemplate): Promise<GstPadTemplate | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_compatible_pad_template`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -52010,7 +52010,7 @@ export class GstElement extends GstObject {
 
 
  
-  async get_context(context_type: string): Promise<GstContext> {
+  async get_context(context_type: string): Promise<GstContext | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_context`, apiConfig.baseUrl);
     // Primitive parameter
@@ -52042,7 +52042,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_context_unlocked(context_type: string): Promise<GstContext> {
+  async get_context_unlocked(context_type: string): Promise<GstContext | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_context_unlocked`, apiConfig.baseUrl);
     // Primitive parameter
@@ -52157,7 +52157,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_factory(): Promise<GstElementFactory> {
+  async get_factory(): Promise<GstElementFactory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_factory`, apiConfig.baseUrl);
     try {
@@ -52216,7 +52216,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_pad_template(name: string): Promise<GstPadTemplate> {
+  async get_pad_template(name: string): Promise<GstPadTemplate | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_pad_template`, apiConfig.baseUrl);
     // Primitive parameter
@@ -52280,7 +52280,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_request_pad(name: string): Promise<GstPad> {
+  async get_request_pad(name: string): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_request_pad`, apiConfig.baseUrl);
     // Primitive parameter
@@ -52371,7 +52371,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_static_pad(name: string): Promise<GstPad> {
+  async get_static_pad(name: string): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/get_static_pad`, apiConfig.baseUrl);
     // Primitive parameter
@@ -52846,7 +52846,7 @@ return Promise.reject("Call failed");
 
 
  
-  async provide_clock(): Promise<GstClock> {
+  async provide_clock(): Promise<GstClock | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/provide_clock`, apiConfig.baseUrl);
     try {
@@ -53105,7 +53105,7 @@ return Promise.reject("Call failed");
 
 
  
-  async request_pad(templ: GstPadTemplate, name?: string, caps?: GstCaps): Promise<GstPad> {
+  async request_pad(templ: GstPadTemplate, name?: string, caps?: GstCaps): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/request_pad`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -53146,7 +53146,7 @@ return Promise.reject("Call failed");
 
 
  
-  async request_pad_simple(name: string): Promise<GstPad> {
+  async request_pad_simple(name: string): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Element/ptr,${this.ptr}/request_pad_simple`, apiConfig.baseUrl);
     // Primitive parameter
@@ -53645,7 +53645,7 @@ export class GstBin extends GstElement {
 
 
  
-  async find_unlinked_pad(direction: GstPadDirectionValue): Promise<GstPad> {
+  async find_unlinked_pad(direction: GstPadDirectionValue): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/find_unlinked_pad`, apiConfig.baseUrl);
     // Primitive parameter
@@ -53678,7 +53678,7 @@ export class GstBin extends GstElement {
 
 
  
-  async get_by_interface(iface: string): Promise<GstElement> {
+  async get_by_interface(iface: string): Promise<GstElement | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/get_by_interface`, apiConfig.baseUrl);
     // Primitive parameter
@@ -53711,7 +53711,7 @@ export class GstBin extends GstElement {
 
 
  
-  async get_by_name(name: string): Promise<GstElement> {
+  async get_by_name(name: string): Promise<GstElement | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/get_by_name`, apiConfig.baseUrl);
     // Primitive parameter
@@ -53744,7 +53744,7 @@ export class GstBin extends GstElement {
 
 
  
-  async get_by_name_recurse_up(name: string): Promise<GstElement> {
+  async get_by_name_recurse_up(name: string): Promise<GstElement | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/get_by_name_recurse_up`, apiConfig.baseUrl);
     // Primitive parameter
@@ -53803,7 +53803,7 @@ export class GstBin extends GstElement {
 
 
  
-  async iterate_all_by_element_factory_name(factory_name: string): Promise<GstIterator> {
+  async iterate_all_by_element_factory_name(factory_name: string): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/iterate_all_by_element_factory_name`, apiConfig.baseUrl);
     // Primitive parameter
@@ -53835,7 +53835,7 @@ return Promise.reject("Call failed");
 
 
  
-  async iterate_all_by_interface(iface: string): Promise<GstIterator> {
+  async iterate_all_by_interface(iface: string): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/iterate_all_by_interface`, apiConfig.baseUrl);
     // Primitive parameter
@@ -53867,7 +53867,7 @@ return Promise.reject("Call failed");
 
 
  
-  async iterate_elements(): Promise<GstIterator> {
+  async iterate_elements(): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/iterate_elements`, apiConfig.baseUrl);
     try {
@@ -53897,7 +53897,7 @@ return Promise.reject("Call failed");
 
 
  
-  async iterate_recurse(): Promise<GstIterator> {
+  async iterate_recurse(): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/iterate_recurse`, apiConfig.baseUrl);
     try {
@@ -53927,7 +53927,7 @@ return Promise.reject("Call failed");
 
 
  
-  async iterate_sinks(): Promise<GstIterator> {
+  async iterate_sinks(): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/iterate_sinks`, apiConfig.baseUrl);
     try {
@@ -53957,7 +53957,7 @@ return Promise.reject("Call failed");
 
 
  
-  async iterate_sorted(): Promise<GstIterator> {
+  async iterate_sorted(): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/iterate_sorted`, apiConfig.baseUrl);
     try {
@@ -53987,7 +53987,7 @@ return Promise.reject("Call failed");
 
 
  
-  async iterate_sources(): Promise<GstIterator> {
+  async iterate_sources(): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bin/ptr,${this.ptr}/iterate_sources`, apiConfig.baseUrl);
     try {
@@ -54228,7 +54228,7 @@ export class GstPlugin extends GstObject {
 
 
  
-  static async load_by_name(name: string): Promise<GstPlugin> {
+  static async load_by_name(name: string): Promise<GstPlugin | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/load_by_name`, apiConfig.baseUrl);
     // Primitive parameter
@@ -54548,7 +54548,7 @@ export class GstPlugin extends GstObject {
 
 
  
-  async get_cache_data(): Promise<GstStructure> {
+  async get_cache_data(): Promise<GstStructure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/ptr,${this.ptr}/get_cache_data`, apiConfig.baseUrl);
     try {
@@ -54604,7 +54604,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_filename(): Promise<Pointer> {
+  async get_filename(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/ptr,${this.ptr}/get_filename`, apiConfig.baseUrl);
     try {
@@ -54734,7 +54734,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_release_date_string(): Promise<string> {
+  async get_release_date_string(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/ptr,${this.ptr}/get_release_date_string`, apiConfig.baseUrl);
     try {
@@ -54786,7 +54786,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_status_errors(): Promise<Pointer> {
+  async get_status_errors(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/ptr,${this.ptr}/get_status_errors`, apiConfig.baseUrl);
     try {
@@ -54812,7 +54812,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_status_infos(): Promise<Pointer> {
+  async get_status_infos(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/ptr,${this.ptr}/get_status_infos`, apiConfig.baseUrl);
     try {
@@ -54838,7 +54838,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_status_warnings(): Promise<Pointer> {
+  async get_status_warnings(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/ptr,${this.ptr}/get_status_warnings`, apiConfig.baseUrl);
     try {
@@ -54916,7 +54916,7 @@ return Promise.reject("Call failed");
 
 
  
-  async load(): Promise<GstPlugin> {
+  async load(): Promise<GstPlugin | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Plugin/ptr,${this.ptr}/load`, apiConfig.baseUrl);
     try {
@@ -55076,7 +55076,7 @@ export class GstStructure {
 
 
  
-  static async from_string(string: string): Promise<{end: string, return: GstStructure}> {
+  static async from_string(string: string): Promise<{end: string, return: GstStructure | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/from_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -55150,7 +55150,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_string(string: string): Promise<GstStructure> {
+  static async new_from_string(string: string): Promise<GstStructure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/new_from_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -56140,7 +56140,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_string(fieldname: string): Promise<string> {
+  async get_string(fieldname: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/get_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -56244,7 +56244,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_value(fieldname: string): Promise<GObjectValue> {
+  async get_value(fieldname: string): Promise<GObjectValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/get_value`, apiConfig.baseUrl);
     // Primitive parameter
@@ -56362,7 +56362,7 @@ return Promise.reject("Call failed");
 
 
  
-  async id_get_value(field: number): Promise<GObjectValue> {
+  async id_get_value(field: number): Promise<GObjectValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/id_get_value`, apiConfig.baseUrl);
     // Primitive parameter
@@ -56508,7 +56508,7 @@ return Promise.reject("Call failed");
 
 
  
-  async intersect(struct2: GstStructure): Promise<GstStructure> {
+  async intersect(struct2: GstStructure): Promise<GstStructure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/intersect`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -56773,7 +56773,7 @@ return Promise.reject("Call failed");
 
 
  
-  async serialize_full(flags: GstSerializeFlagsValue): Promise<string> {
+  async serialize_full(flags: GstSerializeFlagsValue): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Structure/ptr,${this.ptr}/serialize_full`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57132,7 +57132,7 @@ export class GstDateTime {
 
 
  
-  static async new(tzoffset: number, year: number, month: number, day: number, hour: number, minute: number, seconds: number): Promise<GstDateTime> {
+  static async new(tzoffset: number, year: number, month: number, day: number, hour: number, minute: number, seconds: number): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57176,7 +57176,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_g_date_time(dt?: GLibDateTime): Promise<GstDateTime> {
+  static async new_from_g_date_time(dt?: GLibDateTime): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_from_g_date_time`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -57210,7 +57210,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_iso8601_string(string: string): Promise<GstDateTime> {
+  static async new_from_iso8601_string(string: string): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_from_iso8601_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57242,7 +57242,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_unix_epoch_local_time(secs: number): Promise<GstDateTime> {
+  static async new_from_unix_epoch_local_time(secs: number): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_from_unix_epoch_local_time`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57274,7 +57274,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_unix_epoch_local_time_usecs(usecs: number): Promise<GstDateTime> {
+  static async new_from_unix_epoch_local_time_usecs(usecs: number): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_from_unix_epoch_local_time_usecs`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57306,7 +57306,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_unix_epoch_utc(secs: number): Promise<GstDateTime> {
+  static async new_from_unix_epoch_utc(secs: number): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_from_unix_epoch_utc`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57338,7 +57338,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_unix_epoch_utc_usecs(usecs: number): Promise<GstDateTime> {
+  static async new_from_unix_epoch_utc_usecs(usecs: number): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_from_unix_epoch_utc_usecs`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57370,7 +57370,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_local_time(year: number, month: number, day: number, hour: number, minute: number, seconds: number): Promise<GstDateTime> {
+  static async new_local_time(year: number, month: number, day: number, hour: number, minute: number, seconds: number): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_local_time`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57412,7 +57412,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_now_local_time(): Promise<GstDateTime> {
+  static async new_now_local_time(): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_now_local_time`, apiConfig.baseUrl);
     try {
@@ -57442,7 +57442,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_now_utc(): Promise<GstDateTime> {
+  static async new_now_utc(): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_now_utc`, apiConfig.baseUrl);
     try {
@@ -57472,7 +57472,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_y(year: number): Promise<GstDateTime> {
+  static async new_y(year: number): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_y`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57504,7 +57504,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_ym(year: number, month: number): Promise<GstDateTime> {
+  static async new_ym(year: number, month: number): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_ym`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57538,7 +57538,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_ymd(year: number, month: number, day: number): Promise<GstDateTime> {
+  static async new_ymd(year: number, month: number, day: number): Promise<GstDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/new_ymd`, apiConfig.baseUrl);
     // Primitive parameter
@@ -57966,7 +57966,7 @@ return Promise.reject("Call failed");
 
 
  
-  async to_g_date_time(): Promise<GLibDateTime> {
+  async to_g_date_time(): Promise<GLibDateTime | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/ptr,${this.ptr}/to_g_date_time`, apiConfig.baseUrl);
     try {
@@ -57996,7 +57996,7 @@ return Promise.reject("Call failed");
 
 
  
-  async to_iso8601_string(): Promise<string> {
+  async to_iso8601_string(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DateTime/ptr,${this.ptr}/to_iso8601_string`, apiConfig.baseUrl);
     try {
@@ -58733,7 +58733,7 @@ export class GstPad extends GstObject {
 
 
  
-  async get_allowed_caps(): Promise<GstCaps> {
+  async get_allowed_caps(): Promise<GstCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_allowed_caps`, apiConfig.baseUrl);
     try {
@@ -58763,7 +58763,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_current_caps(): Promise<GstCaps> {
+  async get_current_caps(): Promise<GstCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_current_caps`, apiConfig.baseUrl);
     try {
@@ -58819,7 +58819,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_element_private(): Promise<Pointer> {
+  async get_element_private(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_element_private`, apiConfig.baseUrl);
     try {
@@ -58897,7 +58897,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_pad_template(): Promise<GstPadTemplate> {
+  async get_pad_template(): Promise<GstPadTemplate | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_pad_template`, apiConfig.baseUrl);
     try {
@@ -58958,7 +58958,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_parent_element(): Promise<GstElement> {
+  async get_parent_element(): Promise<GstElement | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_parent_element`, apiConfig.baseUrl);
     try {
@@ -58989,7 +58989,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_peer(): Promise<GstPad> {
+  async get_peer(): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_peer`, apiConfig.baseUrl);
     try {
@@ -59054,7 +59054,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_single_internal_link(): Promise<GstPad> {
+  async get_single_internal_link(): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_single_internal_link`, apiConfig.baseUrl);
     try {
@@ -59085,7 +59085,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_sticky_event(event_type: GstEventTypeValue, idx: number): Promise<GstEvent> {
+  async get_sticky_event(event_type: GstEventTypeValue, idx: number): Promise<GstEvent | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_sticky_event`, apiConfig.baseUrl);
     // Primitive parameter
@@ -59119,7 +59119,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_stream(): Promise<GstStream> {
+  async get_stream(): Promise<GstStream | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_stream`, apiConfig.baseUrl);
     try {
@@ -59150,7 +59150,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_stream_id(): Promise<string> {
+  async get_stream_id(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/get_stream_id`, apiConfig.baseUrl);
     try {
@@ -59332,7 +59332,7 @@ return Promise.reject("Call failed");
 
 
  
-  async iterate_internal_links(): Promise<GstIterator> {
+  async iterate_internal_links(): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/iterate_internal_links`, apiConfig.baseUrl);
     try {
@@ -59362,7 +59362,7 @@ return Promise.reject("Call failed");
 
 
  
-  async iterate_internal_links_default(parent?: GstObject): Promise<GstIterator> {
+  async iterate_internal_links_default(parent?: GstObject): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Pad/ptr,${this.ptr}/iterate_internal_links_default`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -61043,7 +61043,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get(): Promise<GstPadTemplate> {
+  async get(): Promise<GstPadTemplate | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/get`, apiConfig.baseUrl);
     try {
@@ -61154,7 +61154,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_direction(): Promise<GstPadDirectionValue> {
+  async get_direction(): Promise<GstPadDirectionValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/direction`, apiConfig.baseUrl);
     try {
@@ -61204,7 +61204,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_presence(): Promise<GstPadPresenceValue> {
+  async get_presence(): Promise<GstPadPresenceValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/presence`, apiConfig.baseUrl);
     try {
@@ -61254,7 +61254,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_static_caps(): Promise<GstStaticCaps> {
+  async get_static_caps(): Promise<GstStaticCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticPadTemplate/ptr,${this.ptr}/fields/static_caps`, apiConfig.baseUrl);
     try {
@@ -61315,7 +61315,7 @@ export class GstPadTemplate extends GstObject {
 
 
  
-  static async new(name_template: string, direction: GstPadDirectionValue, presence: GstPadPresenceValue, caps: GstCaps): Promise<GstPadTemplate> {
+  static async new(name_template: string, direction: GstPadDirectionValue, presence: GstPadPresenceValue, caps: GstCaps): Promise<GstPadTemplate | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadTemplate/new`, apiConfig.baseUrl);
     // Primitive parameter
@@ -61356,7 +61356,7 @@ export class GstPadTemplate extends GstObject {
 
 
  
-  static async new_from_static_pad_template_with_gtype(pad_template: GstStaticPadTemplate, pad_type: string): Promise<GstPadTemplate> {
+  static async new_from_static_pad_template_with_gtype(pad_template: GstStaticPadTemplate, pad_type: string): Promise<GstPadTemplate | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadTemplate/new_from_static_pad_template_with_gtype`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -61393,7 +61393,7 @@ export class GstPadTemplate extends GstObject {
 
 
  
-  static async new_with_gtype(name_template: string, direction: GstPadDirectionValue, presence: GstPadPresenceValue, caps: GstCaps, pad_type: string): Promise<GstPadTemplate> {
+  static async new_with_gtype(name_template: string, direction: GstPadDirectionValue, presence: GstPadPresenceValue, caps: GstCaps, pad_type: string): Promise<GstPadTemplate | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadTemplate/new_with_gtype`, apiConfig.baseUrl);
     // Primitive parameter
@@ -62046,7 +62046,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_features(index: number): Promise<GstCapsFeatures> {
+  async get_features(index: number): Promise<GstCapsFeatures | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/ptr,${this.ptr}/get_features`, apiConfig.baseUrl);
     // Primitive parameter
@@ -62841,7 +62841,7 @@ return Promise.reject("Call failed");
 
 
  
-  async steal_structure(index: number): Promise<GstStructure> {
+  async steal_structure(index: number): Promise<GstStructure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/ptr,${this.ptr}/steal_structure`, apiConfig.baseUrl);
     // Primitive parameter
@@ -62963,7 +62963,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async from_string(string: string): Promise<GstCaps> {
+  static async from_string(string: string): Promise<GstCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/from_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -62995,7 +62995,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_mini_object(): Promise<GstMiniObject> {
+  async get_mini_object(): Promise<GstMiniObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Caps/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
     try {
@@ -63344,7 +63344,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_nth(i: number): Promise<string> {
+  async get_nth(i: number): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CapsFeatures/ptr,${this.ptr}/get_nth`, apiConfig.baseUrl);
     // Primitive parameter
@@ -63584,7 +63584,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async from_string(features: string): Promise<GstCapsFeatures> {
+  static async from_string(features: string): Promise<GstCapsFeatures | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CapsFeatures/from_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -63767,7 +63767,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get(): Promise<GstCaps> {
+  async get(): Promise<GstCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticCaps/ptr,${this.ptr}/get`, apiConfig.baseUrl);
     try {
@@ -63797,7 +63797,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_caps(): Promise<GstCaps> {
+  async get_caps(): Promise<GstCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticCaps/ptr,${this.ptr}/fields/caps`, apiConfig.baseUrl);
     try {
@@ -63903,7 +63903,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get__gst_reserved(): Promise<Pointer> {
+  async get__gst_reserved(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StaticCaps/ptr,${this.ptr}/fields/_gst_reserved`, apiConfig.baseUrl);
     try {
@@ -64150,7 +64150,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_buffer(): Promise<GstBuffer> {
+  async get_buffer(): Promise<GstBuffer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/get_buffer`, apiConfig.baseUrl);
     try {
@@ -64180,7 +64180,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_buffer_list(): Promise<GstBufferList> {
+  async get_buffer_list(): Promise<GstBufferList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/get_buffer_list`, apiConfig.baseUrl);
     try {
@@ -64210,7 +64210,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_event(): Promise<GstEvent> {
+  async get_event(): Promise<GstEvent | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/get_event`, apiConfig.baseUrl);
     try {
@@ -64240,7 +64240,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_query(): Promise<GstQuery> {
+  async get_query(): Promise<GstQuery | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/get_query`, apiConfig.baseUrl);
     try {
@@ -64270,7 +64270,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_type(): Promise<GstPadProbeTypeValue> {
+  async get_type(): Promise<GstPadProbeTypeValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
     try {
@@ -64370,7 +64370,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<Pointer> {
+  async get_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PadProbeInfo/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
     try {
@@ -64575,7 +64575,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_allocate(size: number, allocator?: GstAllocator, params?: GstAllocationParams): Promise<GstBuffer> {
+  static async new_allocate(size: number, allocator?: GstAllocator, params?: GstAllocationParams): Promise<GstBuffer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/new_allocate`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -64798,7 +64798,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_custom_meta(name: string): Promise<GstCustomMeta> {
+  async add_custom_meta(name: string): Promise<GstCustomMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/add_custom_meta`, apiConfig.baseUrl);
     // Primitive parameter
@@ -64830,7 +64830,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_meta(info: GstMetaInfo, params?: Pointer): Promise<GstMeta> {
+  async add_meta(info: GstMetaInfo, params?: Pointer): Promise<GstMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/add_meta`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -64866,7 +64866,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_parent_buffer_meta(ref: GstBuffer): Promise<GstParentBufferMeta> {
+  async add_parent_buffer_meta(ref: GstBuffer): Promise<GstParentBufferMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/add_parent_buffer_meta`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -64934,7 +64934,7 @@ return Promise.reject("Call failed");
 
 
  
-  async add_reference_timestamp_meta(reference: GstCaps, timestamp: number, duration: number): Promise<GstReferenceTimestampMeta> {
+  async add_reference_timestamp_meta(reference: GstCaps, timestamp: number, duration: number): Promise<GstReferenceTimestampMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/add_reference_timestamp_meta`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -65070,7 +65070,7 @@ return Promise.reject("Call failed");
 
 
  
-  async copy_deep(): Promise<GstBuffer> {
+  async copy_deep(): Promise<GstBuffer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/copy_deep`, apiConfig.baseUrl);
     try {
@@ -65136,7 +65136,7 @@ return Promise.reject("Call failed");
 
 
  
-  async copy_region(flags: GstBufferCopyFlagsValue, offset: number, size: number): Promise<GstBuffer> {
+  async copy_region(flags: GstBufferCopyFlagsValue, offset: number, size: number): Promise<GstBuffer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/copy_region`, apiConfig.baseUrl);
     // Primitive parameter
@@ -65380,7 +65380,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_all_memory(): Promise<GstMemory> {
+  async get_all_memory(): Promise<GstMemory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/get_all_memory`, apiConfig.baseUrl);
     try {
@@ -65410,7 +65410,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_custom_meta(name: string): Promise<GstCustomMeta> {
+  async get_custom_meta(name: string): Promise<GstCustomMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/get_custom_meta`, apiConfig.baseUrl);
     // Primitive parameter
@@ -65468,7 +65468,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_memory(idx: number): Promise<GstMemory> {
+  async get_memory(idx: number): Promise<GstMemory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/get_memory`, apiConfig.baseUrl);
     // Primitive parameter
@@ -65500,7 +65500,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_memory_range(idx: number, length: number): Promise<GstMemory> {
+  async get_memory_range(idx: number, length: number): Promise<GstMemory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/get_memory_range`, apiConfig.baseUrl);
     // Primitive parameter
@@ -65534,7 +65534,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_meta(api: string): Promise<GstMeta> {
+  async get_meta(api: string): Promise<GstMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/get_meta`, apiConfig.baseUrl);
     // Primitive parameter
@@ -65594,7 +65594,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_reference_timestamp_meta(reference?: GstCaps): Promise<GstReferenceTimestampMeta> {
+  async get_reference_timestamp_meta(reference?: GstCaps): Promise<GstReferenceTimestampMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/get_reference_timestamp_meta`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -66010,7 +66010,7 @@ return Promise.reject("Call failed");
 
 
  
-  async peek_memory(idx: number): Promise<GstMemory> {
+  async peek_memory(idx: number): Promise<GstMemory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/peek_memory`, apiConfig.baseUrl);
     // Primitive parameter
@@ -66446,7 +66446,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_mini_object(): Promise<GstMiniObject> {
+  async get_mini_object(): Promise<GstMiniObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
     try {
@@ -66502,7 +66502,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_pool(): Promise<GstBufferPool> {
+  async get_pool(): Promise<GstBufferPool | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Buffer/ptr,${this.ptr}/fields/pool`, apiConfig.baseUrl);
     try {
@@ -66964,7 +66964,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_meta(): Promise<GstMeta> {
+  async get_meta(): Promise<GstMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/CustomMeta/ptr,${this.ptr}/fields/meta`, apiConfig.baseUrl);
     try {
@@ -67304,7 +67304,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async deserialize(buffer: GstBuffer, data_: number, size: number): Promise<{consumed: number, return: GstMeta}> {
+  static async deserialize(buffer: GstBuffer, data_: number, size: number): Promise<{consumed: number, return: GstMeta | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Meta/deserialize`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -67352,7 +67352,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async get_info(impl: string): Promise<GstMetaInfo> {
+  static async get_info(impl: string): Promise<GstMetaInfo | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Meta/get_info`, apiConfig.baseUrl);
     // Primitive parameter
@@ -67467,7 +67467,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_flags(): Promise<GstMetaFlagsValue> {
+  async get_flags(): Promise<GstMetaFlagsValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Meta/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
     try {
@@ -67813,7 +67813,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_init_func(): Promise<GstMetaInitFunction> {
+  async get_init_func(): Promise<GstMetaInitFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/init_func`, apiConfig.baseUrl);
     try {
@@ -67863,7 +67863,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_free_func(): Promise<GstMetaFreeFunction> {
+  async get_free_func(): Promise<GstMetaFreeFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/free_func`, apiConfig.baseUrl);
     try {
@@ -67913,7 +67913,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_transform_func(): Promise<GstMetaTransformFunction> {
+  async get_transform_func(): Promise<GstMetaTransformFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/transform_func`, apiConfig.baseUrl);
     try {
@@ -67963,7 +67963,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_serialize_func(): Promise<GstMetaSerializeFunction> {
+  async get_serialize_func(): Promise<GstMetaSerializeFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/serialize_func`, apiConfig.baseUrl);
     try {
@@ -68013,7 +68013,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_deserialize_func(): Promise<GstMetaDeserializeFunction> {
+  async get_deserialize_func(): Promise<GstMetaDeserializeFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/deserialize_func`, apiConfig.baseUrl);
     try {
@@ -68063,7 +68063,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_clear_func(): Promise<GstMetaClearFunction> {
+  async get_clear_func(): Promise<GstMetaClearFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/MetaInfo/ptr,${this.ptr}/fields/clear_func`, apiConfig.baseUrl);
     try {
@@ -68299,7 +68299,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_parent(): Promise<GstMeta> {
+  async get_parent(): Promise<GstMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParentBufferMeta/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
     try {
@@ -68355,7 +68355,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_buffer(): Promise<GstBuffer> {
+  async get_buffer(): Promise<GstBuffer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParentBufferMeta/ptr,${this.ptr}/fields/buffer`, apiConfig.baseUrl);
     try {
@@ -68512,7 +68512,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_meta(): Promise<GstMeta> {
+  async get_meta(): Promise<GstMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ProtectionMeta/ptr,${this.ptr}/fields/meta`, apiConfig.baseUrl);
     try {
@@ -68669,7 +68669,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_parent(): Promise<GstMeta> {
+  async get_parent(): Promise<GstMeta | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
     try {
@@ -68725,7 +68725,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_reference(): Promise<GstCaps> {
+  async get_reference(): Promise<GstCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ReferenceTimestampMeta/ptr,${this.ptr}/fields/reference`, apiConfig.baseUrl);
     try {
@@ -69066,7 +69066,7 @@ export class GstBufferPool extends GstObject {
 
 
  
-  static async config_get_option(config: GstStructure, index: number): Promise<string> {
+  static async config_get_option(config: GstStructure, index: number): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferPool/config_get_option`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -69874,7 +69874,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get(idx: number): Promise<GstBuffer> {
+  async get(idx: number): Promise<GstBuffer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferList/ptr,${this.ptr}/get`, apiConfig.baseUrl);
     // Primitive parameter
@@ -69906,7 +69906,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_writable(idx: number): Promise<GstBuffer> {
+  async get_writable(idx: number): Promise<GstBuffer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/BufferList/ptr,${this.ptr}/get_writable`, apiConfig.baseUrl);
     // Primitive parameter
@@ -71061,7 +71061,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_structure(): Promise<GstStructure> {
+  async get_structure(): Promise<GstStructure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/get_structure`, apiConfig.baseUrl);
     try {
@@ -72178,7 +72178,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_mini_object(): Promise<GstMiniObject> {
+  async get_mini_object(): Promise<GstMiniObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
     try {
@@ -72234,7 +72234,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_type(): Promise<GstEventTypeValue> {
+  async get_type(): Promise<GstEventTypeValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Event/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
     try {
@@ -72396,7 +72396,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function get_details(format: GstFormatValue): Promise<GstFormatDefinition> {
+  export async function get_details(format: GstFormatValue): Promise<GstFormatDefinition | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/get_details`, apiConfig.baseUrl);
     // Primitive parameter
@@ -72428,7 +72428,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function get_name(format: GstFormatValue): Promise<string> {
+  export async function get_name(format: GstFormatValue): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Format/get_name`, apiConfig.baseUrl);
     // Primitive parameter
@@ -73016,7 +73016,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_copy(): Promise<GstIteratorCopyFunction> {
+  async get_copy(): Promise<GstIteratorCopyFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/copy`, apiConfig.baseUrl);
     try {
@@ -73066,7 +73066,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_next(): Promise<GstIteratorNextFunction> {
+  async get_next(): Promise<GstIteratorNextFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/next`, apiConfig.baseUrl);
     try {
@@ -73116,7 +73116,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_item(): Promise<GstIteratorItemFunction> {
+  async get_item(): Promise<GstIteratorItemFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/item`, apiConfig.baseUrl);
     try {
@@ -73166,7 +73166,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_resync(): Promise<GstIteratorResyncFunction> {
+  async get_resync(): Promise<GstIteratorResyncFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/resync`, apiConfig.baseUrl);
     try {
@@ -73216,7 +73216,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_free(): Promise<GstIteratorFreeFunction> {
+  async get_free(): Promise<GstIteratorFreeFunction | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/free`, apiConfig.baseUrl);
     try {
@@ -73266,7 +73266,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_pushed(): Promise<GstIterator> {
+  async get_pushed(): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/pushed`, apiConfig.baseUrl);
     try {
@@ -73372,7 +73372,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_lock(): Promise<Pointer> {
+  async get_lock(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/lock`, apiConfig.baseUrl);
     try {
@@ -73572,7 +73572,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get__gst_reserved(): Promise<Pointer> {
+  async get__gst_reserved(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Iterator/ptr,${this.ptr}/fields/_gst_reserved`, apiConfig.baseUrl);
     try {
@@ -74730,7 +74730,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_flags(): Promise<GstSegmentFlagsValue> {
+  async get_flags(): Promise<GstSegmentFlagsValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/flags`, apiConfig.baseUrl);
     try {
@@ -74880,7 +74880,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_format(): Promise<GstFormatValue> {
+  async get_format(): Promise<GstFormatValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/format`, apiConfig.baseUrl);
     try {
@@ -75280,7 +75280,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get__gst_reserved(): Promise<Pointer> {
+  async get__gst_reserved(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Segment/ptr,${this.ptr}/fields/_gst_reserved`, apiConfig.baseUrl);
     try {
@@ -77119,7 +77119,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_stream_status_object(): Promise<GObjectValue> {
+  async get_stream_status_object(): Promise<GObjectValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/get_stream_status_object`, apiConfig.baseUrl);
     try {
@@ -77149,7 +77149,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_structure(): Promise<GstStructure> {
+  async get_structure(): Promise<GstStructure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/get_structure`, apiConfig.baseUrl);
     try {
@@ -78693,7 +78693,7 @@ return Promise.reject("Call failed");
 
 
  
-  async streams_selected_get_stream(idx: number): Promise<GstStream> {
+  async streams_selected_get_stream(idx: number): Promise<GstStream | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/streams_selected_get_stream`, apiConfig.baseUrl);
     // Primitive parameter
@@ -78756,7 +78756,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_mini_object(): Promise<GstMiniObject> {
+  async get_mini_object(): Promise<GstMiniObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
     try {
@@ -78812,7 +78812,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_type(): Promise<GstMessageTypeValue> {
+  async get_type(): Promise<GstMessageTypeValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
     try {
@@ -78912,7 +78912,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_src(): Promise<GstObject> {
+  async get_src(): Promise<GstObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/src`, apiConfig.baseUrl);
     try {
@@ -78969,7 +78969,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_lock(): Promise<Pointer> {
+  async get_lock(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/lock`, apiConfig.baseUrl);
     try {
@@ -78995,7 +78995,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_cond(): Promise<GLibCond> {
+  async get_cond(): Promise<GLibCond | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Message/ptr,${this.ptr}/fields/cond`, apiConfig.baseUrl);
     try {
@@ -79092,7 +79092,7 @@ export class GstControlBinding extends GstObject {
 
 
  
-  async get_value_2(timestamp: number): Promise<GObjectValue> {
+  async get_value_2(timestamp: number): Promise<GObjectValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ControlBinding/ptr,${this.ptr}/get_value`, apiConfig.baseUrl);
     // Primitive parameter
@@ -79280,7 +79280,7 @@ export class GstClock extends GstObject {
 
 
  
-  static async id_get_clock(id: Pointer): Promise<GstClock> {
+  static async id_get_clock(id: Pointer): Promise<GstClock | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/id_get_clock`, apiConfig.baseUrl);
     // Primitive parameter
@@ -79768,7 +79768,7 @@ export class GstClock extends GstObject {
 
 
  
-  async get_master(): Promise<GstClock> {
+  async get_master(): Promise<GstClock | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Clock/ptr,${this.ptr}/get_master`, apiConfig.baseUrl);
     try {
@@ -80450,7 +80450,7 @@ export class GstDevice extends GstObject {
 
 
  
-  async create_element(name?: string): Promise<GstElement> {
+  async create_element(name?: string): Promise<GstElement | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Device/ptr,${this.ptr}/create_element`, apiConfig.baseUrl);
     // Primitive parameter
@@ -80483,7 +80483,7 @@ export class GstDevice extends GstObject {
 
 
  
-  async get_caps(): Promise<GstCaps> {
+  async get_caps(): Promise<GstCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Device/ptr,${this.ptr}/get_caps`, apiConfig.baseUrl);
     try {
@@ -80565,7 +80565,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_properties(): Promise<GstStructure> {
+  async get_properties(): Promise<GstStructure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Device/ptr,${this.ptr}/get_properties`, apiConfig.baseUrl);
     try {
@@ -81038,7 +81038,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async new_from_string(str: string): Promise<GstTagList> {
+  static async new_from_string(str: string): Promise<GstTagList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagList/new_from_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -82141,7 +82141,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_value_index(tag: string, index: number): Promise<GObjectValue> {
+  async get_value_index(tag: string, index: number): Promise<GObjectValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagList/ptr,${this.ptr}/get_value_index`, apiConfig.baseUrl);
     // Primitive parameter
@@ -82259,7 +82259,7 @@ return Promise.reject("Call failed");
 
 
  
-  async merge(mode: GstTagMergeModeValue, list2?: GstTagList): Promise<GstTagList> {
+  async merge(mode: GstTagMergeModeValue, list2?: GstTagList): Promise<GstTagList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagList/ptr,${this.ptr}/merge`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -82499,7 +82499,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_mini_object(): Promise<GstMiniObject> {
+  async get_mini_object(): Promise<GstMiniObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TagList/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
     try {
@@ -82706,7 +82706,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_buffer(): Promise<GstBuffer> {
+  async get_buffer(): Promise<GstBuffer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Sample/ptr,${this.ptr}/get_buffer`, apiConfig.baseUrl);
     try {
@@ -82736,7 +82736,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_buffer_list(): Promise<GstBufferList> {
+  async get_buffer_list(): Promise<GstBufferList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Sample/ptr,${this.ptr}/get_buffer_list`, apiConfig.baseUrl);
     try {
@@ -82766,7 +82766,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_caps(): Promise<GstCaps> {
+  async get_caps(): Promise<GstCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Sample/ptr,${this.ptr}/get_caps`, apiConfig.baseUrl);
     try {
@@ -82796,7 +82796,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_info(): Promise<GstStructure> {
+  async get_info(): Promise<GstStructure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Sample/ptr,${this.ptr}/get_info`, apiConfig.baseUrl);
     try {
@@ -83153,7 +83153,7 @@ export class GstStreamCollection extends GstObject {
 
 
  
-  async get_stream(index: number): Promise<GstStream> {
+  async get_stream(index: number): Promise<GstStream | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamCollection/ptr,${this.ptr}/get_stream`, apiConfig.baseUrl);
     // Primitive parameter
@@ -83186,7 +83186,7 @@ export class GstStreamCollection extends GstObject {
 
 
  
-  async get_upstream_id(): Promise<string> {
+  async get_upstream_id(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/StreamCollection/ptr,${this.ptr}/get_upstream_id`, apiConfig.baseUrl);
     try {
@@ -83286,7 +83286,7 @@ export class GstStream extends GstObject {
 
 
  
-  async get_caps(): Promise<GstCaps> {
+  async get_caps(): Promise<GstCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Stream/ptr,${this.ptr}/get_caps`, apiConfig.baseUrl);
     try {
@@ -83342,7 +83342,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_stream_id(): Promise<string> {
+  async get_stream_id(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Stream/ptr,${this.ptr}/get_stream_id`, apiConfig.baseUrl);
     try {
@@ -83394,7 +83394,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_tags(): Promise<GstTagList> {
+  async get_tags(): Promise<GstTagList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Stream/ptr,${this.ptr}/get_tags`, apiConfig.baseUrl);
     try {
@@ -83837,7 +83837,7 @@ return Promise.reject("Call failed");
 
 
  
-  async find_entry(uid: string): Promise<GstTocEntry> {
+  async find_entry(uid: string): Promise<GstTocEntry | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Toc/ptr,${this.ptr}/find_entry`, apiConfig.baseUrl);
     // Primitive parameter
@@ -83926,7 +83926,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_tags(): Promise<GstTagList> {
+  async get_tags(): Promise<GstTagList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Toc/ptr,${this.ptr}/get_tags`, apiConfig.baseUrl);
     try {
@@ -84233,7 +84233,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_parent(): Promise<GstTocEntry> {
+  async get_parent(): Promise<GstTocEntry | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocEntry/ptr,${this.ptr}/get_parent`, apiConfig.baseUrl);
     try {
@@ -84335,7 +84335,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_tags(): Promise<GstTagList> {
+  async get_tags(): Promise<GstTagList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocEntry/ptr,${this.ptr}/get_tags`, apiConfig.baseUrl);
     try {
@@ -84365,7 +84365,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_toc(): Promise<GstToc> {
+  async get_toc(): Promise<GstToc | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TocEntry/ptr,${this.ptr}/get_toc`, apiConfig.baseUrl);
     try {
@@ -85700,7 +85700,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_structure(): Promise<GstStructure> {
+  async get_structure(): Promise<GstStructure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Query/ptr,${this.ptr}/get_structure`, apiConfig.baseUrl);
     try {
@@ -87430,7 +87430,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_mini_object(): Promise<GstMiniObject> {
+  async get_mini_object(): Promise<GstMiniObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Query/ptr,${this.ptr}/fields/mini_object`, apiConfig.baseUrl);
     try {
@@ -87486,7 +87486,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_type(): Promise<GstQueryTypeValue> {
+  async get_type(): Promise<GstQueryTypeValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Query/ptr,${this.ptr}/fields/type`, apiConfig.baseUrl);
     try {
@@ -88112,7 +88112,7 @@ export class GstBus extends GstObject {
 
 
  
-  async create_watch(): Promise<GLibSource> {
+  async create_watch(): Promise<GLibSource | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/create_watch`, apiConfig.baseUrl);
     try {
@@ -88238,7 +88238,7 @@ return Promise.reject("Call failed");
 
 
  
-  async peek(): Promise<GstMessage> {
+  async peek(): Promise<GstMessage | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/peek`, apiConfig.baseUrl);
     try {
@@ -88268,7 +88268,7 @@ return Promise.reject("Call failed");
 
 
  
-  async poll(events: GstMessageTypeValue, timeout: number): Promise<GstMessage> {
+  async poll(events: GstMessageTypeValue, timeout: number): Promise<GstMessage | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/poll`, apiConfig.baseUrl);
     // Primitive parameter
@@ -88302,7 +88302,7 @@ return Promise.reject("Call failed");
 
 
  
-  async pop(): Promise<GstMessage> {
+  async pop(): Promise<GstMessage | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/pop`, apiConfig.baseUrl);
     try {
@@ -88332,7 +88332,7 @@ return Promise.reject("Call failed");
 
 
  
-  async pop_filtered(types: GstMessageTypeValue): Promise<GstMessage> {
+  async pop_filtered(types: GstMessageTypeValue): Promise<GstMessage | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/pop_filtered`, apiConfig.baseUrl);
     // Primitive parameter
@@ -88531,7 +88531,7 @@ return Promise.reject("Call failed");
 
 
  
-  async timed_pop(timeout: number): Promise<GstMessage> {
+  async timed_pop(timeout: number): Promise<GstMessage | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/timed_pop`, apiConfig.baseUrl);
     // Primitive parameter
@@ -88563,7 +88563,7 @@ return Promise.reject("Call failed");
 
 
  
-  async timed_pop_filtered(timeout: number, types: GstMessageTypeValue): Promise<GstMessage> {
+  async timed_pop_filtered(timeout: number, types: GstMessageTypeValue): Promise<GstMessage | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Bus/ptr,${this.ptr}/timed_pop_filtered`, apiConfig.baseUrl);
     // Primitive parameter
@@ -88812,7 +88812,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_plugin(): Promise<GstPlugin> {
+  async get_plugin(): Promise<GstPlugin | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginFeature/ptr,${this.ptr}/get_plugin`, apiConfig.baseUrl);
     try {
@@ -88843,7 +88843,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_plugin_name(): Promise<string> {
+  async get_plugin_name(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginFeature/ptr,${this.ptr}/get_plugin_name`, apiConfig.baseUrl);
     try {
@@ -88895,7 +88895,7 @@ return Promise.reject("Call failed");
 
 
  
-  async load(): Promise<GstPluginFeature> {
+  async load(): Promise<GstPluginFeature | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/PluginFeature/ptr,${this.ptr}/load`, apiConfig.baseUrl);
     try {
@@ -88983,7 +88983,7 @@ export class GstElementFactory extends GstPluginFeature {
 
 
  
-  static async find(name: string): Promise<GstElementFactory> {
+  static async find(name: string): Promise<GstElementFactory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFactory/find`, apiConfig.baseUrl);
     // Primitive parameter
@@ -89094,7 +89094,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async make(factoryname: string, name?: string): Promise<GstElement> {
+  static async make(factoryname: string, name?: string): Promise<GstElement | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFactory/make`, apiConfig.baseUrl);
     // Primitive parameter
@@ -89129,7 +89129,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async make_with_properties(factoryname: string, n: number, names?: Pointer, values?: Pointer): Promise<GstElement> {
+  static async make_with_properties(factoryname: string, n: number, names?: Pointer, values?: Pointer): Promise<GstElement | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFactory/make_with_properties`, apiConfig.baseUrl);
     // Primitive parameter
@@ -89288,7 +89288,7 @@ return Promise.reject("Call failed");
 
 
  
-  async create(name?: string): Promise<GstElement> {
+  async create(name?: string): Promise<GstElement | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFactory/ptr,${this.ptr}/create`, apiConfig.baseUrl);
     // Primitive parameter
@@ -89321,7 +89321,7 @@ return Promise.reject("Call failed");
 
 
  
-  async create_with_properties(n: number, names?: Pointer, values?: Pointer): Promise<GstElement> {
+  async create_with_properties(n: number, names?: Pointer, values?: Pointer): Promise<GstElement | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFactory/ptr,${this.ptr}/create_with_properties`, apiConfig.baseUrl);
     // Primitive parameter
@@ -89384,7 +89384,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_metadata(key: string): Promise<string> {
+  async get_metadata(key: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFactory/ptr,${this.ptr}/get_metadata`, apiConfig.baseUrl);
     // Primitive parameter
@@ -89412,7 +89412,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_metadata_keys(): Promise<Pointer> {
+  async get_metadata_keys(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ElementFactory/ptr,${this.ptr}/get_metadata_keys`, apiConfig.baseUrl);
     try {
@@ -90762,7 +90762,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get(): Promise<string> {
+  async get(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugMessage/ptr,${this.ptr}/get`, apiConfig.baseUrl);
     try {
@@ -90788,7 +90788,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_id(): Promise<string> {
+  async get_id(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DebugMessage/ptr,${this.ptr}/get_id`, apiConfig.baseUrl);
     try {
@@ -90915,7 +90915,7 @@ export class GstDeviceMonitor extends GstObject {
 
 
  
-  async get_devices(): Promise<GLibList> {
+  async get_devices(): Promise<GLibList | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceMonitor/ptr,${this.ptr}/get_devices`, apiConfig.baseUrl);
     try {
@@ -91375,7 +91375,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_factory(): Promise<GstDeviceProviderFactory> {
+  async get_factory(): Promise<GstDeviceProviderFactory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceProvider/ptr,${this.ptr}/get_factory`, apiConfig.baseUrl);
     try {
@@ -91615,7 +91615,7 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
 
 
  
-  static async find(name: string): Promise<GstDeviceProviderFactory> {
+  static async find(name: string): Promise<GstDeviceProviderFactory | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceProviderFactory/find`, apiConfig.baseUrl);
     // Primitive parameter
@@ -91648,7 +91648,7 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
 
 
  
-  static async get_by_name(factoryname: string): Promise<GstDeviceProvider> {
+  static async get_by_name(factoryname: string): Promise<GstDeviceProvider | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceProviderFactory/get_by_name`, apiConfig.baseUrl);
     // Primitive parameter
@@ -91714,7 +91714,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get(): Promise<GstDeviceProvider> {
+  async get(): Promise<GstDeviceProvider | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceProviderFactory/ptr,${this.ptr}/get`, apiConfig.baseUrl);
     try {
@@ -91771,7 +91771,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_metadata(key: string): Promise<string> {
+  async get_metadata(key: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceProviderFactory/ptr,${this.ptr}/get_metadata`, apiConfig.baseUrl);
     // Primitive parameter
@@ -91799,7 +91799,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_metadata_keys(): Promise<Pointer> {
+  async get_metadata_keys(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/DeviceProviderFactory/ptr,${this.ptr}/get_metadata_keys`, apiConfig.baseUrl);
     try {
@@ -92272,7 +92272,7 @@ export class GstProxyPad extends GstPad {
 
 
  
-  static async iterate_internal_links_default(pad: GstPad, parent?: GstObject): Promise<GstIterator> {
+  static async iterate_internal_links_default(pad: GstPad, parent?: GstObject): Promise<GstIterator | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ProxyPad/iterate_internal_links_default`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -92310,7 +92310,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_internal(): Promise<GstProxyPad> {
+  async get_internal(): Promise<GstProxyPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ProxyPad/ptr,${this.ptr}/get_internal`, apiConfig.baseUrl);
     try {
@@ -92372,7 +92372,7 @@ export class GstGhostPad extends GstProxyPad {
 
 
  
-  static async new_2(target: GstPad, name?: string): Promise<GstPad> {
+  static async new_2(target: GstPad, name?: string): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/GhostPad/new`, apiConfig.baseUrl);
     // Primitive parameter
@@ -92409,7 +92409,7 @@ export class GstGhostPad extends GstProxyPad {
 
 
  
-  static async new_from_template_2(target: GstPad, templ: GstPadTemplate, name?: string): Promise<GstPad> {
+  static async new_from_template_2(target: GstPad, templ: GstPadTemplate, name?: string): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/GhostPad/new_from_template`, apiConfig.baseUrl);
     // Primitive parameter
@@ -92450,7 +92450,7 @@ export class GstGhostPad extends GstProxyPad {
 
 
  
-  static async new_no_target(dir: GstPadDirectionValue, name?: string): Promise<GstPad> {
+  static async new_no_target(dir: GstPadDirectionValue, name?: string): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/GhostPad/new_no_target`, apiConfig.baseUrl);
     // Primitive parameter
@@ -92485,7 +92485,7 @@ export class GstGhostPad extends GstProxyPad {
 
 
  
-  static async new_no_target_from_template(templ: GstPadTemplate, name?: string): Promise<GstPad> {
+  static async new_no_target_from_template(templ: GstPadTemplate, name?: string): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/GhostPad/new_no_target_from_template`, apiConfig.baseUrl);
     // Primitive parameter
@@ -92626,7 +92626,7 @@ export class GstGhostPad extends GstProxyPad {
 
 
  
-  async get_target(): Promise<GstPad> {
+  async get_target(): Promise<GstPad | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/GhostPad/ptr,${this.ptr}/get_target`, apiConfig.baseUrl);
     try {
@@ -93162,7 +93162,7 @@ export class GstParseContext {
 
 
  
-  static async new(): Promise<GstParseContext> {
+  static async new(): Promise<GstParseContext | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseContext/new`, apiConfig.baseUrl);
     try {
@@ -93216,7 +93216,7 @@ return Promise.reject("Call failed");
 
 
  
-  async copy(): Promise<GstParseContext> {
+  async copy(): Promise<GstParseContext | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseContext/ptr,${this.ptr}/copy`, apiConfig.baseUrl);
     try {
@@ -93246,7 +93246,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_missing_elements(): Promise<Pointer> {
+  async get_missing_elements(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/ParseContext/ptr,${this.ptr}/get_missing_elements`, apiConfig.baseUrl);
     try {
@@ -94865,7 +94865,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_reply(): Promise<GstStructure> {
+  async get_reply(): Promise<GstStructure | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Promise/ptr,${this.ptr}/get_reply`, apiConfig.baseUrl);
     try {
@@ -94969,7 +94969,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_parent(): Promise<GstMiniObject> {
+  async get_parent(): Promise<GstMiniObject | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Promise/ptr,${this.ptr}/fields/parent`, apiConfig.baseUrl);
     try {
@@ -95350,7 +95350,7 @@ export class GstRegistry extends GstObject {
 
 
  
-  async find_feature(name: string, type_: string): Promise<GstPluginFeature> {
+  async find_feature(name: string, type_: string): Promise<GstPluginFeature | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/find_feature`, apiConfig.baseUrl);
     // Primitive parameter
@@ -95385,7 +95385,7 @@ export class GstRegistry extends GstObject {
 
 
  
-  async find_plugin(name: string): Promise<GstPlugin> {
+  async find_plugin(name: string): Promise<GstPlugin | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/find_plugin`, apiConfig.baseUrl);
     // Primitive parameter
@@ -95541,7 +95541,7 @@ return Promise.reject("Call failed");
 
 
  
-  async lookup(filename: string): Promise<GstPlugin> {
+  async lookup(filename: string): Promise<GstPlugin | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/lookup`, apiConfig.baseUrl);
     // Primitive parameter
@@ -95574,7 +95574,7 @@ return Promise.reject("Call failed");
 
 
  
-  async lookup_feature(name: string): Promise<GstPluginFeature> {
+  async lookup_feature(name: string): Promise<GstPluginFeature | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Registry/ptr,${this.ptr}/lookup_feature`, apiConfig.baseUrl);
     // Primitive parameter
@@ -96023,7 +96023,7 @@ export class GstTaskPool extends GstObject {
 
 
  
-  async push(func: GstTaskPoolFunction): Promise<{func: number, return: Pointer}> {
+  async push(func: GstTaskPoolFunction): Promise<{func: number, return: Pointer | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TaskPool/ptr,${this.ptr}/push`, apiConfig.baseUrl);
     try {
@@ -97371,7 +97371,7 @@ return Promise.reject("Call failed");
 
 
  
-  async peek(offset: number, size: number): Promise<number> {
+  async peek(offset: number, size: number): Promise<number | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/peek`, apiConfig.baseUrl);
     // Primitive parameter
@@ -97512,7 +97512,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_peek(): Promise<Gstpeek> {
+  async get_peek(): Promise<Gstpeek | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/peek`, apiConfig.baseUrl);
     try {
@@ -97538,7 +97538,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_suggest(): Promise<Gstsuggest> {
+  async get_suggest(): Promise<Gstsuggest | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/suggest`, apiConfig.baseUrl);
     try {
@@ -97564,7 +97564,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_data(): Promise<Pointer> {
+  async get_data(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/data`, apiConfig.baseUrl);
     try {
@@ -97614,7 +97614,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_get_length(): Promise<Gstget_length> {
+  async get_get_length(): Promise<Gstget_length | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/get_length`, apiConfig.baseUrl);
     try {
@@ -97640,7 +97640,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get__gst_reserved(): Promise<Pointer> {
+  async get__gst_reserved(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFind/ptr,${this.ptr}/fields/_gst_reserved`, apiConfig.baseUrl);
     try {
@@ -97752,7 +97752,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_caps(): Promise<GstCaps> {
+  async get_caps(): Promise<GstCaps | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFindFactory/ptr,${this.ptr}/get_caps`, apiConfig.baseUrl);
     try {
@@ -97782,7 +97782,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_extensions(): Promise<Pointer> {
+  async get_extensions(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/TypeFindFactory/ptr,${this.ptr}/get_extensions`, apiConfig.baseUrl);
     try {
@@ -98127,7 +98127,7 @@ return Promise.reject("Call failed");
 
 
  
-  async from_string_with_base(uri: string): Promise<GstUri> {
+  async from_string_with_base(uri: string): Promise<GstUri | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/from_string_with_base`, apiConfig.baseUrl);
     // Primitive parameter
@@ -98159,7 +98159,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_fragment(): Promise<string> {
+  async get_fragment(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_fragment`, apiConfig.baseUrl);
     try {
@@ -98185,7 +98185,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_host(): Promise<string> {
+  async get_host(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_host`, apiConfig.baseUrl);
     try {
@@ -98211,7 +98211,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_media_fragment_table(): Promise<Pointer> {
+  async get_media_fragment_table(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_media_fragment_table`, apiConfig.baseUrl);
     try {
@@ -98237,7 +98237,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_path(): Promise<string> {
+  async get_path(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_path`, apiConfig.baseUrl);
     try {
@@ -98294,7 +98294,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_path_string(): Promise<string> {
+  async get_path_string(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_path_string`, apiConfig.baseUrl);
     try {
@@ -98377,7 +98377,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_query_string(): Promise<string> {
+  async get_query_string(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_query_string`, apiConfig.baseUrl);
     try {
@@ -98403,7 +98403,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_query_string_ordered(keys?: GLibList): Promise<string> {
+  async get_query_string_ordered(keys?: GLibList): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_query_string_ordered`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -98433,7 +98433,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_query_table(): Promise<Pointer> {
+  async get_query_table(): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_query_table`, apiConfig.baseUrl);
     try {
@@ -98459,7 +98459,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_query_value(query_key: string): Promise<string> {
+  async get_query_value(query_key: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_query_value`, apiConfig.baseUrl);
     // Primitive parameter
@@ -98487,7 +98487,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_scheme(): Promise<string> {
+  async get_scheme(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_scheme`, apiConfig.baseUrl);
     try {
@@ -98513,7 +98513,7 @@ return Promise.reject("Call failed");
 
 
  
-  async get_userinfo(): Promise<string> {
+  async get_userinfo(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/get_userinfo`, apiConfig.baseUrl);
     try {
@@ -98591,7 +98591,7 @@ return Promise.reject("Call failed");
 
 
  
-  async join(ref_uri?: GstUri): Promise<GstUri> {
+  async join(ref_uri?: GstUri): Promise<GstUri | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/ptr,${this.ptr}/join`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -99179,7 +99179,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async from_string(uri: string): Promise<GstUri> {
+  static async from_string(uri: string): Promise<GstUri | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/from_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -99211,7 +99211,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async from_string_escaped(uri: string): Promise<GstUri> {
+  static async from_string_escaped(uri: string): Promise<GstUri | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/from_string_escaped`, apiConfig.baseUrl);
     // Primitive parameter
@@ -99243,7 +99243,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async get_location(uri: string): Promise<string> {
+  static async get_location(uri: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/get_location`, apiConfig.baseUrl);
     // Primitive parameter
@@ -99271,7 +99271,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async get_protocol(uri: string): Promise<string> {
+  static async get_protocol(uri: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/get_protocol`, apiConfig.baseUrl);
     // Primitive parameter
@@ -99357,7 +99357,7 @@ return Promise.reject("Call failed");
 
 
  
-  static async join_strings(base_uri: string, ref_uri: string): Promise<string> {
+  static async join_strings(base_uri: string, ref_uri: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/Gst/Uri/join_strings`, apiConfig.baseUrl);
     // Primitive parameter
@@ -100015,7 +100015,7 @@ export function convertGstLogFunctionArgs(data: any): Parameters<GstLogFunction>
     new GstDebugMessage(data.message, 'none'),
     data.user_data  ];
 }
-  export namespace GModule {
+  export namespace GIRest {
   
 
 
@@ -100023,13 +100023,123 @@ export function convertGstLogFunctionArgs(data: any): Parameters<GstLogFunction>
 
 
  
-  export async function module_build_path(module_name: string, directory?: string): Promise<string> {
+  export async function callbacks(): Promise<void> {
     // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_build_path`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GIRest/callbacks`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+}
+  export namespace Gst {
+  
+
+
+
+
+
+ 
+  export async function buffer_get_max_memory(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/buffer_get_max_memory`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function caps_features_from_string(features: string): Promise<GstCapsFeatures | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/caps_features_from_string`, apiConfig.baseUrl);
     // Primitive parameter
-    if (directory !== undefined) url.searchParams.append('directory', String(directory));
+    url.searchParams.append('features', String(features));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstCapsFeatures(data.return.ptr, 'full');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function caps_from_string(string: string): Promise<GstCaps | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/caps_from_string`, apiConfig.baseUrl);
     // Primitive parameter
-    url.searchParams.append('module_name', String(module_name));
+    url.searchParams.append('string', String(string));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstCaps(data.return.ptr, 'full');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function core_error_quark(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/core_error_quark`, apiConfig.baseUrl);
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
@@ -100053,9 +100163,74 @@ export function convertGstLogFunctionArgs(data: any): Parameters<GstLogFunction>
 
 
  
-  export async function module_error(): Promise<string> {
+  export async function debug_add_log_function(func: GstLogFunction): Promise<number> {
     // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_add_log_function`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      // Register callbacks
+      if (data.func !== undefined) {
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstLogFunctionArgs,
+          userFunction: func
+        });
+      }
+    return data.func;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_add_ring_buffer_logger(max_size_per_thread: number, thread_timeout: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_add_ring_buffer_logger`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('max_size_per_thread', String(max_size_per_thread));
+    // Primitive parameter
+    url.searchParams.append('thread_timeout', String(thread_timeout));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_bin_to_dot_data(bin: GstBin, details: GstDebugGraphDetailsValue): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_bin_to_dot_data`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (bin && typeof bin === 'object' && 'ptr' in bin) {
+      url.searchParams.append('bin', 'ptr,' + bin.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('details', String(details));
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
@@ -100079,9 +100254,71 @@ export function convertGstLogFunctionArgs(data: any): Parameters<GstLogFunction>
 
 
  
-  export async function module_error_quark(): Promise<number> {
+  export async function debug_bin_to_dot_file(bin: GstBin, details: GstDebugGraphDetailsValue, file_name: Pointer): Promise<void> {
     // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error_quark`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_bin_to_dot_file`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (bin && typeof bin === 'object' && 'ptr' in bin) {
+      url.searchParams.append('bin', 'ptr,' + bin.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('details', String(details));
+    // Primitive parameter
+    url.searchParams.append('file_name', String(file_name));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_bin_to_dot_file_with_ts(bin: GstBin, details: GstDebugGraphDetailsValue, file_name: Pointer): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_bin_to_dot_file_with_ts`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (bin && typeof bin === 'object' && 'ptr' in bin) {
+      url.searchParams.append('bin', 'ptr,' + bin.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('details', String(details));
+    // Primitive parameter
+    url.searchParams.append('file_name', String(file_name));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_construct_term_color(colorinfo: number): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_construct_term_color`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('colorinfo', String(colorinfo));
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
@@ -100105,9 +100342,6232 @@ export function convertGstLogFunctionArgs(data: any): Parameters<GstLogFunction>
 
 
  
-  export async function module_supported(): Promise<boolean> {
+  export async function debug_construct_win_color(colorinfo: number): Promise<number> {
     // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_supported`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_construct_win_color`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('colorinfo', String(colorinfo));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_get_all_categories(): Promise<GLibSList> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_get_all_categories`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GLibSList(data.return.ptr, 'container');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_get_color_mode(): Promise<GstDebugColorModeValue> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_get_color_mode`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_get_default_threshold(): Promise<GstDebugLevelValue> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_get_default_threshold`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_get_stack_trace(flags: GstStackTraceFlagsValue): Promise<string | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_get_stack_trace`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_is_active(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_is_active`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_is_colored(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_is_colored`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_level_get_name(level: GstDebugLevelValue): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_level_get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('level', String(level));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_log_default(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message: GstDebugMessage, object?: GObjectObject, user_data?: Pointer): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_log_default`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (category && typeof category === 'object' && 'ptr' in category) {
+      url.searchParams.append('category', 'ptr,' + category.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('level', String(level));
+    // Primitive parameter
+    url.searchParams.append('file', String(file));
+    // Primitive parameter
+    url.searchParams.append('function', String(function_));
+    // Primitive parameter
+    url.searchParams.append('line', String(line));
+    // Object with explode=false: serialize as comma-separated
+    if (object !== undefined && typeof object === 'object' && 'ptr' in object) {
+      url.searchParams.append('object', 'ptr,' + object.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (message && typeof message === 'object' && 'ptr' in message) {
+      url.searchParams.append('message', 'ptr,' + message.ptr);
+    }
+    // Primitive parameter
+    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_log_get_line(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message: GstDebugMessage, object?: GObjectObject): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_log_get_line`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (category && typeof category === 'object' && 'ptr' in category) {
+      url.searchParams.append('category', 'ptr,' + category.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('level', String(level));
+    // Primitive parameter
+    url.searchParams.append('file', String(file));
+    // Primitive parameter
+    url.searchParams.append('function', String(function_));
+    // Primitive parameter
+    url.searchParams.append('line', String(line));
+    // Object with explode=false: serialize as comma-separated
+    if (object !== undefined && typeof object === 'object' && 'ptr' in object) {
+      url.searchParams.append('object', 'ptr,' + object.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (message && typeof message === 'object' && 'ptr' in message) {
+      url.searchParams.append('message', 'ptr,' + message.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_log_id_literal(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message_string: string, id?: string): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_log_id_literal`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (category && typeof category === 'object' && 'ptr' in category) {
+      url.searchParams.append('category', 'ptr,' + category.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('level', String(level));
+    // Primitive parameter
+    url.searchParams.append('file', String(file));
+    // Primitive parameter
+    url.searchParams.append('function', String(function_));
+    // Primitive parameter
+    url.searchParams.append('line', String(line));
+    // Primitive parameter
+    if (id !== undefined) url.searchParams.append('id', String(id));
+    // Primitive parameter
+    url.searchParams.append('message_string', String(message_string));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_log_literal(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message_string: string, object?: GObjectObject): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_log_literal`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (category && typeof category === 'object' && 'ptr' in category) {
+      url.searchParams.append('category', 'ptr,' + category.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('level', String(level));
+    // Primitive parameter
+    url.searchParams.append('file', String(file));
+    // Primitive parameter
+    url.searchParams.append('function', String(function_));
+    // Primitive parameter
+    url.searchParams.append('line', String(line));
+    // Object with explode=false: serialize as comma-separated
+    if (object !== undefined && typeof object === 'object' && 'ptr' in object) {
+      url.searchParams.append('object', 'ptr,' + object.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('message_string', String(message_string));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_print_stack_trace(): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_print_stack_trace`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_remove_log_function(func: GstLogFunction): Promise<{func: number, return: number}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_remove_log_function`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      // Register callbacks
+      if (data.func !== undefined) {
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstLogFunctionArgs,
+          userFunction: func
+        });
+      }
+        const result: any = {};
+      // Handle return parameter: func
+      result.func = (() => {
+        return data.func;
+
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        return data.return;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_remove_log_function_by_data(data_?: Pointer): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_remove_log_function_by_data`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (data_ !== undefined) url.searchParams.append('data_', String(data_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_remove_ring_buffer_logger(): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_remove_ring_buffer_logger`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_ring_buffer_logger_get_logs(): Promise<Pointer> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_ring_buffer_logger_get_logs`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_set_active(active: boolean): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_active`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('active', String(active));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_set_color_mode(mode: GstDebugColorModeValue): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_color_mode`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mode', String(mode));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_set_color_mode_from_string(mode: string): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_color_mode_from_string`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mode', String(mode));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_set_colored(colored: boolean): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_colored`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('colored', String(colored));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_set_default_threshold(level: GstDebugLevelValue): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_default_threshold`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('level', String(level));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_set_threshold_for_name(name: string, level: GstDebugLevelValue): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_threshold_for_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('name', String(name));
+    // Primitive parameter
+    url.searchParams.append('level', String(level));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_set_threshold_from_string(list: string, reset: boolean): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_threshold_from_string`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('list', String(list));
+    // Primitive parameter
+    url.searchParams.append('reset', String(reset));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function debug_unset_threshold_for_name(name: string): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_unset_threshold_for_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('name', String(name));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function deinit(): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/deinit`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function dynamic_type_register(plugin: GstPlugin, type_: string): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/dynamic_type_register`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (plugin && typeof plugin === 'object' && 'ptr' in plugin) {
+      url.searchParams.append('plugin', 'ptr,' + plugin.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function error_get_message(domain: number, code: number): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/error_get_message`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('domain', String(domain));
+    // Primitive parameter
+    url.searchParams.append('code', String(code));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function event_type_get_flags(type_: GstEventTypeValue): Promise<GstEventTypeFlagsValue> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/event_type_get_flags`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function event_type_get_name(type_: GstEventTypeValue): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/event_type_get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function event_type_to_quark(type_: GstEventTypeValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/event_type_to_quark`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function event_type_to_sticky_ordering(type_: GstEventTypeValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/event_type_to_sticky_ordering`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function filename_to_uri(filename: Pointer): Promise<string | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/filename_to_uri`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('filename', String(filename));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function flow_get_name(ret: GstFlowReturnValue): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/flow_get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('ret', String(ret));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function flow_to_quark(ret: GstFlowReturnValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/flow_to_quark`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('ret', String(ret));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function format_get_by_nick(nick: string): Promise<GstFormatValue> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_get_by_nick`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('nick', String(nick));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function format_get_details(format: GstFormatValue): Promise<GstFormatDefinition | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_get_details`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstFormatDefinition(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function format_get_name(format: GstFormatValue): Promise<string | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function format_iterate_definitions(): Promise<GstIterator> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_iterate_definitions`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstIterator(data.return.ptr, 'full');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function format_register(nick: string, description: string): Promise<GstFormatValue> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_register`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('nick', String(nick));
+    // Primitive parameter
+    url.searchParams.append('description', String(description));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function format_to_quark(format: GstFormatValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_to_quark`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function formats_contains(formats: Pointer, format: GstFormatValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/formats_contains`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('formats', String(formats));
+    // Primitive parameter
+    url.searchParams.append('format', String(format));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function get_main_executable_path(): Promise<string | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/get_main_executable_path`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function init(argc?: number, argv?: Pointer): Promise<{argc: number, argv: Pointer}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/init`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (argc !== undefined) url.searchParams.append('argc', String(argc));
+    // Primitive parameter
+    if (argv !== undefined) url.searchParams.append('argv', String(argv));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+        const result: any = {};
+      // Handle return parameter: argc
+      result.argc = (() => {
+        return data.argc;
+
+      })();
+      // Handle return parameter: argv
+      result.argv = (() => {
+        return data.argv;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function init_check(argc?: number, argv?: Pointer): Promise<{argc: number, argv: Pointer, return: boolean}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/init_check`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (argc !== undefined) url.searchParams.append('argc', String(argc));
+    // Primitive parameter
+    if (argv !== undefined) url.searchParams.append('argv', String(argv));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+        const result: any = {};
+      // Handle return parameter: argc
+      result.argc = (() => {
+        return data.argc;
+
+      })();
+      // Handle return parameter: argv
+      result.argv = (() => {
+        return data.argv;
+
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        return data.return;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function is_caps_features(obj?: Pointer): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/is_caps_features`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (obj !== undefined) url.searchParams.append('obj', String(obj));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function is_initialized(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/is_initialized`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function library_error_quark(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/library_error_quark`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function message_type_get_name(type_: GstMessageTypeValue): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/message_type_get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function message_type_to_quark(type_: GstMessageTypeValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/message_type_to_quark`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function meta_api_type_get_tags(api: string): Promise<Pointer> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_api_type_get_tags`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('api', String(api));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function meta_api_type_has_tag(api: string, tag: number): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_api_type_has_tag`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('api', String(api));
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function meta_api_type_register(api: string, tags: Pointer): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_api_type_register`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('api', String(api));
+    // Primitive parameter
+    url.searchParams.append('tags', String(tags));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function meta_deserialize(buffer: GstBuffer, data_: number, size: number): Promise<{consumed: number, return: GstMeta | null}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_deserialize`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (buffer && typeof buffer === 'object' && 'ptr' in buffer) {
+      url.searchParams.append('buffer', 'ptr,' + buffer.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('data', String(data_));
+    // Primitive parameter
+    url.searchParams.append('size', String(size));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+        const result: any = {};
+      // Handle return parameter: consumed
+      result.consumed = (() => {
+        return data.consumed;
+
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        // Return value is a struct, instantiate it from the ptr
+        if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+          const instance = new GstMeta(data.return.ptr, 'none');
+          return instance;
+        }
+        return Promise.reject("Call failed");
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function meta_get_info(impl: string): Promise<GstMetaInfo | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_get_info`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('impl', String(impl));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstMetaInfo(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function meta_register_custom(name: string, tags: Pointer, transform_func: GstCustomMetaTransformFunction): Promise<{transform_func: number, return: GstMetaInfo}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_register_custom`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('name', String(name));
+    // Primitive parameter
+    url.searchParams.append('tags', String(tags));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      // Register callbacks
+      if (data.transform_func !== undefined) {
+        callbackDispatcher.set(data.transform_func.toString(), {
+          converter: convertGstCustomMetaTransformFunctionArgs,
+          userFunction: transform_func
+        });
+      }
+        const result: any = {};
+      // Handle return parameter: transform_func
+      result.transform_func = (() => {
+        return data.transform_func;
+
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        // Return value is a struct, instantiate it from the ptr
+        if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+          const instance = new GstMetaInfo(data.return.ptr, 'none');
+          return instance;
+        }
+        return Promise.reject("Call failed");
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function meta_register_custom_simple(name: string): Promise<GstMetaInfo> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_register_custom_simple`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('name', String(name));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstMetaInfo(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function mini_object_replace(olddata?: GstMiniObject, newdata?: GstMiniObject): Promise<{olddata: GstMiniObject, return: boolean}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/mini_object_replace`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (olddata !== undefined && typeof olddata === 'object' && 'ptr' in olddata) {
+      url.searchParams.append('olddata', 'ptr,' + olddata.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (newdata !== undefined && typeof newdata === 'object' && 'ptr' in newdata) {
+      url.searchParams.append('newdata', 'ptr,' + newdata.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+        const result: any = {};
+      // Handle return parameter: olddata
+      result.olddata = (() => {
+        // Return value is a struct, instantiate it from the ptr
+        if (data.olddata && typeof data.olddata === 'object' && 'ptr' in data.olddata) {
+          const instance = new GstMiniObject(data.olddata.ptr, 'none');
+          return instance;
+        }
+        return Promise.reject("Call failed");
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        return data.return;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function mini_object_take(olddata: GstMiniObject, newdata: GstMiniObject): Promise<{olddata: GstMiniObject, return: boolean}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/mini_object_take`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (olddata && typeof olddata === 'object' && 'ptr' in olddata) {
+      url.searchParams.append('olddata', 'ptr,' + olddata.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (newdata && typeof newdata === 'object' && 'ptr' in newdata) {
+      url.searchParams.append('newdata', 'ptr,' + newdata.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+        const result: any = {};
+      // Handle return parameter: olddata
+      result.olddata = (() => {
+        // Return value is a struct, instantiate it from the ptr
+        if (data.olddata && typeof data.olddata === 'object' && 'ptr' in data.olddata) {
+          const instance = new GstMiniObject(data.olddata.ptr, 'none');
+          return instance;
+        }
+        return Promise.reject("Call failed");
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        return data.return;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function pad_mode_get_name(mode: GstPadModeValue): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/pad_mode_get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mode', String(mode));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function param_spec_array(name: string, nick: string, blurb: string, element_spec: GObjectParamSpec, flags: GObjectParamFlags): Promise<GObjectParamSpec> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/param_spec_array`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('name', String(name));
+    // Primitive parameter
+    url.searchParams.append('nick', String(nick));
+    // Primitive parameter
+    url.searchParams.append('blurb', String(blurb));
+    // Object with explode=false: serialize as comma-separated
+    if (element_spec && typeof element_spec === 'object' && 'ptr' in element_spec) {
+      url.searchParams.append('element_spec', 'ptr,' + element_spec.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+          // Return value is an object, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new GObjectParamSpec(data.return.ptr, 'full');
+        return instance;
+      }
+      return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function param_spec_fraction(name: string, nick: string, blurb: string, min_num: number, min_denom: number, max_num: number, max_denom: number, default_num: number, default_denom: number, flags: GObjectParamFlags): Promise<GObjectParamSpec | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/param_spec_fraction`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('name', String(name));
+    // Primitive parameter
+    url.searchParams.append('nick', String(nick));
+    // Primitive parameter
+    url.searchParams.append('blurb', String(blurb));
+    // Primitive parameter
+    url.searchParams.append('min_num', String(min_num));
+    // Primitive parameter
+    url.searchParams.append('min_denom', String(min_denom));
+    // Primitive parameter
+    url.searchParams.append('max_num', String(max_num));
+    // Primitive parameter
+    url.searchParams.append('max_denom', String(max_denom));
+    // Primitive parameter
+    url.searchParams.append('default_num', String(default_num));
+    // Primitive parameter
+    url.searchParams.append('default_denom', String(default_denom));
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+          // Return value is an object, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new GObjectParamSpec(data.return.ptr, 'full');
+        return instance;
+      }
+      return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function parent_buffer_meta_api_get_type(): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parent_buffer_meta_api_get_type`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function parent_buffer_meta_get_info(): Promise<GstMetaInfo> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parent_buffer_meta_get_info`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstMetaInfo(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function parse_bin_from_description(bin_description: string, ghost_unlinked_pads: boolean): Promise<GstBin> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_bin_from_description`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('bin_description', String(bin_description));
+    // Primitive parameter
+    url.searchParams.append('ghost_unlinked_pads', String(ghost_unlinked_pads));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+          // Return value is an object, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new GstBin(data.return.ptr, 'none');
+        return instance;
+      }
+      return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function parse_bin_from_description_full(bin_description: string, ghost_unlinked_pads: boolean, flags: GstParseFlagsValue, context?: GstParseContext): Promise<GstElement> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_bin_from_description_full`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('bin_description', String(bin_description));
+    // Primitive parameter
+    url.searchParams.append('ghost_unlinked_pads', String(ghost_unlinked_pads));
+    // Object with explode=false: serialize as comma-separated
+    if (context !== undefined && typeof context === 'object' && 'ptr' in context) {
+      url.searchParams.append('context', 'ptr,' + context.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+          // Return value is an object, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new GstElement(data.return.ptr, 'none');
+        return instance;
+      }
+      return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function parse_error_quark(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_error_quark`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function parse_launch(pipeline_description: string): Promise<GstElement> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_launch`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('pipeline_description', String(pipeline_description));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+          // Return value is an object, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new GstElement(data.return.ptr, 'none');
+        return instance;
+      }
+      return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function parse_launch_full(pipeline_description: string, flags: GstParseFlagsValue, context?: GstParseContext): Promise<GstElement> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_launch_full`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('pipeline_description', String(pipeline_description));
+    // Object with explode=false: serialize as comma-separated
+    if (context !== undefined && typeof context === 'object' && 'ptr' in context) {
+      url.searchParams.append('context', 'ptr,' + context.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+          // Return value is an object, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new GstElement(data.return.ptr, 'none');
+        return instance;
+      }
+      return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function parse_launchv(argv: Pointer): Promise<GstElement> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_launchv`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('argv', String(argv));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+          // Return value is an object, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new GstElement(data.return.ptr, 'none');
+        return instance;
+      }
+      return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function parse_launchv_full(argv: Pointer, flags: GstParseFlagsValue, context?: GstParseContext): Promise<GstElement> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_launchv_full`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('argv', String(argv));
+    // Object with explode=false: serialize as comma-separated
+    if (context !== undefined && typeof context === 'object' && 'ptr' in context) {
+      url.searchParams.append('context', 'ptr,' + context.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+          // Return value is an object, instantiate it from the ptr
+      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
+        const instance = new GstElement(data.return.ptr, 'none');
+        return instance;
+      }
+      return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function plugin_error_quark(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/plugin_error_quark`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function preset_get_app_dir(): Promise<Pointer | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/preset_get_app_dir`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function preset_set_app_dir(app_dir: Pointer): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/preset_set_app_dir`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('app_dir', String(app_dir));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function protection_filter_systems_by_available_decryptors(system_identifiers: Pointer): Promise<Pointer | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/protection_filter_systems_by_available_decryptors`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('system_identifiers', String(system_identifiers));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function protection_meta_api_get_type(): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/protection_meta_api_get_type`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function protection_meta_get_info(): Promise<GstMetaInfo> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/protection_meta_get_info`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstMetaInfo(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function protection_select_system(system_identifiers: Pointer): Promise<string | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/protection_select_system`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('system_identifiers', String(system_identifiers));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function query_type_get_flags(type_: GstQueryTypeValue): Promise<GstQueryTypeFlagsValue> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/query_type_get_flags`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function query_type_get_name(type_: GstQueryTypeValue): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/query_type_get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function query_type_to_quark(type_: GstQueryTypeValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/query_type_to_quark`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function reference_timestamp_meta_api_get_type(): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/reference_timestamp_meta_api_get_type`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function reference_timestamp_meta_get_info(): Promise<GstMetaInfo> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/reference_timestamp_meta_get_info`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstMetaInfo(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function resource_error_quark(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/resource_error_quark`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function segtrap_is_enabled(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/segtrap_is_enabled`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function segtrap_set_enabled(enabled: boolean): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/segtrap_set_enabled`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('enabled', String(enabled));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function state_change_get_name(transition: GstStateChangeValue): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/state_change_get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('transition', String(transition));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function static_caps_get_type(): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/static_caps_get_type`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function static_pad_template_get_type(): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/static_pad_template_get_type`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function stream_error_quark(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/stream_error_quark`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function stream_type_get_name(stype: GstStreamTypeValue): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/stream_type_get_name`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('stype', String(stype));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function structure_take(oldstr_ptr?: GstStructure, newstr?: GstStructure): Promise<{oldstr_ptr: GstStructure, return: boolean}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/structure_take`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (oldstr_ptr !== undefined && typeof oldstr_ptr === 'object' && 'ptr' in oldstr_ptr) {
+      url.searchParams.append('oldstr_ptr', 'ptr,' + oldstr_ptr.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (newstr !== undefined && typeof newstr === 'object' && 'ptr' in newstr) {
+      url.searchParams.append('newstr', 'ptr,' + newstr.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+        const result: any = {};
+      // Handle return parameter: oldstr_ptr
+      result.oldstr_ptr = (() => {
+        // Return value is a struct, instantiate it from the ptr
+        if (data.oldstr_ptr && typeof data.oldstr_ptr === 'object' && 'ptr' in data.oldstr_ptr) {
+          const instance = new GstStructure(data.oldstr_ptr.ptr, 'none');
+          return instance;
+        }
+        return Promise.reject("Call failed");
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        return data.return;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tag_exists(tag: string): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_exists`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tag_get_description(tag: string): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_get_description`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tag_get_flag(tag: string): Promise<GstTagFlagValue> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_get_flag`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tag_get_nick(tag: string): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_get_nick`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tag_get_type(tag: string): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_get_type`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tag_is_fixed(tag: string): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_is_fixed`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tag_list_copy_value(dest: GObjectValue, list: GstTagList, tag: string): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_list_copy_value`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (list && typeof list === 'object' && 'ptr' in list) {
+      url.searchParams.append('list', 'ptr,' + list.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('tag', String(tag));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tag_merge_strings_with_comma(dest: GObjectValue, src: GObjectValue): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_merge_strings_with_comma`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (src && typeof src === 'object' && 'ptr' in src) {
+      url.searchParams.append('src', 'ptr,' + src.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tag_merge_use_first(dest: GObjectValue, src: GObjectValue): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_merge_use_first`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (src && typeof src === 'object' && 'ptr' in src) {
+      url.searchParams.append('src', 'ptr,' + src.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function toc_entry_type_get_nick(type_: GstTocEntryTypeValue): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/toc_entry_type_get_nick`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tracing_get_active_tracers(): Promise<GLibList> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tracing_get_active_tracers`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a List, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GLibList(data.return.ptr, 'full', GstTracer, undefined);
+  return instance;
+}
+return Promise.reject("Call failed");
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function tracing_register_hook(tracer: GstTracer, detail: string, func: GObjectCallback): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tracing_register_hook`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (tracer && typeof tracer === 'object' && 'ptr' in tracer) {
+      url.searchParams.append('tracer', 'ptr,' + tracer.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('detail', String(detail));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      // Register callbacks
+      if (data.func !== undefined) {
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGObjectCallbackArgs,
+          userFunction: func
+        });
+      }
+    return data.func;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function type_find_get_type(): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/type_find_get_type`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function type_find_register(name: string, rank: number, func: GstTypeFindFunction, plugin?: GstPlugin, extensions?: string, possible_caps?: GstCaps): Promise<{func: number, return: boolean}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/type_find_register`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (plugin !== undefined && typeof plugin === 'object' && 'ptr' in plugin) {
+      url.searchParams.append('plugin', 'ptr,' + plugin.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('name', String(name));
+    // Primitive parameter
+    url.searchParams.append('rank', String(rank));
+    // Primitive parameter
+    if (extensions !== undefined) url.searchParams.append('extensions', String(extensions));
+    // Object with explode=false: serialize as comma-separated
+    if (possible_caps !== undefined && typeof possible_caps === 'object' && 'ptr' in possible_caps) {
+      url.searchParams.append('possible_caps', 'ptr,' + possible_caps.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      // Register callbacks
+      if (data.func !== undefined) {
+        callbackDispatcher.set(data.func.toString(), {
+          converter: convertGstTypeFindFunctionArgs,
+          userFunction: func
+        });
+      }
+        const result: any = {};
+      // Handle return parameter: func
+      result.func = (() => {
+        return data.func;
+
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        return data.return;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function type_is_plugin_api(type_: string, flags: GstPluginAPIFlagsValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/type_is_plugin_api`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function type_mark_as_plugin_api(type_: string, flags: GstPluginAPIFlagsValue): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/type_mark_as_plugin_api`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function update_registry(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/update_registry`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_construct(protocol: string, location: string): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_construct`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('protocol', String(protocol));
+    // Primitive parameter
+    url.searchParams.append('location', String(location));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_error_quark(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_error_quark`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_from_string(uri: string): Promise<GstUri | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_from_string`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('uri', String(uri));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstUri(data.return.ptr, 'full');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_from_string_escaped(uri: string): Promise<GstUri | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_from_string_escaped`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('uri', String(uri));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstUri(data.return.ptr, 'full');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_get_location(uri: string): Promise<string | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_get_location`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('uri', String(uri));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_get_protocol(uri: string): Promise<string | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_get_protocol`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('uri', String(uri));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_has_protocol(uri: string, protocol: string): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_has_protocol`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('uri', String(uri));
+    // Primitive parameter
+    url.searchParams.append('protocol', String(protocol));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_is_valid(uri: string): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_is_valid`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('uri', String(uri));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_join_strings(base_uri: string, ref_uri: string): Promise<string | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_join_strings`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('base_uri', String(base_uri));
+    // Primitive parameter
+    url.searchParams.append('ref_uri', String(ref_uri));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_protocol_is_supported(type_: GstURITypeValue, protocol: string): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_protocol_is_supported`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('type', String(type_));
+    // Primitive parameter
+    url.searchParams.append('protocol', String(protocol));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function uri_protocol_is_valid(protocol: string): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_protocol_is_valid`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('protocol', String(protocol));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_array_binary_search(num_elements: number, element_size: number, mode: GstSearchModeValue, search_func: GLibCompareDataFunc, array?: Pointer, search_data?: Pointer): Promise<{search_func: number, return: Pointer | null}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_array_binary_search`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (array !== undefined) url.searchParams.append('array', String(array));
+    // Primitive parameter
+    url.searchParams.append('num_elements', String(num_elements));
+    // Primitive parameter
+    url.searchParams.append('element_size', String(element_size));
+    // Primitive parameter
+    url.searchParams.append('mode', String(mode));
+    // Primitive parameter
+    if (search_data !== undefined) url.searchParams.append('search_data', String(search_data));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      // Register callbacks
+      if (data.search_func !== undefined) {
+        callbackDispatcher.set(data.search_func.toString(), {
+          converter: convertGLibCompareDataFuncArgs,
+          userFunction: search_func
+        });
+      }
+        const result: any = {};
+      // Handle return parameter: search_func
+      result.search_func = (() => {
+        return data.search_func;
+
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        return data.return;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_ceil_log2(v: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_ceil_log2`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('v', String(v));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_double_to_fraction(src: number): Promise<{dest_n: number, dest_d: number}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_double_to_fraction`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('src', String(src));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+        const result: any = {};
+      // Handle return parameter: dest_n
+      result.dest_n = (() => {
+        return data.dest_n;
+
+      })();
+      // Handle return parameter: dest_d
+      result.dest_d = (() => {
+        return data.dest_d;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_dump_buffer(buf: GstBuffer): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_dump_buffer`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (buf && typeof buf === 'object' && 'ptr' in buf) {
+      url.searchParams.append('buf', 'ptr,' + buf.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_dump_mem(mem: Pointer, size: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_dump_mem`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('mem', String(mem));
+    // Primitive parameter
+    url.searchParams.append('size', String(size));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_filename_compare(a: Pointer, b: Pointer): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_filename_compare`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('a', String(a));
+    // Primitive parameter
+    url.searchParams.append('b', String(b));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_fraction_add(a_n: number, a_d: number, b_n: number, b_d: number): Promise<{res_n: number, res_d: number, return: boolean}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_fraction_add`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('a_n', String(a_n));
+    // Primitive parameter
+    url.searchParams.append('a_d', String(a_d));
+    // Primitive parameter
+    url.searchParams.append('b_n', String(b_n));
+    // Primitive parameter
+    url.searchParams.append('b_d', String(b_d));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+        const result: any = {};
+      // Handle return parameter: res_n
+      result.res_n = (() => {
+        return data.res_n;
+
+      })();
+      // Handle return parameter: res_d
+      result.res_d = (() => {
+        return data.res_d;
+
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        return data.return;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_fraction_compare(a_n: number, a_d: number, b_n: number, b_d: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_fraction_compare`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('a_n', String(a_n));
+    // Primitive parameter
+    url.searchParams.append('a_d', String(a_d));
+    // Primitive parameter
+    url.searchParams.append('b_n', String(b_n));
+    // Primitive parameter
+    url.searchParams.append('b_d', String(b_d));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_fraction_multiply(a_n: number, a_d: number, b_n: number, b_d: number): Promise<{res_n: number, res_d: number, return: boolean}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_fraction_multiply`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('a_n', String(a_n));
+    // Primitive parameter
+    url.searchParams.append('a_d', String(a_d));
+    // Primitive parameter
+    url.searchParams.append('b_n', String(b_n));
+    // Primitive parameter
+    url.searchParams.append('b_d', String(b_d));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+        const result: any = {};
+      // Handle return parameter: res_n
+      result.res_n = (() => {
+        return data.res_n;
+
+      })();
+      // Handle return parameter: res_d
+      result.res_d = (() => {
+        return data.res_d;
+
+      })();
+      // Handle return parameter: return
+      result.return = (() => {
+        return data.return;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_fraction_to_double(src_n: number, src_d: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_fraction_to_double`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('src_n', String(src_n));
+    // Primitive parameter
+    url.searchParams.append('src_d', String(src_d));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.dest;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_gdouble_to_guint64(value_: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_gdouble_to_guint64`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value', String(value_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_get_object_array(object: GObjectObject, name: string, array: GObjectValueArray): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_get_object_array`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (object && typeof object === 'object' && 'ptr' in object) {
+      url.searchParams.append('object', 'ptr,' + object.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('name', String(name));
+    // Object with explode=false: serialize as comma-separated
+    if (array && typeof array === 'object' && 'ptr' in array) {
+      url.searchParams.append('array', 'ptr,' + array.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_get_timestamp(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_get_timestamp`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_greatest_common_divisor(a: number, b: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_greatest_common_divisor`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('a', String(a));
+    // Primitive parameter
+    url.searchParams.append('b', String(b));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_greatest_common_divisor_int64(a: number, b: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_greatest_common_divisor_int64`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('a', String(a));
+    // Primitive parameter
+    url.searchParams.append('b', String(b));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_group_id_next(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_group_id_next`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_guint64_to_gdouble(value_: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_guint64_to_gdouble`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('value', String(value_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_seqnum_compare(s1: number, s2: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_seqnum_compare`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('s1', String(s1));
+    // Primitive parameter
+    url.searchParams.append('s2', String(s2));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_seqnum_next(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_seqnum_next`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_set_object_arg(object: GObjectObject, name: string, value_: string): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_set_object_arg`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (object && typeof object === 'object' && 'ptr' in object) {
+      url.searchParams.append('object', 'ptr,' + object.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('name', String(name));
+    // Primitive parameter
+    url.searchParams.append('value', String(value_));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_set_object_array(object: GObjectObject, name: string, array: GObjectValueArray): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_set_object_array`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (object && typeof object === 'object' && 'ptr' in object) {
+      url.searchParams.append('object', 'ptr,' + object.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('name', String(name));
+    // Object with explode=false: serialize as comma-separated
+    if (array && typeof array === 'object' && 'ptr' in array) {
+      url.searchParams.append('array', 'ptr,' + array.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_set_value_from_string(value_: GObjectValue, value_str: string): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_set_value_from_string`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('value_str', String(value_str));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_simplify_fraction(numerator: number, denominator: number, n_terms: number, threshold: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_simplify_fraction`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('numerator', String(numerator));
+    // Primitive parameter
+    url.searchParams.append('denominator', String(denominator));
+    // Primitive parameter
+    url.searchParams.append('n_terms', String(n_terms));
+    // Primitive parameter
+    url.searchParams.append('threshold', String(threshold));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_uint64_scale(val: number, num: number, denom: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('val', String(val));
+    // Primitive parameter
+    url.searchParams.append('num', String(num));
+    // Primitive parameter
+    url.searchParams.append('denom', String(denom));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_uint64_scale_ceil(val: number, num: number, denom: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale_ceil`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('val', String(val));
+    // Primitive parameter
+    url.searchParams.append('num', String(num));
+    // Primitive parameter
+    url.searchParams.append('denom', String(denom));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_uint64_scale_int(val: number, num: number, denom: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale_int`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('val', String(val));
+    // Primitive parameter
+    url.searchParams.append('num', String(num));
+    // Primitive parameter
+    url.searchParams.append('denom', String(denom));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_uint64_scale_int_ceil(val: number, num: number, denom: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale_int_ceil`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('val', String(val));
+    // Primitive parameter
+    url.searchParams.append('num', String(num));
+    // Primitive parameter
+    url.searchParams.append('denom', String(denom));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_uint64_scale_int_round(val: number, num: number, denom: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale_int_round`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('val', String(val));
+    // Primitive parameter
+    url.searchParams.append('num', String(num));
+    // Primitive parameter
+    url.searchParams.append('denom', String(denom));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function util_uint64_scale_round(val: number, num: number, denom: number): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale_round`, apiConfig.baseUrl);
+    // Primitive parameter
+    url.searchParams.append('val', String(val));
+    // Primitive parameter
+    url.searchParams.append('num', String(num));
+    // Primitive parameter
+    url.searchParams.append('denom', String(denom));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_can_compare(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_can_compare`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
+      url.searchParams.append('value1', 'ptr,' + value1.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
+      url.searchParams.append('value2', 'ptr,' + value2.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_can_intersect(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_can_intersect`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
+      url.searchParams.append('value1', 'ptr,' + value1.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
+      url.searchParams.append('value2', 'ptr,' + value2.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_can_subtract(minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_can_subtract`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (minuend && typeof minuend === 'object' && 'ptr' in minuend) {
+      url.searchParams.append('minuend', 'ptr,' + minuend.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (subtrahend && typeof subtrahend === 'object' && 'ptr' in subtrahend) {
+      url.searchParams.append('subtrahend', 'ptr,' + subtrahend.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_can_union(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_can_union`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
+      url.searchParams.append('value1', 'ptr,' + value1.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
+      url.searchParams.append('value2', 'ptr,' + value2.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_compare(value1: GObjectValue, value2: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_compare`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
+      url.searchParams.append('value1', 'ptr,' + value1.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
+      url.searchParams.append('value2', 'ptr,' + value2.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_deserialize(dest: GObjectValue, src: string): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_deserialize`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('src', String(src));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_deserialize_with_pspec(dest: GObjectValue, src: string, pspec?: GObjectParamSpec): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_deserialize_with_pspec`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('src', String(src));
+    // Object with explode=false: serialize as comma-separated
+    if (pspec !== undefined && typeof pspec === 'object' && 'ptr' in pspec) {
+      url.searchParams.append('pspec', 'ptr,' + pspec.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_fixate(dest: GObjectValue, src: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_fixate`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (src && typeof src === 'object' && 'ptr' in src) {
+      url.searchParams.append('src', 'ptr,' + src.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_fraction_multiply(product: GObjectValue, factor1: GObjectValue, factor2: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_fraction_multiply`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (product && typeof product === 'object' && 'ptr' in product) {
+      url.searchParams.append('product', 'ptr,' + product.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (factor1 && typeof factor1 === 'object' && 'ptr' in factor1) {
+      url.searchParams.append('factor1', 'ptr,' + factor1.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (factor2 && typeof factor2 === 'object' && 'ptr' in factor2) {
+      url.searchParams.append('factor2', 'ptr,' + factor2.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_fraction_subtract(dest: GObjectValue, minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_fraction_subtract`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (minuend && typeof minuend === 'object' && 'ptr' in minuend) {
+      url.searchParams.append('minuend', 'ptr,' + minuend.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (subtrahend && typeof subtrahend === 'object' && 'ptr' in subtrahend) {
+      url.searchParams.append('subtrahend', 'ptr,' + subtrahend.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_bitmask(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_bitmask`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_caps(value_: GObjectValue): Promise<GstCaps> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_caps`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstCaps(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_caps_features(value_: GObjectValue): Promise<GstCapsFeatures> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_caps_features`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstCapsFeatures(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_double_range_max(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_double_range_max`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_double_range_min(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_double_range_min`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_flagset_flags(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_flagset_flags`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_flagset_mask(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_flagset_mask`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_fraction_denominator(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_fraction_denominator`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_fraction_numerator(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_fraction_numerator`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_fraction_range_max(value_: GObjectValue): Promise<GObjectValue | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_fraction_range_max`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GObjectValue(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_fraction_range_min(value_: GObjectValue): Promise<GObjectValue | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_fraction_range_min`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GObjectValue(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_int64_range_max(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int64_range_max`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_int64_range_min(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int64_range_min`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_int64_range_step(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int64_range_step`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_int_range_max(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int_range_max`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_int_range_min(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int_range_min`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_int_range_step(value_: GObjectValue): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int_range_step`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_get_structure(value_: GObjectValue): Promise<GstStructure> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_structure`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  const instance = new GstStructure(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_init_and_copy(dest: GObjectValue, src: GObjectValue): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_init_and_copy`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (src && typeof src === 'object' && 'ptr' in src) {
+      url.searchParams.append('src', 'ptr,' + src.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_intersect(dest: GObjectValue, value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_intersect`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
+      url.searchParams.append('value1', 'ptr,' + value1.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
+      url.searchParams.append('value2', 'ptr,' + value2.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_is_fixed(value_: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_is_fixed`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_is_subset(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_is_subset`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
+      url.searchParams.append('value1', 'ptr,' + value1.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
+      url.searchParams.append('value2', 'ptr,' + value2.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_register(table: GstValueTable): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_register`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (table && typeof table === 'object' && 'ptr' in table) {
+      url.searchParams.append('table', 'ptr,' + table.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_serialize(value_: GObjectValue): Promise<string | null> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_serialize`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_bitmask(value_: GObjectValue, bitmask: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_bitmask`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('bitmask', String(bitmask));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_caps(value_: GObjectValue, caps: GstCaps): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_caps`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (caps && typeof caps === 'object' && 'ptr' in caps) {
+      url.searchParams.append('caps', 'ptr,' + caps.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_caps_features(value_: GObjectValue, features: GstCapsFeatures): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_caps_features`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (features && typeof features === 'object' && 'ptr' in features) {
+      url.searchParams.append('features', 'ptr,' + features.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_double_range(value_: GObjectValue, start: number, end: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_double_range`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('start', String(start));
+    // Primitive parameter
+    url.searchParams.append('end', String(end));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_flagset(value_: GObjectValue, flags: number, mask: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_flagset`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('flags', String(flags));
+    // Primitive parameter
+    url.searchParams.append('mask', String(mask));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_fraction(value_: GObjectValue, numerator: number, denominator: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_fraction`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('numerator', String(numerator));
+    // Primitive parameter
+    url.searchParams.append('denominator', String(denominator));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_fraction_range(value_: GObjectValue, start: GObjectValue, end: GObjectValue): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_fraction_range`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (start && typeof start === 'object' && 'ptr' in start) {
+      url.searchParams.append('start', 'ptr,' + start.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (end && typeof end === 'object' && 'ptr' in end) {
+      url.searchParams.append('end', 'ptr,' + end.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_fraction_range_full(value_: GObjectValue, numerator_start: number, denominator_start: number, numerator_end: number, denominator_end: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_fraction_range_full`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('numerator_start', String(numerator_start));
+    // Primitive parameter
+    url.searchParams.append('denominator_start', String(denominator_start));
+    // Primitive parameter
+    url.searchParams.append('numerator_end', String(numerator_end));
+    // Primitive parameter
+    url.searchParams.append('denominator_end', String(denominator_end));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_int64_range(value_: GObjectValue, start: number, end: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_int64_range`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('start', String(start));
+    // Primitive parameter
+    url.searchParams.append('end', String(end));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_int64_range_step(value_: GObjectValue, start: number, end: number, step: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_int64_range_step`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('start', String(start));
+    // Primitive parameter
+    url.searchParams.append('end', String(end));
+    // Primitive parameter
+    url.searchParams.append('step', String(step));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_int_range(value_: GObjectValue, start: number, end: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_int_range`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('start', String(start));
+    // Primitive parameter
+    url.searchParams.append('end', String(end));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_int_range_step(value_: GObjectValue, start: number, end: number, step: number): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_int_range_step`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Primitive parameter
+    url.searchParams.append('start', String(start));
+    // Primitive parameter
+    url.searchParams.append('end', String(end));
+    // Primitive parameter
+    url.searchParams.append('step', String(step));
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_set_structure(value_: GObjectValue, structure: GstStructure): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_structure`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
+      url.searchParams.append('value', 'ptr,' + value_.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (structure && typeof structure === 'object' && 'ptr' in structure) {
+      url.searchParams.append('structure', 'ptr,' + structure.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_subtract(dest: GObjectValue, minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_subtract`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (minuend && typeof minuend === 'object' && 'ptr' in minuend) {
+      url.searchParams.append('minuend', 'ptr,' + minuend.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (subtrahend && typeof subtrahend === 'object' && 'ptr' in subtrahend) {
+      url.searchParams.append('subtrahend', 'ptr,' + subtrahend.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function value_union(dest: GObjectValue, value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_union`, apiConfig.baseUrl);
+    // Object with explode=false: serialize as comma-separated
+    if (dest && typeof dest === 'object' && 'ptr' in dest) {
+      url.searchParams.append('dest', 'ptr,' + dest.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
+      url.searchParams.append('value1', 'ptr,' + value1.ptr);
+    }
+    // Object with explode=false: serialize as comma-separated
+    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
+      url.searchParams.append('value2', 'ptr,' + value2.ptr);
+    }
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function version(): Promise<{major: number, minor: number, micro: number, nano: number}> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/version`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+        const result: any = {};
+      // Handle return parameter: major
+      result.major = (() => {
+        return data.major;
+
+      })();
+      // Handle return parameter: minor
+      result.minor = (() => {
+        return data.minor;
+
+      })();
+      // Handle return parameter: micro
+      result.micro = (() => {
+        return data.micro;
+
+      })();
+      // Handle return parameter: nano
+      result.nano = (() => {
+        return data.nano;
+
+      })();
+      return result;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function version_string(): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/version_string`, apiConfig.baseUrl);
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
@@ -101225,7 +107685,7 @@ export function convertGstLogFunctionArgs(data: any): Parameters<GstLogFunction>
 
 
  
-  export async function enum_get_value(enum_class: GObjectEnumClass, value_: number): Promise<GObjectEnumValue> {
+  export async function enum_get_value(enum_class: GObjectEnumClass, value_: number): Promise<GObjectEnumValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/enum_get_value`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -101261,7 +107721,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function enum_get_value_by_name(enum_class: GObjectEnumClass, name: string): Promise<GObjectEnumValue> {
+  export async function enum_get_value_by_name(enum_class: GObjectEnumClass, name: string): Promise<GObjectEnumValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/enum_get_value_by_name`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -101297,7 +107757,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function enum_get_value_by_nick(enum_class: GObjectEnumClass, nick: string): Promise<GObjectEnumValue> {
+  export async function enum_get_value_by_nick(enum_class: GObjectEnumClass, nick: string): Promise<GObjectEnumValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/enum_get_value_by_nick`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -101427,7 +107887,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function flags_get_first_value(flags_class: GObjectFlagsClass, value_: number): Promise<GObjectFlagsValue> {
+  export async function flags_get_first_value(flags_class: GObjectFlagsClass, value_: number): Promise<GObjectFlagsValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/flags_get_first_value`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -101463,7 +107923,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function flags_get_value_by_name(flags_class: GObjectFlagsClass, name: string): Promise<GObjectFlagsValue> {
+  export async function flags_get_value_by_name(flags_class: GObjectFlagsClass, name: string): Promise<GObjectFlagsValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/flags_get_value_by_name`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -101499,7 +107959,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function flags_get_value_by_nick(flags_class: GObjectFlagsClass, nick: string): Promise<GObjectFlagsValue> {
+  export async function flags_get_value_by_nick(flags_class: GObjectFlagsClass, nick: string): Promise<GObjectFlagsValue | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/flags_get_value_by_nick`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -103075,7 +109535,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function signal_get_invocation_hint(instance: GObjectObject): Promise<GObjectSignalInvocationHint> {
+  export async function signal_get_invocation_hint(instance: GObjectObject): Promise<GObjectSignalInvocationHint | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_get_invocation_hint`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -103559,7 +110019,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function signal_name(signal_id: number): Promise<string> {
+  export async function signal_name(signal_id: number): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/signal_name`, apiConfig.baseUrl);
     // Primitive parameter
@@ -104827,7 +111287,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function type_get_qdata(type_: string, quark: number): Promise<Pointer> {
+  export async function type_get_qdata(type_: string, quark: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/type_get_qdata`, apiConfig.baseUrl);
     // Primitive parameter
@@ -105155,7 +111615,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function type_name(type_: string): Promise<string> {
+  export async function type_name(type_: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/type_name`, apiConfig.baseUrl);
     // Primitive parameter
@@ -105605,7 +112065,7 @@ return Promise.reject("Call failed");
   }
 
 }
-  export namespace Gst {
+  export namespace GModule {
   
 
 
@@ -105613,278 +112073,13 @@ return Promise.reject("Call failed");
 
 
  
-  export async function buffer_get_max_memory(): Promise<number> {
+  export async function module_build_path(module_name: string, directory?: string): Promise<string> {
     // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/buffer_get_max_memory`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function caps_features_from_string(features: string): Promise<GstCapsFeatures> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/caps_features_from_string`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('features', String(features));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstCapsFeatures(data.return.ptr, 'full');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function caps_from_string(string: string): Promise<GstCaps> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/caps_from_string`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('string', String(string));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstCaps(data.return.ptr, 'full');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function core_error_quark(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/core_error_quark`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_add_log_function(func: GstLogFunction): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_add_log_function`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      // Register callbacks
-      if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), {
-          converter: convertGstLogFunctionArgs,
-          userFunction: func
-        });
-      }
-    return data.func;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_add_ring_buffer_logger(max_size_per_thread: number, thread_timeout: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_add_ring_buffer_logger`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('max_size_per_thread', String(max_size_per_thread));
-    // Primitive parameter
-    url.searchParams.append('thread_timeout', String(thread_timeout));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_bin_to_dot_data(bin: GstBin, details: GstDebugGraphDetailsValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_bin_to_dot_data`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (bin && typeof bin === 'object' && 'ptr' in bin) {
-      url.searchParams.append('bin', 'ptr,' + bin.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('details', String(details));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_bin_to_dot_file(bin: GstBin, details: GstDebugGraphDetailsValue, file_name: Pointer): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_bin_to_dot_file`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (bin && typeof bin === 'object' && 'ptr' in bin) {
-      url.searchParams.append('bin', 'ptr,' + bin.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('details', String(details));
-    // Primitive parameter
-    url.searchParams.append('file_name', String(file_name));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_bin_to_dot_file_with_ts(bin: GstBin, details: GstDebugGraphDetailsValue, file_name: Pointer): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_bin_to_dot_file_with_ts`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (bin && typeof bin === 'object' && 'ptr' in bin) {
-      url.searchParams.append('bin', 'ptr,' + bin.ptr);
-    }
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_build_path`, apiConfig.baseUrl);
     // Primitive parameter
-    url.searchParams.append('details', String(details));
-    // Primitive parameter
-    url.searchParams.append('file_name', String(file_name));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_construct_term_color(colorinfo: number): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_construct_term_color`, apiConfig.baseUrl);
+    if (directory !== undefined) url.searchParams.append('directory', String(directory));
     // Primitive parameter
-    url.searchParams.append('colorinfo', String(colorinfo));
+    url.searchParams.append('module_name', String(module_name));
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
@@ -105908,11 +112103,9 @@ return Promise.reject("Call failed");
 
 
  
-  export async function debug_construct_win_color(colorinfo: number): Promise<number> {
+  export async function module_error(): Promise<string> {
     // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_construct_win_color`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('colorinfo', String(colorinfo));
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error`, apiConfig.baseUrl);
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
@@ -105921,38 +112114,8 @@ return Promise.reject("Call failed");
       }
       const data = await response.json();
     return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
 
 
- 
-  export async function debug_get_all_categories(): Promise<GLibSList> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_get_all_categories`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GLibSList(data.return.ptr, 'container');
-  return instance;
-}
-return Promise.reject("Call failed");
-
     } catch (error) {
       // If there's an error, unref the objects we ref'd
       throw error;
@@ -105966,9 +112129,9 @@ return Promise.reject("Call failed");
 
 
  
-  export async function debug_get_color_mode(): Promise<GstDebugColorModeValue> {
+  export async function module_error_quark(): Promise<number> {
     // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_get_color_mode`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error_quark`, apiConfig.baseUrl);
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
@@ -105977,6146 +112140,7 @@ return Promise.reject("Call failed");
       }
       const data = await response.json();
     return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_get_default_threshold(): Promise<GstDebugLevelValue> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_get_default_threshold`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_get_stack_trace(flags: GstStackTraceFlagsValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_get_stack_trace`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('flags', String(flags));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_is_active(): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_is_active`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_is_colored(): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_is_colored`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_level_get_name(level: GstDebugLevelValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_level_get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('level', String(level));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_log_default(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message: GstDebugMessage, object?: GObjectObject, user_data?: Pointer): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_log_default`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (category && typeof category === 'object' && 'ptr' in category) {
-      url.searchParams.append('category', 'ptr,' + category.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('level', String(level));
-    // Primitive parameter
-    url.searchParams.append('file', String(file));
-    // Primitive parameter
-    url.searchParams.append('function', String(function_));
-    // Primitive parameter
-    url.searchParams.append('line', String(line));
-    // Object with explode=false: serialize as comma-separated
-    if (object !== undefined && typeof object === 'object' && 'ptr' in object) {
-      url.searchParams.append('object', 'ptr,' + object.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (message && typeof message === 'object' && 'ptr' in message) {
-      url.searchParams.append('message', 'ptr,' + message.ptr);
-    }
-    // Primitive parameter
-    if (user_data !== undefined) url.searchParams.append('user_data', String(user_data));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_log_get_line(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message: GstDebugMessage, object?: GObjectObject): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_log_get_line`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (category && typeof category === 'object' && 'ptr' in category) {
-      url.searchParams.append('category', 'ptr,' + category.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('level', String(level));
-    // Primitive parameter
-    url.searchParams.append('file', String(file));
-    // Primitive parameter
-    url.searchParams.append('function', String(function_));
-    // Primitive parameter
-    url.searchParams.append('line', String(line));
-    // Object with explode=false: serialize as comma-separated
-    if (object !== undefined && typeof object === 'object' && 'ptr' in object) {
-      url.searchParams.append('object', 'ptr,' + object.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (message && typeof message === 'object' && 'ptr' in message) {
-      url.searchParams.append('message', 'ptr,' + message.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_log_id_literal(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message_string: string, id?: string): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_log_id_literal`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (category && typeof category === 'object' && 'ptr' in category) {
-      url.searchParams.append('category', 'ptr,' + category.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('level', String(level));
-    // Primitive parameter
-    url.searchParams.append('file', String(file));
-    // Primitive parameter
-    url.searchParams.append('function', String(function_));
-    // Primitive parameter
-    url.searchParams.append('line', String(line));
-    // Primitive parameter
-    if (id !== undefined) url.searchParams.append('id', String(id));
-    // Primitive parameter
-    url.searchParams.append('message_string', String(message_string));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_log_literal(category: GstDebugCategory, level: GstDebugLevelValue, file: string, function_: string, line: number, message_string: string, object?: GObjectObject): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_log_literal`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (category && typeof category === 'object' && 'ptr' in category) {
-      url.searchParams.append('category', 'ptr,' + category.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('level', String(level));
-    // Primitive parameter
-    url.searchParams.append('file', String(file));
-    // Primitive parameter
-    url.searchParams.append('function', String(function_));
-    // Primitive parameter
-    url.searchParams.append('line', String(line));
-    // Object with explode=false: serialize as comma-separated
-    if (object !== undefined && typeof object === 'object' && 'ptr' in object) {
-      url.searchParams.append('object', 'ptr,' + object.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('message_string', String(message_string));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_print_stack_trace(): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_print_stack_trace`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_remove_log_function(func: GstLogFunction): Promise<{func: number, return: number}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_remove_log_function`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      // Register callbacks
-      if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), {
-          converter: convertGstLogFunctionArgs,
-          userFunction: func
-        });
-      }
-        const result: any = {};
-      // Handle return parameter: func
-      result.func = (() => {
-        return data.func;
-
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        return data.return;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_remove_log_function_by_data(data_?: Pointer): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_remove_log_function_by_data`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (data_ !== undefined) url.searchParams.append('data_', String(data_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_remove_ring_buffer_logger(): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_remove_ring_buffer_logger`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_ring_buffer_logger_get_logs(): Promise<Pointer> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_ring_buffer_logger_get_logs`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_set_active(active: boolean): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_active`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('active', String(active));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_set_color_mode(mode: GstDebugColorModeValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_color_mode`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('mode', String(mode));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_set_color_mode_from_string(mode: string): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_color_mode_from_string`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('mode', String(mode));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_set_colored(colored: boolean): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_colored`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('colored', String(colored));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_set_default_threshold(level: GstDebugLevelValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_default_threshold`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('level', String(level));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_set_threshold_for_name(name: string, level: GstDebugLevelValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_threshold_for_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('name', String(name));
-    // Primitive parameter
-    url.searchParams.append('level', String(level));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_set_threshold_from_string(list: string, reset: boolean): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_set_threshold_from_string`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('list', String(list));
-    // Primitive parameter
-    url.searchParams.append('reset', String(reset));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function debug_unset_threshold_for_name(name: string): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/debug_unset_threshold_for_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('name', String(name));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function deinit(): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/deinit`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function dynamic_type_register(plugin: GstPlugin, type_: string): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/dynamic_type_register`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (plugin && typeof plugin === 'object' && 'ptr' in plugin) {
-      url.searchParams.append('plugin', 'ptr,' + plugin.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function error_get_message(domain: number, code: number): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/error_get_message`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('domain', String(domain));
-    // Primitive parameter
-    url.searchParams.append('code', String(code));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function event_type_get_flags(type_: GstEventTypeValue): Promise<GstEventTypeFlagsValue> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/event_type_get_flags`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function event_type_get_name(type_: GstEventTypeValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/event_type_get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function event_type_to_quark(type_: GstEventTypeValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/event_type_to_quark`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function event_type_to_sticky_ordering(type_: GstEventTypeValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/event_type_to_sticky_ordering`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function filename_to_uri(filename: Pointer): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/filename_to_uri`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('filename', String(filename));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function flow_get_name(ret: GstFlowReturnValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/flow_get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('ret', String(ret));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function flow_to_quark(ret: GstFlowReturnValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/flow_to_quark`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('ret', String(ret));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function format_get_by_nick(nick: string): Promise<GstFormatValue> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_get_by_nick`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('nick', String(nick));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function format_get_details(format: GstFormatValue): Promise<GstFormatDefinition> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_get_details`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('format', String(format));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstFormatDefinition(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function format_get_name(format: GstFormatValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('format', String(format));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function format_iterate_definitions(): Promise<GstIterator> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_iterate_definitions`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstIterator(data.return.ptr, 'full');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function format_register(nick: string, description: string): Promise<GstFormatValue> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_register`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('nick', String(nick));
-    // Primitive parameter
-    url.searchParams.append('description', String(description));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function format_to_quark(format: GstFormatValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/format_to_quark`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('format', String(format));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function formats_contains(formats: Pointer, format: GstFormatValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/formats_contains`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('formats', String(formats));
-    // Primitive parameter
-    url.searchParams.append('format', String(format));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function get_main_executable_path(): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/get_main_executable_path`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function init(argc?: number, argv?: Pointer): Promise<{argc: number, argv: Pointer}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/init`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (argc !== undefined) url.searchParams.append('argc', String(argc));
-    // Primitive parameter
-    if (argv !== undefined) url.searchParams.append('argv', String(argv));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-        const result: any = {};
-      // Handle return parameter: argc
-      result.argc = (() => {
-        return data.argc;
-
-      })();
-      // Handle return parameter: argv
-      result.argv = (() => {
-        return data.argv;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function init_check(argc?: number, argv?: Pointer): Promise<{argc: number, argv: Pointer, return: boolean}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/init_check`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (argc !== undefined) url.searchParams.append('argc', String(argc));
-    // Primitive parameter
-    if (argv !== undefined) url.searchParams.append('argv', String(argv));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-        const result: any = {};
-      // Handle return parameter: argc
-      result.argc = (() => {
-        return data.argc;
-
-      })();
-      // Handle return parameter: argv
-      result.argv = (() => {
-        return data.argv;
-
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        return data.return;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function is_caps_features(obj?: Pointer): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/is_caps_features`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (obj !== undefined) url.searchParams.append('obj', String(obj));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function is_initialized(): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/is_initialized`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function library_error_quark(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/library_error_quark`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function message_type_get_name(type_: GstMessageTypeValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/message_type_get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function message_type_to_quark(type_: GstMessageTypeValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/message_type_to_quark`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function meta_api_type_get_tags(api: string): Promise<Pointer> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_api_type_get_tags`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('api', String(api));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function meta_api_type_has_tag(api: string, tag: number): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_api_type_has_tag`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('api', String(api));
-    // Primitive parameter
-    url.searchParams.append('tag', String(tag));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function meta_api_type_register(api: string, tags: Pointer): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_api_type_register`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('api', String(api));
-    // Primitive parameter
-    url.searchParams.append('tags', String(tags));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function meta_deserialize(buffer: GstBuffer, data_: number, size: number): Promise<{consumed: number, return: GstMeta}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_deserialize`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (buffer && typeof buffer === 'object' && 'ptr' in buffer) {
-      url.searchParams.append('buffer', 'ptr,' + buffer.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('data', String(data_));
-    // Primitive parameter
-    url.searchParams.append('size', String(size));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-        const result: any = {};
-      // Handle return parameter: consumed
-      result.consumed = (() => {
-        return data.consumed;
-
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        // Return value is a struct, instantiate it from the ptr
-        if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-          const instance = new GstMeta(data.return.ptr, 'none');
-          return instance;
-        }
-        return Promise.reject("Call failed");
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function meta_get_info(impl: string): Promise<GstMetaInfo> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_get_info`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('impl', String(impl));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstMetaInfo(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function meta_register_custom(name: string, tags: Pointer, transform_func: GstCustomMetaTransformFunction): Promise<{transform_func: number, return: GstMetaInfo}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_register_custom`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('name', String(name));
-    // Primitive parameter
-    url.searchParams.append('tags', String(tags));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      // Register callbacks
-      if (data.transform_func !== undefined) {
-        callbackDispatcher.set(data.transform_func.toString(), {
-          converter: convertGstCustomMetaTransformFunctionArgs,
-          userFunction: transform_func
-        });
-      }
-        const result: any = {};
-      // Handle return parameter: transform_func
-      result.transform_func = (() => {
-        return data.transform_func;
-
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        // Return value is a struct, instantiate it from the ptr
-        if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-          const instance = new GstMetaInfo(data.return.ptr, 'none');
-          return instance;
-        }
-        return Promise.reject("Call failed");
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function meta_register_custom_simple(name: string): Promise<GstMetaInfo> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/meta_register_custom_simple`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('name', String(name));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstMetaInfo(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function mini_object_replace(olddata?: GstMiniObject, newdata?: GstMiniObject): Promise<{olddata: GstMiniObject, return: boolean}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/mini_object_replace`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (olddata !== undefined && typeof olddata === 'object' && 'ptr' in olddata) {
-      url.searchParams.append('olddata', 'ptr,' + olddata.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (newdata !== undefined && typeof newdata === 'object' && 'ptr' in newdata) {
-      url.searchParams.append('newdata', 'ptr,' + newdata.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-        const result: any = {};
-      // Handle return parameter: olddata
-      result.olddata = (() => {
-        // Return value is a struct, instantiate it from the ptr
-        if (data.olddata && typeof data.olddata === 'object' && 'ptr' in data.olddata) {
-          const instance = new GstMiniObject(data.olddata.ptr, 'none');
-          return instance;
-        }
-        return Promise.reject("Call failed");
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        return data.return;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function mini_object_take(olddata: GstMiniObject, newdata: GstMiniObject): Promise<{olddata: GstMiniObject, return: boolean}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/mini_object_take`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (olddata && typeof olddata === 'object' && 'ptr' in olddata) {
-      url.searchParams.append('olddata', 'ptr,' + olddata.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (newdata && typeof newdata === 'object' && 'ptr' in newdata) {
-      url.searchParams.append('newdata', 'ptr,' + newdata.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-        const result: any = {};
-      // Handle return parameter: olddata
-      result.olddata = (() => {
-        // Return value is a struct, instantiate it from the ptr
-        if (data.olddata && typeof data.olddata === 'object' && 'ptr' in data.olddata) {
-          const instance = new GstMiniObject(data.olddata.ptr, 'none');
-          return instance;
-        }
-        return Promise.reject("Call failed");
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        return data.return;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function pad_mode_get_name(mode: GstPadModeValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/pad_mode_get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('mode', String(mode));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function param_spec_array(name: string, nick: string, blurb: string, element_spec: GObjectParamSpec, flags: GObjectParamFlags): Promise<GObjectParamSpec> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/param_spec_array`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('name', String(name));
-    // Primitive parameter
-    url.searchParams.append('nick', String(nick));
-    // Primitive parameter
-    url.searchParams.append('blurb', String(blurb));
-    // Object with explode=false: serialize as comma-separated
-    if (element_spec && typeof element_spec === 'object' && 'ptr' in element_spec) {
-      url.searchParams.append('element_spec', 'ptr,' + element_spec.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('flags', String(flags));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-          // Return value is an object, instantiate it from the ptr
-      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-        const instance = new GObjectParamSpec(data.return.ptr, 'full');
-        return instance;
-      }
-      return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function param_spec_fraction(name: string, nick: string, blurb: string, min_num: number, min_denom: number, max_num: number, max_denom: number, default_num: number, default_denom: number, flags: GObjectParamFlags): Promise<GObjectParamSpec> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/param_spec_fraction`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('name', String(name));
-    // Primitive parameter
-    url.searchParams.append('nick', String(nick));
-    // Primitive parameter
-    url.searchParams.append('blurb', String(blurb));
-    // Primitive parameter
-    url.searchParams.append('min_num', String(min_num));
-    // Primitive parameter
-    url.searchParams.append('min_denom', String(min_denom));
-    // Primitive parameter
-    url.searchParams.append('max_num', String(max_num));
-    // Primitive parameter
-    url.searchParams.append('max_denom', String(max_denom));
-    // Primitive parameter
-    url.searchParams.append('default_num', String(default_num));
-    // Primitive parameter
-    url.searchParams.append('default_denom', String(default_denom));
-    // Primitive parameter
-    url.searchParams.append('flags', String(flags));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-          // Return value is an object, instantiate it from the ptr
-      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-        const instance = new GObjectParamSpec(data.return.ptr, 'full');
-        return instance;
-      }
-      return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function parent_buffer_meta_api_get_type(): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parent_buffer_meta_api_get_type`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function parent_buffer_meta_get_info(): Promise<GstMetaInfo> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parent_buffer_meta_get_info`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstMetaInfo(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function parse_bin_from_description(bin_description: string, ghost_unlinked_pads: boolean): Promise<GstBin> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_bin_from_description`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('bin_description', String(bin_description));
-    // Primitive parameter
-    url.searchParams.append('ghost_unlinked_pads', String(ghost_unlinked_pads));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-          // Return value is an object, instantiate it from the ptr
-      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-        const instance = new GstBin(data.return.ptr, 'none');
-        return instance;
-      }
-      return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function parse_bin_from_description_full(bin_description: string, ghost_unlinked_pads: boolean, flags: GstParseFlagsValue, context?: GstParseContext): Promise<GstElement> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_bin_from_description_full`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('bin_description', String(bin_description));
-    // Primitive parameter
-    url.searchParams.append('ghost_unlinked_pads', String(ghost_unlinked_pads));
-    // Object with explode=false: serialize as comma-separated
-    if (context !== undefined && typeof context === 'object' && 'ptr' in context) {
-      url.searchParams.append('context', 'ptr,' + context.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('flags', String(flags));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-          // Return value is an object, instantiate it from the ptr
-      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-        const instance = new GstElement(data.return.ptr, 'none');
-        return instance;
-      }
-      return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function parse_error_quark(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_error_quark`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function parse_launch(pipeline_description: string): Promise<GstElement> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_launch`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('pipeline_description', String(pipeline_description));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-          // Return value is an object, instantiate it from the ptr
-      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-        const instance = new GstElement(data.return.ptr, 'none');
-        return instance;
-      }
-      return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function parse_launch_full(pipeline_description: string, flags: GstParseFlagsValue, context?: GstParseContext): Promise<GstElement> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_launch_full`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('pipeline_description', String(pipeline_description));
-    // Object with explode=false: serialize as comma-separated
-    if (context !== undefined && typeof context === 'object' && 'ptr' in context) {
-      url.searchParams.append('context', 'ptr,' + context.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('flags', String(flags));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-          // Return value is an object, instantiate it from the ptr
-      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-        const instance = new GstElement(data.return.ptr, 'none');
-        return instance;
-      }
-      return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function parse_launchv(argv: Pointer): Promise<GstElement> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_launchv`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('argv', String(argv));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-          // Return value is an object, instantiate it from the ptr
-      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-        const instance = new GstElement(data.return.ptr, 'none');
-        return instance;
-      }
-      return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function parse_launchv_full(argv: Pointer, flags: GstParseFlagsValue, context?: GstParseContext): Promise<GstElement> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/parse_launchv_full`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('argv', String(argv));
-    // Object with explode=false: serialize as comma-separated
-    if (context !== undefined && typeof context === 'object' && 'ptr' in context) {
-      url.searchParams.append('context', 'ptr,' + context.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('flags', String(flags));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-          // Return value is an object, instantiate it from the ptr
-      if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-        // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
-        const instance = new GstElement(data.return.ptr, 'none');
-        return instance;
-      }
-      return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function plugin_error_quark(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/plugin_error_quark`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function preset_get_app_dir(): Promise<Pointer> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/preset_get_app_dir`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function preset_set_app_dir(app_dir: Pointer): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/preset_set_app_dir`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('app_dir', String(app_dir));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function protection_filter_systems_by_available_decryptors(system_identifiers: Pointer): Promise<Pointer> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/protection_filter_systems_by_available_decryptors`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('system_identifiers', String(system_identifiers));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function protection_meta_api_get_type(): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/protection_meta_api_get_type`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function protection_meta_get_info(): Promise<GstMetaInfo> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/protection_meta_get_info`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstMetaInfo(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function protection_select_system(system_identifiers: Pointer): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/protection_select_system`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('system_identifiers', String(system_identifiers));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function query_type_get_flags(type_: GstQueryTypeValue): Promise<GstQueryTypeFlagsValue> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/query_type_get_flags`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function query_type_get_name(type_: GstQueryTypeValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/query_type_get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function query_type_to_quark(type_: GstQueryTypeValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/query_type_to_quark`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function reference_timestamp_meta_api_get_type(): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/reference_timestamp_meta_api_get_type`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function reference_timestamp_meta_get_info(): Promise<GstMetaInfo> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/reference_timestamp_meta_get_info`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstMetaInfo(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function resource_error_quark(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/resource_error_quark`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function segtrap_is_enabled(): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/segtrap_is_enabled`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function segtrap_set_enabled(enabled: boolean): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/segtrap_set_enabled`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('enabled', String(enabled));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function state_change_get_name(transition: GstStateChangeValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/state_change_get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('transition', String(transition));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function static_caps_get_type(): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/static_caps_get_type`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function static_pad_template_get_type(): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/static_pad_template_get_type`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function stream_error_quark(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/stream_error_quark`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function stream_type_get_name(stype: GstStreamTypeValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/stream_type_get_name`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('stype', String(stype));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function structure_take(oldstr_ptr?: GstStructure, newstr?: GstStructure): Promise<{oldstr_ptr: GstStructure, return: boolean}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/structure_take`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (oldstr_ptr !== undefined && typeof oldstr_ptr === 'object' && 'ptr' in oldstr_ptr) {
-      url.searchParams.append('oldstr_ptr', 'ptr,' + oldstr_ptr.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (newstr !== undefined && typeof newstr === 'object' && 'ptr' in newstr) {
-      url.searchParams.append('newstr', 'ptr,' + newstr.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-        const result: any = {};
-      // Handle return parameter: oldstr_ptr
-      result.oldstr_ptr = (() => {
-        // Return value is a struct, instantiate it from the ptr
-        if (data.oldstr_ptr && typeof data.oldstr_ptr === 'object' && 'ptr' in data.oldstr_ptr) {
-          const instance = new GstStructure(data.oldstr_ptr.ptr, 'none');
-          return instance;
-        }
-        return Promise.reject("Call failed");
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        return data.return;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tag_exists(tag: string): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_exists`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('tag', String(tag));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tag_get_description(tag: string): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_get_description`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('tag', String(tag));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tag_get_flag(tag: string): Promise<GstTagFlagValue> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_get_flag`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('tag', String(tag));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tag_get_nick(tag: string): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_get_nick`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('tag', String(tag));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tag_get_type(tag: string): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_get_type`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('tag', String(tag));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tag_is_fixed(tag: string): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_is_fixed`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('tag', String(tag));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tag_list_copy_value(dest: GObjectValue, list: GstTagList, tag: string): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_list_copy_value`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (list && typeof list === 'object' && 'ptr' in list) {
-      url.searchParams.append('list', 'ptr,' + list.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('tag', String(tag));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tag_merge_strings_with_comma(dest: GObjectValue, src: GObjectValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_merge_strings_with_comma`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (src && typeof src === 'object' && 'ptr' in src) {
-      url.searchParams.append('src', 'ptr,' + src.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tag_merge_use_first(dest: GObjectValue, src: GObjectValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tag_merge_use_first`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (src && typeof src === 'object' && 'ptr' in src) {
-      url.searchParams.append('src', 'ptr,' + src.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function toc_entry_type_get_nick(type_: GstTocEntryTypeValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/toc_entry_type_get_nick`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tracing_get_active_tracers(): Promise<GLibList> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tracing_get_active_tracers`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a List, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GLibList(data.return.ptr, 'full', GstTracer, undefined);
-  return instance;
-}
-return Promise.reject("Call failed");
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function tracing_register_hook(tracer: GstTracer, detail: string, func: GObjectCallback): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/tracing_register_hook`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (tracer && typeof tracer === 'object' && 'ptr' in tracer) {
-      url.searchParams.append('tracer', 'ptr,' + tracer.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('detail', String(detail));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      // Register callbacks
-      if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), {
-          converter: convertGObjectCallbackArgs,
-          userFunction: func
-        });
-      }
-    return data.func;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function type_find_get_type(): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/type_find_get_type`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function type_find_register(name: string, rank: number, func: GstTypeFindFunction, plugin?: GstPlugin, extensions?: string, possible_caps?: GstCaps): Promise<{func: number, return: boolean}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/type_find_register`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (plugin !== undefined && typeof plugin === 'object' && 'ptr' in plugin) {
-      url.searchParams.append('plugin', 'ptr,' + plugin.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('name', String(name));
-    // Primitive parameter
-    url.searchParams.append('rank', String(rank));
-    // Primitive parameter
-    if (extensions !== undefined) url.searchParams.append('extensions', String(extensions));
-    // Object with explode=false: serialize as comma-separated
-    if (possible_caps !== undefined && typeof possible_caps === 'object' && 'ptr' in possible_caps) {
-      url.searchParams.append('possible_caps', 'ptr,' + possible_caps.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      // Register callbacks
-      if (data.func !== undefined) {
-        callbackDispatcher.set(data.func.toString(), {
-          converter: convertGstTypeFindFunctionArgs,
-          userFunction: func
-        });
-      }
-        const result: any = {};
-      // Handle return parameter: func
-      result.func = (() => {
-        return data.func;
-
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        return data.return;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function type_is_plugin_api(type_: string, flags: GstPluginAPIFlagsValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/type_is_plugin_api`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    // Primitive parameter
-    url.searchParams.append('flags', String(flags));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function type_mark_as_plugin_api(type_: string, flags: GstPluginAPIFlagsValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/type_mark_as_plugin_api`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    // Primitive parameter
-    url.searchParams.append('flags', String(flags));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function update_registry(): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/update_registry`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_construct(protocol: string, location: string): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_construct`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('protocol', String(protocol));
-    // Primitive parameter
-    url.searchParams.append('location', String(location));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_error_quark(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_error_quark`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_from_string(uri: string): Promise<GstUri> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_from_string`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('uri', String(uri));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstUri(data.return.ptr, 'full');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_from_string_escaped(uri: string): Promise<GstUri> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_from_string_escaped`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('uri', String(uri));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstUri(data.return.ptr, 'full');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_get_location(uri: string): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_get_location`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('uri', String(uri));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_get_protocol(uri: string): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_get_protocol`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('uri', String(uri));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_has_protocol(uri: string, protocol: string): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_has_protocol`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('uri', String(uri));
-    // Primitive parameter
-    url.searchParams.append('protocol', String(protocol));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_is_valid(uri: string): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_is_valid`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('uri', String(uri));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_join_strings(base_uri: string, ref_uri: string): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_join_strings`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('base_uri', String(base_uri));
-    // Primitive parameter
-    url.searchParams.append('ref_uri', String(ref_uri));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_protocol_is_supported(type_: GstURITypeValue, protocol: string): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_protocol_is_supported`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('type', String(type_));
-    // Primitive parameter
-    url.searchParams.append('protocol', String(protocol));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function uri_protocol_is_valid(protocol: string): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/uri_protocol_is_valid`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('protocol', String(protocol));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_array_binary_search(num_elements: number, element_size: number, mode: GstSearchModeValue, search_func: GLibCompareDataFunc, array?: Pointer, search_data?: Pointer): Promise<{search_func: number, return: Pointer}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_array_binary_search`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (array !== undefined) url.searchParams.append('array', String(array));
-    // Primitive parameter
-    url.searchParams.append('num_elements', String(num_elements));
-    // Primitive parameter
-    url.searchParams.append('element_size', String(element_size));
-    // Primitive parameter
-    url.searchParams.append('mode', String(mode));
-    // Primitive parameter
-    if (search_data !== undefined) url.searchParams.append('search_data', String(search_data));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      // Register callbacks
-      if (data.search_func !== undefined) {
-        callbackDispatcher.set(data.search_func.toString(), {
-          converter: convertGLibCompareDataFuncArgs,
-          userFunction: search_func
-        });
-      }
-        const result: any = {};
-      // Handle return parameter: search_func
-      result.search_func = (() => {
-        return data.search_func;
-
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        return data.return;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_ceil_log2(v: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_ceil_log2`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('v', String(v));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_double_to_fraction(src: number): Promise<{dest_n: number, dest_d: number}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_double_to_fraction`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('src', String(src));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-        const result: any = {};
-      // Handle return parameter: dest_n
-      result.dest_n = (() => {
-        return data.dest_n;
-
-      })();
-      // Handle return parameter: dest_d
-      result.dest_d = (() => {
-        return data.dest_d;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_dump_buffer(buf: GstBuffer): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_dump_buffer`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (buf && typeof buf === 'object' && 'ptr' in buf) {
-      url.searchParams.append('buf', 'ptr,' + buf.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_dump_mem(mem: Pointer, size: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_dump_mem`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('mem', String(mem));
-    // Primitive parameter
-    url.searchParams.append('size', String(size));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_filename_compare(a: Pointer, b: Pointer): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_filename_compare`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('a', String(a));
-    // Primitive parameter
-    url.searchParams.append('b', String(b));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_fraction_add(a_n: number, a_d: number, b_n: number, b_d: number): Promise<{res_n: number, res_d: number, return: boolean}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_fraction_add`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('a_n', String(a_n));
-    // Primitive parameter
-    url.searchParams.append('a_d', String(a_d));
-    // Primitive parameter
-    url.searchParams.append('b_n', String(b_n));
-    // Primitive parameter
-    url.searchParams.append('b_d', String(b_d));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-        const result: any = {};
-      // Handle return parameter: res_n
-      result.res_n = (() => {
-        return data.res_n;
-
-      })();
-      // Handle return parameter: res_d
-      result.res_d = (() => {
-        return data.res_d;
-
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        return data.return;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_fraction_compare(a_n: number, a_d: number, b_n: number, b_d: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_fraction_compare`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('a_n', String(a_n));
-    // Primitive parameter
-    url.searchParams.append('a_d', String(a_d));
-    // Primitive parameter
-    url.searchParams.append('b_n', String(b_n));
-    // Primitive parameter
-    url.searchParams.append('b_d', String(b_d));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_fraction_multiply(a_n: number, a_d: number, b_n: number, b_d: number): Promise<{res_n: number, res_d: number, return: boolean}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_fraction_multiply`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('a_n', String(a_n));
-    // Primitive parameter
-    url.searchParams.append('a_d', String(a_d));
-    // Primitive parameter
-    url.searchParams.append('b_n', String(b_n));
-    // Primitive parameter
-    url.searchParams.append('b_d', String(b_d));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-        const result: any = {};
-      // Handle return parameter: res_n
-      result.res_n = (() => {
-        return data.res_n;
-
-      })();
-      // Handle return parameter: res_d
-      result.res_d = (() => {
-        return data.res_d;
-
-      })();
-      // Handle return parameter: return
-      result.return = (() => {
-        return data.return;
-
-      })();
-      return result;
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_fraction_to_double(src_n: number, src_d: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_fraction_to_double`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('src_n', String(src_n));
-    // Primitive parameter
-    url.searchParams.append('src_d', String(src_d));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.dest;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_gdouble_to_guint64(value_: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_gdouble_to_guint64`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('value', String(value_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_get_object_array(object: GObjectObject, name: string, array: GObjectValueArray): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_get_object_array`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (object && typeof object === 'object' && 'ptr' in object) {
-      url.searchParams.append('object', 'ptr,' + object.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('name', String(name));
-    // Object with explode=false: serialize as comma-separated
-    if (array && typeof array === 'object' && 'ptr' in array) {
-      url.searchParams.append('array', 'ptr,' + array.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_get_timestamp(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_get_timestamp`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_greatest_common_divisor(a: number, b: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_greatest_common_divisor`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('a', String(a));
-    // Primitive parameter
-    url.searchParams.append('b', String(b));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_greatest_common_divisor_int64(a: number, b: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_greatest_common_divisor_int64`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('a', String(a));
-    // Primitive parameter
-    url.searchParams.append('b', String(b));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_group_id_next(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_group_id_next`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_guint64_to_gdouble(value_: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_guint64_to_gdouble`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('value', String(value_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_seqnum_compare(s1: number, s2: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_seqnum_compare`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('s1', String(s1));
-    // Primitive parameter
-    url.searchParams.append('s2', String(s2));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_seqnum_next(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_seqnum_next`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_set_object_arg(object: GObjectObject, name: string, value_: string): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_set_object_arg`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (object && typeof object === 'object' && 'ptr' in object) {
-      url.searchParams.append('object', 'ptr,' + object.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('name', String(name));
-    // Primitive parameter
-    url.searchParams.append('value', String(value_));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_set_object_array(object: GObjectObject, name: string, array: GObjectValueArray): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_set_object_array`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (object && typeof object === 'object' && 'ptr' in object) {
-      url.searchParams.append('object', 'ptr,' + object.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('name', String(name));
-    // Object with explode=false: serialize as comma-separated
-    if (array && typeof array === 'object' && 'ptr' in array) {
-      url.searchParams.append('array', 'ptr,' + array.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_set_value_from_string(value_: GObjectValue, value_str: string): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_set_value_from_string`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('value_str', String(value_str));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_simplify_fraction(numerator: number, denominator: number, n_terms: number, threshold: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_simplify_fraction`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('numerator', String(numerator));
-    // Primitive parameter
-    url.searchParams.append('denominator', String(denominator));
-    // Primitive parameter
-    url.searchParams.append('n_terms', String(n_terms));
-    // Primitive parameter
-    url.searchParams.append('threshold', String(threshold));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_uint64_scale(val: number, num: number, denom: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('val', String(val));
-    // Primitive parameter
-    url.searchParams.append('num', String(num));
-    // Primitive parameter
-    url.searchParams.append('denom', String(denom));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_uint64_scale_ceil(val: number, num: number, denom: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale_ceil`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('val', String(val));
-    // Primitive parameter
-    url.searchParams.append('num', String(num));
-    // Primitive parameter
-    url.searchParams.append('denom', String(denom));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_uint64_scale_int(val: number, num: number, denom: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale_int`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('val', String(val));
-    // Primitive parameter
-    url.searchParams.append('num', String(num));
-    // Primitive parameter
-    url.searchParams.append('denom', String(denom));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_uint64_scale_int_ceil(val: number, num: number, denom: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale_int_ceil`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('val', String(val));
-    // Primitive parameter
-    url.searchParams.append('num', String(num));
-    // Primitive parameter
-    url.searchParams.append('denom', String(denom));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_uint64_scale_int_round(val: number, num: number, denom: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale_int_round`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('val', String(val));
-    // Primitive parameter
-    url.searchParams.append('num', String(num));
-    // Primitive parameter
-    url.searchParams.append('denom', String(denom));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function util_uint64_scale_round(val: number, num: number, denom: number): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/util_uint64_scale_round`, apiConfig.baseUrl);
-    // Primitive parameter
-    url.searchParams.append('val', String(val));
-    // Primitive parameter
-    url.searchParams.append('num', String(num));
-    // Primitive parameter
-    url.searchParams.append('denom', String(denom));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_can_compare(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_can_compare`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
-      url.searchParams.append('value1', 'ptr,' + value1.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
-      url.searchParams.append('value2', 'ptr,' + value2.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_can_intersect(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_can_intersect`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
-      url.searchParams.append('value1', 'ptr,' + value1.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
-      url.searchParams.append('value2', 'ptr,' + value2.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_can_subtract(minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_can_subtract`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (minuend && typeof minuend === 'object' && 'ptr' in minuend) {
-      url.searchParams.append('minuend', 'ptr,' + minuend.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (subtrahend && typeof subtrahend === 'object' && 'ptr' in subtrahend) {
-      url.searchParams.append('subtrahend', 'ptr,' + subtrahend.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_can_union(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_can_union`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
-      url.searchParams.append('value1', 'ptr,' + value1.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
-      url.searchParams.append('value2', 'ptr,' + value2.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_compare(value1: GObjectValue, value2: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_compare`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
-      url.searchParams.append('value1', 'ptr,' + value1.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
-      url.searchParams.append('value2', 'ptr,' + value2.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_deserialize(dest: GObjectValue, src: string): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_deserialize`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('src', String(src));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_deserialize_with_pspec(dest: GObjectValue, src: string, pspec?: GObjectParamSpec): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_deserialize_with_pspec`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('src', String(src));
-    // Object with explode=false: serialize as comma-separated
-    if (pspec !== undefined && typeof pspec === 'object' && 'ptr' in pspec) {
-      url.searchParams.append('pspec', 'ptr,' + pspec.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_fixate(dest: GObjectValue, src: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_fixate`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (src && typeof src === 'object' && 'ptr' in src) {
-      url.searchParams.append('src', 'ptr,' + src.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_fraction_multiply(product: GObjectValue, factor1: GObjectValue, factor2: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_fraction_multiply`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (product && typeof product === 'object' && 'ptr' in product) {
-      url.searchParams.append('product', 'ptr,' + product.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (factor1 && typeof factor1 === 'object' && 'ptr' in factor1) {
-      url.searchParams.append('factor1', 'ptr,' + factor1.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (factor2 && typeof factor2 === 'object' && 'ptr' in factor2) {
-      url.searchParams.append('factor2', 'ptr,' + factor2.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_fraction_subtract(dest: GObjectValue, minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_fraction_subtract`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (minuend && typeof minuend === 'object' && 'ptr' in minuend) {
-      url.searchParams.append('minuend', 'ptr,' + minuend.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (subtrahend && typeof subtrahend === 'object' && 'ptr' in subtrahend) {
-      url.searchParams.append('subtrahend', 'ptr,' + subtrahend.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_bitmask(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_bitmask`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_caps(value_: GObjectValue): Promise<GstCaps> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_caps`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstCaps(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_caps_features(value_: GObjectValue): Promise<GstCapsFeatures> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_caps_features`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstCapsFeatures(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_double_range_max(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_double_range_max`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_double_range_min(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_double_range_min`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_flagset_flags(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_flagset_flags`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_flagset_mask(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_flagset_mask`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_fraction_denominator(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_fraction_denominator`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_fraction_numerator(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_fraction_numerator`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_fraction_range_max(value_: GObjectValue): Promise<GObjectValue> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_fraction_range_max`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GObjectValue(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_fraction_range_min(value_: GObjectValue): Promise<GObjectValue> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_fraction_range_min`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GObjectValue(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_int64_range_max(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int64_range_max`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_int64_range_min(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int64_range_min`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_int64_range_step(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int64_range_step`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_int_range_max(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int_range_max`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_int_range_min(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int_range_min`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_int_range_step(value_: GObjectValue): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_int_range_step`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_get_structure(value_: GObjectValue): Promise<GstStructure> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_get_structure`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    // Return value is a struct, instantiate it from the ptr
-if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
-  const instance = new GstStructure(data.return.ptr, 'none');
-  return instance;
-}
-return Promise.reject("Call failed");
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_init_and_copy(dest: GObjectValue, src: GObjectValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_init_and_copy`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (src && typeof src === 'object' && 'ptr' in src) {
-      url.searchParams.append('src', 'ptr,' + src.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_intersect(dest: GObjectValue, value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_intersect`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
-      url.searchParams.append('value1', 'ptr,' + value1.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
-      url.searchParams.append('value2', 'ptr,' + value2.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_is_fixed(value_: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_is_fixed`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_is_subset(value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_is_subset`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
-      url.searchParams.append('value1', 'ptr,' + value1.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
-      url.searchParams.append('value2', 'ptr,' + value2.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_register(table: GstValueTable): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_register`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (table && typeof table === 'object' && 'ptr' in table) {
-      url.searchParams.append('table', 'ptr,' + table.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_serialize(value_: GObjectValue): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_serialize`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_bitmask(value_: GObjectValue, bitmask: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_bitmask`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('bitmask', String(bitmask));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_caps(value_: GObjectValue, caps: GstCaps): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_caps`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (caps && typeof caps === 'object' && 'ptr' in caps) {
-      url.searchParams.append('caps', 'ptr,' + caps.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_caps_features(value_: GObjectValue, features: GstCapsFeatures): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_caps_features`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (features && typeof features === 'object' && 'ptr' in features) {
-      url.searchParams.append('features', 'ptr,' + features.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_double_range(value_: GObjectValue, start: number, end: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_double_range`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('start', String(start));
-    // Primitive parameter
-    url.searchParams.append('end', String(end));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_flagset(value_: GObjectValue, flags: number, mask: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_flagset`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('flags', String(flags));
-    // Primitive parameter
-    url.searchParams.append('mask', String(mask));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_fraction(value_: GObjectValue, numerator: number, denominator: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_fraction`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('numerator', String(numerator));
-    // Primitive parameter
-    url.searchParams.append('denominator', String(denominator));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_fraction_range(value_: GObjectValue, start: GObjectValue, end: GObjectValue): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_fraction_range`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (start && typeof start === 'object' && 'ptr' in start) {
-      url.searchParams.append('start', 'ptr,' + start.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (end && typeof end === 'object' && 'ptr' in end) {
-      url.searchParams.append('end', 'ptr,' + end.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_fraction_range_full(value_: GObjectValue, numerator_start: number, denominator_start: number, numerator_end: number, denominator_end: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_fraction_range_full`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('numerator_start', String(numerator_start));
-    // Primitive parameter
-    url.searchParams.append('denominator_start', String(denominator_start));
-    // Primitive parameter
-    url.searchParams.append('numerator_end', String(numerator_end));
-    // Primitive parameter
-    url.searchParams.append('denominator_end', String(denominator_end));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_int64_range(value_: GObjectValue, start: number, end: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_int64_range`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('start', String(start));
-    // Primitive parameter
-    url.searchParams.append('end', String(end));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_int64_range_step(value_: GObjectValue, start: number, end: number, step: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_int64_range_step`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('start', String(start));
-    // Primitive parameter
-    url.searchParams.append('end', String(end));
-    // Primitive parameter
-    url.searchParams.append('step', String(step));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_int_range(value_: GObjectValue, start: number, end: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_int_range`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('start', String(start));
-    // Primitive parameter
-    url.searchParams.append('end', String(end));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_int_range_step(value_: GObjectValue, start: number, end: number, step: number): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_int_range_step`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Primitive parameter
-    url.searchParams.append('start', String(start));
-    // Primitive parameter
-    url.searchParams.append('end', String(end));
-    // Primitive parameter
-    url.searchParams.append('step', String(step));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_set_structure(value_: GObjectValue, structure: GstStructure): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_set_structure`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (value_ && typeof value_ === 'object' && 'ptr' in value_) {
-      url.searchParams.append('value', 'ptr,' + value_.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (structure && typeof structure === 'object' && 'ptr' in structure) {
-      url.searchParams.append('structure', 'ptr,' + structure.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_subtract(dest: GObjectValue, minuend: GObjectValue, subtrahend: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_subtract`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (minuend && typeof minuend === 'object' && 'ptr' in minuend) {
-      url.searchParams.append('minuend', 'ptr,' + minuend.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (subtrahend && typeof subtrahend === 'object' && 'ptr' in subtrahend) {
-      url.searchParams.append('subtrahend', 'ptr,' + subtrahend.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function value_union(dest: GObjectValue, value1: GObjectValue, value2: GObjectValue): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/value_union`, apiConfig.baseUrl);
-    // Object with explode=false: serialize as comma-separated
-    if (dest && typeof dest === 'object' && 'ptr' in dest) {
-      url.searchParams.append('dest', 'ptr,' + dest.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (value1 && typeof value1 === 'object' && 'ptr' in value1) {
-      url.searchParams.append('value1', 'ptr,' + value1.ptr);
-    }
-    // Object with explode=false: serialize as comma-separated
-    if (value2 && typeof value2 === 'object' && 'ptr' in value2) {
-      url.searchParams.append('value2', 'ptr,' + value2.ptr);
-    }
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function version(): Promise<{major: number, minor: number, micro: number, nano: number}> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/version`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-        const result: any = {};
-      // Handle return parameter: major
-      result.major = (() => {
-        return data.major;
-
-      })();
-      // Handle return parameter: minor
-      result.minor = (() => {
-        return data.minor;
-
-      })();
-      // Handle return parameter: micro
-      result.micro = (() => {
-        return data.micro;
-
-      })();
-      // Handle return parameter: nano
-      result.nano = (() => {
-        return data.nano;
 
-      })();
-      return result;
 
     } catch (error) {
       // If there's an error, unref the objects we ref'd
@@ -112131,9 +112155,9 @@ return Promise.reject("Call failed");
 
 
  
-  export async function version_string(): Promise<string> {
+  export async function module_supported(): Promise<boolean> {
     // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/Gst/version_string`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_supported`, apiConfig.baseUrl);
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
@@ -112189,7 +112213,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function aligned_alloc(n_blocks: number, n_block_bytes: number, alignment: number): Promise<Pointer> {
+  export async function aligned_alloc(n_blocks: number, n_block_bytes: number, alignment: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/aligned_alloc`, apiConfig.baseUrl);
     // Primitive parameter
@@ -112221,7 +112245,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function aligned_alloc0(n_blocks: number, n_block_bytes: number, alignment: number): Promise<Pointer> {
+  export async function aligned_alloc0(n_blocks: number, n_block_bytes: number, alignment: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/aligned_alloc0`, apiConfig.baseUrl);
     // Primitive parameter
@@ -113556,7 +113580,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function atomic_pointer_exchange(atomic?: Pointer, newval?: Pointer): Promise<Pointer> {
+  export async function atomic_pointer_exchange(atomic?: Pointer, newval?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_exchange`, apiConfig.baseUrl);
     // Primitive parameter
@@ -113586,7 +113610,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function atomic_pointer_get(atomic: Pointer): Promise<Pointer> {
+  export async function atomic_pointer_get(atomic: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/atomic_pointer_get`, apiConfig.baseUrl);
     // Primitive parameter
@@ -115082,7 +115106,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function check_version(required_major: number, required_minor: number, required_micro: number): Promise<string> {
+  export async function check_version(required_major: number, required_minor: number, required_micro: number): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/check_version`, apiConfig.baseUrl);
     // Primitive parameter
@@ -115329,7 +115353,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function compute_checksum_for_bytes(checksum_type: GLibChecksumType, data_: GLibBytes): Promise<string> {
+  export async function compute_checksum_for_bytes(checksum_type: GLibChecksumType, data_: GLibBytes): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/compute_checksum_for_bytes`, apiConfig.baseUrl);
     // Primitive parameter
@@ -115361,7 +115385,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function compute_checksum_for_data(checksum_type: GLibChecksumType, data_: Pointer, length: number): Promise<string> {
+  export async function compute_checksum_for_data(checksum_type: GLibChecksumType, data_: Pointer, length: number): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/compute_checksum_for_data`, apiConfig.baseUrl);
     // Primitive parameter
@@ -115393,7 +115417,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function compute_checksum_for_string(checksum_type: GLibChecksumType, str: string, length: number): Promise<string> {
+  export async function compute_checksum_for_string(checksum_type: GLibChecksumType, str: string, length: number): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/compute_checksum_for_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -115726,7 +115750,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function datalist_get_data(datalist: GLibData, key: string): Promise<Pointer> {
+  export async function datalist_get_data(datalist: GLibData, key: string): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/datalist_get_data`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -115788,7 +115812,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function datalist_id_get_data(datalist: GLibData, key_id: number): Promise<Pointer> {
+  export async function datalist_id_get_data(datalist: GLibData, key_id: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/datalist_id_get_data`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -115965,7 +115989,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function dataset_id_get_data(dataset_location: Pointer, key_id: number): Promise<Pointer> {
+  export async function dataset_id_get_data(dataset_location: Pointer, key_id: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/dataset_id_get_data`, apiConfig.baseUrl);
     // Primitive parameter
@@ -116621,7 +116645,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function environ_getenv(variable: Pointer, envp?: Pointer): Promise<Pointer> {
+  export async function environ_getenv(variable: Pointer, envp?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/environ_getenv`, apiConfig.baseUrl);
     // Primitive parameter
@@ -117356,7 +117380,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function find_program_in_path(program: Pointer): Promise<Pointer> {
+  export async function find_program_in_path(program: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/find_program_in_path`, apiConfig.baseUrl);
     // Primitive parameter
@@ -117384,7 +117408,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function fopen(filename: Pointer, mode: string): Promise<Pointer> {
+  export async function fopen(filename: Pointer, mode: string): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/fopen`, apiConfig.baseUrl);
     // Primitive parameter
@@ -117550,7 +117574,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function freopen(filename: Pointer, mode: string, stream?: Pointer): Promise<Pointer> {
+  export async function freopen(filename: Pointer, mode: string, stream?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/freopen`, apiConfig.baseUrl);
     // Primitive parameter
@@ -117610,7 +117634,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function get_application_name(): Promise<string> {
+  export async function get_application_name(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/get_application_name`, apiConfig.baseUrl);
     try {
@@ -118034,7 +118058,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function get_os_info(key_name: string): Promise<string> {
+  export async function get_os_info(key_name: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/get_os_info`, apiConfig.baseUrl);
     // Primitive parameter
@@ -118062,7 +118086,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function get_prgname(): Promise<string> {
+  export async function get_prgname(): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/get_prgname`, apiConfig.baseUrl);
     try {
@@ -118348,7 +118372,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function get_user_special_dir(directory: GLibUserDirectory): Promise<Pointer> {
+  export async function get_user_special_dir(directory: GLibUserDirectory): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/get_user_special_dir`, apiConfig.baseUrl);
     // Primitive parameter
@@ -118402,7 +118426,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function getenv(variable: Pointer): Promise<Pointer> {
+  export async function getenv(variable: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/getenv`, apiConfig.baseUrl);
     // Primitive parameter
@@ -118514,7 +118538,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function hash_table_find(hash_table: Pointer, predicate: GLibHRFunc): Promise<{predicate: number, return: Pointer}> {
+  export async function hash_table_find(hash_table: Pointer, predicate: GLibHRFunc): Promise<{predicate: number, return: Pointer | null}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_find`, apiConfig.baseUrl);
     // Primitive parameter
@@ -118716,7 +118740,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function hash_table_lookup(hash_table: Pointer, key?: Pointer): Promise<Pointer> {
+  export async function hash_table_lookup(hash_table: Pointer, key?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hash_table_lookup`, apiConfig.baseUrl);
     // Primitive parameter
@@ -119395,7 +119419,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function hostname_to_ascii(hostname: string): Promise<string> {
+  export async function hostname_to_ascii(hostname: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hostname_to_ascii`, apiConfig.baseUrl);
     // Primitive parameter
@@ -119423,7 +119447,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function hostname_to_unicode(hostname: string): Promise<string> {
+  export async function hostname_to_unicode(hostname: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/hostname_to_unicode`, apiConfig.baseUrl);
     // Primitive parameter
@@ -120714,7 +120738,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function main_context_get_thread_default(): Promise<GLibMainContext> {
+  export async function main_context_get_thread_default(): Promise<GLibMainContext | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/main_context_get_thread_default`, apiConfig.baseUrl);
     try {
@@ -120774,7 +120798,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function main_current_source(): Promise<GLibSource> {
+  export async function main_current_source(): Promise<GLibSource | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/main_current_source`, apiConfig.baseUrl);
     try {
@@ -120830,7 +120854,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function malloc(n_bytes: number): Promise<Pointer> {
+  export async function malloc(n_bytes: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/malloc`, apiConfig.baseUrl);
     // Primitive parameter
@@ -120858,7 +120882,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function malloc0(n_bytes: number): Promise<Pointer> {
+  export async function malloc0(n_bytes: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/malloc0`, apiConfig.baseUrl);
     // Primitive parameter
@@ -120886,7 +120910,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function malloc0_n(n_blocks: number, n_block_bytes: number): Promise<Pointer> {
+  export async function malloc0_n(n_blocks: number, n_block_bytes: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/malloc0_n`, apiConfig.baseUrl);
     // Primitive parameter
@@ -120916,7 +120940,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function malloc_n(n_blocks: number, n_block_bytes: number): Promise<Pointer> {
+  export async function malloc_n(n_blocks: number, n_block_bytes: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/malloc_n`, apiConfig.baseUrl);
     // Primitive parameter
@@ -121098,7 +121122,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function memdup(byte_size: number, mem?: Pointer): Promise<Pointer> {
+  export async function memdup(byte_size: number, mem?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/memdup`, apiConfig.baseUrl);
     // Primitive parameter
@@ -121128,7 +121152,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function memdup2(byte_size: number, mem?: Pointer): Promise<Pointer> {
+  export async function memdup2(byte_size: number, mem?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/memdup2`, apiConfig.baseUrl);
     // Primitive parameter
@@ -121718,7 +121742,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function path_skip_root(file_name: Pointer): Promise<Pointer> {
+  export async function path_skip_root(file_name: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/path_skip_root`, apiConfig.baseUrl);
     // Primitive parameter
@@ -121832,7 +121856,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function pointer_bit_lock_mask_ptr(lock_bit: number, set: boolean, preserve_mask: number, ptr?: Pointer, preserve_ptr?: Pointer): Promise<Pointer> {
+  export async function pointer_bit_lock_mask_ptr(lock_bit: number, set: boolean, preserve_mask: number, ptr?: Pointer, preserve_ptr?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/pointer_bit_lock_mask_ptr`, apiConfig.baseUrl);
     // Primitive parameter
@@ -122534,7 +122558,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function realloc(n_bytes: number, mem?: Pointer): Promise<Pointer> {
+  export async function realloc(n_bytes: number, mem?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/realloc`, apiConfig.baseUrl);
     // Primitive parameter
@@ -122564,7 +122588,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function realloc_n(n_blocks: number, n_block_bytes: number, mem?: Pointer): Promise<Pointer> {
+  export async function realloc_n(n_blocks: number, n_block_bytes: number, mem?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/realloc_n`, apiConfig.baseUrl);
     // Primitive parameter
@@ -123209,7 +123233,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function sequence_get(iter: GLibSequenceIter): Promise<Pointer> {
+  export async function sequence_get(iter: GLibSequenceIter): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/sequence_get`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -123802,7 +123826,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function slice_alloc(block_size: number): Promise<Pointer> {
+  export async function slice_alloc(block_size: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/slice_alloc`, apiConfig.baseUrl);
     // Primitive parameter
@@ -123830,7 +123854,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function slice_alloc0(block_size: number): Promise<Pointer> {
+  export async function slice_alloc0(block_size: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/slice_alloc0`, apiConfig.baseUrl);
     // Primitive parameter
@@ -123858,7 +123882,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function slice_copy(block_size: number, mem_block?: Pointer): Promise<Pointer> {
+  export async function slice_copy(block_size: number, mem_block?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/slice_copy`, apiConfig.baseUrl);
     // Primitive parameter
@@ -125338,7 +125362,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function strdupv(str_array?: Pointer): Promise<Pointer> {
+  export async function strdupv(str_array?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/strdupv`, apiConfig.baseUrl);
     // Primitive parameter
@@ -125604,7 +125628,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function strndup(n: number, str?: string): Promise<string> {
+  export async function strndup(n: number, str?: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/strndup`, apiConfig.baseUrl);
     // Primitive parameter
@@ -127490,7 +127514,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function trash_stack_peek(stack_p: GLibTrashStack): Promise<Pointer> {
+  export async function trash_stack_peek(stack_p: GLibTrashStack): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/trash_stack_peek`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -127520,7 +127544,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function trash_stack_pop(stack_p: GLibTrashStack): Promise<Pointer> {
+  export async function trash_stack_pop(stack_p: GLibTrashStack): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/trash_stack_pop`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated
@@ -127578,7 +127602,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function try_malloc(n_bytes: number): Promise<Pointer> {
+  export async function try_malloc(n_bytes: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_malloc`, apiConfig.baseUrl);
     // Primitive parameter
@@ -127606,7 +127630,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function try_malloc0(n_bytes: number): Promise<Pointer> {
+  export async function try_malloc0(n_bytes: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_malloc0`, apiConfig.baseUrl);
     // Primitive parameter
@@ -127634,7 +127658,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function try_malloc0_n(n_blocks: number, n_block_bytes: number): Promise<Pointer> {
+  export async function try_malloc0_n(n_blocks: number, n_block_bytes: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_malloc0_n`, apiConfig.baseUrl);
     // Primitive parameter
@@ -127664,7 +127688,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function try_malloc_n(n_blocks: number, n_block_bytes: number): Promise<Pointer> {
+  export async function try_malloc_n(n_blocks: number, n_block_bytes: number): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_malloc_n`, apiConfig.baseUrl);
     // Primitive parameter
@@ -127694,7 +127718,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function try_realloc(n_bytes: number, mem?: Pointer): Promise<Pointer> {
+  export async function try_realloc(n_bytes: number, mem?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_realloc`, apiConfig.baseUrl);
     // Primitive parameter
@@ -127724,7 +127748,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function try_realloc_n(n_blocks: number, n_block_bytes: number, mem?: Pointer): Promise<Pointer> {
+  export async function try_realloc_n(n_blocks: number, n_block_bytes: number, mem?: Pointer): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/try_realloc_n`, apiConfig.baseUrl);
     // Primitive parameter
@@ -129024,7 +129048,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function unix_get_passwd_entry(user_name: string): Promise<Pointer> {
+  export async function unix_get_passwd_entry(user_name: string): Promise<Pointer | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/unix_get_passwd_entry`, apiConfig.baseUrl);
     // Primitive parameter
@@ -129643,7 +129667,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function uri_parse_scheme(uri: string): Promise<string> {
+  export async function uri_parse_scheme(uri: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/uri_parse_scheme`, apiConfig.baseUrl);
     // Primitive parameter
@@ -129671,7 +129695,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function uri_peek_scheme(uri: string): Promise<string> {
+  export async function uri_peek_scheme(uri: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/uri_peek_scheme`, apiConfig.baseUrl);
     // Primitive parameter
@@ -129967,7 +129991,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function uri_unescape_segment(escaped_string?: string, escaped_string_end?: string, illegal_characters?: string): Promise<string> {
+  export async function uri_unescape_segment(escaped_string?: string, escaped_string_end?: string, illegal_characters?: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/uri_unescape_segment`, apiConfig.baseUrl);
     // Primitive parameter
@@ -129999,7 +130023,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function uri_unescape_string(escaped_string: string, illegal_characters?: string): Promise<string> {
+  export async function uri_unescape_string(escaped_string: string, illegal_characters?: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/uri_unescape_string`, apiConfig.baseUrl);
     // Primitive parameter
@@ -130263,7 +130287,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function utf8_find_next_char(p: string, end?: string): Promise<string> {
+  export async function utf8_find_next_char(p: string, end?: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/utf8_find_next_char`, apiConfig.baseUrl);
     // Primitive parameter
@@ -130293,7 +130317,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function utf8_find_prev_char(str: string, p: string): Promise<string> {
+  export async function utf8_find_prev_char(str: string, p: string): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/utf8_find_prev_char`, apiConfig.baseUrl);
     // Primitive parameter
@@ -130411,7 +130435,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function utf8_normalize(str: string, len: number, mode: GLibNormalizeModeValue): Promise<string> {
+  export async function utf8_normalize(str: string, len: number, mode: GLibNormalizeModeValue): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/utf8_normalize`, apiConfig.baseUrl);
     // Primitive parameter
@@ -130531,7 +130555,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function utf8_strchr(p: string, len: number, c: Pointer): Promise<string> {
+  export async function utf8_strchr(p: string, len: number, c: Pointer): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/utf8_strchr`, apiConfig.baseUrl);
     // Primitive parameter
@@ -130655,7 +130679,7 @@ return Promise.reject("Call failed");
 
 
  
-  export async function utf8_strrchr(p: string, len: number, c: Pointer): Promise<string> {
+  export async function utf8_strrchr(p: string, len: number, c: Pointer): Promise<string | null> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GLib/utf8_strrchr`, apiConfig.baseUrl);
     // Primitive parameter
@@ -131422,30 +131446,6 @@ return Promise.reject("Call failed");
       })();
       return result;
 
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-}
-  export namespace GIRest {
-  
-
-
-
-
-
- 
-  export async function callbacks(): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GIRest/callbacks`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
     } catch (error) {
       // If there's an error, unref the objects we ref'd
       throw error;

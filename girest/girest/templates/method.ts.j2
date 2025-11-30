@@ -27,11 +27,19 @@
 {% set method_return_signature = 'void' %}
 {% if method.return_obj.return_params %}
   {% if method.return_obj.return_params|length == 1 %}
-    {% set method_return_signature = method.return_obj.return_params[0].type.lang_type %}
+    {% set return_param = method.return_obj.return_params[0] %}
+    {% set method_return_signature = return_param.type.lang_type %}
+    {% if return_param.can_be_null %}
+      {% set method_return_signature = method_return_signature + " | null" %}
+    {% endif %}
   {% else %}
     {% set return_type_parts = [] %}
     {% for return_param in method.return_obj.return_params %}
-      {% set _ = return_type_parts.append(return_param.name + ": " + return_param.type.lang_type) %}
+      {% set type_str = return_param.type.lang_type %}
+      {% if return_param.can_be_null %}
+        {% set type_str = type_str + " | null" %}
+      {% endif %}
+      {% set _ = return_type_parts.append(return_param.name + ": " + type_str) %}
     {% endfor %}
     {% set method_return_signature = "{" + return_type_parts | join(", ") + "}" %}
   {% endif %}
