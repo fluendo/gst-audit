@@ -1,185 +1,154 @@
-import React, { memo, useState, useEffect } from 'react';
-import { Handle, Position, NodeProps, useUpdateNodeInternals } from '@xyflow/react';
-import { GstElement, GstPad, GObjectValue, GObjectObject, GstPadDirectionValue, GstPadDirection } from '@/lib/gst';
+import React, { memo, useEffect, useState, useCallback } from 'react';
+import { NodeProps, useUpdateNodeInternals } from '@xyflow/react';
+import { GstElement, GstPad } from '@/lib/gst';
+import { usePads, useSinkSrcPads } from '@/hooks';
+import PadHandle from './PadHandle';
+import type { PadConnectionInfo } from './types';
+import { getTheme } from '@/lib/theme';
 
 interface ElementNodeData {
-  label: string;
   element: GstElement;
-}
-
-interface PadInfo {
-  id: string,
-  name: string;
-  direction: GstPadDirectionValue;
+  onPadAdded?: (elementId: string, element: GstElement, pad: GstPad) => void;
+  onPadRemoved?: (elementId: string, element: GstElement, pad: GstPad) => void;
+  onConnectionAdded?: (connection: PadConnectionInfo) => void;
+  onConnectionRemoved?: (connection: PadConnectionInfo) => void;
 }
 
 const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
   const nodeData = data as unknown as ElementNodeData;
-  const [pads, setPads] = useState<PadInfo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const updateNodeInternals = useUpdateNodeInternals();
-
+  const [elementName, setElementName] = useState<string>('');
+  const [factoryName, setFactoryName] = useState<string>('');
+  
+  // Get local accumulation handlers
+  const { sinkPads, srcPads, handlePadAdded, handlePadRemoved } = useSinkSrcPads();
+  
+  // Wrapper that accumulates locally AND forwards to parent
+  const onPadAdded = useCallback(async (elementId: string, element: GstElement, pad: GstPad) => {
+    await handlePadAdded(elementId, element, pad);
+    nodeData.onPadAdded?.(elementId, element, pad);
+  }, [handlePadAdded, nodeData.onPadAdded]);
+  
+  const onPadRemoved = useCallback((elementId: string, element: GstElement, pad: GstPad) => {
+    handlePadRemoved(elementId, element, pad);
+    nodeData.onPadRemoved?.(elementId, element, pad);
+  }, [handlePadRemoved, nodeData.onPadRemoved]);
+  
+  // Use pad discovery hook with wrapped callbacks
+  const { padtemplates, loading, error } = usePads(
+    nodeData.element,
+    onPadAdded,
+    onPadRemoved
+  );
+  
+  // Get element name and factory name
   useEffect(() => {
-    const fetchPads = async () => {
+    const fetchElementInfo = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        const name = await nodeData.element.get_name();
+        setElementName(name);
         
-        const padList: PadInfo[] = [];
-        
-        // Get all pads from the element
-        const iterator = await nodeData.element.iterate_pads();
-        
-        for await (const obj of iterator) {
-          try {
-            const pad: GstPad = await obj.castTo(GstPad);
-            const name = await pad.get_name();
-            const id = `${await nodeData.element.get_name()}-${name}`;
-            const direction = await pad.get_direction();
-            
-            padList.push({
-              id,
-              name,
-              direction
-            });
-          } catch (err) {
-            console.error('Error processing pad:', err);
-          }
-        }
-        
-        setPads(padList);
-        
-        // Notify React Flow that handles have been updated
-        updateNodeInternals(id);
+        const factory = await nodeData.element.get_factory();
+        const factoryNameStr = await factory.get_name();
+        setFactoryName(factoryNameStr);
       } catch (err) {
-        console.error('Error fetching pads:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
+        console.error('Error getting element info:', err);
+        setElementName('Unknown');
+        setFactoryName('Unknown');
       }
     };
-
-    fetchPads();
-  }, [nodeData.element, id, updateNodeInternals]);
-
-  // Separate pads by direction
-  const sinkPads = pads.filter(pad => pad.direction === GstPadDirection.SINK);
-  const srcPads = pads.filter(pad => pad.direction === GstPadDirection.SRC);
+    fetchElementInfo();
+  }, [nodeData.element]);
+  
+  // Update React Flow internals when pads are loaded
+  useEffect(() => {
+    if (!loading && !error) {
+      updateNodeInternals(id);
+    }
+  }, [sinkPads, srcPads, loading, error, updateNodeInternals, id]);
 
   if (loading) {
     return (
-      <div className="bg-white border-2 border-gray-300 rounded-lg px-4 py-2 shadow-sm min-w-[120px]">
-        <div className="text-sm font-medium text-gray-800">{nodeData.label}</div>
-        <div className="text-xs text-gray-500">Loading pads...</div>
+      <div className="gst-audit-element-node gst-audit-element-node--loading">
+        <div className="gst-audit-element-node__header">
+          <div className="gst-audit-element-node__name">{elementName}</div>
+          <div className="gst-audit-element-node__factory">{factoryName || 'Loading...'}</div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border-2 border-red-300 rounded-lg px-4 py-2 shadow-sm min-w-[120px]">
-        <div className="text-sm font-medium text-red-800">{nodeData.label}</div>
-        <div className="text-xs text-red-600">Error: {error}</div>
+      <div className="gst-audit-element-node gst-audit-element-node--error">
+        <div className="gst-audit-element-node__header">
+          <div className="gst-audit-element-node__name">{elementName}</div>
+          <div className="gst-audit-element-node__factory">Error: {error}</div>
+        </div>
       </div>
     );
   }
 
-  const nodeHeight = Math.max(60, Math.max(sinkPads.length, srcPads.length) * 20 + 40);
+  // Calculate node height based on pad counts
+  // Ghost pads need more space (50px) vs regular pads (32px)
+  const theme = getTheme();
+  const nodeHeight = Math.max(
+    theme.node.elementMinHeight, 
+    Math.max(sinkPads.length, srcPads.length) * theme.pad.spacing + theme.node.headerHeight
+  );
+  const containerDimensions = {
+    width: theme.node.elementWidth,
+    height: nodeHeight,
+    headerHeight: theme.node.headerHeight
+  };
+
+  // Determine element class based on pad types
+  const hasSink = sinkPads.length > 0;
+  const hasSrc = srcPads.length > 0;
+  let padTypeClass = '';
+  if (hasSink && hasSrc) {
+    padTypeClass = 'gst-audit-element-node--both-pads';
+  } else if (hasSink) {
+    padTypeClass = 'gst-audit-element-node--sink-only';
+  } else if (hasSrc) {
+    padTypeClass = 'gst-audit-element-node--src-only';
+  }
 
   return (
     <div 
-      className="bg-white border-2 border-blue-300 rounded-lg px-4 py-2 shadow-sm min-w-[120px] relative"
-      style={{ height: nodeHeight }}
+      className={`gst-audit-element-node ${padTypeClass}`}
+      style={{ height: nodeHeight, position: 'relative' }}
     >
-      {/* Element name */}
-      <div className="text-sm font-medium text-gray-800 mb-1">{nodeData.label}</div>
-      <div className="text-xs text-gray-500">{pads.length} pad(s)</div>
+      <div className="gst-audit-element-node__header">
+        <div className="gst-audit-element-node__name">{elementName}</div>
+        <div className="gst-audit-element-node__factory">{factoryName}</div>
+      </div>
       
-      {/* Sink pads (inputs) on the left */}
-      {sinkPads.map((pad, index) => {
-        const headerHeight = 40; // Space for element name and info
-        const availableHeight = nodeHeight - headerHeight - 10; // Available space for pads
-        
-        let padPosition;
-        if (sinkPads.length === 1) {
-          // Center single pad
-          padPosition = headerHeight + availableHeight / 2;
-        } else {
-          // For multiple pads, distribute evenly: 1/(n+1), 2/(n+1), 3/(n+1), etc.
-          padPosition = headerHeight + ((index + 1) * availableHeight / (sinkPads.length + 1));
-        }
-        
-        return (
-          <React.Fragment key={`sink-${pad.name}`}>
-            <Handle
-              type="target"
-              position={Position.Left}
-              id={pad.id}
-              style={{
-                top: padPosition,
-                backgroundColor: '#ef4444',
-                width: 8,
-                height: 8,
-                border: '1px solid #dc2626'
-              }}
-            />
-            <div 
-              className="absolute text-xs text-gray-600"
-              style={{
-                left: 12,
-                top: padPosition - 4, // Center text with handle
-                fontSize: '10px'
-              }}
-            >
-              {pad.name}
-            </div>
-          </React.Fragment>
-        );
-      })}
+      {/* Render sink pads using PadHandle component */}
+      {sinkPads.map((pad, index) => (
+        <PadHandle
+          key={`sink-${pad.ptr}`}
+          pad={pad}
+          index={index}
+          count={sinkPads.length}
+          containerDimensions={containerDimensions}
+          onConnectionAdded={nodeData.onConnectionAdded}
+          onConnectionRemoved={nodeData.onConnectionRemoved}
+        />
+      ))}
       
-      {/* Source pads (outputs) on the right */}
-      {srcPads.map((pad, index) => {
-        const headerHeight = 40; // Space for element name and info
-        const availableHeight = nodeHeight - headerHeight - 10; // Available space for pads
-        
-        let padPosition;
-        if (srcPads.length === 1) {
-          // Center single pad
-          padPosition = headerHeight + availableHeight / 2;
-        } else {
-          // For multiple pads, distribute evenly: 1/(n+1), 2/(n+1), 3/(n+1), etc.
-          padPosition = headerHeight + ((index + 1) * availableHeight / (srcPads.length + 1));
-        }
-        
-        return (
-          <React.Fragment key={`src-${pad.name}`}>
-            <Handle
-              type="source"
-              position={Position.Right}
-              id={pad.id}
-              style={{
-                top: padPosition,
-                backgroundColor: '#22c55e',
-                width: 8,
-                height: 8,
-                border: '1px solid #16a34a'
-              }}
-            />
-            <div 
-              className="absolute text-xs text-gray-600"
-              style={{
-                right: 12,
-                top: padPosition - 4, // Center text with handle
-                fontSize: '10px',
-                textAlign: 'right'
-              }}
-            >
-              {pad.name}
-            </div>
-          </React.Fragment>
-        );
-      })}
+      {/* Render source pads using PadHandle component */}
+      {srcPads.map((pad, index) => (
+        <PadHandle
+          key={`src-${pad.ptr}`}
+          pad={pad}
+          index={index}
+          count={srcPads.length}
+          containerDimensions={containerDimensions}
+          onConnectionAdded={nodeData.onConnectionAdded}
+          onConnectionRemoved={nodeData.onConnectionRemoved}
+        />
+      ))}
     </div>
   );
 };

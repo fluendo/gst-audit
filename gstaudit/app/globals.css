@@ -29,8 +29,15 @@ body {
 .react-flow__node-group {
   border: none !important;
   background: transparent !important;
+  padding: 0 !important;
 }
 
 .react-flow__node-group .react-flow__node-default {
   border: none !important;
+}
+
+/* Ensure handles are visible */
+.react-flow__handle {
+  border-width: 1px;
+  border-style: solid;
 }
