@@ -2,16 +2,16 @@
 {% extends "struct.ts.j2" %}
 
 {% block signature %}
-export class {{ struct.name }} implements AsyncIterable<GObjectObject> {
+export class {{ struct.name }} implements AsyncIterable<GObjectObject | null> {
 {% endblock %}
 
 {% block methods %}
   // Implement AsyncIterable interface
-  [Symbol.asyncIterator](): AsyncIterator<GObjectObject, any, any> {
+  [Symbol.asyncIterator](): AsyncIterator<GObjectObject | null, any, any> {
     let value: GObjectValue | null = null;
     
     return {
-      next: async (): Promise<IteratorResult<GObjectObject>> => {
+      next: async (): Promise<IteratorResult<GObjectObject | null>> => {
         // Initialize value lazily on first call
         if (!value) {
           value = await GObjectValue.new();

@@ -13,6 +13,11 @@
 {# We need to know if the return comes from a method of GList itself, in that case the head is this.head #}
 // Return value is a List, instantiate it from the ptr
 if (data.{{ return_param.name }} && typeof data.{{ return_param.name }} === 'object' && 'ptr' in data.{{ return_param.name }}) {
+{% if return_param.can_be_null %}
+  if (data.{{ return_param.name }}.ptr === null) {
+    return null;
+  }
+{% endif %}
   const instance = new {{ return_param.type.ref_schema.valid_name }}(data.{{ return_param.name }}.ptr, '{{ transferType }}', {{ subType }}, {{ head }});
   return instance;
 }

@@ -40,14 +40,16 @@ import { ElementNode, GroupNode, LinkEdge } from '@/components';
 const detectSubpipelines = async (pipeline: GstPipeline | GstBin, parentName = ''): Promise<{ name: string; ptr: string }[]> => {
   const subpipelines: { name: string; ptr: string }[] = [];
   const iterator = await pipeline.iterate_elements();
+  if (!iterator) return subpipelines;
 
   for await (const obj of iterator) {
+    if (!obj) continue;
     const element = await obj.castTo(GstElement);
 
     if (await element.isOf(GstBin)) {
       const bin = await element.castTo(GstBin);
       const subpipelineName = await bin.get_name();
-      const fullName = parentName ? `${parentName} > ${subpipelineName}` : subpipelineName;
+      const fullName = parentName ? `${parentName} > ${subpipelineName ?? 'unknown'}` : (subpipelineName ?? 'unknown');
 
       // Add the current subpipeline
       subpipelines.push({ name: fullName, ptr: bin.ptr });
@@ -399,7 +401,7 @@ export default function PipelinePage() {
   // Callback function to handle element addition
   const onElementAdded = useCallback(async (parentId: string, parentBin: GstBin, element: GstElement) => {
     try {
-      const elementName: string = await element.get_name();
+      const elementName = (await element.get_name()) ?? 'unknown';
       const isGstBin = await element.isOf(GstBin);
 
       // Create a new node

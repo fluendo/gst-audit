@@ -49,9 +49,9 @@ const PadHandle: React.FC<PadHandleProps> = ({
         const name = await pad.get_name();
         const direction = await pad.get_direction();
         const parent = await pad.get_parent();
-        const elementName = parent ? await parent.get_name() : 'unknown';
+        const elementName = parent ? (await parent.get_name() ?? 'unknown') : 'unknown';
         const elementPtr = parent ? parent.ptr : 'unknown';
-        const id = `${elementName}-${name}`;
+        const id = `${elementName}-${name ?? 'unknown'}`;
         
         // Check if this is a ghost pad
         const isGhost = await pad.isOf(GstGhostPad);
@@ -62,7 +62,8 @@ const PadHandle: React.FC<PadHandleProps> = ({
             const ghostPad = await pad.castTo(GstGhostPad);
             const internal = await ghostPad.get_internal();
             if (internal) {
-              internalName = await internal.get_name();
+              const internalNameValue = await internal.get_name();
+              internalName = internalNameValue ?? undefined;
             }
           } catch (err) {
             console.error('Error getting ghost pad internal:', err);
@@ -70,7 +71,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
         }
 
         const padInfoData: PadInfo = {
-          name,
+          name: name ?? 'unknown',
           direction,
           id,
           isGhost,
@@ -104,9 +105,12 @@ const PadHandle: React.FC<PadHandleProps> = ({
       }
 
       const peerPad = await pad.get_peer();
+      if (!peerPad) return;
       
       // Get the peer pad's parent - could be a GstElement or GstGhostPad
       const peerParent = await peerPad.get_parent();
+      if (!peerParent) return;
+      
       let peerElement: GstElement;
       let peerElementPtr: string;
       let peerElementName: string;
@@ -117,20 +121,22 @@ const PadHandle: React.FC<PadHandleProps> = ({
         // The peer is an internal pad of a ghost pad
         const ghostPad = await peerParent.castTo(GstGhostPad);
         const ghostParent = await ghostPad.get_parent();
+        if (!ghostParent) return;
+        
         peerElement = await ghostParent.castTo(GstElement);
         peerElementPtr = peerElement.ptr;
-        peerElementName = await peerElement.get_name();
+        peerElementName = (await peerElement.get_name()) ?? 'unknown';
         
         // For ghost pads, construct the internal pad handle ID (triple name format)
-        const ghostPadName = await ghostPad.get_name();
-        const internalPadName = await peerPad.get_name();
+        const ghostPadName = (await ghostPad.get_name()) ?? 'unknown';
+        const internalPadName = (await peerPad.get_name()) ?? 'unknown';
         peerPadName = `${ghostPadName}-${internalPadName}`;
       } else {
         // Normal case - peer parent is directly a GstElement
         peerElement = await peerParent.castTo(GstElement);
         peerElementPtr = peerElement.ptr;
-        peerElementName = await peerElement.get_name();
-        peerPadName = await peerPad.get_name();
+        peerElementName = (await peerElement.get_name()) ?? 'unknown';
+        peerPadName = (await peerPad.get_name()) ?? 'unknown';
       }
       
       const currentHandleId = info.id;
@@ -161,14 +167,18 @@ const PadHandle: React.FC<PadHandleProps> = ({
         try {
           const ghostPad = await pad.castTo(GstGhostPad);
           const internalPad = await ghostPad.get_internal();
+          if (!internalPad) return;
+          
           const internalPeer = await internalPad.get_peer();
           
           if (internalPeer) {
             const internalPeerParent = await internalPeer.get_parent();
+            if (!internalPeerParent) return;
+            
             const internalPeerElement = await internalPeerParent.castTo(GstElement);
             const internalPeerElementPtr = internalPeerElement.ptr;
-            const internalPeerElementName = await internalPeerElement.get_name();
-            const internalPeerPadName = await internalPeer.get_name();
+            const internalPeerElementName = (await internalPeerElement.get_name()) ?? 'unknown';
+            const internalPeerPadName = (await internalPeer.get_name()) ?? 'unknown';
             
             // Use the internal pad handle ID (triple name format)
             const internalHandleId = `${info.elementName}-${info.name}-${info.internalName}`;
