@@ -1,5 +1,10 @@
       // Return value is an object, instantiate it from the ptr
       if (data.{{ return_param.name }} && typeof data.{{ return_param.name }} === 'object' && 'ptr' in data.{{ return_param.name }}) {
+{% if return_param.can_be_null %}
+        if (data.{{ return_param.name }}.ptr === null) {
+          return null;
+        }
+{% endif %}
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new {{ return_param.type.ref_schema.valid_name }}(data.{{ return_param.name }}.ptr, '{{ return_param.transfer  }}');
         return instance;

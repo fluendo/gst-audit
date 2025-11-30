@@ -194,6 +194,9 @@ export class GObjectTypeInstance {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectTypeClass(data.return.ptr, 'none');
   return instance;
 }
@@ -1025,6 +1028,9 @@ export class GObjectBinding extends GObjectObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectObject(data.return.ptr, 'full');
         return instance;
@@ -1056,6 +1062,9 @@ export class GObjectBinding extends GObjectObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectObject(data.return.ptr, 'full');
         return instance;
@@ -1113,6 +1122,9 @@ export class GObjectBinding extends GObjectObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectObject(data.return.ptr, 'none');
         return instance;
@@ -1170,6 +1182,9 @@ export class GObjectBinding extends GObjectObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectObject(data.return.ptr, 'none');
         return instance;
@@ -2068,6 +2083,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectParamSpec(data.return.ptr, 'none');
         return instance;
@@ -2298,6 +2316,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectObject(data.return.ptr, 'full');
         return instance;
@@ -2355,6 +2376,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibVariant(data.return.ptr, 'full');
   return instance;
 }
@@ -2697,6 +2721,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectObject(data.return.ptr, 'none');
         return instance;
@@ -2941,6 +2968,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibVariant(data.return.ptr, 'none');
   return instance;
 }
@@ -5629,6 +5659,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibVariant(data.return.ptr, 'full');
   return instance;
 }
@@ -8568,6 +8601,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectClosureNotifyData(data.return.ptr, 'none');
   return instance;
 }
@@ -8764,6 +8800,9 @@ export class GObjectBindingGroup extends GObjectObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectObject(data.return.ptr, 'none');
         return instance;
@@ -9838,6 +9877,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectClosure(data.return.ptr, 'none');
   return instance;
 }
@@ -10802,6 +10844,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectParamSpec(data.return.ptr, 'none');
         return instance;
@@ -11076,6 +11121,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a List, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibList(data.return.ptr, 'none', this.TargetClass, this.head);
   return instance;
 }
@@ -11131,6 +11179,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a List, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibList(data.return.ptr, 'none', this.TargetClass, this.head);
   return instance;
 }
@@ -11733,6 +11784,9 @@ export class GObjectSignalGroup extends GObjectObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectObject(data.return.ptr, 'full');
         return instance;
@@ -12590,6 +12644,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectValue(data.return.ptr, 'none');
   return instance;
 }
@@ -13001,6 +13058,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibMainContext(data.return.ptr, 'none');
   return instance;
 }
@@ -13742,6 +13802,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibSourceCallbackFuncs(data.return.ptr, 'none');
   return instance;
 }
@@ -13772,6 +13835,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibSourceFuncs(data.return.ptr, 'none');
   return instance;
 }
@@ -13880,6 +13946,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibSList(data.return.ptr, 'none');
   return instance;
 }
@@ -13910,6 +13979,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibSource(data.return.ptr, 'none');
   return instance;
 }
@@ -13940,6 +14012,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibSource(data.return.ptr, 'none');
   return instance;
 }
@@ -13970,6 +14045,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibSourcePrivate(data.return.ptr, 'none');
   return instance;
 }
@@ -14835,6 +14913,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibMainContext(data.return.ptr, 'none');
   return instance;
 }
@@ -15629,6 +15710,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibSList(data.return.ptr, 'none');
   return instance;
 }
@@ -18335,6 +18419,9 @@ export class GLibDateTime {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18371,6 +18458,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18405,6 +18495,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18439,6 +18532,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18471,6 +18567,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18503,6 +18602,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18535,6 +18637,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18567,6 +18672,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18609,6 +18717,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18643,6 +18754,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18673,6 +18787,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18703,6 +18820,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18745,6 +18865,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18801,6 +18924,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18833,6 +18959,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18875,6 +19004,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18907,6 +19039,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18939,6 +19074,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -18971,6 +19109,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -19003,6 +19144,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -19035,6 +19179,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -19067,6 +19214,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -19758,6 +19908,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -19822,6 +19975,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -19904,6 +20060,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -20033,6 +20192,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTimeZone(data.return.ptr, 'full');
   return instance;
 }
@@ -21323,6 +21485,9 @@ export class GLibChecksum {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibChecksum(data.return.ptr, 'full');
   return instance;
 }
@@ -21665,6 +21830,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a List, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibList(data.return.ptr, 'none', Pointer, undefined);
   return instance;
 }
@@ -21822,6 +21990,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a List, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibList(data.return.ptr, 'none', Pointer, undefined);
   return instance;
 }
@@ -25289,6 +25460,9 @@ export class GLibHmac {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibHmac(data.return.ptr, 'full');
   return instance;
 }
@@ -25896,6 +26070,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibHook(data.return.ptr, 'none');
   return instance;
 }
@@ -25952,6 +26129,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibHook(data.return.ptr, 'none');
   return instance;
 }
@@ -26657,6 +26837,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibHook(data.return.ptr, 'none');
   return instance;
 }
@@ -27971,6 +28154,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibIOFuncs(data.return.ptr, 'none');
   return instance;
 }
@@ -28105,6 +28291,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibString(data.return.ptr, 'none');
   return instance;
 }
@@ -28135,6 +28324,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibString(data.return.ptr, 'none');
   return instance;
 }
@@ -28165,6 +28357,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibString(data.return.ptr, 'none');
   return instance;
 }
@@ -32764,6 +32959,9 @@ export class GLibRegex {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibRegex(data.return.ptr, 'full');
   return instance;
 }
@@ -34406,6 +34604,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibNode(data.return.ptr, 'none');
   return instance;
 }
@@ -34462,6 +34663,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibNode(data.return.ptr, 'none');
   return instance;
 }
@@ -34518,6 +34722,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibNode(data.return.ptr, 'none');
   return instance;
 }
@@ -34574,6 +34781,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibNode(data.return.ptr, 'none');
   return instance;
 }
@@ -37430,6 +37640,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a List, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibList(data.return.ptr, 'none', Pointer, undefined);
   return instance;
 }
@@ -37487,6 +37700,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a List, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibList(data.return.ptr, 'none', Pointer, undefined);
   return instance;
 }
@@ -39350,6 +39566,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibData(data.return.ptr, 'none');
   return instance;
 }
@@ -39406,6 +39625,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibScannerConfig(data.return.ptr, 'none');
   return instance;
 }
@@ -40450,6 +40672,9 @@ return Promise.reject("Call failed");
       result.return = (() => {
         // Return value is a struct, instantiate it from the ptr
         if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+          if (data.return.ptr === null) {
+            return null;
+          }
           const instance = new GLibSequenceIter(data.return.ptr, 'none');
           return instance;
         }
@@ -40499,6 +40724,9 @@ return Promise.reject("Call failed");
       result.return = (() => {
         // Return value is a struct, instantiate it from the ptr
         if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+          if (data.return.ptr === null) {
+            return null;
+          }
           const instance = new GLibSequenceIter(data.return.ptr, 'none');
           return instance;
         }
@@ -42067,6 +42295,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibString(data.return.ptr, 'none');
   return instance;
 }
@@ -42097,6 +42328,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibSList(data.return.ptr, 'none');
   return instance;
 }
@@ -43995,6 +44229,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTrashStack(data.return.ptr, 'none');
   return instance;
 }
@@ -44309,6 +44546,9 @@ export class GLibTree {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTreeNode(data.return.ptr, 'none');
   return instance;
 }
@@ -44412,6 +44652,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTreeNode(data.return.ptr, 'none');
   return instance;
 }
@@ -44444,6 +44687,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTreeNode(data.return.ptr, 'none');
   return instance;
 }
@@ -44500,6 +44746,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTreeNode(data.return.ptr, 'none');
   return instance;
 }
@@ -44530,6 +44779,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTreeNode(data.return.ptr, 'none');
   return instance;
 }
@@ -44670,6 +44922,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTreeNode(data.return.ptr, 'none');
   return instance;
 }
@@ -44758,6 +45013,9 @@ return Promise.reject("Call failed");
       result.return = (() => {
         // Return value is a struct, instantiate it from the ptr
         if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+          if (data.return.ptr === null) {
+            return null;
+          }
           const instance = new GLibTreeNode(data.return.ptr, 'none');
           return instance;
         }
@@ -44877,6 +45135,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTreeNode(data.return.ptr, 'none');
   return instance;
 }
@@ -45030,6 +45291,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTreeNode(data.return.ptr, 'none');
   return instance;
 }
@@ -45060,6 +45324,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibTreeNode(data.return.ptr, 'none');
   return instance;
 }
@@ -47660,6 +47927,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibVariant(data.return.ptr, 'full');
   return instance;
 }
@@ -47934,6 +48204,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstAllocationParams(data.return.ptr, 'full');
   return instance;
 }
@@ -48488,6 +48761,9 @@ export class GstObject extends GObjectInitiallyUnowned {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstControlBinding(data.return.ptr, 'full');
         return instance;
@@ -48607,6 +48883,9 @@ export class GstObject extends GObjectInitiallyUnowned {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstObject(data.return.ptr, 'full');
         return instance;
@@ -48668,6 +48947,9 @@ export class GstObject extends GObjectInitiallyUnowned {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectValue(data.return.ptr, 'full');
   return instance;
 }
@@ -49118,6 +49400,9 @@ export class GstAllocator extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstAllocator(data.return.ptr, 'full');
         return instance;
@@ -49192,6 +49477,9 @@ export class GstAllocator extends GstObject {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMemory(data.return.ptr, 'full');
   return instance;
 }
@@ -49338,6 +49626,9 @@ export class GstMemory {
       result.return = (() => {
         // Return value is a struct, instantiate it from the ptr
         if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+          if (data.return.ptr === null) {
+            return null;
+          }
           const instance = new GstMemory(data.return.ptr, 'full');
           return instance;
         }
@@ -49398,6 +49689,9 @@ export class GstMemory {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMemory(data.return.ptr, 'full');
   return instance;
 }
@@ -49543,6 +49837,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMemory(data.return.ptr, 'full');
   return instance;
 }
@@ -49691,6 +49988,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMiniObject(data.return.ptr, 'none');
   return instance;
 }
@@ -49747,6 +50047,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstAllocator(data.return.ptr, 'none');
         return instance;
@@ -49804,6 +50107,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMemory(data.return.ptr, 'none');
   return instance;
 }
@@ -51886,6 +52192,9 @@ export class GstElement extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstBus(data.return.ptr, 'full');
         return instance;
@@ -51917,6 +52226,9 @@ export class GstElement extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstClock(data.return.ptr, 'full');
         return instance;
@@ -51956,6 +52268,9 @@ export class GstElement extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'full');
         return instance;
@@ -51991,6 +52306,9 @@ export class GstElement extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPadTemplate(data.return.ptr, 'none');
         return instance;
@@ -52024,6 +52342,9 @@ export class GstElement extends GstObject {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstContext(data.return.ptr, 'full');
   return instance;
 }
@@ -52056,6 +52377,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstContext(data.return.ptr, 'full');
   return instance;
 }
@@ -52169,6 +52493,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElementFactory(data.return.ptr, 'none');
         return instance;
@@ -52230,6 +52557,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPadTemplate(data.return.ptr, 'none');
         return instance;
@@ -52294,6 +52624,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'full');
         return instance;
@@ -52385,6 +52718,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'full');
         return instance;
@@ -52858,6 +53194,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstClock(data.return.ptr, 'full');
         return instance;
@@ -53127,6 +53466,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'full');
         return instance;
@@ -53160,6 +53502,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'full');
         return instance;
@@ -53659,6 +54004,9 @@ export class GstBin extends GstElement {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'full');
         return instance;
@@ -53692,6 +54040,9 @@ export class GstBin extends GstElement {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElement(data.return.ptr, 'full');
         return instance;
@@ -53725,6 +54076,9 @@ export class GstBin extends GstElement {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElement(data.return.ptr, 'full');
         return instance;
@@ -53758,6 +54112,9 @@ export class GstBin extends GstElement {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElement(data.return.ptr, 'full');
         return instance;
@@ -53817,6 +54174,9 @@ export class GstBin extends GstElement {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'full');
   return instance;
 }
@@ -53849,6 +54209,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'full');
   return instance;
 }
@@ -53879,6 +54242,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'full');
   return instance;
 }
@@ -53909,6 +54275,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'full');
   return instance;
 }
@@ -53939,6 +54308,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'full');
   return instance;
 }
@@ -53969,6 +54341,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'full');
   return instance;
 }
@@ -53999,6 +54374,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'full');
   return instance;
 }
@@ -54242,6 +54620,9 @@ export class GstPlugin extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPlugin(data.return.ptr, 'full');
         return instance;
@@ -54560,6 +54941,9 @@ export class GstPlugin extends GstObject {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStructure(data.return.ptr, 'none');
   return instance;
 }
@@ -54928,6 +55312,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPlugin(data.return.ptr, 'full');
         return instance;
@@ -55098,6 +55485,9 @@ export class GstStructure {
       result.return = (() => {
         // Return value is a struct, instantiate it from the ptr
         if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+          if (data.return.ptr === null) {
+            return null;
+          }
           const instance = new GstStructure(data.return.ptr, 'full');
           return instance;
         }
@@ -55164,6 +55554,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStructure(data.return.ptr, 'full');
   return instance;
 }
@@ -56258,6 +56651,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectValue(data.return.ptr, 'none');
   return instance;
 }
@@ -56376,6 +56772,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectValue(data.return.ptr, 'none');
   return instance;
 }
@@ -56524,6 +56923,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStructure(data.return.ptr, 'full');
   return instance;
 }
@@ -57158,6 +57560,9 @@ export class GstDateTime {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57192,6 +57597,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57224,6 +57632,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57256,6 +57667,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57288,6 +57702,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57320,6 +57737,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57352,6 +57772,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57394,6 +57817,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57424,6 +57850,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57454,6 +57883,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57486,6 +57918,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57520,6 +57955,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57556,6 +57994,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -57978,6 +58419,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibDateTime(data.return.ptr, 'full');
   return instance;
 }
@@ -58745,6 +59189,9 @@ export class GstPad extends GstObject {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'full');
   return instance;
 }
@@ -58775,6 +59222,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'full');
   return instance;
 }
@@ -58909,6 +59359,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPadTemplate(data.return.ptr, 'full');
         return instance;
@@ -58970,6 +59423,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElement(data.return.ptr, 'full');
         return instance;
@@ -59001,6 +59457,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'full');
         return instance;
@@ -59066,6 +59525,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'full');
         return instance;
@@ -59101,6 +59563,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstEvent(data.return.ptr, 'full');
   return instance;
 }
@@ -59131,6 +59596,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstStream(data.return.ptr, 'full');
         return instance;
@@ -59344,6 +59812,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'full');
   return instance;
 }
@@ -59378,6 +59849,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'full');
   return instance;
 }
@@ -61055,6 +61529,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPadTemplate(data.return.ptr, 'none');
         return instance;
@@ -61266,6 +61743,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStaticCaps(data.return.ptr, 'none');
   return instance;
 }
@@ -61337,6 +61817,9 @@ export class GstPadTemplate extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPadTemplate(data.return.ptr, 'none');
         return instance;
@@ -61374,6 +61857,9 @@ export class GstPadTemplate extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPadTemplate(data.return.ptr, 'none');
         return instance;
@@ -61417,6 +61903,9 @@ export class GstPadTemplate extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPadTemplate(data.return.ptr, 'none');
         return instance;
@@ -62060,6 +62549,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCapsFeatures(data.return.ptr, 'none');
   return instance;
 }
@@ -62855,6 +63347,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStructure(data.return.ptr, 'full');
   return instance;
 }
@@ -62977,6 +63472,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'full');
   return instance;
 }
@@ -63007,6 +63505,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMiniObject(data.return.ptr, 'none');
   return instance;
 }
@@ -63598,6 +64099,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCapsFeatures(data.return.ptr, 'full');
   return instance;
 }
@@ -63779,6 +64283,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'full');
   return instance;
 }
@@ -63809,6 +64316,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'none');
   return instance;
 }
@@ -64162,6 +64672,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstBuffer(data.return.ptr, 'none');
   return instance;
 }
@@ -64192,6 +64705,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstBufferList(data.return.ptr, 'none');
   return instance;
 }
@@ -64222,6 +64738,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstEvent(data.return.ptr, 'none');
   return instance;
 }
@@ -64252,6 +64771,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstQuery(data.return.ptr, 'none');
   return instance;
 }
@@ -64597,6 +65119,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstBuffer(data.return.ptr, 'full');
   return instance;
 }
@@ -64812,6 +65337,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCustomMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -64848,6 +65376,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -64882,6 +65413,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstParentBufferMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -64954,6 +65488,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstReferenceTimestampMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -65082,6 +65619,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstBuffer(data.return.ptr, 'full');
   return instance;
 }
@@ -65154,6 +65694,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstBuffer(data.return.ptr, 'full');
   return instance;
 }
@@ -65392,6 +65935,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMemory(data.return.ptr, 'full');
   return instance;
 }
@@ -65424,6 +65970,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCustomMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -65482,6 +66031,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMemory(data.return.ptr, 'full');
   return instance;
 }
@@ -65516,6 +66068,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMemory(data.return.ptr, 'full');
   return instance;
 }
@@ -65548,6 +66103,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -65610,6 +66168,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstReferenceTimestampMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -66024,6 +66585,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMemory(data.return.ptr, 'none');
   return instance;
 }
@@ -66458,6 +67022,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMiniObject(data.return.ptr, 'none');
   return instance;
 }
@@ -66514,6 +67081,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstBufferPool(data.return.ptr, 'none');
         return instance;
@@ -66976,6 +67546,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -67332,6 +67905,9 @@ return Promise.reject("Call failed");
       result.return = (() => {
         // Return value is a struct, instantiate it from the ptr
         if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+          if (data.return.ptr === null) {
+            return null;
+          }
           const instance = new GstMeta(data.return.ptr, 'none');
           return instance;
         }
@@ -67366,6 +67942,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMetaInfo(data.return.ptr, 'none');
   return instance;
 }
@@ -68311,6 +68890,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -68367,6 +68949,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstBuffer(data.return.ptr, 'none');
   return instance;
 }
@@ -68524,6 +69109,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -68681,6 +69269,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMeta(data.return.ptr, 'none');
   return instance;
 }
@@ -68737,6 +69328,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'none');
   return instance;
 }
@@ -69888,6 +70482,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstBuffer(data.return.ptr, 'none');
   return instance;
 }
@@ -69920,6 +70517,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstBuffer(data.return.ptr, 'none');
   return instance;
 }
@@ -71073,6 +71673,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStructure(data.return.ptr, 'none');
   return instance;
 }
@@ -72190,6 +72793,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMiniObject(data.return.ptr, 'none');
   return instance;
 }
@@ -72410,6 +73016,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstFormatDefinition(data.return.ptr, 'none');
   return instance;
 }
@@ -73278,6 +73887,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'none');
   return instance;
 }
@@ -77131,6 +77743,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectValue(data.return.ptr, 'none');
   return instance;
 }
@@ -77161,6 +77776,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStructure(data.return.ptr, 'none');
   return instance;
 }
@@ -78707,6 +79325,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstStream(data.return.ptr, 'full');
         return instance;
@@ -78768,6 +79389,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMiniObject(data.return.ptr, 'none');
   return instance;
 }
@@ -78924,6 +79548,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstObject(data.return.ptr, 'none');
         return instance;
@@ -79007,6 +79634,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibCond(data.return.ptr, 'none');
   return instance;
 }
@@ -79106,6 +79736,9 @@ export class GstControlBinding extends GstObject {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectValue(data.return.ptr, 'full');
   return instance;
 }
@@ -79294,6 +79927,9 @@ export class GstClock extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstClock(data.return.ptr, 'full');
         return instance;
@@ -79780,6 +80416,9 @@ export class GstClock extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstClock(data.return.ptr, 'full');
         return instance;
@@ -80464,6 +81103,9 @@ export class GstDevice extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElement(data.return.ptr, 'none');
         return instance;
@@ -80495,6 +81137,9 @@ export class GstDevice extends GstObject {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'full');
   return instance;
 }
@@ -80577,6 +81222,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStructure(data.return.ptr, 'full');
   return instance;
 }
@@ -81052,6 +81700,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstTagList(data.return.ptr, 'full');
   return instance;
 }
@@ -82157,6 +82808,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectValue(data.return.ptr, 'none');
   return instance;
 }
@@ -82277,6 +82931,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstTagList(data.return.ptr, 'full');
   return instance;
 }
@@ -82511,6 +83168,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMiniObject(data.return.ptr, 'none');
   return instance;
 }
@@ -82718,6 +83378,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstBuffer(data.return.ptr, 'none');
   return instance;
 }
@@ -82748,6 +83411,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstBufferList(data.return.ptr, 'none');
   return instance;
 }
@@ -82778,6 +83444,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'none');
   return instance;
 }
@@ -82808,6 +83477,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStructure(data.return.ptr, 'none');
   return instance;
 }
@@ -83167,6 +83839,9 @@ export class GstStreamCollection extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstStream(data.return.ptr, 'none');
         return instance;
@@ -83298,6 +83973,9 @@ export class GstStream extends GstObject {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'full');
   return instance;
 }
@@ -83406,6 +84084,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstTagList(data.return.ptr, 'full');
   return instance;
 }
@@ -83851,6 +84532,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstTocEntry(data.return.ptr, 'none');
   return instance;
 }
@@ -83938,6 +84622,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstTagList(data.return.ptr, 'none');
   return instance;
 }
@@ -84245,6 +84932,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstTocEntry(data.return.ptr, 'none');
   return instance;
 }
@@ -84347,6 +85037,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstTagList(data.return.ptr, 'none');
   return instance;
 }
@@ -84377,6 +85070,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstToc(data.return.ptr, 'none');
   return instance;
 }
@@ -85712,6 +86408,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStructure(data.return.ptr, 'none');
   return instance;
 }
@@ -87442,6 +88141,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMiniObject(data.return.ptr, 'none');
   return instance;
 }
@@ -88124,6 +88826,9 @@ export class GstBus extends GstObject {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibSource(data.return.ptr, 'full');
   return instance;
 }
@@ -88250,6 +88955,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMessage(data.return.ptr, 'full');
   return instance;
 }
@@ -88284,6 +88992,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMessage(data.return.ptr, 'full');
   return instance;
 }
@@ -88314,6 +89025,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMessage(data.return.ptr, 'full');
   return instance;
 }
@@ -88346,6 +89060,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMessage(data.return.ptr, 'full');
   return instance;
 }
@@ -88545,6 +89262,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMessage(data.return.ptr, 'full');
   return instance;
 }
@@ -88579,6 +89299,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMessage(data.return.ptr, 'full');
   return instance;
 }
@@ -88824,6 +89547,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPlugin(data.return.ptr, 'full');
         return instance;
@@ -88907,6 +89633,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPluginFeature(data.return.ptr, 'full');
         return instance;
@@ -88997,6 +89726,9 @@ export class GstElementFactory extends GstPluginFeature {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElementFactory(data.return.ptr, 'full');
         return instance;
@@ -89110,6 +89842,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElement(data.return.ptr, 'none');
         return instance;
@@ -89149,6 +89884,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElement(data.return.ptr, 'none');
         return instance;
@@ -89302,6 +90040,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElement(data.return.ptr, 'none');
         return instance;
@@ -89339,6 +90080,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstElement(data.return.ptr, 'none');
         return instance;
@@ -90927,6 +91671,9 @@ export class GstDeviceMonitor extends GstObject {
       const data = await response.json();
     // Return value is a List, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibList(data.return.ptr, 'full', GstDevice, undefined);
   return instance;
 }
@@ -91387,6 +92134,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstDeviceProviderFactory(data.return.ptr, 'none');
         return instance;
@@ -91629,6 +92379,9 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstDeviceProviderFactory(data.return.ptr, 'full');
         return instance;
@@ -91662,6 +92415,9 @@ export class GstDeviceProviderFactory extends GstPluginFeature {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstDeviceProvider(data.return.ptr, 'full');
         return instance;
@@ -91726,6 +92482,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstDeviceProvider(data.return.ptr, 'full');
         return instance;
@@ -92292,6 +93051,9 @@ export class GstProxyPad extends GstPad {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstIterator(data.return.ptr, 'full');
   return instance;
 }
@@ -92322,6 +93084,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstProxyPad(data.return.ptr, 'full');
         return instance;
@@ -92390,6 +93155,9 @@ export class GstGhostPad extends GstProxyPad {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'none');
         return instance;
@@ -92431,6 +93199,9 @@ export class GstGhostPad extends GstProxyPad {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'none');
         return instance;
@@ -92466,6 +93237,9 @@ export class GstGhostPad extends GstProxyPad {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'none');
         return instance;
@@ -92503,6 +93277,9 @@ export class GstGhostPad extends GstProxyPad {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'none');
         return instance;
@@ -92638,6 +93415,9 @@ export class GstGhostPad extends GstProxyPad {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPad(data.return.ptr, 'full');
         return instance;
@@ -93174,6 +93954,9 @@ export class GstParseContext {
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstParseContext(data.return.ptr, 'full');
   return instance;
 }
@@ -93228,6 +94011,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstParseContext(data.return.ptr, 'full');
   return instance;
 }
@@ -94877,6 +95663,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstStructure(data.return.ptr, 'none');
   return instance;
 }
@@ -94981,6 +95770,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMiniObject(data.return.ptr, 'none');
   return instance;
 }
@@ -95366,6 +96158,9 @@ export class GstRegistry extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPluginFeature(data.return.ptr, 'full');
         return instance;
@@ -95399,6 +96194,9 @@ export class GstRegistry extends GstObject {
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPlugin(data.return.ptr, 'full');
         return instance;
@@ -95555,6 +96353,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPlugin(data.return.ptr, 'full');
         return instance;
@@ -95588,6 +96389,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GstPluginFeature(data.return.ptr, 'full');
         return instance;
@@ -97764,6 +98568,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'none');
   return instance;
 }
@@ -98141,6 +98948,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstUri(data.return.ptr, 'full');
   return instance;
 }
@@ -98607,6 +99417,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstUri(data.return.ptr, 'full');
   return instance;
 }
@@ -99193,6 +100006,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstUri(data.return.ptr, 'full');
   return instance;
 }
@@ -99225,6 +100041,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstUri(data.return.ptr, 'full');
   return instance;
 }
@@ -100015,7 +100834,7 @@ export function convertGstLogFunctionArgs(data: any): Parameters<GstLogFunction>
     new GstDebugMessage(data.message, 'none'),
     data.user_data  ];
 }
-  export namespace GIRest {
+  export namespace GModule {
   
 
 
@@ -100023,15 +100842,101 @@ export function convertGstLogFunctionArgs(data: any): Parameters<GstLogFunction>
 
 
  
-  export async function callbacks(): Promise<void> {
+  export async function module_build_path(module_name: string, directory?: string): Promise<string> {
     // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GIRest/callbacks`, apiConfig.baseUrl);
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_build_path`, apiConfig.baseUrl);
+    // Primitive parameter
+    if (directory !== undefined) url.searchParams.append('directory', String(directory));
+    // Primitive parameter
+    url.searchParams.append('module_name', String(module_name));
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
         // If the call fails, unref the objects we ref'd
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function module_error(): Promise<string> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function module_error_quark(): Promise<number> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error_quark`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+  
+
+
+
+
+
+ 
+  export async function module_supported(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_supported`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
     } catch (error) {
       // If there's an error, unref the objects we ref'd
       throw error;
@@ -100087,6 +100992,9 @@ export function convertGstLogFunctionArgs(data: any): Parameters<GstLogFunction>
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCapsFeatures(data.return.ptr, 'full');
   return instance;
 }
@@ -100119,6 +101027,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstCaps(data.return.ptr, 'full');
   return instance;
 }
@@ -101387,6 +102298,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstFormatDefinition(data.return.ptr, 'none');
   return instance;
 }
@@ -101914,6 +102828,9 @@ return Promise.reject("Call failed");
       result.return = (() => {
         // Return value is a struct, instantiate it from the ptr
         if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+          if (data.return.ptr === null) {
+            return null;
+          }
           const instance = new GstMeta(data.return.ptr, 'none');
           return instance;
         }
@@ -101948,6 +102865,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstMetaInfo(data.return.ptr, 'none');
   return instance;
 }
@@ -102248,6 +103168,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
           // Return value is an object, instantiate it from the ptr
       if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+        if (data.return.ptr === null) {
+          return null;
+        }
         // If transfer is "full", pass false (caller doesn't own), otherwise pass true (caller owns)
         const instance = new GObjectParamSpec(data.return.ptr, 'full');
         return instance;
@@ -103756,6 +104679,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstUri(data.return.ptr, 'full');
   return instance;
 }
@@ -103788,6 +104714,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GstUri(data.return.ptr, 'full');
   return instance;
 }
@@ -105589,6 +106518,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectValue(data.return.ptr, 'none');
   return instance;
 }
@@ -105623,6 +106555,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectValue(data.return.ptr, 'none');
   return instance;
 }
@@ -106578,6 +107513,30 @@ return Promise.reject("Call failed");
     return data.return;
 
 
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+}
+  export namespace GIRest {
+  
+
+
+
+
+
+ 
+  export async function callbacks(): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GIRest/callbacks`, apiConfig.baseUrl);
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error) {
       // If there's an error, unref the objects we ref'd
       throw error;
@@ -107703,6 +108662,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectEnumValue(data.return.ptr, 'none');
   return instance;
 }
@@ -107739,6 +108701,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectEnumValue(data.return.ptr, 'none');
   return instance;
 }
@@ -107775,6 +108740,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectEnumValue(data.return.ptr, 'none');
   return instance;
 }
@@ -107905,6 +108873,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectFlagsValue(data.return.ptr, 'none');
   return instance;
 }
@@ -107941,6 +108912,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectFlagsValue(data.return.ptr, 'none');
   return instance;
 }
@@ -107977,6 +108951,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectFlagsValue(data.return.ptr, 'none');
   return instance;
 }
@@ -109551,6 +110528,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GObjectSignalInvocationHint(data.return.ptr, 'none');
   return instance;
 }
@@ -112048,116 +113028,6 @@ return Promise.reject("Call failed");
   export async function variant_get_gtype(): Promise<string> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GObject/variant_get_gtype`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-}
-  export namespace GModule {
-  
-
-
-
-
-
- 
-  export async function module_build_path(module_name: string, directory?: string): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_build_path`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (directory !== undefined) url.searchParams.append('directory', String(directory));
-    // Primitive parameter
-    url.searchParams.append('module_name', String(module_name));
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function module_error(): Promise<string> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function module_error_quark(): Promise<number> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_error_quark`, apiConfig.baseUrl);
-    try {
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-    return data.return;
-
-
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-  
-
-
-
-
-
- 
-  export async function module_supported(): Promise<boolean> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GModule/module_supported`, apiConfig.baseUrl);
     try {
       const response = await fetch(url.toString());
       if (!response.ok) {
@@ -120750,6 +121620,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibMainContext(data.return.ptr, 'none');
   return instance;
 }
@@ -120810,6 +121683,9 @@ return Promise.reject("Call failed");
       const data = await response.json();
     // Return value is a struct, instantiate it from the ptr
 if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+  if (data.return.ptr === null) {
+    return null;
+  }
   const instance = new GLibSource(data.return.ptr, 'none');
   return instance;
 }
