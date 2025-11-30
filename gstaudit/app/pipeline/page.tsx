@@ -111,6 +111,8 @@ export default function PipelinePage() {
 
   // Validate connections based on whether both source and target have reported
   const validateConnections = () => {
+    const startTime = performance.now();
+    console.log('[VALIDATION] Starting connection validation');
     const validatedEdges: Edge[] = [];
     
     // Check all edges and validate against pending connections
@@ -118,17 +120,20 @@ export default function PipelinePage() {
       const pending = pendingConnections.get(edge.id);
       
       if (pending && pending.sourceReported && pending.targetReported) {
-        console.log(`Connection validated: ${edge.id}`);
+        console.log(`[VALIDATION] Connection validated: ${edge.id}`);
         validatedEdges.push(edge);
       } else if (pending) {
-        console.log(`Connection pending: ${edge.id} - source: ${pending.sourceReported}, target: ${pending.targetReported}`);
+        console.log(`[VALIDATION] Connection pending: ${edge.id} - source: ${pending.sourceReported}, target: ${pending.targetReported}`);
       }
     });
     
-    console.log(`Validated ${validatedEdges.length} of ${allEdges.length} edges`);
+    console.log(`[VALIDATION] Validated ${validatedEdges.length} of ${allEdges.length} edges`);
     
     // Update the edges displayed in the chart
     setEdges(validatedEdges);
+    
+    const totalTime = performance.now() - startTime;
+    console.log(`[TIMING] Total validateConnections took ${totalTime.toFixed(2)}ms`);
   };
 
   // Debounced validation - waits for all connection reports to complete
@@ -151,16 +156,27 @@ export default function PipelinePage() {
 
   // Perform layout calculation and update nodes
   const layout = async () => {
+    const startTime = performance.now();
+    console.log('[LAYOUT] Starting layout calculation');
     const nodeTree = nodeTreeManager.getTree();
     if (!nodeTree) return;
 
     try {
       // Use validated edges for layout (only edges with both nodes present)
+      const layoutStart = performance.now();
       await getLayoutedElements(nodeTree, edges);
+      const layoutEnd = performance.now();
+      console.log(`[TIMING] getLayoutedElements took ${(layoutEnd - layoutStart).toFixed(2)}ms`);
       
       // Extract all nodes from the tree structure after layout
+      const extractStart = performance.now();
       const layoutedNodes = nodeTreeManager.getAllNodes();
       setNodes(layoutedNodes);
+      const extractEnd = performance.now();
+      console.log(`[TIMING] getAllNodes + setNodes took ${(extractEnd - extractStart).toFixed(2)}ms`);
+      
+      const totalTime = performance.now() - startTime;
+      console.log(`[TIMING] Total layout took ${totalTime.toFixed(2)}ms`);
     } catch (error) {
       console.error('Error during layout:', error);
     }
@@ -247,37 +263,57 @@ export default function PipelinePage() {
   // Implementation functions (decoupled from callbacks)
   
   const handlePadAdded = async (elementId: string, element: GstElement, pad: GstPad) => {
+    const startTime = performance.now();
     try {
+      const nameStart = performance.now();
       const elementName = await element.get_name();
+      const nameEnd = performance.now();
+      console.log(`[TIMING] get_name() took ${(nameEnd - nameStart).toFixed(2)}ms for element ${elementId}`);
+      
+      const padNameStart = performance.now();
       const padName = await pad.get_name();
+      const padNameEnd = performance.now();
+      console.log(`[TIMING] pad.get_name() took ${(padNameEnd - padNameStart).toFixed(2)}ms`);
+      
       const handleId = `${elementName}-${padName}`;
       
-      console.log(`Pad added: pad "${padName}" on element "${elementName}" (${elementId})`);
+      console.log(`[PAD_ADDED] pad "${padName}" on element "${elementName}" (${elementId})`);
       
       // Add handle to the NodeTree
+      const addHandleStart = performance.now();
       nodeTreeManager.addHandleToNode(elementId, handleId);
+      const addHandleEnd = performance.now();
+      console.log(`[TIMING] addHandleToNode took ${(addHandleEnd - addHandleStart).toFixed(2)}ms`);
+      
+      const totalTime = performance.now() - startTime;
+      console.log(`[TIMING] Total handlePadAdded took ${totalTime.toFixed(2)}ms`);
     } catch (error) {
       console.error('Error handling pad addition:', error);
     }
   };
 
   const handlePadRemoved = async (elementId: string, element: GstElement, pad: GstPad) => {
+    const startTime = performance.now();
     try {
       const elementName = await element.get_name();
       const padName = await pad.get_name();
       const handleId = `${elementName}-${padName}`;
       
-      console.log(`Pad removed: pad "${padName}" from element "${elementName}" (${elementId})`);
+      console.log(`[PAD_REMOVED] pad "${padName}" from element "${elementName}" (${elementId})`);
       
       // Remove handle from the NodeTree (for tracking purposes, not for validation)
       nodeTreeManager.removeHandleFromNode(elementId, handleId);
+      
+      const totalTime = performance.now() - startTime;
+      console.log(`[TIMING] Total handlePadRemoved took ${totalTime.toFixed(2)}ms`);
     } catch (error) {
       console.error('Error handling pad removal:', error);
     }
   };
 
   const handleConnectionAdded = (connection: PadConnectionInfo) => {
-    console.log('Connection reported:', connection, 'by:', connection.reportedBy);
+    const startTime = performance.now();
+    console.log('[CONNECTION_ADDED] Connection reported:', connection, 'by:', connection.reportedBy);
     
     // Create a unique connection ID based on source and target
     const connectionId = `${connection.sourceHandleId}-${connection.targetHandleId}`;
@@ -321,15 +357,19 @@ export default function PipelinePage() {
     // Store the updated pending connection
     pendingConnections.set(connectionId, pending);
     
-    console.log('Connection status:', connectionId, 
+    console.log('[CONNECTION_STATUS]', connectionId, 
       'source:', pending.sourceReported, 'target:', pending.targetReported);
     
     // Trigger validation
     setConnectionVersion(prev => prev + 1);
+    
+    const totalTime = performance.now() - startTime;
+    console.log(`[TIMING] Total handleConnectionAdded took ${totalTime.toFixed(2)}ms`);
   };
 
   const handleConnectionRemoved = (connection: PadConnectionInfo) => {
-    console.log('Connection removal reported:', connection, 'by:', connection.reportedBy);
+    const startTime = performance.now();
+    console.log('[CONNECTION_REMOVED] Connection removal reported:', connection, 'by:', connection.reportedBy);
     
     const connectionId = `${connection.sourceHandleId}-${connection.targetHandleId}`;
     
@@ -364,9 +404,14 @@ export default function PipelinePage() {
       // Trigger validation to update displayed edges
       setConnectionVersion(prev => prev + 1);
     }
+    
+    const totalTime = performance.now() - startTime;
+    console.log(`[TIMING] Total handleConnectionRemoved took ${totalTime.toFixed(2)}ms`);
   };
 
   const handleElementRemoved = async (parentId: string, parentBin: GstBin, element: GstElement) => {
+    const startTime = performance.now();
+    console.log('[ELEMENT_REMOVED] Element removed from parent', parentId);
     try {
       // Helper function to get all descendant node IDs recursively
       const getDescendantIds = (nodes: Node[], nodeId: string): string[] => {
@@ -390,15 +435,28 @@ export default function PipelinePage() {
       if (nodeTreeManager.removeNodeFromTree(element.ptr)) {
         setTreeVersion(prev => prev + 1);
       }
+      
+      const totalTime = performance.now() - startTime;
+      console.log(`[TIMING] Total handleElementRemoved took ${totalTime.toFixed(2)}ms`);
     } catch (error) {
       console.error('Error handling element removal:', error);
     }
   };
 
   const handleElementAdded = async (parentId: string, parentBin: GstBin, element: GstElement) => {
+    const startTime = performance.now();
     try {
+      const nameStart = performance.now();
       const elementName = (await element.get_name()) ?? 'unknown';
+      const nameEnd = performance.now();
+      console.log(`[TIMING] element.get_name() took ${(nameEnd - nameStart).toFixed(2)}ms for new element`);
+      
+      console.log('[ELEMENT_ADDED] Element added:', elementName, 'to parent', parentId);
+      
+      const isBinStart = performance.now();
       const isGstBin = await element.isOf(GstBin);
+      const isBinEnd = performance.now();
+      console.log(`[TIMING] isOf(GstBin) took ${(isBinEnd - isBinStart).toFixed(2)}ms`);
 
       // Create a new node
       const newNode: Node = {
@@ -443,6 +501,9 @@ export default function PipelinePage() {
       if (nodeTreeManager.addNodeToTree(parentId, newNode)) {
         setTreeVersion(prev => prev + 1);
       }
+      
+      const totalTime = performance.now() - startTime;
+      console.log(`[TIMING] Total handleElementAdded took ${totalTime.toFixed(2)}ms`);
     } catch (error) {
       console.error('Error handling element added:', error);
     }
@@ -452,32 +513,56 @@ export default function PipelinePage() {
 
   // Callback function to handle pad addition
   const onPadAdded = useCallback(async (elementId: string, element: GstElement, pad: GstPad) => {
+    const callbackStart = performance.now();
+    console.log('[CALLBACK] onPadAdded called for element', elementId);
     await handlePadAdded(elementId, element, pad);
+    const callbackEnd = performance.now();
+    console.log(`[TIMING] onPadAdded callback total: ${(callbackEnd - callbackStart).toFixed(2)}ms`);
   }, []);
 
   // Callback function to handle pad removal
   const onPadRemoved = useCallback(async (elementId: string, element: GstElement, pad: GstPad) => {
+    const callbackStart = performance.now();
+    console.log('[CALLBACK] onPadRemoved called for element', elementId);
     await handlePadRemoved(elementId, element, pad);
+    const callbackEnd = performance.now();
+    console.log(`[TIMING] onPadRemoved callback total: ${(callbackEnd - callbackStart).toFixed(2)}ms`);
   }, []);
 
   // Callback function to handle connection addition
   const onConnectionAdded = useCallback((connection: PadConnectionInfo) => {
+    const callbackStart = performance.now();
+    console.log('[CALLBACK] onConnectionAdded called');
     handleConnectionAdded(connection);
+    const callbackEnd = performance.now();
+    console.log(`[TIMING] onConnectionAdded callback total: ${(callbackEnd - callbackStart).toFixed(2)}ms`);
   }, []);
 
   // Callback function to handle connection removal
   const onConnectionRemoved = useCallback((connection: PadConnectionInfo) => {
+    const callbackStart = performance.now();
+    console.log('[CALLBACK] onConnectionRemoved called');
     handleConnectionRemoved(connection);
+    const callbackEnd = performance.now();
+    console.log(`[TIMING] onConnectionRemoved callback total: ${(callbackEnd - callbackStart).toFixed(2)}ms`);
   }, []);
 
   // Callback function to handle element removal
   const onElementRemoved = useCallback(async (parentId: string, parentBin: GstBin, element: GstElement) => {
+    const callbackStart = performance.now();
+    console.log('[CALLBACK] onElementRemoved called');
     await handleElementRemoved(parentId, parentBin, element);
+    const callbackEnd = performance.now();
+    console.log(`[TIMING] onElementRemoved callback total: ${(callbackEnd - callbackStart).toFixed(2)}ms`);
   }, []);
 
   // Callback function to handle element addition
   const onElementAdded = useCallback(async (parentId: string, parentBin: GstBin, element: GstElement) => {
+    const callbackStart = performance.now();
+    console.log('[CALLBACK] onElementAdded called');
     await handleElementAdded(parentId, parentBin, element);
+    const callbackEnd = performance.now();
+    console.log(`[TIMING] onElementAdded callback total: ${(callbackEnd - callbackStart).toFixed(2)}ms`);
   }, []);
 
   // Generate nodes directly by iterating over pipeline elements

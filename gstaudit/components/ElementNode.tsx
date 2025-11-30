@@ -44,10 +44,16 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
   // Get element name and factory name
   useEffect(() => {
     const fetchElementInfo = async () => {
+      const startTime = performance.now();
+      console.log('[ELEMENT_NODE] Fetching element info for', nodeData.element.ptr);
       try {
+        const nameStart = performance.now();
         const name = await nodeData.element.get_name();
         setElementName(name ?? 'Unknown');
+        const nameEnd = performance.now();
+        console.log(`[TIMING] ElementNode get_name() took ${(nameEnd - nameStart).toFixed(2)}ms`);
         
+        const factoryStart = performance.now();
         const factory = await nodeData.element.get_factory();
         if (factory) {
           const factoryNameStr = await factory.get_name();
@@ -55,6 +61,11 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
         } else {
           setFactoryName('Unknown');
         }
+        const factoryEnd = performance.now();
+        console.log(`[TIMING] ElementNode get_factory() + get_name() took ${(factoryEnd - factoryStart).toFixed(2)}ms`);
+        
+        const totalTime = performance.now() - startTime;
+        console.log(`[TIMING] Total ElementNode fetchElementInfo took ${totalTime.toFixed(2)}ms`);
       } catch (err) {
         console.error('Error getting element info:', err);
         setElementName('Unknown');
