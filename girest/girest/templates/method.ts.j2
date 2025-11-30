@@ -1,6 +1,7 @@
 {# Method template #}
 {% set required_params = [] %}
 {% set optional_params = [] %}
+{% set callback_params = [] %}
 {% for param in method.query_params %}
   {% set ts_type = param.type.lang_type %}
   {% if param.required %}
@@ -9,8 +10,32 @@
     {% set _ = optional_params.append(param.valid_name + "?: " + ts_type) %}
   {% endif %}
 {% endfor %}
-{% set all_params = required_params + optional_params %}
+
+{# Add callback parameters from return parameters that are callbacks #}
+{% if method.return_obj.return_params %}
+  {% for return_param in method.return_obj.return_params %}
+    {% if return_param.is_callback %}
+      {% set _ = callback_params.append(return_param.valid_name + ": " + return_param.callback.name) %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% set all_params = required_params + callback_params + optional_params %}
 {% set params_string = all_params | join(", ") %}
+
+{# Generate method return signature based on return_params #}
+{% set method_return_signature = 'void' %}
+{% if method.return_obj.return_params %}
+  {% if method.return_obj.return_params|length == 1 %}
+    {% set method_return_signature = method.return_obj.return_params[0].type.lang_type %}
+  {% else %}
+    {% set return_type_parts = [] %}
+    {% for return_param in method.return_obj.return_params %}
+      {% set _ = return_type_parts.append(return_param.name + ": " + return_param.type.lang_type) %}
+    {% endfor %}
+    {% set method_return_signature = "{" + return_type_parts | join(", ") + "}" %}
+  {% endif %}
+{% endif %}
 
 {% set ns = namespace(method_path = method.path) %}
 {% for param in method.path_params %}
@@ -25,11 +50,11 @@
 
 {% block signature %} 
 {% if method.is_namespace_function or (method.parent.info_type in ['enum','flags'] and method.parent.methods|length > 0) %}
-  export async function {{ method.valid_name }}({{ params_string }}): Promise<{{ method.return_obj.return_param.type.lang_type if method.return_obj.return_param else 'void' }}> {
+  export async function {{ method.valid_name }}({{ params_string }}): Promise<{{ method_return_signature }}> {
 {% elif method.is_static %}
-  static async {{ method.valid_name }}({{ params_string }}): Promise<{{ method.return_obj.return_param.type.lang_type if method.return_obj.return_param else 'void' }}> {
+  static async {{ method.valid_name }}({{ params_string }}): Promise<{{ method_return_signature }}> {
 {% else %}
-  async {{ method.valid_name }}({{ params_string }}): Promise<{{ method.return_obj.return_param.type.lang_type if method.return_obj.return_param else 'void' }}> {
+  async {{ method.valid_name }}({{ params_string }}): Promise<{{ method_return_signature }}> {
 {% endif %}
 {% endblock %}
 {% block body %}
@@ -56,7 +81,10 @@
       // Register callbacks
 {% for cb in method.callback_params %}
       if (data.{{ cb.name }} !== undefined) {
-        callbackDispatcher.set(data.{{ cb.name }}.toString(), {{ cb.name }});
+        callbackDispatcher.set(data.{{ cb.name }}.toString(), {
+          converter: convert{{ cb.callback.name }}Args,
+          userFunction: {{ cb.valid_name }}
+        });
       }
 {% endfor %}
 {% endif %}

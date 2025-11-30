@@ -60,7 +60,11 @@ const objectRegistry = new FinalizationRegistry((ptr: string) => {
 });
 
 // Callback dispatcher for handling callbacks from the server
-const callbackDispatcher = new Map<string, Function>();
+interface CallbackEntry {
+  converter: (data: any) => any[];
+  userFunction: Function;
+}
+const callbackDispatcher = new Map<string, CallbackEntry>();
 
 let callbackSource: EventSource | null = null;
 let isReinitializing = false;
@@ -84,9 +88,10 @@ function initializeCallbackSource(): void {
     callbackSource.onmessage = (ev) => {
       try {
         const json = JSON.parse(ev.data);
-        const cb = callbackDispatcher.get(json.id.toString());
-        if (cb) {
-          cb(...Object.values(json.data));
+        const callbackEntry = callbackDispatcher.get(json.id.toString());
+        if (callbackEntry) {
+          const convertedArgs = callbackEntry.converter(json.data);
+          callbackEntry.userFunction(...convertedArgs);
         }
       } catch (error) {
         console.error('Error processing callback:', error);

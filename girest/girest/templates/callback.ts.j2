@@ -1,2 +1,42 @@
 {# Callback template - handles callback function types as TypeScript type aliases #}
-export type {{ callback.name }} = {{ callback.callback_signature }};
+{% set params = [] %}
+{% for param in callback.parameters %}
+  {% set ts_type = param.type.lang_type %}
+  {% if param.can_be_null and (param.type.is_object or (param.type.ref_schema and param.type.ref_schema.info_type == "struct")) %}
+    {% set ts_type = ts_type + " | null" %}
+  {% endif %}
+  {% set _ = params.append(param.valid_name + ": " + ts_type) %}
+{% endfor %}
+{% set params_string = params | join(", ") %}
+{% set return_type = callback.return_param.type.lang_type if callback.return_param else 'void' %}
+export type {{ callback.name }} = ({{ params_string }}) => {{ return_type }};
+
+export function convert{{ callback.name }}Args(data: any): Parameters<{{ callback.name }}> {
+  return [
+{% for param in callback.parameters %}    {% if param.type.lang_type == "Pointer" -%}
+data.{{ param.name }}
+{%- elif param.type.ref_schema and param.type.ref_schema.info_type == "enum" -%}
+data.{{ param.name }}
+{%- elif param.type.ref_schema and param.type.ref_schema.info_type == "flags" -%}
+data.{{ param.name }}
+{%- elif param.type.ref_schema and param.type.ref_schema.info_type == "struct" -%}
+{% if param.can_be_null -%}
+data.{{ param.name }} ? new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}') : null
+{%- else -%}
+new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}')
+{%- endif -%}
+{%- elif param.type.ref_schema and param.type.ref_schema.info_type == "object" -%}
+{% if param.can_be_null -%}
+data.{{ param.name }} ? new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}') : null
+{%- else -%}
+new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}')
+{%- endif -%}
+{%- elif param.type.type == "string" -%}
+data.{{ param.name }}
+{%- else -%}
+data.{{ param.name }}
+{%- endif -%}
+{% if not loop.last %},
+{% endif %}{% endfor %}
+  ];
+}

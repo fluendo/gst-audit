@@ -312,9 +312,22 @@ class ReturnParam(Info):
     """Represents a return parameter with its schema information specific to return values."""
     
     info_type = "return_param"
-    def __init__(self, generator: 'Generator', schema: Dict[str, Any], parent: Optional['Info'] = None):
+    def __init__(self, name: str, generator: 'Generator', schema: Dict[str, Any], parent: Optional['Info'] = None):
         super().__init__(generator, schema, parent)
-        self.type = Type(schema, generator, self)
+        self._name = name
+        self._type = Type(schema, generator, self)
+        self._callback = None
+        if self.is_callback:
+            s = schema.get("x-gi-callback").split("/")[-1]
+            self._callback = self.generator.get_schema(s)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def type(self) -> 'Type':
+        return self._type
 
     @property
     def transfer(self) -> str:
@@ -328,6 +341,31 @@ class ReturnParam(Info):
     def description(self) -> str:
         return self.schema_section.get("description", "")
     
+    @property
+    def is_callback(self) -> bool:
+        return "x-gi-callback" in self.schema_section
+
+    @property
+    def callback(self) -> 'Callback':
+        return self._callback
+
+    def generate(self) -> str:
+        # We should try "return_param_GObjectObject.ts.j2", "return_param_object.ts.j2" or "return_param.ts.j2"
+        template_names = [
+            f'{self.info_type}_{self.type.lang_type}.ts.j2',
+        ]
+        if self.type.is_ref:
+            template_names.append(f'{self.info_type}_{self.type.ref_schema.info_type}.ts.j2')
+
+        template_names.append(f'{self.info_type}.ts.j2')
+        for tn in template_names:
+            try:
+                template = self.generator.jinja_env.get_template(tn)
+                return template.render(**{self.info_type: self})
+            except TemplateNotFound:
+                pass
+
+
 
 class Schema(Info):
     """Base class for all schema types."""
@@ -405,10 +443,26 @@ class Enum(Schema):
 
 
 class Flags(Enum):
-    """Represents a GOBject flags schema (bitfield enum)."""
+    """Represents a GObject flags schema (bitfield enum)."""
     
     info_type = "flags"
     
+
+class Field(Schema):
+    """Represents a GObject Callback parameter or generic field"""
+    info_type = "field"
+    def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: 'Info'):
+        super().__init__(name, schema_def, generator, parent)
+        self.type = Type(schema_def, generator, self)
+
+    @property
+    def transfer(self) -> str:
+        return self.schema_section.get("x-gi-transfer", "none")
+
+    @property
+    def can_be_null(self) -> str:
+        return self.schema_section.get("x-gi-null", False)
+
 
 class Callback(Schema):
     """Represents a GObject Callback function schema."""
@@ -416,20 +470,28 @@ class Callback(Schema):
     info_type = "callback"
     def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
         super().__init__(name, schema_def, generator, parent)
-    
-    def parse_schema(self):
-        """Parse callback-specific data."""
-        # TODO wrong. Iterate over the paramters and add the ones that do not have
-        # x-gi-is-return set to True. For each property found, add the dependency.
-        self.parameters = self.schema_section.get("properties", {})
-        # TODO wrong. Iterate over the paramters and add the ones that do have
-        # x-gi-is-return set to True. For each property found, add the dependency.
-        self.return_type = self.schema_section.get("x-return-type", "void")
-        
-        # Generate callback signature for the template
-        # TODO: This is a simplified implementation - should properly parse parameters and return types
-        self.callback_signature = "(...args: any[]) => any"
-    
+        self._parameters: List[Param] = []
+        raw_properties = schema_def.get("properties", {})
+        for pname, pv in raw_properties.items():
+            if pv["x-gi-is-return"]:
+                self._return_param = ReturnParam(pname, self.generator, pv, self)
+            else:
+                self._parameters.append(Field(pname, pv, generator, self))
+
+    @property
+    def parameters(self) -> List["Field"]:
+        return self._parameters
+
+    @property
+    def return_param(self) -> Optional[ReturnParam]:
+        """Get the main return parameter."""
+        return self._return_param
+
+    @property
+    def is_void(self) -> bool:
+        """Check if this method returns void."""
+        return self._return_param is None
+
 
 class Struct(Schema):
     """Represents a GObject Struct schema."""
@@ -641,53 +703,29 @@ class Return(Info):
         super().__init__(generator, return_schema, parent)
         self.method_data = method_data
         self.properties = {}
-        self._return_param = None
-        self._parse_return()
+        self._return_params: List[ReturnParam] = []
+        self._parse_returns()
     
-    def _parse_return(self):
-        """Parse the return type from method responses."""
+    def _parse_returns(self):
+        """Parse the return types from method responses."""
         if self.schema_section:
             self.properties = self.schema_section.get("properties", {})
-            # Create the main return parameter from the 'return' property
-            if "return" in self.properties:
-                self._return_param = ReturnParam(self.generator, self.properties["return"], self)
+            for rk, rv in self.properties.items():
+                self._return_params.append(ReturnParam(rk, self.generator, rv, self))
 
     @property
-    def return_param(self) -> Optional[ReturnParam]:
+    def return_params(self) -> Optional[List[ReturnParam]]:
         """Get the main return parameter."""
-        return self._return_param
+        return self._return_params
 
     @property
     def is_void(self) -> bool:
         """Check if this method returns void."""
-        return self._return_param is None
-
-    def get_param_properties(self) -> List[ReturnParam]:
-        """Return all properties that are instances of the ReturnParam class."""
-        param_properties = []
-        
-        for prop_name, prop_schema in self.properties.items():
-            # Create a ReturnParam directly from the property schema with this Return as parent
-            return_param = ReturnParam(self.generator, prop_schema, self)
-            param_properties.append(return_param)
-        
-        return param_properties
+        return not self._return_params
 
     def generate(self) -> str:
-        # We should try "return_GObjectObject.ts.j2", "return_object.ts.j2" or "return.ts.j2"
-        template_names = [
-            f'{self.info_type}_{self._return_param.type.lang_type}.ts.j2',
-        ]
-        if self.return_param.type.is_ref:
-            template_names.append(f'{self.info_type}_{self.return_param.type.ref_schema.info_type}.ts.j2')
-
-        template_names.append(f'{self.info_type}.ts.j2')
-        for tn in template_names:
-            try:
-                template = self.generator.jinja_env.get_template(tn)
-                return template.render(**{self.info_type: self})
-            except TemplateNotFound:
-                pass
+        template = self.generator.jinja_env.get_template('return.ts.j2')
+        return template.render(**{self.info_type: self})
 
 
 class Method(Info):
@@ -793,9 +831,8 @@ class Method(Info):
         return False
 
     @property
-    def callback_params(self) -> List:
-        """Get callback parameters for template compatibility."""
-        return []  # TODO: Implement callback parameter parsing if needed
+    def callback_params(self) -> List['ReturnParam']:
+        return [rp for rp in self.return_obj.return_params if rp.is_callback]
 
     def is_equal(self, other: 'Method') -> bool:
         # Check the name

@@ -1,0 +1,6 @@
+// Return value is a struct, instantiate it from the ptr
+if (data.{{ return_param.name }} && typeof data.{{ return_param.name }} === 'object' && 'ptr' in data.{{ return_param.name }}) {
+  const instance = new {{ return_param.type.ref_schema.valid_name }}(data.{{ return_param.name }}.ptr, '{{ return_param.transfer }}');
+  return instance;
+}
+return Promise.reject("Call failed");
