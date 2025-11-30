@@ -51,11 +51,15 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
     const fetchElementInfo = async () => {
       try {
         const name = await nodeData.bin.get_name();
-        setElementName(name);
+        setElementName(name ?? 'Unknown');
         
         const factory = await nodeData.bin.get_factory();
-        const factoryNameStr = await factory.get_name();
-        setFactoryName(factoryNameStr);
+        if (factory) {
+          const factoryNameStr = await factory.get_name();
+          setFactoryName(factoryNameStr ?? 'Unknown');
+        } else {
+          setFactoryName('Unknown');
+        }
       } catch (err) {
         console.error('Error getting element info:', err);
         setElementName('Unknown');
@@ -79,9 +83,11 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
           if (!isMounted) return;
           
           const iterator = await nodeData.bin.iterate_elements();
+          if (!iterator) return;
 
           for await (const obj of iterator) {
             if (!isMounted) return;
+            if (!obj) continue;
             
             const child: GstElement = await obj.castTo(GstElement);
             await nodeData.onElementAdded?.(id, nodeData.bin, child);
@@ -95,8 +101,10 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
           
           const removeChildren = async () =>  {
               const iterator = await nodeData.bin.iterate_elements();
+              if (!iterator) return;
 
               for await (const obj of iterator) {
+                if (!obj) continue;
                 const child: GstElement = await obj.castTo(GstElement);
                 await nodeData.onElementRemoved?.(id, nodeData.bin, child);
               }

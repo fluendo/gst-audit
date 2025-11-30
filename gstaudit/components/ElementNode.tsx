@@ -46,11 +46,15 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
     const fetchElementInfo = async () => {
       try {
         const name = await nodeData.element.get_name();
-        setElementName(name);
+        setElementName(name ?? 'Unknown');
         
         const factory = await nodeData.element.get_factory();
-        const factoryNameStr = await factory.get_name();
-        setFactoryName(factoryNameStr);
+        if (factory) {
+          const factoryNameStr = await factory.get_name();
+          setFactoryName(factoryNameStr ?? 'Unknown');
+        } else {
+          setFactoryName('Unknown');
+        }
       } catch (err) {
         console.error('Error getting element info:', err);
         setElementName('Unknown');
