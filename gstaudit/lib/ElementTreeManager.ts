@@ -8,6 +8,9 @@ import {
   GstPadDirectionValue,
 } from './gst';
 
+// Status callback type for reporting progress
+export type StatusCallback = (message: string) => void;
+
 export interface ElementPad {
   id: string; // ptr of the GstPad
   representation: string; // Handle ID for UI (e.g., "element-pad" or "element-ghostpad-internalpad")
@@ -33,21 +36,43 @@ export interface ElementTree {
 
 export class ElementTreeManager {
   private root: ElementTree | null = null;
+  private statusCallback: StatusCallback | null = null;
+
+  /**
+   * Set a callback to be notified of status updates during tree generation
+   */
+  setStatusCallback(callback: StatusCallback | null): void {
+    this.statusCallback = callback;
+  }
+
+  /**
+   * Report status update if callback is set
+   */
+  private reportStatus(message: string): void {
+    if (this.statusCallback) {
+      this.statusCallback(message);
+    }
+  }
 
   async generateTree(pipeline: GstPipeline): Promise<void> {
     console.log('[ELEMENT_TREE] Starting tree generation...');
+    this.reportStatus('Starting tree generation...');
     const startTime = performance.now();
     
     try {
       // Walk pipeline recursively and build element tree
       console.log('[ELEMENT_TREE] Walking pipeline structure...');
+      this.reportStatus('Walking pipeline structure...');
       const tree = await this.walkPipelineRecursive(pipeline, null, 0);
       this.root = tree;
       
       const totalTime = performance.now() - startTime;
-      console.log(`[ELEMENT_TREE] Tree generation finished in ${totalTime.toFixed(2)}ms`);
+      const message = `Tree generation completed in ${totalTime.toFixed(2)}ms`;
+      console.log(`[ELEMENT_TREE] ${message}`);
+      this.reportStatus(message);
     } catch (error) {
       console.error('[ELEMENT_TREE] Error during tree generation:', error);
+      this.reportStatus(`Error during tree generation: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     }
   }
@@ -103,6 +128,9 @@ export class ElementTreeManager {
     
     // Get element name
     const elementName = (await element.get_name()) ?? 'unknown';
+    
+    // Report status
+    this.reportStatus(`Processing ${elementName}...`);
     
     // Discover all pads
     const pads = await this.discoverPads(element, elementName);

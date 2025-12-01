@@ -94,6 +94,11 @@ export default function PipelinePage() {
       setPipelineLoaded(false);
       elementTreeManager.clear();
       
+      // Set status callback to update UI during loading
+      elementTreeManager.setStatusCallback((message: string) => {
+        setStatus(message);
+      });
+      
       console.log('========================================');
       console.log('[LOAD] Starting pipeline load');
       console.log('========================================');
@@ -127,6 +132,9 @@ export default function PipelinePage() {
     } catch (error) {
       console.error('Error loading pipeline:', error);
       setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      // Clear the callback after loading is complete
+      elementTreeManager.setStatusCallback(null);
     }
   };
 
