@@ -136,50 +136,67 @@ function discoverEdges(elementTrees: ElementTree[]): Edge[] {
   const processedConnections = new Set<string>();
   
   // Build a map of pad ptr -> pad info for quick lookup
-  const padMap = new Map<string, { tree: ElementTree; padIndex: number }>();
+  // Include both regular pads and internal pads from ghost pads
+  const padMap = new Map<string, { tree: ElementTree; pad: any }>();
   elementTrees.forEach(tree => {
-    tree.pads.forEach((pad, index) => {
-      padMap.set(pad.id, { tree, padIndex: index });
+    tree.pads.forEach(pad => {
+      padMap.set(pad.id, { tree, pad });
+      
+      // Also add internal pad if it exists
+      if (pad.internal) {
+        padMap.set(pad.internal.id, { tree, pad: pad.internal });
+      }
     });
   });
   
-  // For each element, check each pad's linkedTo
+  // Helper function to check edges for a pad
+  const checkPadConnections = (tree: ElementTree, pad: any) => {
+    if (!pad.linkedTo) return;
+    
+    // Find the peer pad info
+    const peerInfo = padMap.get(pad.linkedTo.ptr);
+    if (!peerInfo) return;
+    
+    const peerPad = peerInfo.pad;
+    
+    // Determine source and target based on direction
+    const isSrc = pad.direction === GstPadDirection.SRC;
+    const sourceElementId = isSrc ? tree.id : peerInfo.tree.id;
+    const targetElementId = isSrc ? peerInfo.tree.id : tree.id;
+    const sourceHandle = isSrc ? pad.representation : peerPad.representation;
+    const targetHandle = isSrc ? peerPad.representation : pad.representation;
+    
+    // Create connection ID (always source->target order to avoid duplicates)
+    const connectionId = `${sourceHandle}-${targetHandle}`;
+    
+    // Skip if already processed (since both pads will report the connection)
+    if (processedConnections.has(connectionId)) return;
+    processedConnections.add(connectionId);
+    
+    edges.push({
+      id: connectionId,
+      source: sourceElementId,
+      target: targetElementId,
+      sourceHandle,
+      targetHandle,
+      type: 'link',
+      animated: false,
+      data: {
+        isInternal: pad.isInternal || peerPad.isInternal
+      }
+    });
+  };
+  
+  // For each element, check each pad's linkedTo (including internal pads)
   for (const tree of elementTrees) {
     for (const pad of tree.pads) {
-      if (!pad.linkedTo) continue;
+      // Check the pad itself
+      checkPadConnections(tree, pad);
       
-      // Find the peer pad info
-      const peerInfo = padMap.get(pad.linkedTo.ptr);
-      if (!peerInfo) continue;
-      
-      const peerPad = peerInfo.tree.pads[peerInfo.padIndex];
-      
-      // Determine source and target based on direction
-      const isSrc = pad.direction === GstPadDirection.SRC;
-      const sourceElementId = isSrc ? tree.id : peerInfo.tree.id;
-      const targetElementId = isSrc ? peerInfo.tree.id : tree.id;
-      const sourceHandle = isSrc ? pad.representation : peerPad.representation;
-      const targetHandle = isSrc ? peerPad.representation : pad.representation;
-      
-      // Create connection ID (always source->target order to avoid duplicates)
-      const connectionId = `${sourceHandle}-${targetHandle}`;
-      
-      // Skip if already processed (since both pads will report the connection)
-      if (processedConnections.has(connectionId)) continue;
-      processedConnections.add(connectionId);
-      
-      edges.push({
-        id: connectionId,
-        source: sourceElementId,
-        target: targetElementId,
-        sourceHandle,
-        targetHandle,
-        type: 'link',
-        animated: false,
-        data: {
-          isInternal: pad.isInternal || peerPad.isInternal
-        }
-      });
+      // Check internal pad if it exists
+      if (pad.internal) {
+        checkPadConnections(tree, pad.internal);
+      }
     }
   }
   

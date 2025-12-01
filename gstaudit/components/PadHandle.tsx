@@ -40,7 +40,7 @@ const PadHandle: React.FC<PadHandleProps> = ({
   const handleClassName = isSink ? 'gst-audit-pad-handle gst-audit-pad-handle--sink' : 'gst-audit-pad-handle gst-audit-pad-handle--src';
 
   // Use theme values for consistent sizing
-  const isGhost = padData.isGhost && padData.isInternal;
+  const isGhost = padData.isGhost && padData.internal !== null;
   const containerHeight = isGhost ? theme.pad.ghostContainerHeight : theme.pad.height;
   
   // Handles have fixed dimensions and don't need additional styling
@@ -69,15 +69,15 @@ const PadHandle: React.FC<PadHandleProps> = ({
       </Handle>
       
       {/* Ghost pad internal handle - positioned below the ghost pad */}
-      {isGhost && (
+      {isGhost && padData.internal && (
         <Handle
           type={isSink ? 'source' : 'target'} // Opposite type for internal
           position={position}
-          id={`${padData.representation}-internal`}
+          id={padData.internal.representation}
           className="gst-audit-pad-handle gst-audit-pad-handle--internal"
           style={internalHandleStyle}
         >
-          <span className="gst-audit-pad-handle__text">internal</span>
+          <span className="gst-audit-pad-handle__text">{padData.internal.name}</span>
         </Handle>
       )}
     </div>

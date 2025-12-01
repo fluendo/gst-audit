@@ -17,6 +17,7 @@ export interface ElementPad {
   isGhost: boolean;
   isInternal: boolean;
   linkedTo: GstPad | null; // Peer pad if linked
+  internal: ElementPad | null; // Reference to internal pad (only set for ghost pads)
 }
 
 // Tree structure for hierarchical elements
@@ -164,20 +165,10 @@ export class ElementTreeManager {
       const isLinked = await pad.is_linked();
       const linkedTo = isLinked ? await pad.get_peer() : null;
       
-      // Add the pad
-      const representation = `${elementName}-${padName}`;
-      pads.push({
-        id: pad.ptr,
-        representation,
-        name: padName,
-        pad,
-        direction,
-        isGhost,
-        isInternal: false,
-        linkedTo
-      });
+      // Initialize internal pad reference as null
+      let internalPad: ElementPad | null = null;
       
-      // If this is a ghost pad, also add the internal pad
+      // If this is a ghost pad, create the internal pad object
       if (isGhost) {
         try {
           const ghostPad = await pad.castTo(GstGhostPad);
@@ -190,7 +181,8 @@ export class ElementTreeManager {
             const internalIsLinked = await internal.is_linked();
             const internalLinkedTo = internalIsLinked ? await internal.get_peer() : null;
             
-            pads.push({
+            // Create the internal pad object (will be nested, not added to main array)
+            internalPad = {
               id: internal.ptr,
               representation: internalRepresentation,
               name: internalName,
@@ -198,13 +190,28 @@ export class ElementTreeManager {
               direction,
               isGhost: false,
               isInternal: true,
-              linkedTo: internalLinkedTo
-            });
+              linkedTo: internalLinkedTo,
+              internal: null // Internal pads don't have their own internal pads
+            };
           }
         } catch (err) {
           console.error('Error getting ghost pad internal:', err);
         }
       }
+      
+      // Add the pad with internal reference
+      const representation = `${elementName}-${padName}`;
+      pads.push({
+        id: pad.ptr,
+        representation,
+        name: padName,
+        pad,
+        direction,
+        isGhost,
+        isInternal: false,
+        linkedTo,
+        internal: internalPad // Set the internal pad reference (null for non-ghost pads)
+      });
     }
     
     return pads;
