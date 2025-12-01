@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useEffect } from 'react';
 import { 
   ReactFlow,
   Node, 
@@ -8,10 +8,10 @@ import {
   Background,
   BackgroundVariant,
   useNodesState,
-  useEdgesState
+  useEdgesState,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { ElementTreeManager, ElementTree, getTheme } from '@/lib';
+import { ElementTreeManager, ElementTree, getTheme, getLayoutedElements } from '@/lib';
 import { GstPadDirection } from '@/lib/gst';
 import ElementNode from './ElementNode';
 import GroupNode from './GroupNode';
@@ -45,7 +45,7 @@ export const PipelineGraph: React.FC<PipelineGraphProps> = ({ treeManager }) => 
     const startTime = performance.now();
     
     const flatTree = treeManager.getFlatTree();
-    const nodes = convertToNodes(flatTree, theme);
+    const nodes = flatTree.map(tree => convertToNode(tree));
     const edges = discoverEdges(flatTree);
     
     const totalTime = performance.now() - startTime;
@@ -56,6 +56,26 @@ export const PipelineGraph: React.FC<PipelineGraphProps> = ({ treeManager }) => 
   
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  
+  // Apply layout when nodes/edges change
+  useEffect(() => {
+    const applyLayout = async () => {
+      if (initialNodes.length === 0) return;
+      
+      console.log('[PIPELINE_GRAPH] Applying layout...');
+      const layoutStart = performance.now();
+      
+      const layoutedNodes = await getLayoutedElements(initialNodes, initialEdges, 'LR');
+      
+      const layoutEnd = performance.now();
+      console.log(`[PIPELINE_GRAPH] Layout applied in ${(layoutEnd - layoutStart).toFixed(2)}ms`);
+      
+      setNodes(layoutedNodes);
+      setEdges(initialEdges);
+    };
+    
+    applyLayout();
+  }, [initialNodes, initialEdges, setNodes, setEdges]);
   
   return (
     <div className="w-full h-full">
@@ -83,60 +103,29 @@ export const PipelineGraph: React.FC<PipelineGraphProps> = ({ treeManager }) => 
 };
 
 /**
- * Convert ElementTree array to React Flow nodes
+ * Convert ElementTree to a React Flow node (stores ElementTree in data)
  */
-function convertToNodes(elementTrees: ElementTree[], theme: any): Node[] {
-  return elementTrees.map(tree => {
-    const isGroup = tree.children.length > 0;
-    const sinkPads = tree.pads.filter(p => p.direction === GstPadDirection.SINK && !p.isInternal);
-    const srcPads = tree.pads.filter(p => p.direction === GstPadDirection.SRC && !p.isInternal);
-    
-    return {
-      id: tree.id,
-      type: isGroup ? 'group' : 'element',
-      parentId: tree.parent?.id,
-      position: { x: 0, y: 0 }, // Will be set by layout
-      data: {
-        // Pre-computed display data
-        name: tree.name,
-        sinkPads: sinkPads.map(pad => ({
-          id: pad.id,
-          representation: pad.representation,
-          name: pad.name,
-          direction: pad.direction,
-          isGhost: pad.isGhost,
-          isInternal: pad.isInternal
-        })),
-        srcPads: srcPads.map(pad => ({
-          id: pad.id,
-          representation: pad.representation,
-          name: pad.name,
-          direction: pad.direction,
-          isGhost: pad.isGhost,
-          isInternal: pad.isInternal
-        })),
-        // Include all pads for ghost pad internal handles
-        allPads: tree.pads.map(pad => ({
-          id: pad.id,
-          representation: pad.representation,
-          name: pad.name,
-          direction: pad.direction,
-          isGhost: pad.isGhost,
-          isInternal: pad.isInternal
-        }))
-      },
-      ...(isGroup && {
-        extent: 'parent' as const,
-        expandParent: true,
-        style: {
-          width: theme.node.groupMinWidth,
-          height: theme.node.groupMinHeight,
-          minWidth: theme.node.groupMinWidth,
-          minHeight: theme.node.groupMinHeight,
-        }
-      })
-    };
-  });
+function convertToNode(tree: ElementTree): Node {
+  const isGroup = tree.children.length > 0;
+  const theme = getTheme();
+  
+  return {
+    id: tree.id,
+    type: isGroup ? 'group' : 'element',
+    parentId: tree.parent?.id,
+    position: { x: 0, y: 0 }, // Will be set by layout
+    data: tree as any, // Store the entire ElementTree
+    ...(isGroup && {
+      extent: 'parent' as const,
+      expandParent: true,
+      style: {
+        width: theme.node.groupMinWidth,
+        height: theme.node.groupMinHeight,
+        minWidth: theme.node.groupMinWidth,
+        minHeight: theme.node.groupMinHeight,
+      }
+    })
+  };
 }
 
 /**
