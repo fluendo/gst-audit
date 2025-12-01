@@ -23,6 +23,7 @@ export interface ElementTree {
   id: string;
   name: string;
   element: GstElement;
+  parent: ElementTree | null;
   children: ElementTree[];
   pads: ElementPad[];
   level: number; // Hierarchy level (0 for root)
@@ -38,7 +39,7 @@ export class ElementTreeManager {
     try {
       // Walk pipeline recursively and build element tree
       console.log('[ELEMENT_TREE] Walking pipeline structure...');
-      const tree = await this.walkPipelineRecursive(pipeline, 0);
+      const tree = await this.walkPipelineRecursive(pipeline, null, 0);
       this.root = tree;
       
       const totalTime = performance.now() - startTime;
@@ -57,6 +58,17 @@ export class ElementTreeManager {
   }
 
   /**
+   * Get a flat list of all elements in the tree
+   */
+  getFlatTree(): ElementTree[] {
+    if (!this.root) return [];
+    
+    const flat: ElementTree[] = [];
+    this.flattenTree(this.root, flat);
+    return flat;
+  }
+
+  /**
    * Clear the tree
    */
   clear(): void {
@@ -68,10 +80,21 @@ export class ElementTreeManager {
   // ========================================================================
 
   /**
+   * Helper to flatten tree into array
+   */
+  private flattenTree(node: ElementTree, result: ElementTree[]): void {
+    result.push(node);
+    for (const child of node.children) {
+      this.flattenTree(child, result);
+    }
+  }
+
+  /**
    * Recursively walk the pipeline/bin structure and create element tree
    */
   private async walkPipelineRecursive(
     element: GstElement,
+    parent: ElementTree | null,
     level: number
   ): Promise<ElementTree> {
     const elementStart = performance.now();
@@ -92,6 +115,7 @@ export class ElementTreeManager {
       id: element.ptr,
       name: elementName,
       element,
+      parent,
       children: [],
       pads,
       level
@@ -107,8 +131,8 @@ export class ElementTreeManager {
           if (!obj) continue;
           const child = await obj.castTo(GstElement);
           
-          // Recursive call
-          const childTree = await this.walkPipelineRecursive(child, level + 1);
+          // Recursive call - pass current node as parent
+          const childTree = await this.walkPipelineRecursive(child, treeNode, level + 1);
           treeNode.children.push(childTree);
         }
       }
