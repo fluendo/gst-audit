@@ -16,6 +16,7 @@ export interface ElementPad {
   direction: GstPadDirectionValue;
   isGhost: boolean;
   isInternal: boolean;
+  linkedTo: GstPad | null; // Peer pad if linked
 }
 
 // Tree structure for hierarchical elements
@@ -159,6 +160,10 @@ export class ElementTreeManager {
       const direction = await pad.get_direction();
       const isGhost = await pad.isOf(GstGhostPad);
       
+      // Check if pad is linked and get peer
+      const isLinked = await pad.is_linked();
+      const linkedTo = isLinked ? await pad.get_peer() : null;
+      
       // Add the pad
       const representation = `${elementName}-${padName}`;
       pads.push({
@@ -168,7 +173,8 @@ export class ElementTreeManager {
         pad,
         direction,
         isGhost,
-        isInternal: false
+        isInternal: false,
+        linkedTo
       });
       
       // If this is a ghost pad, also add the internal pad
@@ -179,6 +185,11 @@ export class ElementTreeManager {
           if (internal) {
             const internalName = (await internal.get_name()) ?? 'unknown';
             const internalRepresentation = `${elementName}-${padName}-${internalName}`;
+            
+            // Check if internal pad is linked
+            const internalIsLinked = await internal.is_linked();
+            const internalLinkedTo = internalIsLinked ? await internal.get_peer() : null;
+            
             pads.push({
               id: internal.ptr,
               representation: internalRepresentation,
@@ -186,7 +197,8 @@ export class ElementTreeManager {
               pad: internal,
               direction,
               isGhost: false,
-              isInternal: true
+              isInternal: true,
+              linkedTo: internalLinkedTo
             });
           }
         } catch (err) {
@@ -198,3 +210,4 @@ export class ElementTreeManager {
     return pads;
   }
 }
+
