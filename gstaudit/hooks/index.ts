@@ -1,2 +1,1 @@
-export { usePads } from './usePads';
-export { useSinkSrcPads } from './useSinkSrcPads';
+// All hooks have been removed - they are no longer used
