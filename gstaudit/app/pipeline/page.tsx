@@ -17,7 +17,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import '../pipeline-theme.css';
 import Link from 'next/link';
-import { getConfig, getLayoutedElements, NodeTreeManager, NodeTree } from '@/lib';
+import { getConfig, getLayoutedElements, NodeTreeManager, NodeTree, ElementTreeManager } from '@/lib';
 import type { PadConnectionInfo } from '@/components/types';
 import {
   GObjectObject,
@@ -87,6 +87,9 @@ export default function PipelinePage() {
   
   // Initialize the node tree manager
   const nodeTreeManager = useRef(new NodeTreeManager()).current;
+  
+  // Initialize the element tree manager for testing
+  const elementTreeManager = useRef(new ElementTreeManager()).current;
   
   // Track all edges (validated or not) - used for layout
   const [allEdges, setAllEdges] = useState<Edge[]>([]);
@@ -249,8 +252,6 @@ export default function PipelinePage() {
       console.log('Pipelines:', allPipelines);
       if (allPipelines.length > 0) {
         setSelectedPipeline(allPipelines[0].ptr); // Default to the first pipeline
-        setStatus(`Pipeline "${allPipelines[0].name}" selected`);
-        await generateNodes(allPipelines[0].ptr);
       } else {
         setStatus('No pipelines found');
       }
@@ -609,6 +610,67 @@ export default function PipelinePage() {
     }
   };
 
+  // Test function to measure ElementTreeManager performance
+  const testElementTreeGeneration = async () => {
+    if (!selectedPipeline) {
+      alert('No pipeline selected!');
+      return;
+    }
+
+    try {
+      setStatus('Testing ElementTreeManager performance...');
+      console.log('========================================');
+      console.log('[TEST] Starting ElementTreeManager test');
+      console.log('========================================');
+      
+      const testStart = performance.now();
+      const pipeline = new GstPipeline(selectedPipeline, 'none');
+      
+      // Generate the tree
+      await elementTreeManager.generateTree(pipeline);
+      
+      const testEnd = performance.now();
+      const totalTime = (testEnd - testStart).toFixed(2);
+      
+      // Get the generated tree to count elements and pads
+      const tree = elementTreeManager.getRoot();
+      if (tree) {
+        const countElements = (node: any): number => {
+          let count = 1;
+          for (const child of node.children) {
+            count += countElements(child);
+          }
+          return count;
+        };
+        
+        const countPads = (node: any): number => {
+          let count = node.pads.length;
+          for (const child of node.children) {
+            count += countPads(child);
+          }
+          return count;
+        };
+        
+        const elementCount = countElements(tree);
+        const padCount = countPads(tree);
+        
+        console.log('========================================');
+        console.log(`[TEST] ElementTreeManager Results:`);
+        console.log(`[TEST] - Total time: ${totalTime}ms`);
+        console.log(`[TEST] - Elements discovered: ${elementCount}`);
+        console.log(`[TEST] - Pads discovered: ${padCount}`);
+        console.log('========================================');
+        
+        setStatus(`ElementTreeManager: ${totalTime}ms - ${elementCount} elements, ${padCount} pads`);
+      } else {
+        setStatus('ElementTreeManager: No tree generated');
+      }
+    } catch (error) {
+      console.error('[TEST] Error testing ElementTreeManager:', error);
+      setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   const setPipelineState = async (state: GstStateValue) => {
     if (!selectedPipeline) {
       alert('No pipeline selected!');
@@ -672,6 +734,12 @@ export default function PipelinePage() {
                   className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                 >
                   Load Pipeline
+                </button>
+                <button
+                  onClick={testElementTreeGeneration}
+                  className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                >
+                  Test Tree Generation
                 </button>
                 <button
                   onClick={() => setPipelineState(GstState.PLAYING)}
