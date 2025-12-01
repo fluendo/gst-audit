@@ -175,7 +175,11 @@ export class ElementTreeManager {
           const internal = await ghostPad.get_internal();
           if (internal) {
             const internalName = (await internal.get_name()) ?? 'unknown';
+            // Internal pad representation should match the same format: elementName-padName
             const internalRepresentation = `${elementName}-${padName}-${internalName}`;
+            
+            // Internal pad direction is opposite of ghost pad direction
+            const internalDirection = direction === GstPadDirection.SINK ? GstPadDirection.SRC : GstPadDirection.SINK;
             
             // Check if internal pad is linked
             const internalIsLinked = await internal.is_linked();
@@ -187,7 +191,7 @@ export class ElementTreeManager {
               representation: internalRepresentation,
               name: internalName,
               pad: internal,
-              direction,
+              direction: internalDirection, // Opposite direction of ghost pad
               isGhost: false,
               isInternal: true,
               linkedTo: internalLinkedTo,
