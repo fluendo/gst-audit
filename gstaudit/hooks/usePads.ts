@@ -77,7 +77,7 @@ export function usePads(
     };
 
     fetchPads();
-  }, [element, onPadAdded, onPadRemoved]);
+  }, [element]);
 
   return {
     padtemplates,
