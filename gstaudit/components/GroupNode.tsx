@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import { NodeProps } from '@xyflow/react';
+import { NodeProps, useUpdateNodeInternals } from '@xyflow/react';
 import { ElementTree } from '@/lib';
 import { GstPadDirection } from '@/lib/gst';
 import PadHandle from './PadHandle';
@@ -7,6 +7,7 @@ import PadHandle from './PadHandle';
 const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
   const tree = data as unknown as ElementTree;
   const [factoryName, setFactoryName] = useState<string>('');
+  const updateNodeInternals = useUpdateNodeInternals();
 
   // Get pads directly from ElementTree
   const sinkPads = tree.pads.filter(p => p.direction === GstPadDirection.SINK && !p.isInternal);
@@ -30,6 +31,10 @@ const GroupNode: React.FC<NodeProps> = ({ data, id, width, height }) => {
     };
     fetchFactoryName();
   }, [tree.element]);
+
+  useEffect(() => {
+    updateNodeInternals(id);
+  }, [tree.pads, id, updateNodeInternals]);
 
   // Get the actual node dimensions from React Flow/ELK
   const nodeWidth = width || 200;

@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import { NodeProps } from '@xyflow/react';
+import { NodeProps, useUpdateNodeInternals } from '@xyflow/react';
 import { ElementTree, ElementPad } from '@/lib';
 import { GstPadDirection } from '@/lib/gst';
 import PadHandle from './PadHandle';
@@ -9,6 +9,7 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
   const tree = data as unknown as ElementTree;
   const theme = getTheme();
   const [factoryName, setFactoryName] = useState<string>('');
+  const updateNodeInternals = useUpdateNodeInternals();
   
   // Get pads directly from ElementTree
   const sinkPads = tree.pads.filter(p => p.direction === GstPadDirection.SINK && !p.isInternal);
@@ -33,6 +34,10 @@ const ElementNode: React.FC<NodeProps> = ({ data, id }) => {
     fetchFactoryName();
   }, [tree.element]);
 
+  useEffect(() => {
+    updateNodeInternals(id);
+  }, [tree.pads, id, updateNodeInternals]);
+  
   // Calculate node height based on pad counts
   const nodeHeight = Math.max(
     theme.node.elementMinHeight, 
