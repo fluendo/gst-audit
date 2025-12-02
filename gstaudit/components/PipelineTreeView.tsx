@@ -8,10 +8,10 @@ import { GstPadDirection } from '@/lib/gst';
 
 interface PipelineTreeViewProps {
   treeManager: ElementTreeManager;
-  onSelectElement?: (elementId: string) => void;
+  onElementSelect?: (element: ElementTree | null) => void;
 }
 
-export function PipelineTreeView({ treeManager, onSelectElement }: PipelineTreeViewProps) {
+export function PipelineTreeView({ treeManager, onElementSelect }: PipelineTreeViewProps) {
   const root = treeManager.getRoot();
 
   const renderTreeItems = (node: ElementTree): React.ReactNode => {
@@ -53,8 +53,9 @@ export function PipelineTreeView({ treeManager, onSelectElement }: PipelineTreeV
           expandIcon: ChevronRightIcon,
         }}
         onItemSelectionToggle={(event, itemId, isSelected) => {
-          if (isSelected && onSelectElement) {
-            onSelectElement(itemId);
+          if (isSelected && onElementSelect) {
+            const element = treeManager.getElementById(itemId);
+            onElementSelect(element);
           }
         }}
       >

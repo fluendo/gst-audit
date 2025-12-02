@@ -111,6 +111,14 @@ export class ElementTreeManager {
   }
 
   /**
+   * Get an element by ID
+   */
+  getElementById(id: string): ElementTree | null {
+    if (!this.root) return null;
+    return this.findElementById(this.root, id);
+  }
+
+  /**
    * Clear the tree
    */
   clear(): void {
@@ -129,6 +137,20 @@ export class ElementTreeManager {
     for (const child of node.children) {
       this.flattenTree(child, result);
     }
+  }
+
+  /**
+   * Helper to find an element by ID in the tree
+   */
+  private findElementById(node: ElementTree, id: string): ElementTree | null {
+    if (node.id === id) {
+      return node;
+    }
+    for (const child of node.children) {
+      const found = this.findElementById(child, id);
+      if (found) return found;
+    }
+    return null;
   }
 
   /**

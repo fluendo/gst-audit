@@ -7,9 +7,10 @@ import { getConfig, ElementTreeManager } from '@/lib';
 import {
   GstPipeline,
 } from '@/lib/gst';
-import { PipelineGraph, PipelineTreeView, StatusBar, PipelineSelector } from '@/components';
+import { PipelineGraph, PipelineTreeView, StatusBar, PipelineSelector, ObjectDetails } from '@/components';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { Button, Box, Typography } from '@mui/material';
+import { ElementTree } from '@/lib/ElementTreeManager';
 
 export default function PipelinePage() {
   const [status, setStatus] = useState<string>('Ready to connect');
@@ -18,6 +19,7 @@ export default function PipelinePage() {
   const [pipelineLoaded, setPipelineLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pipelinesFetched, setPipelinesFetched] = useState(false);
+  const [selectedElement, setSelectedElement] = useState<ElementTree | null>(null);
   
   const elementTreeManagerRef = useRef<ElementTreeManager | null>(null);
   
@@ -28,6 +30,8 @@ export default function PipelinePage() {
     if (selectedPipeline) {
       // Create new instance
       elementTreeManagerRef.current = new ElementTreeManager();
+      // Clear selected element when pipeline changes
+      setSelectedElement(null);
       // Automatically load the pipeline
       loadPipeline();
     }
@@ -138,7 +142,7 @@ export default function PipelinePage() {
           <PanelGroup direction="vertical">
             <Panel defaultSize={95} minSize={95}>
               <PanelGroup direction="horizontal">
-                <Panel defaultSize={25} minSize={15} maxSize={40}>
+                <Panel defaultSize={20} minSize={15} maxSize={30}>
                   <div className="h-full border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
                     <PipelineSelector
                       pipelines={pipelines}
@@ -147,13 +151,16 @@ export default function PipelinePage() {
                     />
                     {pipelineLoaded && elementTreeManagerRef.current && (
                       <div className="flex-1 overflow-auto">
-                        <PipelineTreeView treeManager={elementTreeManagerRef.current} />
+                        <PipelineTreeView 
+                          treeManager={elementTreeManagerRef.current}
+                          onElementSelect={setSelectedElement}
+                        />
                       </div>
                     )}
                   </div>
                 </Panel>
                 <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
-                <Panel defaultSize={75} minSize={60}>
+                <Panel defaultSize={55} minSize={40}>
                   {pipelineLoaded && elementTreeManagerRef.current ? (
                     <PipelineGraph treeManager={elementTreeManagerRef.current} />
                   ) : (
@@ -161,6 +168,12 @@ export default function PipelinePage() {
                       Loading pipeline...
                     </div>
                   )}
+                </Panel>
+                <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
+                <Panel defaultSize={25} minSize={20} maxSize={40}>
+                  <div className="h-full border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                    <ObjectDetails selectedElement={selectedElement} />
+                  </div>
                 </Panel>
               </PanelGroup>
             </Panel>
