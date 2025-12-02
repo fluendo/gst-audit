@@ -9,6 +9,8 @@ import {
   BackgroundVariant,
   useNodesState,
   useEdgesState,
+  useReactFlow,
+  ReactFlowProvider,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { ElementTreeManager, ElementTree, getTheme, getLayoutedElements } from '@/lib';
@@ -30,14 +32,16 @@ const edgeTypes = {
 
 interface PipelineGraphProps {
   treeManager: ElementTreeManager;
+  selectedElement?: ElementTree | null;
 }
 
 /**
  * PipelineGraph component that renders a GStreamer pipeline as a React Flow graph
  * Converts ElementTree to React Flow format and displays them
  */
-export const PipelineGraph: React.FC<PipelineGraphProps> = ({ treeManager }) => {
+const PipelineGraphInner: React.FC<PipelineGraphProps> = ({ treeManager, selectedElement }) => {
   const theme = getTheme();
+  const { fitView } = useReactFlow();
   
   // Convert ElementTree to React Flow nodes and edges
   const { initialNodes, initialEdges } = useMemo(() => {
@@ -76,6 +80,20 @@ export const PipelineGraph: React.FC<PipelineGraphProps> = ({ treeManager }) => 
     
     applyLayout();
   }, [initialNodes, initialEdges, setNodes, setEdges]);
+  
+  // Center on selected element when it changes
+  useEffect(() => {
+    if (selectedElement && nodes.length > 0) {
+      const node = nodes.find(n => n.id === selectedElement.id);
+      if (node) {
+        fitView({
+          nodes: [node],
+          duration: 500,
+          padding: 0.5,
+        });
+      }
+    }
+  }, [selectedElement, nodes, fitView]);
   
   return (
     <div className="w-full h-full">
@@ -202,5 +220,14 @@ function discoverEdges(elementTrees: ElementTree[]): Edge[] {
   
   return edges;
 }
+
+// Wrapper component with ReactFlowProvider
+export const PipelineGraph: React.FC<PipelineGraphProps> = (props) => {
+  return (
+    <ReactFlowProvider>
+      <PipelineGraphInner {...props} />
+    </ReactFlowProvider>
+  );
+};
 
 export default memo(PipelineGraph);

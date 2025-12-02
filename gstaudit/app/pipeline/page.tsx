@@ -162,7 +162,10 @@ export default function PipelinePage() {
                 <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
                 <Panel defaultSize={55} minSize={40}>
                   {pipelineLoaded && elementTreeManagerRef.current ? (
-                    <PipelineGraph treeManager={elementTreeManagerRef.current} />
+                    <PipelineGraph 
+                      treeManager={elementTreeManagerRef.current} 
+                      selectedElement={selectedElement}
+                    />
                   ) : (
                     <div className="flex items-center justify-center h-full text-gray-500">
                       Loading pipeline...
