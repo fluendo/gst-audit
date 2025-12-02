@@ -1,4 +1,5 @@
 import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { useEffect } from 'react';
 
 interface PipelineSelectorProps {
   pipelines: { name: string; ptr: string }[];
@@ -7,6 +8,13 @@ interface PipelineSelectorProps {
 }
 
 export function PipelineSelector({ pipelines, selectedPipeline, onPipelineChange }: PipelineSelectorProps) {
+  // Automatically select the first pipeline when pipelines list changes
+  useEffect(() => {
+    if (pipelines.length > 0 && !selectedPipeline) {
+      onPipelineChange(pipelines[0].ptr);
+    }
+  }, [pipelines, selectedPipeline, onPipelineChange]);
+
   const handleChange = (event: SelectChangeEvent) => {
     onPipelineChange(event.target.value);
   };

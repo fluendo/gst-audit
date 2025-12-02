@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import '@xyflow/react/dist/style.css';
 import '../pipeline-theme.css';
 import { getConfig, ElementTreeManager } from '@/lib';
@@ -19,9 +19,19 @@ export default function PipelinePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [pipelinesFetched, setPipelinesFetched] = useState(false);
   
-  const elementTreeManager = useRef(new ElementTreeManager()).current;
+  const elementTreeManagerRef = useRef<ElementTreeManager | null>(null);
   
   const config = getConfig();
+
+  // Create a new ElementTreeManager when selectedPipeline changes
+  useEffect(() => {
+    if (selectedPipeline) {
+      // Create new instance
+      elementTreeManagerRef.current = new ElementTreeManager();
+      // Automatically load the pipeline
+      loadPipeline();
+    }
+  }, [selectedPipeline]);
 
   const fetchPipelines = async () => {
     try {
@@ -42,12 +52,7 @@ export default function PipelinePage() {
       setPipelines(allPipelines);
       setStatus(`Found ${allPipelines.length} pipeline(s)`);
       console.log('Pipelines:', allPipelines);
-      if (allPipelines.length > 0) {
-        setSelectedPipeline(allPipelines[0].ptr);
-        setPipelinesFetched(true);
-      } else {
-        setStatus('No pipelines found');
-      }
+      setPipelinesFetched(true);
     } catch (error) {
       console.error('Error fetching pipelines:', error);
       setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -57,14 +62,15 @@ export default function PipelinePage() {
   };
 
   const loadPipeline = async () => {
-    if (!selectedPipeline) {
-      alert('No pipeline selected!');
+    if (!selectedPipeline || !elementTreeManagerRef.current) {
       return;
     }
 
     try {
       setStatus('Loading pipeline...');
       setPipelineLoaded(false);
+      
+      const elementTreeManager = elementTreeManagerRef.current;
       elementTreeManager.clear();
       
       // Set status callback to update UI during loading
@@ -88,7 +94,7 @@ export default function PipelinePage() {
       if (tree) {
         const flatTree = elementTreeManager.getFlatTree();
         const elementCount = flatTree.length;
-        const padCount = flatTree.reduce((sum, node) => sum + node.pads.length, 0);
+        const padCount = flatTree.reduce((sum: number, node: any) => sum + node.pads.length, 0);
         
         console.log('========================================');
         console.log(`[LOAD] Pipeline loaded successfully:`);
@@ -107,7 +113,9 @@ export default function PipelinePage() {
       setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       // Clear the callback after loading is complete
-      elementTreeManager.setStatusCallback(null);
+      if (elementTreeManagerRef.current) {
+        elementTreeManagerRef.current.setStatusCallback(null);
+      }
     }
   };
 
@@ -159,26 +167,20 @@ export default function PipelinePage() {
                       selectedPipeline={selectedPipeline}
                       onPipelineChange={setSelectedPipeline}
                     />
-                    {pipelineLoaded && (
+                    {pipelineLoaded && elementTreeManagerRef.current && (
                       <div className="flex-1 overflow-auto">
-                        <PipelineTreeView treeManager={elementTreeManager} />
+                        <PipelineTreeView treeManager={elementTreeManagerRef.current} />
                       </div>
                     )}
                   </div>
                 </Panel>
                 <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
                 <Panel defaultSize={75} minSize={60}>
-                  {pipelineLoaded ? (
-                    <PipelineGraph treeManager={elementTreeManager} />
+                  {pipelineLoaded && elementTreeManagerRef.current ? (
+                    <PipelineGraph treeManager={elementTreeManagerRef.current} />
                   ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <Button
-                        variant="contained"
-                        size="large"
-                        onClick={loadPipeline}
-                      >
-                        Load Pipeline
-                      </Button>
+                    <div className="flex items-center justify-center h-full text-gray-500">
+                      Loading pipeline...
                     </div>
                   )}
                 </Panel>
