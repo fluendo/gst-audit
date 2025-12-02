@@ -153,6 +153,7 @@ export default function PipelinePage() {
                       <div className="flex-1 overflow-auto">
                         <PipelineTreeView 
                           treeManager={elementTreeManagerRef.current}
+                          selectedElement={selectedElement}
                           onElementSelect={setSelectedElement}
                         />
                       </div>
@@ -165,6 +166,7 @@ export default function PipelinePage() {
                     <PipelineGraph 
                       treeManager={elementTreeManagerRef.current} 
                       selectedElement={selectedElement}
+                      onElementSelect={setSelectedElement}
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full text-gray-500">

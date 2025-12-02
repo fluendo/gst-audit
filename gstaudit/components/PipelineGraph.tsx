@@ -33,13 +33,14 @@ const edgeTypes = {
 interface PipelineGraphProps {
   treeManager: ElementTreeManager;
   selectedElement?: ElementTree | null;
+  onElementSelect?: (element: ElementTree | null) => void;
 }
 
 /**
  * PipelineGraph component that renders a GStreamer pipeline as a React Flow graph
  * Converts ElementTree to React Flow format and displays them
  */
-const PipelineGraphInner: React.FC<PipelineGraphProps> = ({ treeManager, selectedElement }) => {
+const PipelineGraphInner: React.FC<PipelineGraphProps> = ({ treeManager, selectedElement, onElementSelect }) => {
   const theme = getTheme();
   const { fitView } = useReactFlow();
   
@@ -95,6 +96,21 @@ const PipelineGraphInner: React.FC<PipelineGraphProps> = ({ treeManager, selecte
     }
   }, [selectedElement, nodes, fitView]);
   
+  // Handle node click
+  const handleNodeClick = (_event: React.MouseEvent, node: Node) => {
+    if (onElementSelect) {
+      const element = treeManager.getElementById(node.id);
+      onElementSelect(element);
+    }
+  };
+  
+  // Handle pane click (clicking on background)
+  const handlePaneClick = () => {
+    if (onElementSelect) {
+      onElementSelect(null);
+    }
+  };
+  
   return (
     <div className="w-full h-full">
       <ReactFlow
@@ -102,6 +118,8 @@ const PipelineGraphInner: React.FC<PipelineGraphProps> = ({ treeManager, selecte
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodeClick={handleNodeClick}
+        onPaneClick={handlePaneClick}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView={false}
