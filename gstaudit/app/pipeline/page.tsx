@@ -67,7 +67,6 @@ export default function PipelinePage() {
     }
 
     try {
-      setStatus('Loading pipeline...');
       setPipelineLoaded(false);
       
       const elementTreeManager = elementTreeManagerRef.current;
@@ -78,32 +77,11 @@ export default function PipelinePage() {
         setStatus(message);
       });
       
-      console.log('========================================');
-      console.log('[LOAD] Starting pipeline load');
-      console.log('========================================');
-      
-      const loadStart = performance.now();
       const pipeline = new GstPipeline(selectedPipeline, 'none');
-      
       await elementTreeManager.generateTree(pipeline);
-      
-      const loadEnd = performance.now();
-      const totalTime = (loadEnd - loadStart).toFixed(2);
       
       const tree = elementTreeManager.getRoot();
       if (tree) {
-        const flatTree = elementTreeManager.getFlatTree();
-        const elementCount = flatTree.length;
-        const padCount = flatTree.reduce((sum: number, node: any) => sum + node.pads.length, 0);
-        
-        console.log('========================================');
-        console.log(`[LOAD] Pipeline loaded successfully:`);
-        console.log(`[LOAD] - Total time: ${totalTime}ms`);
-        console.log(`[LOAD] - Elements: ${elementCount}`);
-        console.log(`[LOAD] - Pads: ${padCount}`);
-        console.log('========================================');
-        
-        setStatus(`Pipeline loaded: ${totalTime}ms - ${elementCount} elements, ${padCount} pads`);
         setPipelineLoaded(true);
       } else {
         setStatus('Error: No tree generated');
