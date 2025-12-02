@@ -7,3 +7,6 @@ export { default as ElementNode } from './ElementNode';
 export { default as GroupNode } from './GroupNode';
 export { default as LinkEdge } from './LinkEdge';
 export { default as PipelineGraph } from './PipelineGraph';
+export { PipelineTreeView } from './PipelineTreeView';
+export { StatusBar } from './StatusBar';
+export { PipelineSelector } from './PipelineSelector';
