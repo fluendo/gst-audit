@@ -36,6 +36,29 @@ export default function PipelinePage() {
     .filter(s => s && s !== 'Ready to connect')
     .join(' | ') || 'Ready to connect';
 
+  // Handle element selection and fetch its factory
+  const handleElementSelect = async (element: ElementTree | null) => {
+    setSelectedElement(element);
+    
+    if (element) {
+      try {
+        // Get the factory from the element
+        const factory = await element.element.get_factory();
+        if (factory) {
+          const factoryName = await factory.get_name();
+          setSelectedFactory(factoryName);
+        } else {
+          setSelectedFactory(null);
+        }
+      } catch (error) {
+        console.error('Error getting factory for element:', error);
+        setSelectedFactory(null);
+      }
+    } else {
+      setSelectedFactory(null);
+    }
+  };
+
   // Initialize FactoryTreeManager once
   useEffect(() => {
     if (!factoryTreeManagerRef.current) {
@@ -226,7 +249,7 @@ export default function PipelinePage() {
                               <PipelineTreeView
                                 treeManager={elementTreeManagerRef.current}
                                 selectedElement={selectedElement}
-                                onElementSelect={setSelectedElement}
+                                onElementSelect={handleElementSelect}
                               />
                             </div>
                           )}
@@ -248,7 +271,7 @@ export default function PipelinePage() {
                     <PipelineGraph 
                       treeManager={elementTreeManagerRef.current} 
                       selectedElement={selectedElement}
-                      onElementSelect={setSelectedElement}
+                      onElementSelect={handleElementSelect}
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full text-gray-500">
