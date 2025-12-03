@@ -7,7 +7,7 @@ import { getConfig, ElementTreeManager, FactoryTreeManager } from '@/lib';
 import {
   GstPipeline,
 } from '@/lib/gst';
-import { PipelineGraph, PipelineTreeView, StatusBar, PipelineSelector, ObjectDetails, FactoriesTreeView, FactoryDetail } from '@/components';
+import { PipelineGraph, PipelineTreeView, StatusBar, PipelineSelector, ObjectDetails, FactoriesTreeView, FactoryDetail, PlaybackControl } from '@/components';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { Button, Box, Typography, Tabs, Tab } from '@mui/material';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -267,17 +267,22 @@ export default function PipelinePage() {
                 </Panel>
                 <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
                 <Panel defaultSize={55} minSize={40}>
-                  {pipelineLoaded && elementTreeManagerRef.current ? (
-                    <PipelineGraph 
-                      treeManager={elementTreeManagerRef.current} 
-                      selectedElement={selectedElement}
-                      onElementSelect={handleElementSelect}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-gray-500">
-                      Loading pipeline...
+                  <div className="h-full flex flex-col">
+                    <div className="flex-1 min-h-0">
+                      {pipelineLoaded && elementTreeManagerRef.current ? (
+                        <PipelineGraph 
+                          treeManager={elementTreeManagerRef.current} 
+                          selectedElement={selectedElement}
+                          onElementSelect={handleElementSelect}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                          Loading pipeline...
+                        </div>
+                      )}
                     </div>
-                  )}
+                    <PlaybackControl pipelinePtr={selectedPipeline} />
+                  </div>
                 </Panel>
                 <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
                 <Panel defaultSize={25} minSize={20} maxSize={40}>

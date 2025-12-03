@@ -13,3 +13,4 @@ export { PipelineSelector } from './PipelineSelector';
 export { ObjectDetails } from './ObjectDetails';
 export { FactoriesTreeView } from './FactoriesTreeView';
 export { FactoryDetail } from './FactoryDetail';
+export { PlaybackControl } from './PlaybackControl';
