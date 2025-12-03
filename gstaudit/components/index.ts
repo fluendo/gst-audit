@@ -11,3 +11,5 @@ export { PipelineTreeView } from './PipelineTreeView';
 export { StatusBar } from './StatusBar';
 export { PipelineSelector } from './PipelineSelector';
 export { ObjectDetails } from './ObjectDetails';
+export { FactoriesTreeView } from './FactoriesTreeView';
+export { FactoryDetail } from './FactoryDetail';
