@@ -8,6 +8,9 @@ import {
   GstPadDirectionValue,
 } from './gst';
 
+// Status callback type for reporting progress
+export type StatusCallback = (message: string) => void;
+
 export interface ElementPad {
   id: string; // ptr of the GstPad
   representation: string; // Handle ID for UI (e.g., "element-pad" or "element-ghostpad-internalpad")
@@ -33,21 +36,58 @@ export interface ElementTree {
 
 export class ElementTreeManager {
   private root: ElementTree | null = null;
+  private statusCallback: StatusCallback | null = null;
+
+  /**
+   * Set a callback to be notified of status updates during tree generation
+   */
+  setStatusCallback(callback: StatusCallback | null): void {
+    this.statusCallback = callback;
+  }
+
+  /**
+   * Report status update if callback is set
+   */
+  private reportStatus(message: string): void {
+    if (this.statusCallback) {
+      this.statusCallback(message);
+    }
+  }
 
   async generateTree(pipeline: GstPipeline): Promise<void> {
-    console.log('[ELEMENT_TREE] Starting tree generation...');
+    console.log('========================================');
+    console.log('[LOAD] Starting pipeline load');
+    console.log('========================================');
+    this.reportStatus('Loading pipeline...');
     const startTime = performance.now();
     
     try {
       // Walk pipeline recursively and build element tree
       console.log('[ELEMENT_TREE] Walking pipeline structure...');
+      this.reportStatus('Walking pipeline structure...');
       const tree = await this.walkPipelineRecursive(pipeline, null, 0);
       this.root = tree;
       
-      const totalTime = performance.now() - startTime;
-      console.log(`[ELEMENT_TREE] Tree generation finished in ${totalTime.toFixed(2)}ms`);
+      const totalTime = (performance.now() - startTime).toFixed(2);
+      
+      // Calculate statistics
+      const flatTree = this.getFlatTree();
+      const elementCount = flatTree.length;
+      const padCount = flatTree.reduce((sum: number, node: ElementTree) => sum + node.pads.length, 0);
+      
+      console.log('========================================');
+      console.log(`[LOAD] Pipeline loaded successfully:`);
+      console.log(`[LOAD] - Total time: ${totalTime}ms`);
+      console.log(`[LOAD] - Elements: ${elementCount}`);
+      console.log(`[LOAD] - Pads: ${padCount}`);
+      console.log('========================================');
+      
+      const message = `Pipeline loaded: ${totalTime}ms - ${elementCount} elements, ${padCount} pads`;
+      console.log(`[ELEMENT_TREE] ${message}`);
+      this.reportStatus(message);
     } catch (error) {
       console.error('[ELEMENT_TREE] Error during tree generation:', error);
+      this.reportStatus(`Error during tree generation: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     }
   }
@@ -68,6 +108,14 @@ export class ElementTreeManager {
     const flat: ElementTree[] = [];
     this.flattenTree(this.root, flat);
     return flat;
+  }
+
+  /**
+   * Get an element by ID
+   */
+  getElementById(id: string): ElementTree | null {
+    if (!this.root) return null;
+    return this.findElementById(this.root, id);
   }
 
   /**
@@ -92,6 +140,20 @@ export class ElementTreeManager {
   }
 
   /**
+   * Helper to find an element by ID in the tree
+   */
+  private findElementById(node: ElementTree, id: string): ElementTree | null {
+    if (node.id === id) {
+      return node;
+    }
+    for (const child of node.children) {
+      const found = this.findElementById(child, id);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  /**
    * Recursively walk the pipeline/bin structure and create element tree
    */
   private async walkPipelineRecursive(
@@ -103,6 +165,9 @@ export class ElementTreeManager {
     
     // Get element name
     const elementName = (await element.get_name()) ?? 'unknown';
+    
+    // Report status
+    this.reportStatus(`Processing ${elementName}...`);
     
     // Discover all pads
     const pads = await this.discoverPads(element, elementName);

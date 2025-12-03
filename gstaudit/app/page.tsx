@@ -69,7 +69,7 @@ export default function Home() {
             <li>React Flow visualization for pipeline topology</li>
             <li>Live auditing of running GStreamer pipelines</li>
             <li>REST API for interacting with GStreamer elements</li>
-            <li>Browse all available GStreamer element factories by category</li>
+            <li>Browse all available GStreamer element factories by category within the pipeline viewer</li>
           </ul>
         </section>
 
@@ -82,16 +82,7 @@ export default function Home() {
             >
               <h3 className="text-lg font-semibold mb-2">Pipeline Viewer</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Visualize and inspect running GStreamer pipelines
-              </p>
-            </Link>
-            <Link 
-              href="/factories" 
-              className="p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              <h3 className="text-lg font-semibold mb-2">Element Factories</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Browse all available GStreamer elements grouped by category
+                Visualize and inspect running GStreamer pipelines, and browse element factories
               </p>
             </Link>
             <Link 
@@ -113,7 +104,7 @@ export default function Home() {
             <li>Get the PID of your GStreamer process</li>
             <li>Run the girest-frida server: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">python3 girest-frida.py Gst 1.0 --pid &lt;PID&gt;</code></li>
             <li>Configure the API settings above if needed</li>
-            <li>Visit the pipeline viewer or browse element factories using the quick links above</li>
+            <li>Visit the pipeline viewer to see your running pipelines and browse element factories</li>
           </ol>
         </section>
       </main>

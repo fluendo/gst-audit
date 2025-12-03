@@ -1,56 +1,103 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import '@xyflow/react/dist/style.css';
 import '../pipeline-theme.css';
-import Link from 'next/link';
-import { getConfig, ElementTreeManager } from '@/lib';
+import { getConfig, ElementTreeManager, FactoryTreeManager } from '@/lib';
 import {
   GstPipeline,
-  GstBin,
-  GstElement,
-  GstState,
-  GstStateValue
 } from '@/lib/gst';
-import { PipelineGraph } from '@/components';
-
-const detectSubpipelines = async (pipeline: GstPipeline | GstBin, parentName = ''): Promise<{ name: string; ptr: string }[]> => {
-  const subpipelines: { name: string; ptr: string }[] = [];
-  const iterator = await pipeline.iterate_elements();
-  if (!iterator) return subpipelines;
-
-  for await (const obj of iterator) {
-    if (!obj) continue;
-    const element = await obj.castTo(GstElement);
-
-    if (await element.isOf(GstBin)) {
-      const bin = await element.castTo(GstBin);
-      const subpipelineName = await bin.get_name();
-      const fullName = parentName ? `${parentName} > ${subpipelineName ?? 'unknown'}` : (subpipelineName ?? 'unknown');
-
-      subpipelines.push({ name: fullName, ptr: bin.ptr });
-
-      const nestedSubpipelines = await detectSubpipelines(bin, fullName);
-      subpipelines.push(...nestedSubpipelines);
-    }
-  }
-
-  return subpipelines;
-};
+import { PipelineGraph, PipelineTreeView, StatusBar, PipelineSelector, ObjectDetails, FactoriesTreeView, FactoryDetail, PlaybackControl } from '@/components';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { Button, Box, Typography, Tabs, Tab } from '@mui/material';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import FactoryIcon from '@mui/icons-material/Factory';
+import { ElementTree } from '@/lib/ElementTreeManager';
 
 export default function PipelinePage() {
-  const [status, setStatus] = useState<string>('Disconnected');
+  const [pipelineStatus, setPipelineStatus] = useState<string>('Ready to connect');
+  const [factoryStatus, setFactoryStatus] = useState<string>('');
   const [pipelines, setPipelines] = useState<{ name: string; ptr: string }[]>([]);
   const [selectedPipeline, setSelectedPipeline] = useState<string | null>(null);
   const [pipelineLoaded, setPipelineLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [pipelinesFetched, setPipelinesFetched] = useState(false);
+  const [selectedElement, setSelectedElement] = useState<ElementTree | null>(null);
+  const [selectedFactory, setSelectedFactory] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
   
-  const elementTreeManager = useRef(new ElementTreeManager()).current;
+  const elementTreeManagerRef = useRef<ElementTreeManager | null>(null);
+  const factoryTreeManagerRef = useRef<FactoryTreeManager | null>(null);
   
   const config = getConfig();
 
+  // Compose status from both pipeline and factory statuses
+  const composedStatus = [pipelineStatus, factoryStatus]
+    .filter(s => s && s !== 'Ready to connect')
+    .join(' | ') || 'Ready to connect';
+
+  // Handle element selection and fetch its factory
+  const handleElementSelect = async (element: ElementTree | null) => {
+    setSelectedElement(element);
+    
+    if (element) {
+      try {
+        // Get the factory from the element
+        const factory = await element.element.get_factory();
+        if (factory) {
+          const factoryName = await factory.get_name();
+          setSelectedFactory(factoryName);
+        } else {
+          setSelectedFactory(null);
+        }
+      } catch (error) {
+        console.error('Error getting factory for element:', error);
+        setSelectedFactory(null);
+      }
+    } else {
+      setSelectedFactory(null);
+    }
+  };
+
+  // Initialize FactoryTreeManager once
+  useEffect(() => {
+    if (!factoryTreeManagerRef.current) {
+      factoryTreeManagerRef.current = new FactoryTreeManager();
+      // Set status callback to update UI during loading
+      factoryTreeManagerRef.current.setStatusCallback((message: string) => {
+        setFactoryStatus(message);
+      });
+    }
+  }, []);
+
+  // Load factories when switching to factories tab for the first time
+  useEffect(() => {
+    if (activeTab === 1 && factoryTreeManagerRef.current) {
+      const manager = factoryTreeManagerRef.current;
+      if (!manager.getRoot() && !manager.isLoading()) {
+        manager.loadFactories().catch(err => {
+          console.error('Failed to load factories:', err);
+        });
+      }
+    }
+  }, [activeTab]);
+
+  // Create a new ElementTreeManager when selectedPipeline changes
+  useEffect(() => {
+    if (selectedPipeline) {
+      // Create new instance
+      elementTreeManagerRef.current = new ElementTreeManager();
+      // Clear selected element when pipeline changes
+      setSelectedElement(null);
+      // Automatically load the pipeline
+      loadPipeline();
+    }
+  }, [selectedPipeline]);
+
   const fetchPipelines = async () => {
     try {
-      setStatus('Fetching pipelines...');
+      setIsLoading(true);
+      setPipelineStatus('Fetching pipelines...');
       const response = await fetch(`${config.gstauditBaseUrl}/GstAudit/pipelines`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -60,168 +107,201 @@ export default function PipelinePage() {
       const allPipelines: { name: string; ptr: string }[] = [];
 
       for (const pipeline of pipelinesData) {
-        const gstPipeline = new GstPipeline(pipeline.ptr, 'none');
-        const pipelineName = pipeline.name;
-
-        allPipelines.push({ name: pipelineName, ptr: gstPipeline.ptr });
-
-        const subpipelines = await detectSubpipelines(gstPipeline, pipelineName);
-        allPipelines.push(...subpipelines);
+        allPipelines.push({ name: pipeline.name, ptr: pipeline.ptr });
       }
 
       setPipelines(allPipelines);
-      setStatus(`Found ${allPipelines.length} pipeline(s)`);
+      setPipelineStatus(`Found ${allPipelines.length} pipeline(s)`);
       console.log('Pipelines:', allPipelines);
-      if (allPipelines.length > 0) {
-        setSelectedPipeline(allPipelines[0].ptr);
-      } else {
-        setStatus('No pipelines found');
-      }
+      setPipelinesFetched(true);
     } catch (error) {
       console.error('Error fetching pipelines:', error);
-      setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setPipelineStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const loadPipeline = async () => {
-    if (!selectedPipeline) {
-      alert('No pipeline selected!');
+    if (!selectedPipeline || !elementTreeManagerRef.current) {
       return;
     }
 
     try {
-      setStatus('Loading pipeline...');
       setPipelineLoaded(false);
+      
+      const elementTreeManager = elementTreeManagerRef.current;
       elementTreeManager.clear();
       
-      console.log('========================================');
-      console.log('[LOAD] Starting pipeline load');
-      console.log('========================================');
+      // Set status callback to update UI during loading
+      elementTreeManager.setStatusCallback((message: string) => {
+        setPipelineStatus(message);
+      });
       
-      const loadStart = performance.now();
       const pipeline = new GstPipeline(selectedPipeline, 'none');
-      
       await elementTreeManager.generateTree(pipeline);
-      
-      const loadEnd = performance.now();
-      const totalTime = (loadEnd - loadStart).toFixed(2);
       
       const tree = elementTreeManager.getRoot();
       if (tree) {
-        const flatTree = elementTreeManager.getFlatTree();
-        const elementCount = flatTree.length;
-        const padCount = flatTree.reduce((sum, node) => sum + node.pads.length, 0);
-        
-        console.log('========================================');
-        console.log(`[LOAD] Pipeline loaded successfully:`);
-        console.log(`[LOAD] - Total time: ${totalTime}ms`);
-        console.log(`[LOAD] - Elements: ${elementCount}`);
-        console.log(`[LOAD] - Pads: ${padCount}`);
-        console.log('========================================');
-        
-        setStatus(`Pipeline loaded: ${totalTime}ms - ${elementCount} elements, ${padCount} pads`);
         setPipelineLoaded(true);
       } else {
-        setStatus('Error: No tree generated');
+        setPipelineStatus('Error: No tree generated');
       }
     } catch (error) {
       console.error('Error loading pipeline:', error);
-      setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
-  const setPipelineState = async (state: GstStateValue) => {
-    if (!selectedPipeline) {
-      alert('No pipeline selected!');
-      return;
-    }
-
-    try {
-      const stateName = state === GstState.PLAYING ? 'PLAYING' : 'PAUSED';
-      setStatus(`Setting state to ${stateName}...`);
-      const pipeline = new GstPipeline(selectedPipeline, 'none');
-      await pipeline.set_state(state);
-      setStatus(`State set to ${stateName}`);
-    } catch (error) {
-      console.error('Error setting pipeline state:', error);
-      setStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setPipelineStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      // Clear the callback after loading is complete
+      if (elementTreeManagerRef.current) {
+        elementTreeManagerRef.current.setStatusCallback(null);
+      }
     }
   };
 
   return (
     <div className="h-screen flex flex-col">
-      <header className="p-4 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Pipeline Visualization</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              API: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{config.gstauditBaseUrl}</code>
-            </p>
-          </div>
-          <div className="flex gap-4">
-            <button
-              onClick={fetchPipelines}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Fetch Pipelines
-            </button>
-            {pipelines.length > 0 && (
-              <select
-                value={selectedPipeline || ''}
-                onChange={(e) => setSelectedPipeline(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded bg-white dark:bg-gray-800 dark:border-gray-700"
-              >
-                {pipelines.map((pipeline) => (
-                  <option key={pipeline.ptr} value={pipeline.ptr}>
-                    {pipeline.name}
-                  </option>
-                ))}
-              </select>
-            )}
-            {selectedPipeline && (
-              <>
-                <button
-                  onClick={loadPipeline}
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                >
-                  Load Pipeline
-                </button>
-                <button
-                  onClick={() => setPipelineState(GstState.PLAYING)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Play
-                </button>
-                <button
-                  onClick={() => setPipelineState(GstState.PAUSED)}
-                  className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-                >
-                  Pause
-                </button>
-              </>
-            )}
-            <Link
-              href="/"
-              className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              Back to Home
-            </Link>
-          </div>
-        </div>
-        <p className="mt-2 text-sm">Status: <span className="font-mono">{status}</span></p>
-      </header>
+      {!pipelinesFetched ? (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            gap: 3,
+            p: 4,
+          }}
+        >
+          <Typography variant="h4" component="h1" gutterBottom>
+            Pipeline Visualization
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            API: <code style={{ backgroundColor: 'rgba(0,0,0,0.1)', padding: '4px 8px', borderRadius: '4px' }}>
+              {config.gstauditBaseUrl}
+            </code>
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={fetchPipelines}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Fetching Pipelines...' : 'Fetch Pipelines'}
+          </Button>
+          {composedStatus !== 'Ready to connect' && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              {composedStatus}
+            </Typography>
+          )}
+        </Box>
+      ) : (
+        <div className="flex-1">
+          <PanelGroup direction="vertical">
+            <Panel defaultSize={95} minSize={95}>
+              <PanelGroup direction="horizontal">
+                <Panel defaultSize={20} minSize={15} maxSize={30}>
+                  <div className="h-full flex">
+                    {/* Vertical Tabs */}
+                    <Box
+                      sx={{
+                        borderRight: 1,
+                        borderColor: 'divider',
+                        bgcolor: 'background.paper',
+                      }}
+                    >
+                      <Tabs
+                        orientation="vertical"
+                        value={activeTab}
+                        onChange={(_event, newValue) => setActiveTab(newValue)}
+                        aria-label="Left panel tabs"
+                        sx={{
+                          '& .MuiTab-root': {
+                            minWidth: 'auto',
+                            px: 2,
+                            py: 2,
+                          },
+                        }}
+                      >
+                        <Tab
+                          icon={<AccountTreeIcon />}
+                          aria-label="pipeline"
+                          title="Pipeline"
+                        />
+                        <Tab
+                          icon={<FactoryIcon />}
+                          aria-label="factories"
+                          title="Factories"
+                        />
+                      </Tabs>
+                    </Box>
 
-      <div className="flex-1">
-        {pipelineLoaded ? (
-          <PipelineGraph treeManager={elementTreeManager} />
-        ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            {selectedPipeline 
-              ? 'Click "Load Pipeline" to visualize the pipeline' 
-              : 'Select a pipeline and click "Load Pipeline"'}
-          </div>
-        )}
-      </div>
+                    {/* Tab Content */}
+                    <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-900">
+                      {activeTab === 0 && (
+                        <>
+                          <PipelineSelector
+                            pipelines={pipelines}
+                            selectedPipeline={selectedPipeline}
+                            onPipelineChange={setSelectedPipeline}
+                          />
+                          {pipelineLoaded && elementTreeManagerRef.current && (
+                            <div className="flex-1 overflow-auto">
+                              <PipelineTreeView
+                                treeManager={elementTreeManagerRef.current}
+                                selectedElement={selectedElement}
+                                onElementSelect={handleElementSelect}
+                              />
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {activeTab === 1 && (
+                        <FactoriesTreeView
+                          treeManager={factoryTreeManagerRef.current}
+                          selectedFactory={selectedFactory}
+                          onFactorySelect={setSelectedFactory}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </Panel>
+                <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
+                <Panel defaultSize={55} minSize={40}>
+                  <div className="h-full flex flex-col">
+                    <div className="flex-1 min-h-0">
+                      {pipelineLoaded && elementTreeManagerRef.current ? (
+                        <PipelineGraph 
+                          treeManager={elementTreeManagerRef.current} 
+                          selectedElement={selectedElement}
+                          onElementSelect={handleElementSelect}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                          Loading pipeline...
+                        </div>
+                      )}
+                    </div>
+                    <PlaybackControl pipelinePtr={selectedPipeline} />
+                  </div>
+                </Panel>
+                <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
+                <Panel defaultSize={25} minSize={20} maxSize={40}>
+                  <div className="h-full border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                    {activeTab === 0 ? (
+                      <ObjectDetails selectedElement={selectedElement} />
+                    ) : (
+                      <FactoryDetail selectedFactory={selectedFactory} />
+                    )}
+                  </div>
+                </Panel>
+              </PanelGroup>
+            </Panel>
+            <Panel defaultSize={5} minSize={5} maxSize={5}>
+              <StatusBar status={composedStatus} />
+            </Panel>
+          </PanelGroup>
+        </div>
+      )}
     </div>
   );
 }
