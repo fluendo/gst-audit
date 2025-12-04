@@ -55,36 +55,33 @@ export default function LogsPage() {
     fetchCategories();
   }, []);
 
-  // Función para vaciar el buffer y actualizar el estado
   const flushLogs = useCallback(() => {
-    // 1. Capturamos el contenido actual del buffer (copia síncrona inmediata)
     const bufferToFlush = logsBufferRef.current;
     
-    // 2. Si está vacío, no hacemos nada
     if (bufferToFlush.length === 0) return;
 
-    // 3. Vaciamos el buffer GLOBAL inmediatamente para que los nuevos logs entren en un array limpio
-    // (Importante: asignamos un nuevo array vacío, no usamos .length = 0 para no mutar lo que pasamos a React)
+    // Critical: Swap the buffer reference immediately.
+    // We assign a new array rather than clearing .length to ensure atomic behavior
+    // prevents incoming logs from being lost during the state update cycle.
     logsBufferRef.current = [];
 
-    // 4. Actualizamos el estado usando la COPIA capturada (bufferToFlush)
     setLogs(prev => {
+      // Keep only the last 500 logs to prevent DOM performance degradation.
       const combined = [...prev, ...bufferToFlush];
       return combined.slice(-500);
     });
   }, []);
 
-  // Configurar el intervalo de flush cuando se activa el logging
   useEffect(() => {
     if (isLogging) {
-      // Flush cada 100ms para balance entre rendimiento y actualización visual
+      // Batch UI updates to 10Hz (100ms).
+      // High-frequency logging (TRACE/MEMDUMP) can crash the main thread if render is called per log.
       flushIntervalRef.current = setInterval(flushLogs, 100);
     } else {
       if (flushIntervalRef.current) {
         clearInterval(flushIntervalRef.current);
         flushIntervalRef.current = null;
       }
-      // Flush final al detener
       flushLogs();
     }
 
@@ -99,19 +96,22 @@ export default function LogsPage() {
     try {
       setLoading(true);
       setStatus('Fetching debug categories...');
-      // Fetch the linked list of categories (GLibSList)
+      
+      // GStreamer returns categories as a GLibSList (linked list).
       let list = await Gst.debug_get_all_categories();
 
       const fetchedCategories: CategoryData[] = [];
-      // Traverse the list (this can be slow if there are many categories, optimizable on the backend)
-      // Note: In a real implementation, it would be ideal to have an endpoint that returns the entire JSON array
+      
+      // TODO: Optimization required. 
+      // Traversing a remote linked list node-by-node is inefficient due to network round-trips.
+      // Ideally, the backend should serialize the entire list into a single JSON response.
       while (list && list.ptr && list.ptr !== '0x0') {
         try {
           const dataPtr = await list.get_data();
           if (dataPtr && dataPtr !== '0x0') {
-            // Instantiate the category from the pointer
             const cat = new GstDebugCategory(dataPtr, 'none');
-            // Fetch details in parallel
+            
+            // Parallelize property fetching to reduce total await time per node.
             const [name, desc, level] = await Promise.all([
               cat.get_name(),
               cat.get_description(),
@@ -125,7 +125,7 @@ export default function LogsPage() {
             });
           }
           const next = await list.get_next();
-          // Break if there is no valid next node
+          
           if (!next || !next.ptr || next.ptr === '0x0') break;
           list = next;
         } catch (e) {
@@ -146,7 +146,7 @@ export default function LogsPage() {
 
   const handleLevelChange = async (ptr: string, newLevel: GstDebugLevelValue) => {
     try {
-      // Re-instantiate the category by pointer to change its level
+      // Re-instantiate via pointer to update the GStreamer backend directly.
       const cat = new GstDebugCategory(ptr, 'none');
       await cat.set_threshold(newLevel);
 
@@ -163,10 +163,10 @@ export default function LogsPage() {
     if (isLogging) {
       setIsLogging(false);
       setStatus('Logging stopped');
-      // Unregister log function if active
       if (logFunctionIdRef.current !== null) {
         try {
-          // Note: debug_remove_log_function might need implementation details
+          // TODO: Implement debug_remove_log_function once binding is available.
+          // Currently, this leaves the callback attached but we stop processing in the UI.
           logFunctionIdRef.current = null;
         } catch (error) {
           console.error('Error removing log function:', error);
@@ -174,7 +174,6 @@ export default function LogsPage() {
       }
     } else {
       try {
-        // Register the log function callback
         const logFunction: GstLogFunction = (
           category: GstDebugCategory,
           level: GstDebugLevelValue,
@@ -185,10 +184,10 @@ export default function LogsPage() {
           message: GstDebugMessage,
           user_data: any
         ) => {
-          // Process asynchronously but don't block the callback
+          // Wrap in IIFE to handle Promises within the synchronous GstLogFunction callback signature.
+          // This prevents blocking the GStreamer thread while we process the log data.
           (async () => {
             try {
-              // Fetch the message text and category name
               const [messageText, categoryName] = await Promise.all([
                 message.get(),
                 category.get_name()
@@ -204,7 +203,8 @@ export default function LogsPage() {
                 message: messageText
               };
 
-              // Ingesta rápida: solo agregar al buffer, sin actualizar estado
+              // Fast ingest: Push to ref buffer only. 
+              // We intentionally do NOT trigger a React state update here to avoid render-thrashing.
               logsBufferRef.current.push(logEntry);
             } catch (e) {
               console.error('Error processing log entry:', e);
@@ -223,10 +223,10 @@ export default function LogsPage() {
     }
   };
 
-  // Auto-scroll optimizado: solo cuando hay nuevos logs y el logging está activo
   useEffect(() => {
     if (logsEndRef.current && isLogging && logs.length > 0) {
-      // Usar requestAnimationFrame para optimizar el scroll
+      // Use requestAnimationFrame to decouple scrolling from the React commit phase,
+      // ensuring smooth visual updates even under heavy log load.
       requestAnimationFrame(() => {
         logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       });
