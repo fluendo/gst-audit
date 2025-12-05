@@ -1,0 +1,33 @@
+{# Custom template for GLib.List.get_next method to set the container type for type safety #}
+{% extends "method.ts.j2" %}
+{% block signature %}
+async list_properties(): GLibList<T> {
+{% endblock %}
+{% block body %}
+    const gtype = await this.constructor.get_type();
+    const cls = await GObject.type_class_ref(gtype);
+
+    let url_path = "girest/GObject/ObjectClass/ptr,{self}/list_properties".replace("{self}", cls.ptr);
+
+    const url = new URL(url_path, apiConfig.baseUrl);
+
+    try {
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      console.log('data');
+      console.log(data);
+        return data.return;
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+
+
+  }
+{% endblock %}

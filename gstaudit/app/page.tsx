@@ -94,6 +94,15 @@ export default function Home() {
                 Browse all available GStreamer elements grouped by category
               </p>
             </Link>
+            <Link 
+              href="/properties" 
+              className="p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <h3 className="text-lg font-semibold mb-2">Properties</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Introspect and modify properties
+              </p>
+            </Link>
           </div>
         </section>
 
