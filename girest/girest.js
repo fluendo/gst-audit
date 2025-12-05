@@ -6,7 +6,7 @@ const callbacks = new Map();
 
 function base_type_to_size(t)
 {
-  switch (t) {
+  switch (t["name"]) {
     case "string":
     case "pointer":
     case "callback":
@@ -27,24 +27,17 @@ function base_type_to_size(t)
     case "uint64":
     case "double":
       return 8;
-
+    case "struct":
+      return t["struct_size"];
     default:
-      console.error(`Unknown type ${t} size`);
+      console.error(`Unknown type ${t["name"]} size`);
       return 1;
   }
 }
 
-function arg_size(a)
-{
-  if (a["type"] == "struct")
-    return a["struct_size"];
-  else
-    return base_type_to_size(a["type"]);
-}
-
 function base_type_convert(t, p)
 {
-  switch (t) {
+  switch (t["name"]) {
     case "string":
       return p.readCString();
     case "bool":
@@ -59,7 +52,7 @@ function base_type_convert(t, p)
 
 function base_type_read(t, p)
 {
-  switch (t) {
+  switch (t["name"]) {
     case "string":
       return p.readCString();
     case "int8":
@@ -84,14 +77,14 @@ function base_type_read(t, p)
     case "pointer":
       return base_type_convert(t, p.readPointer());
     default:
-      console.error(`Unsupported type ${t} to read`);
+      console.error(`Unsupported type ${t["name"]} to read`);
       return 0;
   }
 }
 
 function base_type_write(t, p, value)
 {
-  switch (t) {
+  switch (t["name"]) {
     case "string":
       p.writePointer(Memory.allocUtf8String(value));
       break;
@@ -133,23 +126,25 @@ function base_type_write(t, p, value)
       p.writePointer(ptr(value));
       break;
     default:
-      console.error(`Unsupported type ${t} for write`);
+      console.error(`Unsupported type ${t["name"]} for write`);
       break;
   }
 }
 
 function type_signature(type)
 {
-    if (type == "callback") {
+    if (type["name"] == "callback") {
       return "pointer";
-    } else if (type == "string") {
+    } else if (type["name"] == "string") {
       return "pointer";
-    } else if (type == "gtype") {
+    } else if (type["name"] == "gtype") {
       return "pointer";
-    } else if (type == "struct") {
+    } else if (type["name"] == "struct") {
+      return "pointer";
+    } else if (type["name"] == "array") {
       return "pointer";
     } else {
-     return type;
+     return type["name"];
     }
 }
 
@@ -193,27 +188,30 @@ function call(symbol, type, ...args)
   var tx_args = [];
   var idx = 0;
   for (var a of type["arguments"]) {
-    if (a["type"] == "string") {
+    var a_t = a["type"];
+    var a_tn = a_t["name"];
+    
+    if (a_tn == "string") {
       tx_args.push(Memory.allocUtf8String(args[idx]));
       idx++;
-    } else if (a["type"] == "int64") {
+    } else if (a_tn == "int64") {
       tx_args.push(int64(args[idx]));
       idx++;
-    } else if (a["type"] == "uint64") {
+    } else if (a_tn == "uint64") {
       tx_args.push(uint64(args[idx]));
       idx++;
-    } else if (a["type"] == "callback" && !a["is_destroy"]) {
+    } else if (a_tn == "callback" && !a["is_destroy"]) {
       /* For callbacks, create a new NativeCallback */
       var cb_id = callbacks.size;
-      var cb_sig = callable_signature(a["subtype"]);
-      var cb_def = a["subtype"]["arguments"];
+      var cb_sig = callable_signature(a_t["subtype"]);
+      var cb_def = a_t["subtype"]["arguments"];
       var cb = new NativeCallback((...args) => {
         console.debug(`Callback ${cb_id} received with signature ${cb_sig}`);
         /* Serialize the data */
         var data = {};
         var cb_idx = 0;
         for (var cb_a of cb_def) {
-          if (cb_a["type"] == "string")
+          if (cb_a["type"]["name"] == "string")
             data[cb_a["name"]] = args[cb_idx].readCString();
           else
             data[cb_a["name"]] = args[cb_idx];
@@ -233,7 +231,7 @@ function call(symbol, type, ...args)
       tx_args.push(NULL);
     } else if ([1, 2].includes(a["direction"])) {
       /* For an output only argument, create the memory to store it */
-      const out_size = arg_size(a);
+      const out_size = base_type_to_size(a_t);
       const out = Memory.alloc(out_size);
       console.debug(`Output arg ${a["name"]} allocated at ${out} of size ${out_size}`);
       tx_args.push(out);
@@ -242,7 +240,7 @@ function call(symbol, type, ...args)
       /* continue otherwise */
     } else if (a["skipped"]) {
       tx_args.push(NULL);
-    } else if (type_signature(a["type"]) == "pointer") {
+    } else if (type_signature(a_t) == "pointer") {
       tx_args.push(ptr(args[idx]));
       idx++;
     } else {
@@ -255,13 +253,17 @@ function call(symbol, type, ...args)
   var ret = {};
   console.info(`About to call ${symbol} with args ${tx_args}`);
   var nfr = nf(...tx_args);
-  if (type["returns"] != "void") {
+  
+  if (type["returns"]["name"] != "void") {
     ret["return"] = base_type_convert(type["returns"], nfr);
   }
   /* Return the return value plus the output arguments */
   idx = 0;
   for (var a of type["arguments"]) {
-    if (a["type"] == "callback" && !a["is_destroy"]) {
+    if (a["skipped"]) {
+      idx++;
+      continue;
+    } else if (a["type"]["name"] == "callback" && !a["is_destroy"]) {
       /* Find the key for such callback */
       for (let [key, value] of callbacks.entries()) {
         if (value === tx_args[idx])

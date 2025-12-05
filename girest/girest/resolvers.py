@@ -289,10 +289,24 @@ class FridaResolver(GIResolver):
             logger.debug(f"Message from Frida: {message}")
     
     def _type_to_json(self, t):
-        """Convert GIRepository type to JSON type string"""
+        """Convert GIRepository type to JSON type dict with name and subtype"""
         # Get the type tag
         tag_enum = GIRepository.type_info_get_tag(t)
         tag = GIRepository.type_tag_to_string(tag_enum)
+        
+        # Check if it's an array type
+        if tag == "array":
+            array_type = GIRepository.type_info_get_array_type(t)
+            # Only handle C arrays
+            if array_type == GIRepository.ArrayType.C:
+                # Get element type for the array
+                element_type_info = GIRepository.type_info_get_param_type(t, 0)
+                subtype = None
+                if element_type_info:
+                    subtype = self._type_to_json(element_type_info)
+                return {"name": "array", "subtype": subtype}
+            # For other array types, treat as pointer for now
+            return {"name": "pointer", "subtype": None}
         
         # Check if it's an interface type
         if tag == "interface":
@@ -300,18 +314,22 @@ class FridaResolver(GIResolver):
             if interface:
                 info_type = interface.get_type()
                 if info_type == GIRepository.InfoType.CALLBACK:
-                    return "callback"
+                    # Get the callback definition as subtype
+                    subtype = self._callable_to_json(interface)
+                    return {"name": "callback", "subtype": subtype}
                 elif info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
-                    return "int32"
+                    return {"name": "int32", "subtype": None}
                 elif info_type == GIRepository.InfoType.STRUCT:
                     # Check if this is a struct with a registered GType (boxed type)
                     gtype = GIRepository.registered_type_info_get_g_type(interface)
                     if gtype != 0:
-                        return "gtype"
+                        return {"name": "gtype", "subtype": None}
                     else:
-                        return "struct"
+                        # Get struct size
+                        struct_size = GIRepository.struct_info_get_size(interface)
+                        return {"name": "struct", "subtype": None, "struct_size": struct_size}
         if tag == "void" and GIRepository.type_info_is_pointer(t):
-            return "pointer"
+            return {"name": "pointer", "subtype": None}
         # Map GIRepository type tags to JSON type strings
         type_map = {
             "gboolean": "bool",
@@ -330,11 +348,14 @@ class FridaResolver(GIResolver):
             "void": "void"
         }
 
-        return type_map.get(tag, "pointer")
+        json_type = type_map.get(tag, "pointer")
+        return {"name": json_type, "subtype": None}
     
     def _arg_to_json(self, arg):
         """Convert argument info to JSON representation"""
         arg_type = GIRepository.arg_info_get_type(arg)
+        type_info = self._type_to_json(arg_type)
+        
         ret = {
             "name": arg.get_name(),
             "skipped": False,
@@ -343,25 +364,16 @@ class FridaResolver(GIResolver):
             "destroy": GIRepository.arg_info_get_destroy(arg),
             "is_destroy": False,
             "direction": GIRepository.arg_info_get_direction(arg),
-            "type": self._type_to_json(arg_type),
-            "subtype": None
+            "type": type_info
         }
         
-        # Handle callbacks
-        if ret["type"] == "callback":
-            callback = GIRepository.type_info_get_interface(arg_type)
-            ret["subtype"] = self._callable_to_json(callback)
-
-        # Handle structs
-        if ret["type"] == "struct":
-            struct_info = GIRepository.type_info_get_interface(arg_type)
-            ret["struct_size"] = GIRepository.struct_info_get_size(struct_info)
+        # Handle structs - check caller allocates
+        if type_info["name"] == "struct":
             if ret["direction"] == GIRepository.Direction.OUT and GIRepository.arg_info_is_caller_allocates(arg):
                 ret["direction"] = GIRepository.Direction.IN
 
-        # Handle gtypes
-        if ret["type"] == "gtype":
-            struct_info = GIRepository.type_info_get_interface(arg_type)
+        # Handle gtypes - check caller allocates
+        if type_info["name"] == "gtype":
             if ret["direction"] == GIRepository.Direction.OUT and GIRepository.arg_info_is_caller_allocates(arg):
                 ret["direction"] = GIRepository.Direction.IN
         
@@ -369,10 +381,13 @@ class FridaResolver(GIResolver):
     
     def _callable_to_json(self, cb, is_method=False):
         """Convert callable info to JSON representation"""
+        return_type_info = self._type_to_json(GIRepository.callable_info_get_return_type(cb))
+        
         ret = {
             "arguments": [],
             "is_method": is_method,
-            "returns": self._type_to_json(GIRepository.callable_info_get_return_type(cb))
+            "returns": return_type_info,
+            "return_length": -1
         }
         
         if is_method:
@@ -384,9 +399,9 @@ class FridaResolver(GIResolver):
                 "is_closure": False,
                 "destroy": -1,
                 "is_destroy": False,
+                "length": -1,
                 "direction": GIRepository.Direction.IN,
-                "type": "pointer",
-                "subtype": None
+                "type": {"name": "pointer", "subtype": None}
             }
             ret["arguments"].append(ra)
         
@@ -396,7 +411,33 @@ class FridaResolver(GIResolver):
             arg = GIRepository.callable_info_get_arg(cb, i)
             ra = self._arg_to_json(arg)
             ret["arguments"].append(ra)
-        
+
+        # Mark array length parameters as skipped
+        offset = 1 if is_method else 0
+        for i in range(n_args):
+            arg = GIRepository.callable_info_get_arg(cb, i)
+            arg_type = GIRepository.arg_info_get_type(arg)
+            tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
+            
+            if tag == "array":
+                array_type = GIRepository.type_info_get_array_type(arg_type)
+                if array_type == GIRepository.ArrayType.C:
+                    length_idx = GIRepository.type_info_get_array_length(arg_type)
+                    if length_idx >= 0:
+                        ret["arguments"][length_idx + offset]["skipped"] = True
+                        ret["arguments"][i]["length"] = length_idx + offset
+
+        # Check return type for arrays with length parameters
+        return_type = GIRepository.callable_info_get_return_type(cb)
+        return_tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(return_type))
+        if return_tag == "array":
+            array_type = GIRepository.type_info_get_array_type(return_type)
+            if array_type == GIRepository.ArrayType.C:
+                length_idx = GIRepository.type_info_get_array_length(return_type)
+                if length_idx >= 0:
+                    ret["arguments"][length_idx + offset]["skipped"] = True
+                    ret["return_length"] = length_idx + offset
+         
         # Mark skipped arguments
         for r in ret["arguments"]:
             if r["closure"] >= 0:
@@ -407,7 +448,7 @@ class FridaResolver(GIResolver):
                 ret["arguments"][r["destroy"]]["is_destroy"] = True
             if r["direction"] == GIRepository.Direction.OUT:
                 r["skipped"] = True
-
+        
         return ret
     
     def _method_to_json(self, method):
@@ -466,7 +507,7 @@ class FridaResolver(GIResolver):
         _type = {
             "arguments": [],
             "is_method": False,
-            "returns": "int64" # FIXME beware of this
+            "returns": {"name": "int64", "subtype": None} # FIXME beware of this
         }
 
         async def get_type_handler(*args, **kwargs):
@@ -627,7 +668,7 @@ class FridaResolver(GIResolver):
             _type = {
                 "arguments": [],
                 "is_method": True,
-                "returns": "void",
+                "returns": {"name": "void", "subtype": None},
             }
             # Prepend self argument
             ra = {
@@ -638,8 +679,7 @@ class FridaResolver(GIResolver):
                 "destroy": -1,
                 "is_destroy": False,
                 "direction": GIRepository.Direction.IN,
-                "type": "pointer",
-                "subtype": None
+                "type": {"name": "pointer", "subtype": None}
             }
             _type["arguments"].append(ra)
             await asyncio.to_thread(
