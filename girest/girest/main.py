@@ -137,6 +137,33 @@ class GIRest():
                 schema["x-gi-element-type"] = element_type_schema
                 
             return schema
+        elif tag == "array":
+            # Handle array type - only export C arrays for now
+            array_type = GIRepository.type_info_get_array_type(t)
+            
+            # Only handle C arrays (GI_ARRAY_TYPE_C)
+            if array_type != GIRepository.ArrayType.C:
+                # Skip other array types (GArray, PtrArray, ByteArray, etc.)
+                return None
+            
+            # Get element type schema
+            element_type_schema = self._get_container_element_type_schema(t)
+            
+            schema = {"type": "array"}
+            
+            # Add items schema if element type is available
+            if element_type_schema:
+                schema["items"] = element_type_schema
+                # Add vendor-specific tag for consistency with other containers
+                schema["x-gi-element-type"] = element_type_schema
+            else:
+                # Default to any type if element type is not available
+                schema["items"] = {}
+            
+            # Add vendor-specific tag for zero-terminated arrays
+            schema["x-gi-array-null-terminated"] = GIRepository.type_info_is_zero_terminated(t)
+                
+            return schema
         elif tag == "interface":
             # Check if it's an interface type
             interface = GIRepository.type_info_get_interface(t)
@@ -241,10 +268,30 @@ class GIRest():
         
         # First pass: identify which arguments should be skipped
         skip_indices = set()
+        
+        # Check return type for arrays with length parameters
+        return_type = GIRepository.callable_info_get_return_type(bim)
+        return_tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(return_type))
+        if return_tag == "array":
+            array_type = GIRepository.type_info_get_array_type(return_type)
+            if array_type == GIRepository.ArrayType.C:
+                length_idx = GIRepository.type_info_get_array_length(return_type)
+                if length_idx >= 0:
+                    skip_indices.add(length_idx)
+        
+        # Check all parameters for arrays with length parameters
         for i in range(n_args):
             arg = GIRepository.callable_info_get_arg(bim, i)
             arg_type = GIRepository.arg_info_get_type(arg)
             tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
+            
+            # Check if this parameter is an array with a length parameter
+            if tag == "array":
+                array_type = GIRepository.type_info_get_array_type(arg_type)
+                if array_type == GIRepository.ArrayType.C:
+                    length_idx = GIRepository.type_info_get_array_length(arg_type)
+                    if length_idx >= 0:
+                        skip_indices.add(length_idx)
             
             # Check if this is a callback
             if tag == "interface":
