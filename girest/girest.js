@@ -11,6 +11,7 @@ function base_type_to_size(t)
     case "pointer":
     case "callback":
     case "gtype":
+    case "array":
       return Process.pointerSize;
     case "int8":
     case "uint8":
@@ -35,7 +36,7 @@ function base_type_to_size(t)
   }
 }
 
-function base_type_convert(t, p)
+function base_type_convert(t, p, array_length)
 {
   switch (t["name"]) {
     case "string":
@@ -45,6 +46,20 @@ function base_type_convert(t, p)
     case "gtype":
     case "pointer":
       return p.isNull() ? null : p;
+    case "array":
+      {
+        if (p.isNull())
+          return [];
+        const element_type = t["subtype"];
+        const ret = [];
+        for (let i = 0; i < array_length; i++) {
+          const element_size = base_type_to_size(element_type);
+          const element_ptr = p.add(i * element_size);
+          const element_value = base_type_read(element_type, element_ptr);
+          ret.push(element_value);
+        }
+        return ret;
+      }
     default:
       return p;
   }
@@ -255,7 +270,13 @@ function call(symbol, type, ...args)
   var nfr = nf(...tx_args);
   
   if (type["returns"]["name"] != "void") {
-    ret["return"] = base_type_convert(type["returns"], nfr);
+    /* When returning arrays, the length parameter must be read */
+    if (type["returns"]["name"] == "array" && type["return_length"] >= 0) {
+      var return_length = base_type_read(type["arguments"][type["return_length"]]["type"], tx_args[type["return_length"]]);
+      ret["return"] = base_type_convert(type["returns"], nfr, return_length);
+    } else {
+      ret["return"] = base_type_convert(type["returns"], nfr, -1);
+    }
   }
   /* Return the return value plus the output arguments */
   idx = 0;
