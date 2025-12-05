@@ -1,4 +1,15 @@
 {# Param precondition template - refs a single object with full transfer ownership #}
+{# Get klassPtr for static methods with object/struct path parameters #}
+{% if method.is_static and param in method.path_params and param.type.is_ref and param.type.ref_schema.info_type == 'object' %}
+    // Get the class pointer for static method
+    const gtype = await this.get_type();
+    const klassResponse = await fetch(`${apiConfig.fullBaseUrl}/GObject/TypeClass/ref?type=${gtype}`);
+    if (!klassResponse.ok) {
+      throw new Error(`Failed to get class pointer: ${klassResponse.status}`);
+    }
+    const klassData = await klassResponse.json();
+    const klassPtr = klassData.return.ptr;
+{% endif %}
 {% if param.transfer == 'full' and param.type.is_ref and param.type.ref_schema.info_type == 'object' %}
 {% if param.required %}
     if ({{ param.valid_name }} && typeof {{ param.valid_name }} === 'object' && 'ptr' in {{ param.valid_name }}) {

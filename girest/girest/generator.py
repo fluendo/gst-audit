@@ -121,14 +121,17 @@ class Generator:
     def lang_type(self, t: 'Type') -> str:
         raise NotImplementedError("Subclasses must implement the lang_type() method")
 
+    def find_schema(self, name: str) -> Optional[Dict[str, Any]]:
+        """Find a schema definition by name in the components."""
+        return self.schemas.get(name, None)
+
     def get_schema(self, name: str) -> "Schema":
         """Get a Schema object by name, creating it if not found in cache."""
         if name not in self.schema_objects_cache:
-            schema_def = None
-            if name in self.schemas:
-                schema_def = self.schemas[name]
-            schema_obj = Schema.create_schema(name, schema_def, self, None)
-            self.add_schema(schema_obj)
+            schema_def = self.find_schema(name)
+            if schema_def:
+                schema_obj = Schema.create_schema(name, schema_def, self, None)
+                self.add_schema(schema_obj)
         
         return self.schema_objects_cache[name]
 
@@ -145,30 +148,29 @@ class Generator:
             List of Method objects created from matching operations
         """
         methods = []
-        
+
         for path, path_operations in self.paths.items():
             # Check if any operation in this path has our schema name as tag
             path_matches = False
+            is_class = False
             for method, operation in path_operations.items():
                 if method.lower() not in ["get", "post", "put", "delete", "patch"]:
                     continue
                 
                 tags = operation.get("tags", [])
-                if tags and tags[0] == schema.name:
-                    path_matches = True
-                    break
+                if tags:
+                    if tags[0] == schema.name:
+                        path_matches = True
+                        break
+                    if isinstance(schema, Object) and schema._class_name and tags[0] == schema._class_name:
+                        path_matches = True
+                        is_class = True
+                        break
             
             if path_matches:
-                # Create Method objects for all matching operations in this path
-                for method, operation in path_operations.items():
-                    if method.lower() not in ["get", "post", "put", "delete", "patch"]:
-                        continue
-                    
-                    tags = operation.get("tags", [])
-                    if tags and tags[0] == schema.name:
-                        # Create Method object with operation dict, path, and http_method directly
-                        method_obj = Method(operation, path, method, schema, self)
-                        methods.append(method_obj)
+                 # Create Method object with operation dict, path, and http_method directly
+                 method_obj = Method(operation, path, method, schema, self, is_class)
+                 methods.append(method_obj)
         
         return methods
 
@@ -204,7 +206,8 @@ class Generator:
         # First the known schemas
         for schema_name, schema_def in self.schemas.items():
             schema = Schema.create_schema(schema_name, schema_def, self, None)
-            self.add_schema(schema)
+            if schema:
+                self.add_schema(schema)
         # Now the tags without schemas
         self._create_namespace_schemas()
 
@@ -229,9 +232,15 @@ class Type(Info):
         self._ref_schema = None
         self._component_name = None
         if self.is_ref:
+            # In case the ref is a class, use the class-of schema
             ref_path = self.schema_section["$ref"]
             if ref_path.startswith("#/components/schemas/"):
-                self._component_name = ref_path.split("/")[-1]
+                component_name = ref_path.split("/")[-1]
+                ref_schema = self.generator.find_schema(component_name)
+                if "x-gi-class-of" in ref_schema and ref_schema["x-gi-class-of"]:
+                    self._component_name = ref_schema["x-gi-class-of"]
+                else:
+                    self._component_name = component_name
                 # Add the dependency to the parent class Schema
                 self.add_dependency(self._component_name)
                 # Don't eagerly resolve the schema to avoid recursion
@@ -371,7 +380,12 @@ class Schema(Info):
     """Base class for all schema types."""
     
     info_type = "schema"
-    def __init__(self, name: str, schema_def: Optional[Dict[str, Any]], generator: 'Generator', parent: Optional['Info'] = None):
+    def __init__(
+            self,
+            name: str,
+            schema_def: Dict[str, Any],
+            generator: 'Generator',
+            parent: Optional['Info'] = None):
         super().__init__(generator, schema_def, parent)
         self._name = name
         self.parse_schema()
@@ -404,7 +418,10 @@ class Schema(Info):
         elif gi_type == "callback":
             return Callback(name, schema_def, generator, parent)
         elif gi_type == "struct":
-            return Struct(name, schema_def, generator, parent)
+            # Don't generate structs that are classes of Objects
+            # those will be generated as part of the actual Object
+            if not schema_def.get("x-gi-class-of", None):
+                return Struct(name, schema_def, generator, parent)
         elif gi_type == "object":
             return Object(name, schema_def, generator, parent)
         else:
@@ -536,6 +553,9 @@ class Object(Schema):
     info_type = "object"
     def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
         super().__init__(name, schema_def, generator, parent)
+        self._class_name = None
+        if schema_def.get("x-gi-class", None):
+            self._class_name = schema_def["x-gi-class"]
         self._methods: List[Method] = self.generator.get_methods_for_schema(self)
         self._parent_schema = None
         parent_class = self._extract_parent_name()
@@ -732,7 +752,14 @@ class Method(Info):
     """Represents a method of a schema."""
     
     info_type = "method"
-    def __init__(self, operation_dict: Dict[str, Any], path: str, http_method: str, parent_schema: Schema, generator: 'Generator'):
+    def __init__(
+            self,
+            operation_dict: Dict[str, Any],
+            path: str,
+            http_method: str,
+            parent_schema: Schema,
+            generator: 'Generator',
+            is_class: bool = False):
         """
         Initialize a Method object.
         
@@ -742,12 +769,14 @@ class Method(Info):
             http_method: The HTTP method (GET, POST, etc.)
             parent_schema: The parent schema this method belongs to
             generator: The generator instance
+            is_class: Whether this method belongs to a class
         """
         super().__init__(generator, operation_dict, parent_schema)
         self.operation_dict = operation_dict
         self.path = path
         self.http_method = http_method
         self.return_obj = Return(operation_dict, generator, self)
+        self.is_class = is_class
         
         # Parse parameters using the Param class
         self.parameters: List[Param] = []
@@ -819,6 +848,8 @@ class Method(Info):
     @property
     def is_static(self) -> bool:
         if self.is_constructor:
+            return True
+        if self.is_class:
             return True
         if not self.path_params:
             return True

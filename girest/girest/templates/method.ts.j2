@@ -49,7 +49,11 @@
 {% for param in method.path_params %}
   {% set placeholder = "{" + param.valid_name + "}" %}
   {% if param.type.is_ref and param.type.ref_schema.info_type in ['object','struct'] %}
-    {% set ns.method_path = ns.method_path.replace(placeholder, "ptr,${this.ptr}") %}
+    {% if method.is_static %}
+      {% set ns.method_path = ns.method_path.replace(placeholder, "ptr,${klassPtr}") %}
+    {% else %}
+      {% set ns.method_path = ns.method_path.replace(placeholder, "ptr,${this.ptr}") %}
+    {% endif %}
   {% else %}
     {% set ns.method_path = ns.method_path.replace(placeholder, "${" + param.valid_name + "}") %}
   {% endif %}
@@ -67,7 +71,7 @@
 {% endblock %}
 {% block body %}
     // Increment ref for parameters with full transfer ownership
-{% for param in method.query_params %}
+{% for param in method.params %}
 {% include 'param_precondition.ts.j2' %}
 {% endfor %}
     const url = new URL(`${apiConfig.normalizedBasePath}{{ ns.method_path }}`, apiConfig.baseUrl);
@@ -78,7 +82,7 @@
       const response = await fetch(url.toString());
       if (!response.ok) {
         // If the call fails, unref the objects we ref'd
-{% for param in method.query_params %}
+{% for param in method.params %}
 {% include 'param_postcondition.ts.j2' %}
 {% endfor %}
         throw new Error(`HTTP error! status: ${response.status}`);
