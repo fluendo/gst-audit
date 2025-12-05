@@ -1,0 +1,27 @@
+{# Return value is an array, construct array of objects or basic types based on subtype #}
+{% set subtype = return_param.type.subtype %}
+{% set elementTransfer = 'none' if return_param.transfer in ['none', 'container'] else return_param.transfer %}
+if (data.{{ return_param.name }} && Array.isArray(data.{{ return_param.name }})) {
+{% if return_param.can_be_null %}
+  if (data.{{ return_param.name }} === null) {
+    return null;
+  }
+{% endif %}
+{% if subtype.is_ref %}
+  // Array of objects/structs - instantiate each element
+  const result = data.{{ return_param.name }}.map((item: any) => {
+    if (item && typeof item === 'object' && 'ptr' in item) {
+      if (item.ptr === null) {
+        return null;
+      }
+      return new {{ subtype.ref_schema.valid_name }}(item.ptr, '{{ elementTransfer }}');
+    }
+    return item;
+  });
+  return result;
+{% else %}
+  // Array of basic types - return as-is
+  return data.{{ return_param.name }};
+{% endif %}
+}
+return Promise.reject("Call failed");

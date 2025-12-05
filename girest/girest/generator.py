@@ -362,6 +362,7 @@ class ReturnParam(Info):
         # We should try "return_param_GObjectObject.ts.j2", "return_param_object.ts.j2" or "return_param.ts.j2"
         template_names = [
             f'{self.info_type}_{self.type.lang_type}.ts.j2',
+            f'{self.info_type}_{self.type.type}.ts.j2',
         ]
         if self.type.is_ref:
             template_names.append(f'{self.info_type}_{self.type.ref_schema.info_type}.ts.j2')
@@ -968,6 +969,8 @@ class TypeScriptGenerator(Generator):
         """Convert OpenAPI basic types to TypeScript types."""
         if t.is_ref:
             return t.ref_schema.valid_name
+        if t.type == "array":
+            return "Array<" + self.lang_type(t.subtype) + ">"
 
         type_mapping = {
             "string": "string",
