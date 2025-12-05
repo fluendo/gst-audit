@@ -469,11 +469,17 @@ class GIRest():
                 is_destructor = True
                 
             self._generate_function(bim, bi, is_copy=is_copy, is_destructor=is_destructor)
-        # Finally the g_foo_get_type
+        # The type function
         self._generate_get_type_function(bi)
+        # Now the class struct
+        class_struct = GIRepository.object_info_get_class_struct(bi)
+        if class_struct:
+            self._generate_struct(class_struct, generate_class=True, class_of=bi)
+        else:
+            logger.warning(f"Object {bi.get_namespace()}.{bi.get_name()} has no class struct")
 
-    def _generate_struct(self, bi):
-        if GIRepository.struct_info_is_gtype_struct(bi):
+    def _generate_struct(self, bi, generate_class=False, class_of=None):
+        if not generate_class and GIRepository.struct_info_is_gtype_struct(bi):
             return
         # TODO Structs with a constructor can not be serialized
 
@@ -482,19 +488,23 @@ class GIRest():
         full_name = f"{bi.get_namespace()}{bi.get_name()}"
         if full_name in self.schemas:
             return
-        
+
+        schema = {
+            "type": "object",
+            "properties": {
+                "ptr": {"$ref": "#/components/schemas/Pointer"},
+            },
+            "required": ["ptr"],
+            "x-gi-type": "struct",
+            "x-gi-namespace": f"{bi.get_namespace()}",
+            "x-gi-name": f"{bi.get_name()}"
+        }
+        if generate_class and class_of:
+            schema["x-gi-class-of"] = f"{class_of.get_namespace()}{class_of.get_name()}"
+
         self.spec.components.schema(
             full_name,
-            {
-                "type": "object",
-                "properties": {
-                    "ptr": {"$ref": "#/components/schemas/Pointer"},
-                },
-                "required": ["ptr"],
-                "x-gi-type": "struct",
-                "x-gi-namespace": f"{bi.get_namespace()}",
-                "x-gi-name": f"{bi.get_name()}",
-            }
+            schema
         )
         
         # Mark as generated
