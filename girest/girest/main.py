@@ -441,6 +441,14 @@ class GIRest():
             parent = self.repo.find_by_name("GObject", "TypeInstance")
         else:
             parent = GIRepository.object_info_get_parent(bi)
+
+        # Now the class struct
+        class_struct = GIRepository.object_info_get_class_struct(bi)
+        if class_struct:
+            self._generate_struct(class_struct, generate_class=True, class_of=bi)
+        else:
+            logger.warning(f"Object {bi.get_namespace()}.{bi.get_name()} has no class struct")
+
         if parent:
             full_parent_name = f"{parent.get_namespace()}{parent.get_name()}"
             self.spec.components.schema(
@@ -455,6 +463,7 @@ class GIRest():
                     "x-gi-type": "object",
                     "x-gi-namespace": f"{bi.get_namespace()}",
                     "x-gi-name": f"{bi.get_name()}",
+                    "x-gi-class": f"{class_struct.get_namespace()}{class_struct.get_name()}" if class_struct else None
                 }
            )
         else:
@@ -469,6 +478,7 @@ class GIRest():
                     "x-gi-type": "object",
                     "x-gi-namespace": f"{bi.get_namespace()}",
                     "x-gi-name": f"{bi.get_name()}",
+                    "x-gi-class": f"{class_struct.get_namespace()}{class_struct.get_name()}" if class_struct else None
                 }
             )
         
@@ -518,12 +528,6 @@ class GIRest():
             self._generate_function(bim, bi, is_copy=is_copy, is_destructor=is_destructor)
         # The type function
         self._generate_get_type_function(bi)
-        # Now the class struct
-        class_struct = GIRepository.object_info_get_class_struct(bi)
-        if class_struct:
-            self._generate_struct(class_struct, generate_class=True, class_of=bi)
-        else:
-            logger.warning(f"Object {bi.get_namespace()}.{bi.get_name()} has no class struct")
 
     def _generate_struct(self, bi, generate_class=False, class_of=None):
         if not generate_class and GIRepository.struct_info_is_gtype_struct(bi):
