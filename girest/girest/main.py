@@ -503,6 +503,8 @@ class GIRest():
             pass
         
         # Now the member functions
+        found_unref_func = False
+        found_ref_func = False
         for i in range(0, GIRepository.object_info_get_n_methods(bi)):
             bim = GIRepository.object_info_get_method(bi, i)
             method_name = bim.get_name()
@@ -514,20 +516,36 @@ class GIRest():
             # Check ref function
             if ref_func_name and method_name == ref_func_name:
                 is_copy = True
+                found_ref_func = True
             elif not ref_func_name and method_name in ['ref', 'ref_sink']:
                 logger.warning(f"Using fallback detection for ref function '{method_name}' in {bi.get_namespace()}.{bi.get_name()}")
                 is_copy = True
+                found_ref_func = True
             
             # Check unref function    
             if unref_func_name and method_name == unref_func_name:
                 is_destructor = True
+                found_unref_func = True
             elif not unref_func_name and method_name == 'unref':
                 logger.warning(f"Using fallback detection for unref function '{method_name}' in {bi.get_namespace()}.{bi.get_name()}")
                 is_destructor = True
+                found_unref_func = True
                 
             self._generate_function(bim, bi, is_copy=is_copy, is_destructor=is_destructor)
+        if not found_ref_func and ref_func_name:
+            logger.warning(f"Ref function '{ref_func_name}' not found in methods of {bi.get_namespace()}.{bi.get_name()}")
+        if not found_unref_func and unref_func_name:
+            logger.warning(f"Unref function '{unref_func_name}' not found in methods of {bi.get_namespace()}.{bi.get_name()}")
         # The type function
         self._generate_get_type_function(bi)
+
+        # Custom cases
+        # ParamSpec does not export the ref/unref
+        if bi.get_name() == "ParamSpec" and bi.get_namespace() == "GObject":
+            if not found_ref_func:
+                self._generate_generic_object_ref(bi)
+            if not found_unref_func:
+                self._generate_generic_object_unref(bi)
 
     def _generate_struct(self, bi, generate_class=False, class_of=None):
         if not generate_class and GIRepository.struct_info_is_gtype_struct(bi):
@@ -640,6 +658,9 @@ class GIRest():
         # Avoid the Type generic free/new because those are not needed and GI explictly marks them
         # as not exported
         if bi.get_name() in ["TypeInstance", "TypeClass"]:
+            return
+        # Avoid the generic constructors/destructors for GObject classes
+        if GIRepository.struct_info_is_gtype_struct(bi):
             return
         # Generate generic new/free endpoints if struct doesn't have constructor/free
         if not has_constructor:
@@ -807,6 +828,84 @@ class GIRest():
                     }
                 }
             },
+        }
+        
+        self.spec.path(path=api, operations={"get": operation})
+
+    def _generate_generic_object_ref(self, bi):
+        """Generate a generic 'ref' endpoint for objects that don't export it through GI"""
+        namespace = bi.get_namespace()
+        name = bi.get_name()
+        
+        # Create API path: /{namespace}/{name}/{self}/ref
+        api = f"/{namespace}/{name}/{{self}}/ref"
+        
+        # Build operation definition for the ref function
+        operation = {
+            "summary": f"Increment reference count for {name}",
+            "description": f"Generic ref function for {name}",
+            "operationId": f"{namespace}-{name}-ref",
+            "tags": [f"{namespace}{name}"],
+            "parameters": [
+                {
+                    "name": "self",
+                    "in": "path",
+                    "required": True,
+                    "schema": {"$ref": f"#/components/schemas/{namespace}{name}"},
+                    "description": "Pointer to the object"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Success",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "return": {
+                                        "$ref": f"#/components/schemas/{namespace}{name}",
+                                        "x-gi-transfer": "none",
+                                        "x-gi-null": False
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "x-gi-copy": True
+        }
+        
+        self.spec.path(path=api, operations={"get": operation})
+
+    def _generate_generic_object_unref(self, bi):
+        """Generate a generic 'unref' endpoint for objects that don't export it through GI"""
+        namespace = bi.get_namespace()
+        name = bi.get_name()
+        
+        # Create API path: /{namespace}/{name}/{self}/unref
+        api = f"/{namespace}/{name}/{{self}}/unref"
+        
+        # Build operation definition for the unref function
+        operation = {
+            "summary": f"Decrement reference count for {name}",
+            "description": f"Generic unref function for {name}",
+            "operationId": f"{namespace}-{name}-unref",
+            "tags": [f"{namespace}{name}"],
+            "parameters": [
+                {
+                    "name": "self",
+                    "in": "path",
+                    "required": True,
+                    "schema": {"$ref": f"#/components/schemas/{namespace}{name}"},
+                    "description": "Pointer to the object"
+                }
+            ],
+            "responses": {
+                "204": {"description": "No Content"}
+            },
+            "x-gi-destructor": True
         }
         
         self.spec.path(path=api, operations={"get": operation})

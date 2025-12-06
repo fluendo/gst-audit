@@ -556,6 +556,108 @@ class FridaResolver(GIResolver):
         
         return generic_free_handler
 
+    def _create_generic_ref_handler(self, type_info):
+        """Create handler for generic object ref (increment reference count)"""
+        # Determine the ref function symbol based on the type
+        namespace = type_info.get_namespace()
+        name = type_info.get_name()
+        
+        # Get the C symbol prefix from GIRepository
+        # e.g., "G" for GObject namespace -> g_param_spec_ref
+        c_prefix = self.repo.get_c_prefix(namespace)
+        symbol_prefix = c_prefix.lower()
+        
+        # Convert CamelCase to snake_case
+        import re
+        snake_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+        symbol = f"{symbol_prefix}_{snake_name}_ref"
+        
+        # Build the JSON representation for Frida
+        _type = {
+            "arguments": [
+                {
+                    "name": "this",
+                    "skipped": False,
+                    "closure": -1,
+                    "is_closure": False,
+                    "destroy": -1,
+                    "is_destroy": False,
+                    "direction": GIRepository.Direction.IN,
+                    "type": {"name": "pointer", "subtype": None}
+                }
+            ],
+            "is_method": True,
+            "returns": {"name": "pointer", "subtype": None}
+        }
+        
+        async def generic_ref_handler(*args, **kwargs):
+            # Extract the self parameter (object pointer)
+            obj = kwargs.get('self')
+            if obj is None:
+                raise ValueError("Missing 'self' parameter for ref operation")
+            if not "ptr" in obj:
+                raise ValueError("Missing 'ptr' value")
+
+            # Call the ref function through Frida
+            result = await asyncio.to_thread(
+                self.scripts[0].exports_sync.call, symbol, _type, obj["ptr"]
+            )
+            
+            return {"return": {"ptr": result}}
+        
+        return generic_ref_handler
+
+    def _create_generic_unref_handler(self, type_info):
+        """Create handler for generic object unref (decrement reference count)"""
+        # Determine the unref function symbol based on the type
+        namespace = type_info.get_namespace()
+        name = type_info.get_name()
+        
+        # Get the C symbol prefix from GIRepository
+        # e.g., "G" for GObject namespace -> g_param_spec_unref
+        c_prefix = self.repo.get_c_prefix(namespace)
+        symbol_prefix = c_prefix.lower()
+        
+        # Convert CamelCase to snake_case
+        import re
+        snake_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+        symbol = f"{symbol_prefix}_{snake_name}_unref"
+        
+        # Build the JSON representation for Frida
+        _type = {
+            "arguments": [
+                {
+                    "name": "this",
+                    "skipped": False,
+                    "closure": -1,
+                    "is_closure": False,
+                    "destroy": -1,
+                    "is_destroy": False,
+                    "direction": GIRepository.Direction.IN,
+                    "type": {"name": "pointer", "subtype": None}
+                }
+            ],
+            "is_method": True,
+            "returns": {"name": "void", "subtype": None}
+        }
+        
+        async def generic_unref_handler(*args, **kwargs):
+            # Extract the self parameter (object pointer)
+            obj = kwargs.get('self')
+            if obj is None:
+                raise ValueError("Missing 'self' parameter for unref operation")
+            if not "ptr" in obj:
+                raise ValueError("Missing 'ptr' value")
+
+            # Call the unref function through Frida
+            await asyncio.to_thread(
+                self.scripts[0].exports_sync.call, symbol, _type, obj["ptr"]
+            )
+            
+            return None
+        
+        return generic_unref_handler
+
     def _parse_response(self, result, operation, field_type_info=None, method_info=None):
         """
         Parse and transform the response from Frida based on OpenAPI schema.
@@ -578,12 +680,40 @@ class FridaResolver(GIResolver):
             responses = operation.responses
             # Take into account that the endpoint is already resolved
             k_def = responses["200"]["content"]["application/json"]["schema"]["properties"][k]
+            
+            # Handle arrays - check if items are objects/structs using GI introspection
+            if "type" in k_def and k_def["type"] == "array" and isinstance(v, list):
+                # Use GI introspection to determine the array element type
+                type_info = field_type_info
+                if method_info and not field_type_info:
+                    # For method calls, get return type from method info
+                    type_info = GIRepository.callable_info_get_return_type(method_info)
+                
+                if type_info:
+                    tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(type_info))
+                    if tag == "array":
+                        # Get the element type of the array
+                        element_type_info = GIRepository.type_info_get_param_type(type_info, 0)
+                        if element_type_info:
+                            element_tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(element_type_info))
+                            
+                            # Check if element is an interface (object/struct/enum)
+                            if element_tag == "interface":
+                                interface = GIRepository.type_info_get_interface(element_type_info)
+                                if interface:
+                                    info_type = interface.get_type()
+                                    # Convert objects and structs to {ptr: "0x..."} format
+                                    if info_type in [GIRepository.InfoType.OBJECT, GIRepository.InfoType.STRUCT]:
+                                        logger.debug(f"Converting array of {interface.get_name()} objects to {{ptr: ...}} format")
+                                        result[k] = [{"ptr": item} if isinstance(item, str) else item for item in v]
+            
+            # Handle single object/struct values
             if "x-gi-type" in k_def and k_def["x-gi-type"] in ["object", "struct", "gtype"]:
                 result[k] = {"ptr": v}
-            if "type" in k_def and k_def["type"] == "object":
+            elif "type" in k_def and k_def["type"] == "object":
                 result[k] = {"ptr": v}
             # Convert enum integers back to strings for OpenAPI compliance
-            if "x-gi-type" in k_def and k_def["x-gi-type"] in ["enum", "flags"]:
+            elif "x-gi-type" in k_def and k_def["x-gi-type"] in ["enum", "flags"]:
                 # Determine which type info to use
                 type_info = field_type_info
                 if method_info and not field_type_info:
@@ -828,7 +958,7 @@ class FridaResolver(GIResolver):
         elif method_name == 'free' and namespace == 'GLib' and class_name == 'List':
             return self.custom_glib_list_free()
         # Check for the artificial methods
-        elif method_name in ['new', 'free', "get_type"]:
+        elif method_name in ['new', 'free', 'get_type', 'ref', 'unref']:
             # Try to find the info (struct, object, enum, or flags)
             type_info = None
             n_infos = self.repo.get_n_infos(namespace)
@@ -851,6 +981,10 @@ class FridaResolver(GIResolver):
                     return self._create_generic_free_handler(type_info)
                 elif method_name == 'get_type':
                     return self._create_get_type_handler(type_info)
+                elif method_name == 'ref':
+                    return self._create_generic_ref_handler(type_info)
+                elif method_name == 'unref':
+                    return self._create_generic_unref_handler(type_info)
         
             return None
         else:
