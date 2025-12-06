@@ -548,6 +548,9 @@ class GIRest():
                 self._generate_generic_object_unref(bi)
 
     def _generate_struct(self, bi, generate_class=False, class_of=None):
+        # Only generate struct for classes when invoked from the object
+        # This allows us to identify the object and the class with x-gi-class
+        # and x-gi-class-of
         if not generate_class and GIRepository.struct_info_is_gtype_struct(bi):
             return
         # TODO Structs with a constructor can not be serialized
@@ -558,16 +561,41 @@ class GIRest():
         if full_name in self.schemas:
             return
 
+        # Generate the type for every parent
+        # If GObjectClass, use GTypeClass as parent
+        if bi.get_name() in ["ObjectClass"] and bi.get_namespace() == "GObject":
+            parent = self.repo.find_by_name("GObject", "TypeClass")
+        elif class_of:
+            # Get the parent of the class_of and get the class atribute there
+            parent_instance = GIRepository.object_info_get_parent(class_of)
+            if not parent_instance:
+                parent = self.repo.find_by_name("GObject", "TypeClass")
+            else:
+                parent = GIRepository.object_info_get_class_struct(parent_instance)
+        else:
+            parent = None
+
         schema = {
-            "type": "object",
-            "properties": {
-                "ptr": {"$ref": "#/components/schemas/Pointer"},
-            },
-            "required": ["ptr"],
             "x-gi-type": "struct",
             "x-gi-namespace": f"{bi.get_namespace()}",
             "x-gi-name": f"{bi.get_name()}"
         }
+
+        if parent:
+            full_parent_name = f"{parent.get_namespace()}{parent.get_name()}"
+            schema["allOf"] = [
+                {"$ref": f"#/components/schemas/{full_parent_name}"},
+                {
+                    "type": "object",
+                }
+            ]
+        else:
+            schema["type"] = "object"
+            schema["properties"] = {
+                "ptr": {"$ref": "#/components/schemas/Pointer"},
+            }
+            schema["required"] = ["ptr"]
+
         if generate_class and class_of:
             schema["x-gi-class-of"] = f"{class_of.get_namespace()}{class_of.get_name()}"
 
