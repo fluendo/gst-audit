@@ -1,28 +1,36 @@
 {# Struct template - handles struct types #}
 
 {% block finalization %}
-{% set registry_name = struct.name.lower() + 'Registry' %}
+  {% if not struct.parent_schema %}
+    {% set registry_name = struct.name.lower() + 'Registry' %}
 // Finalization registry for {{ struct.name }}
 const {{ registry_name }} = new FinalizationRegistry((ptr: string) => {
   fetch(apiConfig.fullBaseUrl + '/{{ struct.namespace }}/{{ struct.type_name }}/ptr,' + ptr + '/free')
     .catch(err => console.error('Failed to free {{ struct.name }}:', ptr, err));
 });
+  {% endif %}
 {% endblock %}
 
 {% block signature %}
-export class {{ struct.name }} {
+export class {{ struct.name }}{% if struct.parent_schema %} extends {{ struct.parent_schema.valid_name }}{% endif %} {
 {% endblock %}
 
 {% block properties %}
+{% if not struct.parent_schema %}
   ptr!: string;
+{% endif %}
 {% endblock %}
 
 {% block constructors %}
   {% block default_constructor %}
   constructor(ptr: string, transferType: transferType) {
+  {% if not struct.parent_schema %}
     this.ptr = ptr;
     if (transferType === 'full')
       {{ struct.name.lower() }}Registry.register(this, ptr);
+  {% else %}
+    super(ptr, transferType);
+  {% endif %}
   }
   {% endblock %}
   {% for constructor in struct.constructors %}

@@ -49,11 +49,7 @@
 {% for param in method.path_params %}
   {% set placeholder = "{" + param.valid_name + "}" %}
   {% if param.type.is_ref and param.type.ref_schema.info_type in ['object','struct'] %}
-    {% if method.is_static %}
-      {% set ns.method_path = ns.method_path.replace(placeholder, "ptr,${klassPtr}") %}
-    {% else %}
-      {% set ns.method_path = ns.method_path.replace(placeholder, "ptr,${this.ptr}") %}
-    {% endif %}
+    {% set ns.method_path = ns.method_path.replace(placeholder, "ptr,${this.ptr}") %}
   {% else %}
     {% set ns.method_path = ns.method_path.replace(placeholder, "${" + param.valid_name + "}") %}
   {% endif %}

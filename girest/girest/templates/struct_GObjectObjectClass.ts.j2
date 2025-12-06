@@ -1,0 +1,8 @@
+{# GObjectObjectClass template - specific template for GObject.ObjectClass class #}
+{% extends "struct.ts.j2" %}
+
+{% block default_constructor %}
+constructor(ptr: string, transferType: transferType) {
+  super(ptr, "none");
+}
+{% endblock %}
