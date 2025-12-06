@@ -603,7 +603,7 @@ class FridaResolver(GIResolver):
                 self.scripts[0].exports_sync.call, symbol, _type, obj["ptr"]
             )
             
-            return {"return": {"ptr": result}}
+            return {"return": {"ptr": result["return"]}}
         
         return generic_ref_handler
 
