@@ -1,11 +1,4 @@
 {# Param postcondition template - unrefs a single object when call fails #}
-{# Unref klassPtr for static methods with object/struct path parameters #}
-{% if method.is_static and param in method.path_params and param.type.is_ref and param.type.ref_schema.info_type == 'object' %}
-        // Unref the class pointer for static method
-        if (typeof klassPtr !== 'undefined') {
-          await fetch(`${apiConfig.fullBaseUrl}/GObject/TypeClass/ptr,${klassPtr}/unref`).catch(() => {});
-        }
-{% endif %}
 {% if param.transfer == 'full' and param.type.is_ref and param.type.ref_schema.info_type == 'object' %}
 {% if param.required %}
         if ({{ param.name }} && typeof {{ param.name }} === 'object' && 'ptr' in {{ param.name }}) {
