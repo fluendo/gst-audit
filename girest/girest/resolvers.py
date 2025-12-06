@@ -562,9 +562,10 @@ class FridaResolver(GIResolver):
         namespace = type_info.get_namespace()
         name = type_info.get_name()
         
-        # Standard naming convention: namespace_lower_snake_case_ref
-        # e.g., g_param_spec_ref for GObject.ParamSpec
-        symbol_prefix = namespace.lower()
+        # Get the C symbol prefix from GIRepository
+        # e.g., "G" for GObject namespace -> g_param_spec_ref
+        c_prefix = self.repo.get_c_prefix(namespace)
+        symbol_prefix = c_prefix.lower()
         
         # Convert CamelCase to snake_case
         import re
@@ -612,9 +613,10 @@ class FridaResolver(GIResolver):
         namespace = type_info.get_namespace()
         name = type_info.get_name()
         
-        # Standard naming convention: namespace_lower_snake_case_unref
-        # e.g., g_param_spec_unref for GObject.ParamSpec
-        symbol_prefix = namespace.lower()
+        # Get the C symbol prefix from GIRepository
+        # e.g., "G" for GObject namespace -> g_param_spec_unref
+        c_prefix = self.repo.get_c_prefix(namespace)
+        symbol_prefix = c_prefix.lower()
         
         # Convert CamelCase to snake_case
         import re
