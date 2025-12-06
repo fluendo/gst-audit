@@ -1,6 +1,8 @@
 var gst_pipeline_get_type;
 var gst_pipeline_new;
 var functions = {};
+var g_param_spec_types = null;
+  
 
 const callbacks = new Map();
 
@@ -91,6 +93,10 @@ function base_type_read(t, p)
     case "gtype":
     case "pointer":
       return base_type_convert(t, p.readPointer());
+    case "int64":
+      return p.readS64();
+    case "uint64":
+      return p.readU64();
     default:
       console.error(`Unsupported type ${t["name"]} to read`);
       return 0;
@@ -253,7 +259,7 @@ function call(symbol, type, ...args)
       /* TODO */
       /* If INOUT set the value from args and skip it */
       /* continue otherwise */
-    } else if (a["skipped"]) {
+    } else if (a["skip_in"]) {
       tx_args.push(NULL);
     } else if (type_signature(a_t) == "pointer") {
       tx_args.push(ptr(args[idx]));
@@ -281,7 +287,7 @@ function call(symbol, type, ...args)
   /* Return the return value plus the output arguments */
   idx = 0;
   for (var a of type["arguments"]) {
-    if (a["skipped"]) {
+    if (a["skip_out"]) {
       idx++;
       continue;
     } else if (a["type"]["name"] == "callback" && !a["is_destroy"]) {
@@ -341,7 +347,7 @@ function free(ptr)
 
 function get_field(struct_ptr, offset, field_type)
 {
-  console.info(`Reading field at offset ${offset} from struct ${struct_ptr} with type ${field_type}`);
+  console.info(`Reading field at offset ${offset} from struct ${struct_ptr} with type ${JSON.stringify(field_type)}`);
   
   // Convert struct_ptr string to pointer
   const base = ptr(struct_ptr);
@@ -356,7 +362,7 @@ function get_field(struct_ptr, offset, field_type)
 
 function set_field(struct_ptr, offset, field_type, value)
 {
-  console.info(`Writing field at offset ${offset} to struct ${struct_ptr} with type ${field_type} and value ${value}`);
+  console.info(`Writing field at offset ${offset} to struct ${struct_ptr} with type ${JSON.stringify(field_type)} and value ${value}`);
   
   // Convert struct_ptr string to pointer
   const base = ptr(struct_ptr);
@@ -368,12 +374,82 @@ function set_field(struct_ptr, offset, field_type, value)
   console.info(`Wrote field value: ${value}`);
 }
 
+function internal_gtype(name)
+{
+  console.info(`Getting internal gtype for ${name}`);
+  
+  // Map ParamSpec type names to their indices in g_param_spec_types array
+  // Based on gparamspecs.h from GLib
+  const paramSpecTypeMap = {
+    'ParamSpecChar': 0,
+    'ParamSpecUChar': 1,
+    'ParamSpecBoolean': 2,
+    'ParamSpecInt': 3,
+    'ParamSpecUInt': 4,
+    'ParamSpecLong': 5,
+    'ParamSpecULong': 6,
+    'ParamSpecInt64': 7,
+    'ParamSpecUInt64': 8,
+    'ParamSpecUnichar': 9,
+    'ParamSpecEnum': 10,
+    'ParamSpecFlags': 11,
+    'ParamSpecFloat': 12,
+    'ParamSpecDouble': 13,
+    'ParamSpecString': 14,
+    'ParamSpecParam': 15,
+    'ParamSpecBoxed': 16,
+    'ParamSpecPointer': 17,
+    'ParamSpecValueArray': 18,
+    'ParamSpecObject': 19,
+    'ParamSpecOverride': 20,
+    'ParamSpecGType': 21,
+    'ParamSpecVariant': 22
+  };
+  
+  const index = paramSpecTypeMap[name];
+  if (index === undefined) {
+    console.error(`Unknown ParamSpec type: ${name}`);
+    return null;
+  }
+
+  if (!g_param_spec_types) {
+    Process.enumerateModules().some(m => {
+      const symbol = m.findExportByName('g_param_spec_types');
+      if (symbol) {
+        g_param_spec_types = symbol;
+        return true;
+      }
+      return false;
+    });
+    
+    if (!g_param_spec_types) {
+      console.error('Could not find g_param_spec_types symbol');
+      return 0;
+    }
+  }
+
+  // g_param_spec_types is a pointer to an array of GType values
+  // Each GType is a size_t (pointer-sized integer)
+  // Read the GType value at the calculated offset
+  const offset = index * Process.pointerSize;
+  const gtype_array_ptr = g_param_spec_types.readPointer();
+  const gtype_ptr = gtype_array_ptr.add(offset);
+  
+  // Read the GType as an integer value (size_t/ulong)
+  // GType is typically size_t, so read as pointer-sized unsigned integer
+  const gtype = gtype_ptr.readU64();
+  
+  console.info(`Resolved ${name} to GType: ${gtype}`);
+  return gtype;
+}
+
 rpc.exports = {
   'call': call,
   'alloc': alloc,
   'free': free,
   'getField': get_field,
   'setField': set_field,
+  'internalGtype': internal_gtype,
   'init': init,
   'shutdown': shutdown,
 };

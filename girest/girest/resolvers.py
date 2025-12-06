@@ -180,7 +180,8 @@ class FridaResolver(GIResolver):
         "arguments": [
             {
                 "name": "this",
-                "skipped": false,
+                "skip_in": false,
+                "skip_out": false,
                 "closure": -1,
                 "is_closure": false,
                 "destroy": -1,
@@ -358,7 +359,8 @@ class FridaResolver(GIResolver):
         
         ret = {
             "name": arg.get_name(),
-            "skipped": False,
+            "skip_in": False,
+            "skip_out": False,
             "closure": GIRepository.arg_info_get_closure(arg),
             "is_closure": False,
             "destroy": GIRepository.arg_info_get_destroy(arg),
@@ -394,7 +396,8 @@ class FridaResolver(GIResolver):
             # Prepend self argument
             ra = {
                 "name": "this",
-                "skipped": False,
+                "skip_in": False,
+                "skip_out": False,
                 "closure": -1,
                 "is_closure": False,
                 "destroy": -1,
@@ -424,7 +427,7 @@ class FridaResolver(GIResolver):
                 if array_type == GIRepository.ArrayType.C:
                     length_idx = GIRepository.type_info_get_array_length(arg_type)
                     if length_idx >= 0:
-                        ret["arguments"][length_idx + offset]["skipped"] = True
+                        ret["arguments"][length_idx + offset]["skip_in"] = True
                         ret["arguments"][i]["length"] = length_idx + offset
 
         # Check return type for arrays with length parameters
@@ -435,19 +438,19 @@ class FridaResolver(GIResolver):
             if array_type == GIRepository.ArrayType.C:
                 length_idx = GIRepository.type_info_get_array_length(return_type)
                 if length_idx >= 0:
-                    ret["arguments"][length_idx + offset]["skipped"] = True
+                    ret["arguments"][length_idx + offset]["skip_out"] = True
                     ret["return_length"] = length_idx + offset
          
         # Mark skipped arguments
         for r in ret["arguments"]:
             if r["closure"] >= 0:
-                ret["arguments"][r["closure"]]["skipped"] = True
+                ret["arguments"][r["closure"]]["skip_in"] = True
                 ret["arguments"][r["closure"]]["is_closure"] = True
             if r["destroy"] >= 0:
-                ret["arguments"][r["destroy"]]["skipped"] = True
+                ret["arguments"][r["destroy"]]["skip_in"] = True
                 ret["arguments"][r["destroy"]]["is_destroy"] = True
             if r["direction"] == GIRepository.Direction.OUT:
-                r["skipped"] = True
+                r["skip_in"] = True
         
         return ret
     
@@ -509,13 +512,17 @@ class FridaResolver(GIResolver):
             "is_method": False,
             "returns": {"name": "int64", "subtype": None} # FIXME beware of this
         }
-
         async def get_type_handler(*args, **kwargs):
-            # Call the Frida script's generic alloc function
-            result = await asyncio.to_thread(
-                self.scripts[0].exports_sync.call, symbol, _type
-            )
-            return result
+            if symbol == "intern":
+                result = await asyncio.to_thread(
+                    self.scripts[0].exports_sync.internal_gtype, type_info.get_name()
+                )
+            else:
+                # Call the Frida script's generic alloc function
+                result = await asyncio.to_thread(
+                    self.scripts[0].exports_sync.call, symbol, _type
+                )
+            return { "return": result }
 
         return get_type_handler
 
@@ -577,7 +584,8 @@ class FridaResolver(GIResolver):
             "arguments": [
                 {
                     "name": "this",
-                    "skipped": False,
+                    "skip_in": False,
+                    "skip_out": False,
                     "closure": -1,
                     "is_closure": False,
                     "destroy": -1,
@@ -628,7 +636,8 @@ class FridaResolver(GIResolver):
             "arguments": [
                 {
                     "name": "this",
-                    "skipped": False,
+                    "skip_in": False,
+                    "skip_out": False,
                     "closure": -1,
                     "is_closure": False,
                     "destroy": -1,
@@ -803,7 +812,8 @@ class FridaResolver(GIResolver):
             # Prepend self argument
             ra = {
                 "name": "this",
-                "skipped": False,
+                "skip_in": False,
+                "skip_out": False,
                 "closure": -1,
                 "is_closure": False,
                 "destroy": -1,
