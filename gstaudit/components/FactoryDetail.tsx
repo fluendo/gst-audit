@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { GstElementFactory, GstRegistry } from '@/lib/gst';
+import { GstElementFactory, GstRegistry, GObjectParamSpec, GObjectObjectClass } from '@/lib/gst';
 
 interface FactoryDetailProps {
   selectedFactory: string | null;
@@ -17,10 +17,15 @@ export function FactoryDetail({ selectedFactory }: FactoryDetailProps) {
     author: string;
     longname: string;
   } | null>(null);
+  const [properties, setProperties] = useState<Array<{ spec: GObjectParamSpec; name: string; nick: string; blurb: string | null }> | null>(null);
+  const [loadingProperties, setLoadingProperties] = useState<boolean>(false);
+  const [propertiesError, setPropertiesError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!selectedFactory) {
       setFactoryDetails(null);
+      setProperties(null);
+      setPropertiesError(null);
       return;
     }
 
@@ -60,6 +65,51 @@ export function FactoryDetail({ selectedFactory }: FactoryDetailProps) {
           author,
           longname,
         });
+
+        // Load properties
+        setLoadingProperties(true);
+        setPropertiesError(null);
+        try {
+          // Get the element type from the factory
+          const elementType = await factory.get_element_type();
+          
+          if (!elementType) {
+            throw new Error('Failed to get element type from factory');
+          }
+
+          // Get the GObjectTypeClass directly from the type
+          const typeClass = await GObjectObjectClass.peek(elementType);
+          
+          if (!typeClass) {
+            throw new Error('Failed to get type class');
+          }
+          
+          // Create a GObjectObjectClass instance from the pointer
+          const objectClass = new GObjectObjectClass(typeClass.ptr, 'none');
+          const props = await objectClass.list_properties();
+          
+          // Fetch details for each property
+          const propsWithDetails = await Promise.all(
+            props.map(async (prop) => {
+              try {
+                const propName = await prop.get_name();
+                const nick = await prop.get_nick();
+                const blurb = await prop.get_blurb();
+                return { spec: prop, name: propName, nick, blurb };
+              } catch (error) {
+                console.error('Error fetching property details:', error);
+                return { spec: prop, name: 'unknown', nick: 'unknown', blurb: null };
+              }
+            })
+          );
+          
+          setProperties(propsWithDetails);
+        } catch (err) {
+          console.error('Error loading properties:', err);
+          setPropertiesError(err instanceof Error ? err.message : 'Unknown error');
+        } finally {
+          setLoadingProperties(false);
+        }
       } catch (err) {
         console.error('Error fetching factory details:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -151,6 +201,46 @@ export function FactoryDetail({ selectedFactory }: FactoryDetailProps) {
             </p>
           </div>
         )}
+
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            Properties
+          </h3>
+          {loadingProperties && (
+            <div className="flex justify-center p-4">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            </div>
+          )}
+          {propertiesError && (
+            <p className="text-sm text-red-600 dark:text-red-400">
+              Error loading properties: {propertiesError}
+            </p>
+          )}
+          {!loadingProperties && !propertiesError && properties && properties.length > 0 && (
+            <div className="space-y-3">
+              {properties.map((prop, index) => (
+                <div key={index} className="pb-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 font-mono">
+                    {prop.name}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {prop.nick}
+                  </p>
+                  {prop.blurb && (
+                    <p className="text-xs text-gray-700 dark:text-gray-300 mt-1">
+                      {prop.blurb}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {!loadingProperties && !propertiesError && properties && properties.length === 0 && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No properties available
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

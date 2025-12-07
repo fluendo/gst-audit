@@ -20,7 +20,6 @@ export class {{ object.name }}{% if object.parent_schema %} extends {{ object.pa
 
   constructor(ptr: string, transferType: transferType) {
 	super(ptr, 'none');
-    this.ptr = ptr;
     {{ object.name.lower() }}Registry.register(this, ptr);
     if (transferType === 'none') {
       this.ref().catch(() => {});

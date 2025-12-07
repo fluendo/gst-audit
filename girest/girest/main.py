@@ -137,6 +137,33 @@ class GIRest():
                 schema["x-gi-element-type"] = element_type_schema
                 
             return schema
+        elif tag == "array":
+            # Handle array type - only export C arrays for now
+            array_type = GIRepository.type_info_get_array_type(t)
+            
+            # Only handle C arrays (GI_ARRAY_TYPE_C)
+            if array_type != GIRepository.ArrayType.C:
+                # Skip other array types (GArray, PtrArray, ByteArray, etc.)
+                return None
+            
+            # Get element type schema
+            element_type_schema = self._get_container_element_type_schema(t)
+            
+            schema = {"type": "array"}
+            
+            # Add items schema if element type is available
+            if element_type_schema:
+                schema["items"] = element_type_schema
+                # Add vendor-specific tag for consistency with other containers
+                schema["x-gi-element-type"] = element_type_schema
+            else:
+                # Default to any type if element type is not available
+                schema["items"] = {}
+            
+            # Add vendor-specific tag for zero-terminated arrays
+            schema["x-gi-array-null-terminated"] = GIRepository.type_info_is_zero_terminated(t)
+                
+            return schema
         elif tag == "interface":
             # Check if it's an interface type
             interface = GIRepository.type_info_get_interface(t)
@@ -241,10 +268,30 @@ class GIRest():
         
         # First pass: identify which arguments should be skipped
         skip_indices = set()
+        
+        # Check return type for arrays with length parameters
+        return_type = GIRepository.callable_info_get_return_type(bim)
+        return_tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(return_type))
+        if return_tag == "array":
+            array_type = GIRepository.type_info_get_array_type(return_type)
+            if array_type == GIRepository.ArrayType.C:
+                length_idx = GIRepository.type_info_get_array_length(return_type)
+                if length_idx >= 0:
+                    skip_indices.add(length_idx)
+        
+        # Check all parameters for arrays with length parameters
         for i in range(n_args):
             arg = GIRepository.callable_info_get_arg(bim, i)
             arg_type = GIRepository.arg_info_get_type(arg)
             tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
+            
+            # Check if this parameter is an array with a length parameter
+            if tag == "array":
+                array_type = GIRepository.type_info_get_array_type(arg_type)
+                if array_type == GIRepository.ArrayType.C:
+                    length_idx = GIRepository.type_info_get_array_length(arg_type)
+                    if length_idx >= 0:
+                        skip_indices.add(length_idx)
             
             # Check if this is a callback
             if tag == "interface":
@@ -394,6 +441,14 @@ class GIRest():
             parent = self.repo.find_by_name("GObject", "TypeInstance")
         else:
             parent = GIRepository.object_info_get_parent(bi)
+
+        # Now the class struct
+        class_struct = GIRepository.object_info_get_class_struct(bi)
+        if class_struct:
+            self._generate_struct(class_struct, generate_class=True, class_of=bi)
+        else:
+            logger.warning(f"Object {bi.get_namespace()}.{bi.get_name()} has no class struct")
+
         if parent:
             full_parent_name = f"{parent.get_namespace()}{parent.get_name()}"
             self.spec.components.schema(
@@ -408,6 +463,7 @@ class GIRest():
                     "x-gi-type": "object",
                     "x-gi-namespace": f"{bi.get_namespace()}",
                     "x-gi-name": f"{bi.get_name()}",
+                    "x-gi-class": f"{class_struct.get_namespace()}{class_struct.get_name()}" if class_struct else None
                 }
            )
         else:
@@ -422,6 +478,7 @@ class GIRest():
                     "x-gi-type": "object",
                     "x-gi-namespace": f"{bi.get_namespace()}",
                     "x-gi-name": f"{bi.get_name()}",
+                    "x-gi-class": f"{class_struct.get_namespace()}{class_struct.get_name()}" if class_struct else None
                 }
             )
         
@@ -446,6 +503,8 @@ class GIRest():
             pass
         
         # Now the member functions
+        found_unref_func = False
+        found_ref_func = False
         for i in range(0, GIRepository.object_info_get_n_methods(bi)):
             bim = GIRepository.object_info_get_method(bi, i)
             method_name = bim.get_name()
@@ -457,23 +516,42 @@ class GIRest():
             # Check ref function
             if ref_func_name and method_name == ref_func_name:
                 is_copy = True
+                found_ref_func = True
             elif not ref_func_name and method_name in ['ref', 'ref_sink']:
                 logger.warning(f"Using fallback detection for ref function '{method_name}' in {bi.get_namespace()}.{bi.get_name()}")
                 is_copy = True
+                found_ref_func = True
             
             # Check unref function    
             if unref_func_name and method_name == unref_func_name:
                 is_destructor = True
+                found_unref_func = True
             elif not unref_func_name and method_name == 'unref':
                 logger.warning(f"Using fallback detection for unref function '{method_name}' in {bi.get_namespace()}.{bi.get_name()}")
                 is_destructor = True
+                found_unref_func = True
                 
             self._generate_function(bim, bi, is_copy=is_copy, is_destructor=is_destructor)
-        # Finally the g_foo_get_type
+        if not found_ref_func and ref_func_name:
+            logger.warning(f"Ref function '{ref_func_name}' not found in methods of {bi.get_namespace()}.{bi.get_name()}")
+        if not found_unref_func and unref_func_name:
+            logger.warning(f"Unref function '{unref_func_name}' not found in methods of {bi.get_namespace()}.{bi.get_name()}")
+        # The type function
         self._generate_get_type_function(bi)
 
-    def _generate_struct(self, bi):
-        if GIRepository.struct_info_is_gtype_struct(bi):
+        # Custom cases
+        # ParamSpec does not export the ref/unref
+        if bi.get_name() == "ParamSpec" and bi.get_namespace() == "GObject":
+            if not found_ref_func:
+                self._generate_generic_object_ref(bi)
+            if not found_unref_func:
+                self._generate_generic_object_unref(bi)
+
+    def _generate_struct(self, bi, generate_class=False, class_of=None):
+        # Only generate struct for classes when invoked from the object
+        # This allows us to identify the object and the class with x-gi-class
+        # and x-gi-class-of
+        if not generate_class and GIRepository.struct_info_is_gtype_struct(bi):
             return
         # TODO Structs with a constructor can not be serialized
 
@@ -482,19 +560,48 @@ class GIRest():
         full_name = f"{bi.get_namespace()}{bi.get_name()}"
         if full_name in self.schemas:
             return
-        
+
+        # Generate the type for every parent
+        # If GObjectClass, use GTypeClass as parent
+        if bi.get_name() in ["ObjectClass"] and bi.get_namespace() == "GObject":
+            parent = self.repo.find_by_name("GObject", "TypeClass")
+        elif class_of:
+            # Get the parent of the class_of and get the class atribute there
+            parent_instance = GIRepository.object_info_get_parent(class_of)
+            if not parent_instance:
+                parent = self.repo.find_by_name("GObject", "TypeClass")
+            else:
+                parent = GIRepository.object_info_get_class_struct(parent_instance)
+        else:
+            parent = None
+
+        schema = {
+            "x-gi-type": "struct",
+            "x-gi-namespace": f"{bi.get_namespace()}",
+            "x-gi-name": f"{bi.get_name()}"
+        }
+
+        if parent:
+            full_parent_name = f"{parent.get_namespace()}{parent.get_name()}"
+            schema["allOf"] = [
+                {"$ref": f"#/components/schemas/{full_parent_name}"},
+                {
+                    "type": "object",
+                }
+            ]
+        else:
+            schema["type"] = "object"
+            schema["properties"] = {
+                "ptr": {"$ref": "#/components/schemas/Pointer"},
+            }
+            schema["required"] = ["ptr"]
+
+        if generate_class and class_of:
+            schema["x-gi-class-of"] = f"{class_of.get_namespace()}{class_of.get_name()}"
+
         self.spec.components.schema(
             full_name,
-            {
-                "type": "object",
-                "properties": {
-                    "ptr": {"$ref": "#/components/schemas/Pointer"},
-                },
-                "required": ["ptr"],
-                "x-gi-type": "struct",
-                "x-gi-namespace": f"{bi.get_namespace()}",
-                "x-gi-name": f"{bi.get_name()}",
-            }
+            schema
         )
         
         # Mark as generated
@@ -579,6 +686,9 @@ class GIRest():
         # Avoid the Type generic free/new because those are not needed and GI explictly marks them
         # as not exported
         if bi.get_name() in ["TypeInstance", "TypeClass"]:
+            return
+        # Avoid the generic constructors/destructors for GObject classes
+        if GIRepository.struct_info_is_gtype_struct(bi):
             return
         # Generate generic new/free endpoints if struct doesn't have constructor/free
         if not has_constructor:
@@ -746,6 +856,84 @@ class GIRest():
                     }
                 }
             },
+        }
+        
+        self.spec.path(path=api, operations={"get": operation})
+
+    def _generate_generic_object_ref(self, bi):
+        """Generate a generic 'ref' endpoint for objects that don't export it through GI"""
+        namespace = bi.get_namespace()
+        name = bi.get_name()
+        
+        # Create API path: /{namespace}/{name}/{self}/ref
+        api = f"/{namespace}/{name}/{{self}}/ref"
+        
+        # Build operation definition for the ref function
+        operation = {
+            "summary": f"Increment reference count for {name}",
+            "description": f"Generic ref function for {name}",
+            "operationId": f"{namespace}-{name}-ref",
+            "tags": [f"{namespace}{name}"],
+            "parameters": [
+                {
+                    "name": "self",
+                    "in": "path",
+                    "required": True,
+                    "schema": {"$ref": f"#/components/schemas/{namespace}{name}"},
+                    "description": "Pointer to the object"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Success",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "return": {
+                                        "$ref": f"#/components/schemas/{namespace}{name}",
+                                        "x-gi-transfer": "none",
+                                        "x-gi-null": False
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "x-gi-copy": True
+        }
+        
+        self.spec.path(path=api, operations={"get": operation})
+
+    def _generate_generic_object_unref(self, bi):
+        """Generate a generic 'unref' endpoint for objects that don't export it through GI"""
+        namespace = bi.get_namespace()
+        name = bi.get_name()
+        
+        # Create API path: /{namespace}/{name}/{self}/unref
+        api = f"/{namespace}/{name}/{{self}}/unref"
+        
+        # Build operation definition for the unref function
+        operation = {
+            "summary": f"Decrement reference count for {name}",
+            "description": f"Generic unref function for {name}",
+            "operationId": f"{namespace}-{name}-unref",
+            "tags": [f"{namespace}{name}"],
+            "parameters": [
+                {
+                    "name": "self",
+                    "in": "path",
+                    "required": True,
+                    "schema": {"$ref": f"#/components/schemas/{namespace}{name}"},
+                    "description": "Pointer to the object"
+                }
+            ],
+            "responses": {
+                "204": {"description": "No Content"}
+            },
+            "x-gi-destructor": True
         }
         
         self.spec.path(path=api, operations={"get": operation})

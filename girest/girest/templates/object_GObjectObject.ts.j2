@@ -2,25 +2,9 @@
 {% extends "object.ts.j2" %}
 
 {% block signature %}
-// Type interface for GObject constructors with static get_type method
-interface GObjectConstructor<T extends GObjectObject> {
-  new (ptr: string, transferType: transferType): T;
-	get_type(): Promise<string>;
-}
-
 export class GObjectObject extends GObjectTypeInstance {
 {% endblock %}
 
 {% block methods %}
-	castTo<T extends GObjectObject>(TargetClass: GObjectConstructor<T>): T {
-    return new TargetClass(this.ptr, 'none');
-  }
-
-	async isOf<T extends GObjectObject>(TargetClass: GObjectConstructor<T>): Promise<boolean> {
-    const type = await TargetClass.get_type();
-    const is_type = await GObject.type_check_instance_is_a(this, type);
-    return is_type;
-  }
-
 {{ super() }}
 {% endblock %}
