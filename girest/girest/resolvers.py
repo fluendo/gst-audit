@@ -517,12 +517,13 @@ class FridaResolver(GIResolver):
                 result = await asyncio.to_thread(
                     self.scripts[0].exports_sync.internal_gtype, type_info.get_name()
                 )
+                return { "return": result }
             else:
                 # Call the Frida script's generic alloc function
                 result = await asyncio.to_thread(
                     self.scripts[0].exports_sync.call, symbol, _type
                 )
-            return { "return": result }
+                return result
 
         return get_type_handler
 
