@@ -2,7 +2,7 @@
 
 A Next.js + TypeScript + React + React Flow application for auditing and visualizing GStreamer pipelines in real-time.
 
-<img width="720" height="401" alt="image" src="https://github.com/user-attachments/assets/83acc12a-3ced-4255-ab01-831ea7a89206" />
+<img width="1920" height="1070" src="https://github.com/user-attachments/assets/efa51294-d61d-4bcd-a450-b8dd47dde3b5" />
 
 
 ## Features
