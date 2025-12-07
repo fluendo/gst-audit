@@ -2,6 +2,9 @@
 
 A Next.js + TypeScript + React + React Flow application for auditing and visualizing GStreamer pipelines in real-time.
 
+<img width="720" height="401" alt="image" src="https://github.com/user-attachments/assets/83acc12a-3ced-4255-ab01-831ea7a89206" />
+
+
 ## Features
 
 - **TypeScript Bindings**: Auto-generated TypeScript bindings from GStreamer introspection data
