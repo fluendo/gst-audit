@@ -35,12 +35,17 @@ def main():
         help="Output file path (default: stdout)",
         default=None
     )
+    parser.add_argument(
+        "--sse-only",
+        action="store_true",
+        help="Use SSE-only mode: hide callback URLs, return int IDs, skip sync callbacks"
+    )
     
     args = parser.parse_args()
     
     try:
         # Generate the OpenAPI schema
-        girest = GIRest(args.namespace, args.version)
+        girest = GIRest(args.namespace, args.version, sse_only=args.sse_only)
         spec = girest.generate()
         openapi_schema = spec.to_dict()
         

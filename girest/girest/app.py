@@ -71,10 +71,11 @@ class GIApp(AsyncApp):
         version: str,
         resolver: GIResolver,
         *,
+        sse_only: bool = False,
         default_base_path = None
     ):
         # Generate the OpenAPI schema with specified buffer size
-        girest = GIRest(namespace, version)
+        girest = GIRest(namespace, version, sse_only=sse_only)
         spec = girest.generate()
         specd = spec.to_dict()
 
