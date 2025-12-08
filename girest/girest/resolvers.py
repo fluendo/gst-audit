@@ -204,7 +204,8 @@ class FridaResolver(GIResolver):
             scripts=None,
             on_log=None,
             on_message=None,
-            sse_buffer_size=100
+            sse_buffer_size=100,
+            sse_only=False
         ):
         # Load the corresponding Gir file
         self.repo = GIRepository.Repository()
@@ -218,6 +219,10 @@ class FridaResolver(GIResolver):
         # Build enum value mappings for converting string names to integers
         self.enum_mappings = {}
         self._build_enum_mappings()
+        # Callback ID counter for URL-based callbacks
+        self._callback_id_counter = 0
+        # SSE mode flag
+        self.sse_only = sse_only
         # Connect to the corresponding process
         self._connect_frida(scripts, on_log, on_message)
         super().__init__(sse_buffer_size)
@@ -413,6 +418,12 @@ class FridaResolver(GIResolver):
         for i in range(n_args):
             arg = GIRepository.callable_info_get_arg(cb, i)
             ra = self._arg_to_json(arg)
+            
+            # If this is a callback argument, assign a unique callback_id
+            if ra["type"]["name"] == "callback":
+                ra["callback_id"] = self._callback_id_counter
+                self._callback_id_counter += 1
+            
             ret["arguments"].append(ra)
 
         # Mark array length parameters as skipped
@@ -895,6 +906,17 @@ class FridaResolver(GIResolver):
             result = await asyncio.to_thread(
                 self.scripts[0].exports_sync.call, symbol, _type, *converted_kwargs.values()
             )
+
+            # In SSE mode, add callback_id for callback arguments from _type
+            # Do this before checking if result is empty, as we need to return callback_id even for void functions
+            if self.sse_only and _type:
+                if not result:
+                    result = {}
+                for arg in _type["arguments"]:
+                    # Check if this argument is a callback with a callback_id
+                    if arg.get("type", {}).get("name") == "callback" and "callback_id" in arg:
+                        # Add the callback_id to the result
+                        result[arg["name"]] = arg["callback_id"]
 
             if not result:
                 return

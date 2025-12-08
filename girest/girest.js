@@ -2,9 +2,21 @@ var gst_pipeline_get_type;
 var gst_pipeline_new;
 var functions = {};
 var g_param_spec_types = null;
-  
+
+// GLib synchronization primitives for callback blocking
+var g_mutex_init = null;
+var g_mutex_lock = null;
+var g_mutex_unlock = null;
+var g_mutex_clear = null;
+var g_cond_init = null;
+var g_cond_wait = null;
+var g_cond_signal = null;
+var g_cond_clear = null;
 
 const callbacks = new Map();
+
+// Storage for callback synchronization primitives (one lock per callback_id)
+const callback_syncs = new Map(); // callback_id -> {mutex, cond, result, ready}
 
 function base_type_to_size(t)
 {
@@ -223,28 +235,63 @@ function call(symbol, type, ...args)
       idx++;
     } else if (a_tn == "callback" && !a["is_destroy"]) {
       /* For callbacks, create a new NativeCallback */
-      var cb_id = callbacks.size;
+      var callback_id = a["callback_id"];  // Get callback_id from type signature
       var cb_sig = callable_signature(a_t["subtype"]);
       var cb_def = a_t["subtype"]["arguments"];
       var cb = new NativeCallback((...args) => {
-        console.debug(`Callback ${cb_id} received with signature ${cb_sig}`);
-        /* Serialize the data */
+        /* Serialize the callback arguments */
         var data = {};
         var cb_idx = 0;
         for (var cb_a of cb_def) {
           if (cb_a["type"]["name"] == "string")
             data[cb_a["name"]] = args[cb_idx].readCString();
+          else if (cb_a["type"]["name"] == "pointer")
+            data[cb_a["name"]] = args[cb_idx].toString();
           else
             data[cb_a["name"]] = args[cb_idx];
           cb_idx++;
         }
-        console.debug(`Callback ${cb_id} received with args ${data}`);
+        
+        // Block and wait for Python to handle transfer
+        console.info(`Callback ${callback_id} - blocking for Python`);
+        
+        // Initialize synchronization primitives for this callback_id if needed
+        if (!callback_syncs.has(callback_id)) {
+          if (!init_callback_sync(callback_id)) {
+            console.error("Failed to initialize callback sync, cannot block");
+            return undefined;
+          }
+        }
+        
+        var sync = callback_syncs.get(callback_id);
+        
+        // Reset the ready flag for this invocation
+        sync.ready = false;
+        sync.result = null;
+        
+        // Send invocation message to Python
         send({
           "kind": "callback",
-          "data": {"id": cb_id, "data": data}
+          "data": {
+            "callback_id": callback_id,
+            "args": data
+          }
         });
+        
+        // Block waiting for Python to complete the callback (handles transfer mode)
+        g_mutex_lock(sync.mutex);
+        while (!sync.ready) {
+          g_cond_wait(sync.cond, sync.mutex);
+        }
+        var result = sync.result;
+        g_mutex_unlock(sync.mutex);
+        
+        console.debug(`Callback ${callback_id} completed with result: ${result}`);
+        return result;
       }, "void", cb_sig);
-      callbacks.set(cb_id.toString(), cb);
+      
+      // Store callback for reference
+      callbacks.set(callback_id.toString(), cb);
       tx_args.push(cb);
     } else if (a["is_destroy"]) {
       tx_args.push(NULL);
@@ -291,11 +338,8 @@ function call(symbol, type, ...args)
       idx++;
       continue;
     } else if (a["type"]["name"] == "callback" && !a["is_destroy"]) {
-      /* Find the key for such callback */
-      for (let [key, value] of callbacks.entries()) {
-        if (value === tx_args[idx])
-          ret[a["name"]] = key;
-      }
+      // Don't return callback_id - Python will handle it if needed for SSE mode
+      idx++;
     } else if ([1, 2].includes(a["direction"])) {
       ret[a["name"]] = base_type_read(a["type"], tx_args[idx]);
     }
@@ -308,7 +352,99 @@ function call(symbol, type, ...args)
 function init()
 {
   console.debug("Init");
+  
+  // Load GLib synchronization primitives for callback blocking
+  const glib_symbols = [
+    'g_mutex_init',
+    'g_mutex_lock',
+    'g_mutex_unlock',
+    'g_mutex_clear',
+    'g_cond_init',
+    'g_cond_wait',
+    'g_cond_signal',
+    'g_cond_clear'
+  ];
+  
+  let loaded_count = 0;
+  
+  Process.enumerateModules().some(m => {
+    for (const symbol_name of glib_symbols) {
+      if (eval(symbol_name) !== null) {
+        continue; // Already loaded
+      }
+      
+      const s = m.findExportByName(symbol_name);
+      if (s) {
+        if (symbol_name === 'g_cond_wait') {
+          // g_cond_wait takes two pointers (cond, mutex)
+          eval(`${symbol_name} = new NativeFunction(s, 'void', ['pointer', 'pointer'])`);
+        } else {
+          // All others take one pointer
+          eval(`${symbol_name} = new NativeFunction(s, 'void', ['pointer'])`);
+        }
+        loaded_count++;
+        console.debug(`Loaded ${symbol_name} from ${m.name}`);
+      }
+    }
+    
+    // Stop if we've loaded all symbols
+    return loaded_count === glib_symbols.length;
+  });
+  
+  if (loaded_count === glib_symbols.length) {
+    console.debug("GLib synchronization primitives loaded successfully");
+  } else {
+    console.warn(`Only loaded ${loaded_count}/${glib_symbols.length} GLib synchronization primitives`);
+    console.warn("Callback blocking may not be available");
+  }
+  
   console.debug("Init done");
+}
+
+function init_callback_sync(callback_id)
+{
+  if (!g_mutex_init || !g_cond_init) {
+    console.error("GLib synchronization primitives not loaded, cannot create callback sync");
+    return false;
+  }
+  
+  // Allocate memory for GMutex and GCond
+  // GMutex and GCond are typically pointer-sized structures on modern systems
+  const mutex = Memory.alloc(Process.pointerSize * 2);
+  const cond = Memory.alloc(Process.pointerSize * 2);
+  
+  // Initialize the primitives
+  g_mutex_init(mutex);
+  g_cond_init(cond);
+  
+  // Store in the map
+  callback_syncs.set(callback_id, {
+    mutex: mutex,
+    cond: cond,
+    result: null,
+    ready: false
+  });
+  
+  console.debug(`Initialized sync primitives for callback ${callback_id}`);
+  return true;
+}
+
+function cleanup_callback_sync(callback_id)
+{
+  const sync = callback_syncs.get(callback_id);
+  if (!sync) {
+    console.warn(`Callback sync ${callback_id} not found for cleanup`);
+    return;
+  }
+  
+  // Clear the primitives (frees internal resources)
+  if (g_mutex_clear && g_cond_clear) {
+    g_mutex_clear(sync.mutex);
+    g_cond_clear(sync.cond);
+  }
+  
+  callback_syncs.delete(callback_id);
+  console.debug(`Cleaned up sync primitives for callback ${callback_id}`);
 }
 
 function shutdown()
@@ -443,6 +579,26 @@ function internal_gtype(name)
   return gtype;
 }
 
+function complete_callback(callback_id, return_value)
+{
+  console.info(`Completing callback ${callback_id} with value ${return_value}`);
+  
+  const sync = callback_syncs.get(callback_id);
+  if (!sync) {
+    console.error(`Callback ${callback_id} sync primitives not found`);
+    return;
+  }
+  
+  // Lock, set result, signal, unlock
+  g_mutex_lock(sync.mutex);
+  sync.result = return_value;
+  sync.ready = true;
+  g_cond_signal(sync.cond);
+  g_mutex_unlock(sync.mutex);
+  
+  console.debug(`Callback ${callback_id} signaled`);
+}
+
 rpc.exports = {
   'call': call,
   'alloc': alloc,
@@ -452,4 +608,5 @@ rpc.exports = {
   'internalGtype': internal_gtype,
   'init': init,
   'shutdown': shutdown,
+  'completeCallback': complete_callback,
 };
