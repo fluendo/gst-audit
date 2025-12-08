@@ -54,7 +54,7 @@ def main():
     try:
         
         # Create the resolver with Frida
-        resolver = FridaResolver(args.namespace, args.version, args.pid, sse_buffer_size=args.sse_buffer_size)
+        resolver = FridaResolver(args.namespace, args.version, args.pid, sse_buffer_size=args.sse_buffer_size, sse_only=args.sse_only)
         # Create the connexion AsyncApp
         # the actual defition by calling, for example, operation.parameters
         app = GIApp(__name__, args.namespace, args.version, resolver, sse_only=args.sse_only)
