@@ -43,6 +43,11 @@ def main():
         default=100,
         help="Size of the SSE event ring buffer (default: 100)"
     )
+    parser.add_argument(
+        "--sse-only",
+        action="store_true",
+        help="Use SSE-only mode: hide callback URLs, return int IDs, skip sync callbacks"
+    )
     
     args = parser.parse_args()
 
@@ -52,7 +57,7 @@ def main():
         resolver = FridaResolver(args.namespace, args.version, args.pid, sse_buffer_size=args.sse_buffer_size)
         # Create the connexion AsyncApp
         # the actual defition by calling, for example, operation.parameters
-        app = GIApp(__name__, args.namespace, args.version, resolver)
+        app = GIApp(__name__, args.namespace, args.version, resolver, sse_only=args.sse_only)
         app.run(port=args.port)
     
     except Exception as e:

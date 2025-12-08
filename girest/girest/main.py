@@ -22,9 +22,10 @@ class GIRest():
         }
     }
 
-    def __init__(self, ns, ns_version):
+    def __init__(self, ns, ns_version, sse_only=False):
         self.ns = ns
         self.ns_version = ns_version
+        self.sse_only = sse_only  # If True, use SSE-style callbacks (old behavior)
         # To keep track of schemas already registered
         self.schemas = {}
         self.spec = APISpec(
@@ -266,6 +267,9 @@ class GIRest():
         # Get number of arguments
         n_args = GIRepository.callable_info_get_n_args(bim)
         
+        # Track callbacks found in this method
+        method_callbacks = []
+        
         # First pass: identify which arguments should be skipped
         skip_indices = set()
         
@@ -321,15 +325,42 @@ class GIRest():
             if tag == "interface":
                 interface = GIRepository.type_info_get_interface(arg_type)
                 if interface and interface.get_type() == GIRepository.InfoType.CALLBACK:
-                    # Generate the callback schema
+                    # Generate the callback schema (needed in both modes)
                     self._generate_callback(interface)
                     full_name = f"{interface.get_namespace()}{interface.get_name()}"
-                    # Add callback ID to response
-                    response_props[arg_name] = {
-                        "type": "integer",
-                        "description": "Callback ID",
-                        "x-gi-callback": f"#/components/schemas/{full_name}"
-                    }
+                    
+                    if self.sse_only:
+                        # SSE-only mode: check scope and skip sync callbacks
+                        scope = GIRepository.arg_info_get_scope(arg)
+                        is_sync = (scope == GIRepository.ScopeType.CALL)
+                        
+                        if is_sync:
+                            # Skip methods with synchronous callbacks in SSE-only mode
+                            return
+                        
+                        # For async callbacks in SSE-only mode, add callback ID to response (old behavior)
+                        response_props[arg_name] = {
+                            "type": "integer",
+                            "description": "Callback ID",
+                            "x-gi-callback": f"#/components/schemas/{full_name}"
+                        }
+                    else:
+                        # Standard mode: generate full callback specification
+                        # Generate OpenAPI callback specification
+                        # Pass the arg (ArgInfo) so we can get the scope
+                        callback_param, callbacks_obj, is_sync = self._generate_callback_argument(interface, arg, arg_name)
+                        
+                        # Add callback parameter to method
+                        params.append(callback_param)
+                        
+                        # Store callback info for later
+                        method_callbacks.append({
+                            'name': arg_name,
+                            'interface': interface,
+                            'callbacks_obj': callbacks_obj,
+                            'is_synchronous': is_sync
+                        })
+                    
                     continue
             
             # Handle output parameters - they go in the response
@@ -412,6 +443,32 @@ class GIRest():
             "parameters": params,
             "responses": responses,
         }
+        
+        # Add callbacks if any were found
+        if method_callbacks:
+            callbacks_spec = {}
+            for cb_info in method_callbacks:
+                callbacks_spec.update(cb_info['callbacks_obj'])
+            operation['callbacks'] = callbacks_spec
+            
+            # Add header parameters for callback authentication
+            operation['parameters'].extend([
+                {
+                    'name': 'session-id',
+                    'in': 'header',
+                    'required': True if method_callbacks else False,
+                    'schema': {'type': 'string'},
+                    'description': 'Session identifier for callback routing'
+                },
+                {
+                    'name': 'callback-secret',
+                    'in': 'header',
+                    'required': True if method_callbacks else False,
+                    'schema': {'type': 'string'},
+                    'description': 'Shared secret for callback HMAC signatures'
+                }
+            ])
+
         
         # Only add vendor-specific attributes when they are True
         if is_constructor:
@@ -748,6 +805,50 @@ class GIRest():
                 **return_schema,
                 "x-gi-is-return": True
             }
+            
+            # Create a separate return value schema for HTTP responses (not in SSE-only mode)
+            # This wraps the return value in an object with a "return" property
+            # for consistency with how function returns work (which include out params)
+            if not self.sse_only:
+                return_schema_name = f"{full_name}Return"
+                return_wrapper_schema = {
+                    "type": "object",
+                    "properties": {
+                        "return": return_schema
+                    }
+                }
+                self.spec.components.schema(return_schema_name, return_wrapper_schema)
+        
+        # Add HTTP callback invocation properties only in standard mode (not SSE-only)
+        # These are used when the callback is invoked via HTTP POST
+        if not self.sse_only:
+            properties["sessionId"] = {
+                "type": "string",
+                "description": "Session identifier for routing"
+            }
+            properties["callbackName"] = {
+                "type": "string",
+                "description": "Name of the callback being invoked",
+            }
+            properties["args"] = {
+                "type": "array",
+                "description": "Callback arguments in order",
+                "items": {}
+            }
+            properties["isComplete"] = {
+                "type": "boolean",
+                "description": "True when no more invocations will occur",
+                "default": False
+            }
+            properties["invocationNumber"] = {
+                "type": "integer",
+                "description": "Sequential invocation counter"
+            }
+            properties["timestamp"] = {
+                "type": "string",
+                "format": "date-time",
+                "description": "Timestamp of callback invocation"
+            }
         
         # Create callback schema
         callback_schema = {
@@ -756,7 +857,170 @@ class GIRest():
             "properties": properties
         }
         
+        # Add required fields only in standard mode
+        if not self.sse_only:
+            callback_schema["required"] = ["sessionId", "callbackName", "args"]
+        
         self.spec.components.schema(full_name, callback_schema)
+    
+    def _generate_callback_argument(self, callback_info, arg_info, callback_arg_name):
+        """
+        Generate OpenAPI callback argument specification for a GObject callback.
+        
+        This creates the callback URL parameter and the callbacks object that
+        describes what the server will POST to the client's callback URL.
+        
+        Args:
+            callback_info: GIRepository callback info (the callback type)
+            arg_info: GIRepository arg info (the parameter that has this callback type)
+            callback_arg_name: Name of the callback argument (e.g., 'func', 'callback')
+            
+        Returns:
+            tuple: (callback_param, callbacks_object, is_sync)
+        """
+        callback_name = callback_info.get_name()
+        full_name = f"{callback_info.get_namespace()}{callback_name}"
+
+        # Get the scope from the argument, not the callback type
+        # According to GI, scope can be: call (sync), async, notified, forever
+        scope = GIRepository.arg_info_get_scope(arg_info)
+        
+        # Determine if synchronous based on scope
+        # GI_SCOPE_TYPE_CALL (0) means the callback is called synchronously
+        # Other scopes are asynchronous:
+        #   - GI_SCOPE_TYPE_ASYNC: fire and forget
+        #   - GI_SCOPE_TYPE_NOTIFIED: called multiple times until destroyed
+        #   - GI_SCOPE_TYPE_FOREVER: never destroyed
+        is_sync = (scope == GIRepository.ScopeType.CALL)
+
+
+        # Create callback URL parameter
+        callback_param = {
+            'name': f'{callback_arg_name}_url',
+            'in': 'query',
+            'required': True,
+            'schema': {
+                'type': 'string',
+                'format': 'uri',
+                'description': f'URL to invoke for {callback_name} callback'
+            },
+            'description': f'Callback URL that will be invoked with {callback_name} events',
+            'x-gi-callback': f'#/components/schemas/{full_name}',
+            'x-gi-callback-style': 'sync' if is_sync else 'async'
+        }
+
+        # Reference the callback schema which now includes invocation properties
+        callback_schema_ref = f'#/components/schemas/{full_name}'
+        
+        # Build response schema based on sync/async
+        if is_sync:
+            # Synchronous callback: check if it has a return value
+            return_type = GIRepository.callable_info_get_return_type(callback_info)
+            return_schema = self._type_to_schema(return_type)
+            
+            if return_schema:
+                # Reference the return value schema created in _generate_callback
+                return_schema_name = f"{full_name}Return"
+                return_schema_ref = f'#/components/schemas/{return_schema_name}'
+                
+                # Has return value: respond with 200 and the return value directly
+                responses = {
+                    '200': {
+                        'description': 'Callback processed successfully, returns callback result',
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': return_schema_ref}
+                            }
+                        }
+                    },
+                    '400': {
+                        'description': 'Invalid callback request'
+                    },
+                    '401': {
+                        'description': 'Invalid signature or authentication failed'
+                    },
+                    '500': {
+                        'description': 'Callback processing error'
+                    }
+                }
+            else:
+                # No return value: respond with 204 No Content
+                responses = {
+                    '204': {
+                        'description': 'Callback processed successfully (no content)'
+                    },
+                    '400': {
+                        'description': 'Invalid callback request'
+                    },
+                    '401': {
+                        'description': 'Invalid signature or authentication failed'
+                    },
+                    '500': {
+                        'description': 'Callback processing error'
+                    }
+                }
+        else:
+            # Asynchronous callback: fire-and-forget with 204 No Content
+            responses = {
+                '204': {
+                    'description': 'Callback received (no content)'
+                },
+                '400': {
+                    'description': 'Invalid callback request'
+                },
+                '401': {
+                    'description': 'Invalid signature or authentication failed'
+                },
+                '500': {
+                    'description': 'Callback processing error'
+                }
+            }
+
+        # Build OpenAPI callback/webhook schema
+        callback_schema_obj = {
+            callback_name: {
+                '{$request.query.' + callback_param['name'] + '}': {
+                    'post': {
+                        'summary': f'Callback for {callback_name}',
+                        'description': f'Invoked by the server when {callback_name} callback fires',
+                        'requestBody': {
+                            'required': True,
+                            'content': {
+                                'application/json': {
+                                    'schema': {'$ref': callback_schema_ref}
+                                }
+                            }
+                        },
+                        'responses': responses,
+                        'security': [
+                            {
+                                'callbackSignature': []
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        
+        # For async callbacks, also register as webhook
+        if not is_sync:
+            webhook_schema = {
+                'post': {
+                    'summary': f'Webhook for {callback_name}',
+                    'description': f'Asynchronous notification when {callback_name} fires',
+                    'requestBody': {
+                        'required': True,
+                        'content': {
+                            'application/json': {
+                                'schema': {'$ref': callback_schema_ref}
+                            }
+                        }
+                    },
+                    'responses': responses
+                }
+            }
+
+        return callback_param, callback_schema_obj, is_sync
 
     def _generate_generic_struct_new(self, bi):
         """Generate a generic 'new' endpoint for structs without constructors"""
@@ -1101,4 +1365,5 @@ class GIRest():
                     self._generate_enum(info)
                 elif info_type == GIRepository.InfoType.FUNCTION:
                     self._generate_function(info)
+        
         return self.spec
