@@ -3,6 +3,8 @@ import logging
 import os
 import argparse
 import threading
+import subprocess
+import shlex
 
 from apispec import APISpec
 
@@ -84,8 +86,13 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "--pid",
     type=int,
-    required=True,
+    required=False,
     help="Process ID to instrument"
+)
+parser.add_argument(
+    "--pipeline",
+    required=False,
+    help="PIPELINE-DESCRIPTION to execute instead of instrument a Process ID"
 )
 parser.add_argument(
     "--port",
@@ -108,6 +115,21 @@ logger.setLevel(logging.DEBUG)
 # Pipeline tracking
 pipelines = []  # List of discovered pipelines
 pipelines_lock = threading.Lock()
+
+if args.pid and args.pipeline:
+    logger.error("Arguments --pid and --pipeline are mutually exclusive and cannot be used together")
+    exit()
+
+if not args.pid and not args.pipeline:
+    logger.error("Either --pid (Process ID) or --pipeline (PIPELINE-DESCRIPTION) is required")
+    exit()
+
+if args.pipeline and not args.pid:
+    print(args.pipeline)
+    # breakpoint()
+    command = shlex.split(f"gst-launch-1.0 {args.pipeline}")
+    process = subprocess.Popen(command)
+    args.pid = process.pid
 
 # Create the resolver with Frida
 script_path = os.path.join((os.path.dirname(__file__)), 'script.js')
