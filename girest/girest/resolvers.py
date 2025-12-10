@@ -8,6 +8,7 @@ import asyncio
 import threading
 from collections import deque
 
+import connexion
 from connexion.resolver import Resolver, Resolution
 import gi
 gi.require_version("GIRepository", "2.0")
@@ -221,6 +222,8 @@ class FridaResolver(GIResolver):
         self._build_enum_mappings()
         # Callback ID counter for URL-based callbacks
         self._callback_id_counter = 0
+        # Callback metadata registry: callback_id -> {url, session_id, secret, scope}
+        self._callback_registry = {}
         # SSE mode flag
         self.sse_only = sse_only
         # Connect to the corresponding process
@@ -287,9 +290,64 @@ class FridaResolver(GIResolver):
         payload = message.get("payload", {})
         kind = payload.get("kind")
         
-        # Handle callbacks by pushing them to the SSE buffer
+        # Handle callbacks
         if kind == "callback":
-            self.push_sse_event(payload["data"])
+            callback_data = payload["data"]
+            callback_id = callback_data.get("callback_id")
+            
+            if self.sse_only:
+                # SSE mode: push event to buffer for client polling
+                self.push_sse_event(callback_data)
+            else:
+                # URL mode: make HTTP callback and unlock Frida
+                if callback_id is None:
+                    logger.error("Callback invocation missing callback_id")
+                    return
+                
+                # Look up callback metadata
+                metadata = self._callback_registry.get(callback_id)
+                if not metadata:
+                    logger.error(f"Callback {callback_id} not found in registry")
+                    # Still need to unlock Frida with a null result
+                    self.scripts[0].post({
+                        "type": "callback-response",
+                        "callback_id": callback_id,
+                        "result": None
+                    })
+                    return
+                
+                # Import CallbackHandler here to avoid circular imports
+                from .callbacks import CallbackHandler
+                
+                # Create handler and make HTTP request
+                handler = CallbackHandler(
+                    callback_url=metadata["url"],
+                    session_id=metadata["session_id"],
+                    secret=metadata["secret"],
+                    timeout=10
+                )
+                
+                args = callback_data.get("args", {})
+                callback_name = metadata.get("name", f"callback_{callback_id}")
+                
+                # Determine if sync or async based on scope
+                scope = metadata.get("scope", "async")
+                result = None
+                
+                if scope == "call":
+                    # Synchronous callback - wait for return value
+                    result = handler.call_sync(callback_name, args)
+                else:
+                    # Asynchronous callback - fire and forget
+                    handler.call_async(callback_name, args)
+                
+                # Always unlock Frida thread (for both sync and async)
+                # Post a message back to JavaScript with the result
+                self.scripts[0].post({
+                    "type": "callback-response",
+                    "callback_id": callback_id,
+                    "result": result
+                })
         else:
             # For now, just log other messages
             logger.debug(f"Message from Frida: {message}")
@@ -357,18 +415,31 @@ class FridaResolver(GIResolver):
         json_type = type_map.get(tag, "pointer")
         return {"name": json_type, "subtype": None}
     
-    def _arg_to_json(self, arg):
+    def _arg_to_json(self, arg, is_method=False):
         """Convert argument info to JSON representation"""
         arg_type = GIRepository.arg_info_get_type(arg)
         type_info = self._type_to_json(arg_type)
-        
+
+        # Check if the parent function is a method to increase the offset
+        offset = 0
+        if is_method:
+            offset = 1
+
+        closure = GIRepository.arg_info_get_closure(arg)
+        if closure >= 0:
+            closure = closure + offset
+
+        destroy = GIRepository.arg_info_get_destroy(arg)
+        if destroy >= 0:
+            destroy = destroy + offset
+
         ret = {
             "name": arg.get_name(),
             "skip_in": False,
             "skip_out": False,
-            "closure": GIRepository.arg_info_get_closure(arg),
+            "closure": closure,
             "is_closure": False,
-            "destroy": GIRepository.arg_info_get_destroy(arg),
+            "destroy": destroy,
             "is_destroy": False,
             "direction": GIRepository.arg_info_get_direction(arg),
             "type": type_info
@@ -417,12 +488,27 @@ class FridaResolver(GIResolver):
         n_args = GIRepository.callable_info_get_n_args(cb)
         for i in range(n_args):
             arg = GIRepository.callable_info_get_arg(cb, i)
-            ra = self._arg_to_json(arg)
+            ra = self._arg_to_json(arg, is_method)
             
-            # If this is a callback argument, assign a unique callback_id
+            # If this is a callback argument, assign a unique callback_id and get scope
             if ra["type"]["name"] == "callback":
                 ra["callback_id"] = self._callback_id_counter
                 self._callback_id_counter += 1
+                
+                # Get callback scope from GI metadata
+                arg_type = GIRepository.arg_info_get_type(arg)
+                callback_interface = GIRepository.type_info_get_interface(arg_type)
+                if callback_interface:
+                    scope = GIRepository.arg_info_get_scope(arg)
+                    # Map GI scope to string for easier handling
+                    scope_map = {
+                        GIRepository.ScopeType.INVALID: "invalid",
+                        GIRepository.ScopeType.CALL: "call",  # Synchronous
+                        GIRepository.ScopeType.ASYNC: "async",  # Fire and forget
+                        GIRepository.ScopeType.NOTIFIED: "notified",  # Multiple calls
+                        GIRepository.ScopeType.FOREVER: "forever"  # Never destroyed
+                    }
+                    ra["scope"] = scope_map.get(scope, "async")
             
             ret["arguments"].append(ra)
 
@@ -901,6 +987,46 @@ class FridaResolver(GIResolver):
                     else:
                         converted_kwargs[arg_name] = kwargs[arg_name]
             
+            # Register callbacks in non-SSE mode
+            if not self.sse_only:
+                # Extract callback metadata from headers using connexion.request
+                session_id = None
+                callback_secret = None
+                
+                try:
+                    # Access headers from connexion.request
+                    headers = connexion.request.headers
+                    session_id = headers.get('session-id')
+                    callback_secret = headers.get('callback-secret')
+                except Exception as e:
+                    logger.warning(f"Could not access connexion.request.headers: {e}")
+                
+                # Register each callback argument
+                for arg in _type["arguments"]:
+                    if arg["type"]["name"] == "callback" and "callback_id" in arg:
+                        callback_id = arg["callback_id"]
+                        arg_name = arg["name"]
+                        
+                        # Get callback URL from query parameter
+                        callback_url_param = f"{arg_name}_url"
+                        callback_url = kwargs.get(callback_url_param)
+                        
+                        if callback_url and session_id and callback_secret:
+                            # Determine scope from argument metadata
+                            scope = arg.get("scope", "async")
+                            
+                            # Register callback in the registry
+                            self._callback_registry[callback_id] = {
+                                "url": callback_url,
+                                "session_id": session_id,
+                                "secret": callback_secret,
+                                "scope": scope,
+                                "name": arg_name
+                            }
+                            logger.debug(f"Registered callback {callback_id}: {arg_name} -> {callback_url}")
+                        else:
+                            logger.warning(f"Callback {arg_name} missing URL or auth headers, skipping registration")
+            
             # Call the Frida script with the symbol and method JSON
             # Use asyncio.to_thread to avoid blocking the event loop with the sync Frida call
             result = await asyncio.to_thread(
@@ -909,12 +1035,12 @@ class FridaResolver(GIResolver):
 
             # In SSE mode, add callback_id for callback arguments from _type
             # Do this before checking if result is empty, as we need to return callback_id even for void functions
-            if self.sse_only and _type:
+            if self.sse_only:
                 if not result:
                     result = {}
                 for arg in _type["arguments"]:
                     # Check if this argument is a callback with a callback_id
-                    if arg.get("type", {}).get("name") == "callback" and "callback_id" in arg:
+                    if arg["type"]["name"] == "callback" and "callback_id" in arg:
                         # Add the callback_id to the result
                         result[arg["name"]] = arg["callback_id"]
 

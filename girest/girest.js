@@ -3,20 +3,7 @@ var gst_pipeline_new;
 var functions = {};
 var g_param_spec_types = null;
 
-// GLib synchronization primitives for callback blocking
-var g_mutex_init = null;
-var g_mutex_lock = null;
-var g_mutex_unlock = null;
-var g_mutex_clear = null;
-var g_cond_init = null;
-var g_cond_wait = null;
-var g_cond_signal = null;
-var g_cond_clear = null;
-
 const callbacks = new Map();
-
-// Storage for callback synchronization primitives (one lock per callback_id)
-const callback_syncs = new Map(); // callback_id -> {mutex, cond, result, ready}
 
 function base_type_to_size(t)
 {
@@ -50,7 +37,7 @@ function base_type_to_size(t)
   }
 }
 
-function base_type_convert(t, p, array_length)
+function base_type_to_json(t, p, array_length)
 {
   switch (t["name"]) {
     case "string":
@@ -101,10 +88,10 @@ function base_type_read(t, p)
     case "double":
       return p.readDouble();
     case "bool":
-      return base_type_convert(t, p.readS8());
+      return base_type_to_json(t, p.readS8());
     case "gtype":
     case "pointer":
-      return base_type_convert(t, p.readPointer());
+      return base_type_to_json(t, p.readPointer());
     case "int64":
       return p.readS64();
     case "uint64":
@@ -161,6 +148,43 @@ function base_type_write(t, p, value)
     default:
       console.error(`Unsupported type ${t["name"]} for write`);
       break;
+  }
+}
+
+function base_type_from_json(t, value)
+{
+  /* Convert JSON value to native value for return from NativeCallback */
+  switch (t["name"]) {
+    case "bool":
+      // Convert JavaScript boolean to gboolean (0 or 1)
+      return value ? 1 : 0;
+    case "int8":
+    case "uint8":
+    case "int16":
+    case "uint16":
+    case "int32":
+    case "uint32":
+      return value;
+    case "int64":
+      return int64(value);
+    case "uint64":
+      return uint64(value);
+    case "float":
+    case "double":
+      return value;
+    case "string":
+      // For string returns, would need to allocate memory
+      // This is complex for callbacks - may need special handling
+      return Memory.allocUtf8String(value);
+    case "pointer":
+    case "gtype":
+    case "struct":
+      return ptr(value);
+    case "void":
+      return undefined;
+    default:
+      console.warn(`Unsupported type ${t["name"]} for JSON to native conversion`);
+      return value;
   }
 }
 
@@ -238,6 +262,8 @@ function call(symbol, type, ...args)
       var callback_id = a["callback_id"];  // Get callback_id from type signature
       var cb_sig = callable_signature(a_t["subtype"]);
       var cb_def = a_t["subtype"]["arguments"];
+      var cb_return_type_sig = type_signature(a_t["subtype"]["returns"]);
+      var cb_return_type_meta = a_t["subtype"]["returns"];
       var cb = new NativeCallback((...args) => {
         /* Serialize the callback arguments */
         var data = {};
@@ -252,22 +278,8 @@ function call(symbol, type, ...args)
           cb_idx++;
         }
         
-        // Block and wait for Python to handle transfer
+        // Block and wait for Python to handle the callback
         console.info(`Callback ${callback_id} - blocking for Python`);
-        
-        // Initialize synchronization primitives for this callback_id if needed
-        if (!callback_syncs.has(callback_id)) {
-          if (!init_callback_sync(callback_id)) {
-            console.error("Failed to initialize callback sync, cannot block");
-            return undefined;
-          }
-        }
-        
-        var sync = callback_syncs.get(callback_id);
-        
-        // Reset the ready flag for this invocation
-        sync.ready = false;
-        sync.result = null;
         
         // Send invocation message to Python
         send({
@@ -278,17 +290,28 @@ function call(symbol, type, ...args)
           }
         });
         
-        // Block waiting for Python to complete the callback (handles transfer mode)
-        g_mutex_lock(sync.mutex);
-        while (!sync.ready) {
-          g_cond_wait(sync.cond, sync.mutex);
-        }
-        var result = sync.result;
-        g_mutex_unlock(sync.mutex);
+        // Use Frida's blocking recv to wait for Python's response
+        var result = null;
+        var response_received = false;
         
-        console.debug(`Callback ${callback_id} completed with result: ${result}`);
-        return result;
-      }, "void", cb_sig);
+        while (!response_received) {
+          var op = recv('callback-response', function(message) {
+            // Message received from Python - check if it's for our callback_id
+            if (message.callback_id === callback_id) {
+              result = message.result;
+              response_received = true;
+              console.debug(`Callback ${callback_id} received result from Python: ${result} (type: ${typeof result})`);
+            }
+            // If not for us, response_received stays false and we'll wait again
+          });
+          op.wait();
+        }
+        
+        // Convert result from JSON to native type
+        var native_result = base_type_from_json(cb_return_type_meta, result);
+        console.debug(`Callback ${callback_id} completed - JSON result: ${result}, native result: ${native_result}`);
+        return native_result;
+      }, cb_return_type_sig, cb_sig);
       
       // Store callback for reference
       callbacks.set(callback_id.toString(), cb);
@@ -326,9 +349,9 @@ function call(symbol, type, ...args)
     /* When returning arrays, the length parameter must be read */
     if (type["returns"]["name"] == "array" && type["return_length"] >= 0) {
       var return_length = base_type_read(type["arguments"][type["return_length"]]["type"], tx_args[type["return_length"]]);
-      ret["return"] = base_type_convert(type["returns"], nfr, return_length);
+      ret["return"] = base_type_to_json(type["returns"], nfr, return_length);
     } else {
-      ret["return"] = base_type_convert(type["returns"], nfr, -1);
+      ret["return"] = base_type_to_json(type["returns"], nfr, -1);
     }
   }
   /* Return the return value plus the output arguments */
@@ -352,99 +375,7 @@ function call(symbol, type, ...args)
 function init()
 {
   console.debug("Init");
-  
-  // Load GLib synchronization primitives for callback blocking
-  const glib_symbols = [
-    'g_mutex_init',
-    'g_mutex_lock',
-    'g_mutex_unlock',
-    'g_mutex_clear',
-    'g_cond_init',
-    'g_cond_wait',
-    'g_cond_signal',
-    'g_cond_clear'
-  ];
-  
-  let loaded_count = 0;
-  
-  Process.enumerateModules().some(m => {
-    for (const symbol_name of glib_symbols) {
-      if (eval(symbol_name) !== null) {
-        continue; // Already loaded
-      }
-      
-      const s = m.findExportByName(symbol_name);
-      if (s) {
-        if (symbol_name === 'g_cond_wait') {
-          // g_cond_wait takes two pointers (cond, mutex)
-          eval(`${symbol_name} = new NativeFunction(s, 'void', ['pointer', 'pointer'])`);
-        } else {
-          // All others take one pointer
-          eval(`${symbol_name} = new NativeFunction(s, 'void', ['pointer'])`);
-        }
-        loaded_count++;
-        console.debug(`Loaded ${symbol_name} from ${m.name}`);
-      }
-    }
-    
-    // Stop if we've loaded all symbols
-    return loaded_count === glib_symbols.length;
-  });
-  
-  if (loaded_count === glib_symbols.length) {
-    console.debug("GLib synchronization primitives loaded successfully");
-  } else {
-    console.warn(`Only loaded ${loaded_count}/${glib_symbols.length} GLib synchronization primitives`);
-    console.warn("Callback blocking may not be available");
-  }
-  
   console.debug("Init done");
-}
-
-function init_callback_sync(callback_id)
-{
-  if (!g_mutex_init || !g_cond_init) {
-    console.error("GLib synchronization primitives not loaded, cannot create callback sync");
-    return false;
-  }
-  
-  // Allocate memory for GMutex and GCond
-  // GMutex and GCond are typically pointer-sized structures on modern systems
-  const mutex = Memory.alloc(Process.pointerSize * 2);
-  const cond = Memory.alloc(Process.pointerSize * 2);
-  
-  // Initialize the primitives
-  g_mutex_init(mutex);
-  g_cond_init(cond);
-  
-  // Store in the map
-  callback_syncs.set(callback_id, {
-    mutex: mutex,
-    cond: cond,
-    result: null,
-    ready: false
-  });
-  
-  console.debug(`Initialized sync primitives for callback ${callback_id}`);
-  return true;
-}
-
-function cleanup_callback_sync(callback_id)
-{
-  const sync = callback_syncs.get(callback_id);
-  if (!sync) {
-    console.warn(`Callback sync ${callback_id} not found for cleanup`);
-    return;
-  }
-  
-  // Clear the primitives (frees internal resources)
-  if (g_mutex_clear && g_cond_clear) {
-    g_mutex_clear(sync.mutex);
-    g_cond_clear(sync.cond);
-  }
-  
-  callback_syncs.delete(callback_id);
-  console.debug(`Cleaned up sync primitives for callback ${callback_id}`);
 }
 
 function shutdown()
@@ -579,26 +510,6 @@ function internal_gtype(name)
   return gtype;
 }
 
-function complete_callback(callback_id, return_value)
-{
-  console.info(`Completing callback ${callback_id} with value ${return_value}`);
-  
-  const sync = callback_syncs.get(callback_id);
-  if (!sync) {
-    console.error(`Callback ${callback_id} sync primitives not found`);
-    return;
-  }
-  
-  // Lock, set result, signal, unlock
-  g_mutex_lock(sync.mutex);
-  sync.result = return_value;
-  sync.ready = true;
-  g_cond_signal(sync.cond);
-  g_mutex_unlock(sync.mutex);
-  
-  console.debug(`Callback ${callback_id} signaled`);
-}
-
 rpc.exports = {
   'call': call,
   'alloc': alloc,
@@ -608,5 +519,4 @@ rpc.exports = {
   'internalGtype': internal_gtype,
   'init': init,
   'shutdown': shutdown,
-  'completeCallback': complete_callback,
 };
