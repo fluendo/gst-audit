@@ -836,11 +836,6 @@ class GIRest():
                 "description": "Callback arguments in order",
                 "items": {}
             }
-            properties["isComplete"] = {
-                "type": "boolean",
-                "description": "True when no more invocations will occur",
-                "default": False
-            }
             properties["invocationNumber"] = {
                 "type": "integer",
                 "description": "Sequential invocation counter"

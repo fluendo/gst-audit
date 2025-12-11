@@ -224,8 +224,7 @@ GIRest supports two callback modes:
   "callbackName": "func",
   "args": [category, level, file, function, line, object, message],
   "invocationNumber": 0,
-  "timestamp": "2025-12-10T10:30:00Z",
-  "isComplete": false
+  "timestamp": "2025-12-10T10:30:00Z"
 }
 ```
 

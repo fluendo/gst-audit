@@ -512,7 +512,7 @@ class Callback(Schema):
             # that don't have this flag
             if pv.get("x-gi-is-return", False):
                 self._return_param = ReturnParam(pname, self.generator, pv, self)
-            elif not pname in ['sessionId', 'callbackName', 'args', 'isComplete', 'invocationNumber', 'timestamp']:
+            elif not pname in ['sessionId', 'callbackName', 'args', 'invocationNumber', 'timestamp']:
                 # Skip non-SSE mode metadata properties
                 self._parameters.append(Field(pname, pv, generator, self))
 
