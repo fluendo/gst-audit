@@ -11,3 +11,4 @@
 
 ## GStreamer
 * The GstPlugin feature list should be implemented as a GstIterator to avoid the cookie management
+* The GstDebugMessage is an internal struct with no memory management exposed. We can not copy, free it, anything
