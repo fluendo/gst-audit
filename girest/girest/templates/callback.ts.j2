@@ -21,15 +21,15 @@ data.{{ param.name }}
 data.{{ param.name }}
 {%- elif param.type.ref_schema and param.type.ref_schema.info_type == "struct" -%}
 {% if param.can_be_null -%}
-data.{{ param.name }} ? new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}') : null
+data.{{ param.name }} ? new {{ param.type.lang_type }}(data.{{ param.name }}.ptr, '{{ param.transfer }}') : null
 {%- else -%}
-new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}')
+new {{ param.type.lang_type }}(data.{{ param.name }}.ptr, '{{ param.transfer }}')
 {%- endif -%}
 {%- elif param.type.ref_schema and param.type.ref_schema.info_type == "object" -%}
 {% if param.can_be_null -%}
-data.{{ param.name }} ? new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}') : null
+data.{{ param.name }} ? new {{ param.type.lang_type }}(data.{{ param.name }}.ptr, '{{ param.transfer }}') : null
 {%- else -%}
-new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}')
+new {{ param.type.lang_type }}(data.{{ param.name }}.ptr, '{{ param.transfer }}')
 {%- endif -%}
 {%- elif param.type.type == "string" -%}
 data.{{ param.name }}
