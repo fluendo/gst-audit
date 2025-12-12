@@ -259,7 +259,8 @@ function call(symbol, type, ...args)
       idx++;
     } else if (a_tn == "callback" && !a["is_destroy"]) {
       /* For callbacks, create a new NativeCallback */
-      var callback_id = a["callback_id"];  // Get callback_id from type signature
+      var callback_id = args[idx];
+      idx++;
       var cb_sig = callable_signature(a_t["subtype"]);
       var cb_def = a_t["subtype"]["arguments"];
       var cb_return_type_sig = type_signature(a_t["subtype"]["returns"]);
@@ -314,6 +315,7 @@ function call(symbol, type, ...args)
       }, cb_return_type_sig, cb_sig);
       
       // Store callback for reference
+      console.debug(`Storing callback id ${callback_id}`);
       callbacks.set(callback_id.toString(), cb);
       tx_args.push(cb);
     } else if (a["is_destroy"]) {
@@ -360,9 +362,6 @@ function call(symbol, type, ...args)
     if (a["skip_out"]) {
       idx++;
       continue;
-    } else if (a["type"]["name"] == "callback" && !a["is_destroy"]) {
-      // Don't return callback_id - Python will handle it if needed for SSE mode
-      idx++;
     } else if ([1, 2].includes(a["direction"])) {
       ret[a["name"]] = base_type_read(a["type"], tx_args[idx]);
     }

@@ -892,7 +892,7 @@ class GIRest():
 
         # Create callback URL parameter
         callback_param = {
-            'name': f'{callback_arg_name}_url',
+            'name': f'{callback_arg_name}',
             'in': 'query',
             'required': True,
             'schema': {

@@ -32,13 +32,10 @@
 {# For non-SSE mode: Add callback function parameters for each callback_url param #}
 {% if not method.uses_sse_callbacks %}
   {% for cb_url_param in callback_url_params %}
-    {# The callback function parameter name is derived from the URL param name #}
-    {# e.g., func_url -> func #}
-    {% set cb_func_name = cb_url_param.name.replace('_url', '') %}
     {# Find the callback schema reference #}
     {% set cb_ref = cb_url_param.schema_section.get('x-gi-callback', '') %}
     {% set cb_schema_name = cb_ref.split('/')[-1] if cb_ref else 'Function' %}
-    {% set _ = callback_params.append(cb_func_name + ": " + cb_schema_name) %}
+    {% set _ = callback_params.append(cb_url_param.valid_name + ": " + cb_schema_name) %}
   {% endfor %}
   
   {# Add header parameters for non-SSE mode (sessionId, callbackSecret) #}
@@ -119,23 +116,22 @@
 {% if not method.uses_sse_callbacks %}
 {# Non-SSE mode: Use callback handler interface #}
 {% for cb_url_param in callback_url_params %}
-    {% set cb_func_name = cb_url_param.name.replace('_url', '') %}
     // Non-SSE mode: Register callback using the callback handler
-    let {{ cb_func_name }}_callbackInfo: { callbackUrl: string; callbackId: string } | undefined;
-    if (typeof {{ cb_func_name }} !== 'undefined') {
+    let {{ cb_url_param.name }}_callbackInfo: { callbackUrl: string; callbackId: string } | undefined;
+    if (typeof {{ cb_url_param.valid_name }} !== 'undefined') {
       const handler = getCallbackHandler();
       if (!handler) {
         throw new Error('Callback handler not configured. Call setCallbackHandler() first.');
       }
       
       // Register the callback and get URL + ID
-      {{ cb_func_name }}_callbackInfo = handler.registerCallback({{ cb_func_name }}, {
+      {{ cb_url_param.name }}_callbackInfo = handler.registerCallback({{ cb_url_param.valid_name }}, {
         methodName: '{{ method.name }}',
-        paramName: '{{ cb_func_name }}'
+        paramName: '{{ cb_url_param.name }}'
       });
       
       // Pass the callback URL to the server
-      url.searchParams.append('{{ cb_url_param.name }}', {{ cb_func_name }}_callbackInfo.callbackUrl);
+      url.searchParams.append('{{ cb_url_param.name }}', {{ cb_url_param.name }}_callbackInfo.callbackUrl);
     }
 {% endfor %}
 {% endif %}

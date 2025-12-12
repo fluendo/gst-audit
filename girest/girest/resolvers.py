@@ -327,8 +327,12 @@ class FridaResolver(GIResolver):
                     timeout=10
                 )
                 
-                args = callback_data.get("args", {})
-                callback_name = metadata.get("name", f"callback_{callback_id}")
+                # Get raw args and convert enums to strings
+                raw_args = callback_data["args"]
+                callback_name = metadata["name"]
+                
+                # Convert callback arguments (especially enum integers to strings)
+                args = self._convert_callback_args(raw_args, metadata["callback_type"])
                 
                 # Determine if sync or async based on scope
                 scope = metadata.get("scope", "async")
@@ -351,6 +355,150 @@ class FridaResolver(GIResolver):
         else:
             # For now, just log other messages
             logger.debug(f"Message from Frida: {message}")
+
+    def _generate_callback(self, url, arg_info, cb_info, headers): 
+        session_id = None
+        callback_secret = None
+        
+        try:
+            # Access headers from connexion.request
+            session_id = headers.get('session-id')
+            callback_secret = headers.get('callback-secret')
+        except Exception as e:
+            logger.warning(f"Could not access connexion.request.headers: {e}")
+
+        # If this is a callback argument, assign a unique callback_id and get scope
+        callback_id = self._callback_id_counter
+        self._callback_id_counter += 1
+            
+        # Get callback scope from GI metadata
+        scope = GIRepository.arg_info_get_scope(arg_info)
+        # Map GI scope to string for easier handling
+        scope_map = {
+            GIRepository.ScopeType.INVALID: "invalid",
+            GIRepository.ScopeType.CALL: "call",  # Synchronous
+            GIRepository.ScopeType.ASYNC: "async",  # Fire and forget
+            GIRepository.ScopeType.NOTIFIED: "notified",  # Multiple calls
+            GIRepository.ScopeType.FOREVER: "forever"  # Never destroyed
+        }
+        scope = scope_map.get(scope, "async")
+        arg_name = arg_info.get_name()
+        # Register each callback argument
+        self._callback_registry[callback_id] = {
+            "url": url,
+            "session_id": session_id,
+            "secret": callback_secret,
+            "scope": scope,
+            "name": arg_name,
+            "callback_type": cb_info
+        }
+        logger.debug(f"Registered callback {callback_id}: {arg_name} -> {url}")
+        return callback_id
+
+    def _value_to_rest(self, value, type_info):
+        """
+        Convert a single value as received from Frida to how it should be exposed to REST
+        Handles enums, objects, structs, and arrays.
+        
+        Args:
+            value: The raw json value from Frida
+            type_info: GITypeInfo that corresponds to the value
+            
+        Returns:
+            Converted value
+        """
+        tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(type_info))
+        # Check if this is an interface type
+        if tag == "interface":
+            interface = GIRepository.type_info_get_interface(type_info)
+            info_type = interface.get_type()
+        
+            if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                enum_mapping = self.enum_mappings.get(full_name, {})
+                # Reverse lookup: find string name for integer value
+                for enum_name, enum_value in enum_mapping.items():
+                    if enum_value == value:
+                        return enum_name
+            # Handle objects/structs - convert to {ptr: "0x..."}
+            elif info_type in [GIRepository.InfoType.OBJECT, GIRepository.InfoType.STRUCT]:
+                return {"ptr": value}
+            else:
+                logger.warning(f"Unsupported interface type {info_type}")
+                return value
+        elif tag == "array":
+            array_type = GIRepository.type_info_get_array_type(type_info)
+            if array_type != GIRepository.ArrayType.C:
+                logger.warning(f"Unsupported array type")
+                return value
+            element_type_info = GIRepository.type_info_get_param_type(type_info, 0)
+            # Convert each element
+            return [self._value_to_rest(item, element_type_info) for item in value]
+        
+        # No conversion needed
+        return value
+
+    def _arg_from_rest(self, rest_value, arg_info, headers):
+        """
+        Convert an arg definition as received from REST to how Frida expects it
+        
+        Args:
+            rest_value: The raw json value from REST
+            arg_info: GIArgInfo that corresponds to the arguments being passed
+            headers: The headers from the request
+            
+        Returns:
+            Converted value
+        """
+        arg_type = GIRepository.arg_info_get_type(arg_info)
+        tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
+        # Check if this is an interface type
+        if tag != "interface":
+            return rest_value
+
+        interface = GIRepository.type_info_get_interface(arg_type)
+        info_type = interface.get_type()
+        
+        if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+            # Convert string enum name to integer value
+            full_name = f"{interface.get_namespace()}{interface.get_name()}"
+            enum_mapping = self.enum_mappings.get(full_name, {})
+            return enum_mapping[rest_value]
+        elif info_type in [GIRepository.InfoType.OBJECT, GIRepository.InfoType.STRUCT]:
+            # For GObject types, extract the 'ptr' field from the JSON object
+            # Our URI parser deserializes "ptr,value" into {"ptr": "value"}
+            # but Frida expects just the pointer value
+            return rest_value["ptr"]
+        elif info_type == GIRepository.InfoType.CALLBACK:
+            return self._generate_callback(rest_value, arg_info, interface, headers)
+        return rest_value
+
+    def _convert_callback_args(self, args, cb_type):
+        """
+        Convert callback arguments, especially enum integers to strings.
+        
+        Args:
+            args: Dictionary of callback argument values from Frida
+            callback_args_definition: List of argument definitions from callback type
+            
+        Returns:
+            Dictionary with converted values
+        """
+        converted_args = {}
+        n_args = GIRepository.callable_info_get_n_args(cb_type)
+        for i in range(n_args):
+            arg_info = GIRepository.callable_info_get_arg(cb_type, i)
+            arg_name = arg_info.get_name()
+            if arg_name not in args:
+                logger.warning(f"Callback arg {arg_name} not found in {args}")
+                continue
+
+            arg_value = args[arg_name]
+            arg_type = GIRepository.arg_info_get_type(arg_info)
+
+            converted_args[arg_name] = self._value_to_rest(arg_value, arg_type)
+        
+        return converted_args
     
     def _type_to_json(self, t):
         """Convert GIRepository type to JSON type dict with name and subtype"""
@@ -489,27 +637,6 @@ class FridaResolver(GIResolver):
         for i in range(n_args):
             arg = GIRepository.callable_info_get_arg(cb, i)
             ra = self._arg_to_json(arg, is_method)
-            
-            # If this is a callback argument, assign a unique callback_id and get scope
-            if ra["type"]["name"] == "callback":
-                ra["callback_id"] = self._callback_id_counter
-                self._callback_id_counter += 1
-                
-                # Get callback scope from GI metadata
-                arg_type = GIRepository.arg_info_get_type(arg)
-                callback_interface = GIRepository.type_info_get_interface(arg_type)
-                if callback_interface:
-                    scope = GIRepository.arg_info_get_scope(arg)
-                    # Map GI scope to string for easier handling
-                    scope_map = {
-                        GIRepository.ScopeType.INVALID: "invalid",
-                        GIRepository.ScopeType.CALL: "call",  # Synchronous
-                        GIRepository.ScopeType.ASYNC: "async",  # Fire and forget
-                        GIRepository.ScopeType.NOTIFIED: "notified",  # Multiple calls
-                        GIRepository.ScopeType.FOREVER: "forever"  # Never destroyed
-                    }
-                    ra["scope"] = scope_map.get(scope, "async")
-            
             ret["arguments"].append(ra)
 
         # Mark array length parameters as skipped
@@ -938,10 +1065,16 @@ class FridaResolver(GIResolver):
             """
             # Get the symbol from the method info
             symbol = GIRepository.function_info_get_symbol(_method)
+
+            # Headers
+            headers = connexion.request.headers
             
             # Convert enum string values to integers before calling Frida
             converted_kwargs = {}
             n_args = GIRepository.callable_info_get_n_args(_method)
+
+            # Callback ids to return, only relevant in SSE mode
+            callbacks = {}
 
             # Add 'self' as a parameter
             if _type["is_method"]:
@@ -951,104 +1084,39 @@ class FridaResolver(GIResolver):
                 arg = GIRepository.callable_info_get_arg(_method, i)
                 arg_name = arg.get_name()
                 
+                # Some args might not be on the passed in args, like output params
                 if arg_name in kwargs:
+                    converted_kwargs[arg_name] = self._arg_from_rest(kwargs[arg_name], arg, headers)
+                # In SSE Mode, the callback is never passed in REST, but we
+                # need to generate the callback information
+                elif self.sse_only and _type["arguments"][i]["is_destroy"] == False:
                     arg_type = GIRepository.arg_info_get_type(arg)
                     tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
-                    
-                    # Check if this is an interface type
-                    if tag == "interface":
-                        interface = GIRepository.type_info_get_interface(arg_type)
-                        if interface:
-                            info_type = interface.get_type()
-                            
-                            if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
-                                # Convert string enum name to integer value
-                                full_name = f"{interface.get_namespace()}{interface.get_name()}"
-                                enum_mapping = self.enum_mappings.get(full_name, {})
-                                value = kwargs[arg_name]
-                                if isinstance(value, str) and value in enum_mapping:
-                                    converted_kwargs[arg_name] = enum_mapping[value]
-                                else:
-                                    converted_kwargs[arg_name] = value
-                            elif info_type in [GIRepository.InfoType.OBJECT, GIRepository.InfoType.STRUCT]:
-                                # For GObject types, extract the 'ptr' field from the JSON object
-                                # Our URI parser deserializes "ptr,value" into {"ptr": "value"}
-                                # but Frida expects just the pointer value
-                                value = kwargs[arg_name]
-                                if isinstance(value, dict) and 'ptr' in value:
-                                    converted_kwargs[arg_name] = value['ptr']
-                                else:
-                                    # If it's already a string/int pointer value, use it as-is
-                                    converted_kwargs[arg_name] = value
-                            else:
-                                converted_kwargs[arg_name] = kwargs[arg_name]
-                        else:
-                            converted_kwargs[arg_name] = kwargs[arg_name]
-                    else:
-                        converted_kwargs[arg_name] = kwargs[arg_name]
-            
-            # Register callbacks in non-SSE mode
-            if not self.sse_only:
-                # Extract callback metadata from headers using connexion.request
-                session_id = None
-                callback_secret = None
-                
-                try:
-                    # Access headers from connexion.request
-                    headers = connexion.request.headers
-                    session_id = headers.get('session-id')
-                    callback_secret = headers.get('callback-secret')
-                except Exception as e:
-                    logger.warning(f"Could not access connexion.request.headers: {e}")
-                
-                # Register each callback argument
-                for arg in _type["arguments"]:
-                    if arg["type"]["name"] == "callback" and "callback_id" in arg:
-                        callback_id = arg["callback_id"]
-                        arg_name = arg["name"]
-                        
-                        # Get callback URL from query parameter
-                        callback_url_param = f"{arg_name}_url"
-                        callback_url = kwargs.get(callback_url_param)
-                        
-                        if callback_url and session_id and callback_secret:
-                            # Determine scope from argument metadata
-                            scope = arg.get("scope", "async")
-                            
-                            # Register callback in the registry
-                            self._callback_registry[callback_id] = {
-                                "url": callback_url,
-                                "session_id": session_id,
-                                "secret": callback_secret,
-                                "scope": scope,
-                                "name": arg_name
-                            }
-                            logger.debug(f"Registered callback {callback_id}: {arg_name} -> {callback_url}")
-                        else:
-                            logger.warning(f"Callback {arg_name} missing URL or auth headers, skipping registration")
-            
+                    if tag != "interface":
+                        continue
+                    interface = GIRepository.type_info_get_interface(arg_type)
+                    info_type = interface.get_type()
+                    if info_type == GIRepository.InfoType.CALLBACK:
+                        callback_id = self._generate_callback(None, arg, info_type, headers)
+                        callbacks[arg_name] = converted_kwargs[arg_name] = callback_id
+           
             # Call the Frida script with the symbol and method JSON
             # Use asyncio.to_thread to avoid blocking the event loop with the sync Frida call
             result = await asyncio.to_thread(
                 self.scripts[0].exports_sync.call, symbol, _type, *converted_kwargs.values()
             )
 
-            # In SSE mode, add callback_id for callback arguments from _type
-            # Do this before checking if result is empty, as we need to return callback_id even for void functions
-            if self.sse_only:
+            # Use common response parsing logic
+            result = self._parse_response(result, _endpoint, method_info=_method)
+
+            # In SSE mode, return also the callback id
+            if callbacks:
                 if not result:
                     result = {}
-                for arg in _type["arguments"]:
-                    # Check if this argument is a callback with a callback_id
-                    if arg["type"]["name"] == "callback" and "callback_id" in arg:
-                        # Add the callback_id to the result
-                        result[arg["name"]] = arg["callback_id"]
+                result.update(callbacks)
 
-            if not result:
-                return
+            return result
 
-            # Use common response parsing logic
-            return self._parse_response(result, _endpoint, method_info=_method)
 
         return frida_resolver_handler
 
