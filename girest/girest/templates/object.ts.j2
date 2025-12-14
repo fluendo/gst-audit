@@ -19,7 +19,7 @@ export class {{ object.name }}{% if object.parent_schema %} extends {{ object.pa
     {% if object.parent_schema.info_type == 'struct' %}
 
   constructor(ptr: string, transferType: transferType) {
-	super(ptr, 'none');
+  super(ptr, 'none');
     {{ object.name.lower() }}Registry.register(this, ptr);
     if (transferType === 'none') {
       this.ref().catch(() => {});

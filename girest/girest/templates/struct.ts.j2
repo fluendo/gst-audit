@@ -3,9 +3,10 @@
 {% block finalization %}
   {% if not struct.parent_schema %}
     {% set registry_name = struct.name.lower() + 'Registry' %}
+    {% set destructor = struct.destructors[0] if struct.destructors else none %}
 // Finalization registry for {{ struct.name }}
 const {{ registry_name }} = new FinalizationRegistry((ptr: string) => {
-  fetch(apiConfig.fullBaseUrl + '/{{ struct.namespace }}/{{ struct.type_name }}/ptr,' + ptr + '/free')
+  fetch(apiConfig.fullBaseUrl + '/{{ struct.namespace }}/{{ struct.type_name }}/ptr,' + ptr + '/{{ destructor.name if destructor else 'free' }}')
     .catch(err => console.error('Failed to free {{ struct.name }}:', ptr, err));
 });
   {% endif %}
