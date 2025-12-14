@@ -267,20 +267,7 @@ function call(symbol, type, ...args)
       var cb_return_type_meta = a_t["subtype"]["returns"];
       var cb = new NativeCallback((...args) => {
         /* Serialize the callback arguments */
-        var data = {};
-        var cb_idx = 0;
-        for (var cb_a of cb_def) {
-          if (cb_a["type"]["name"] == "string")
-            data[cb_a["name"]] = args[cb_idx].readCString();
-          else if (cb_a["type"]["name"] == "pointer")
-            data[cb_a["name"]] = args[cb_idx].toString();
-          else
-            data[cb_a["name"]] = args[cb_idx];
-          cb_idx++;
-        }
-        
-        // Block and wait for Python to handle the callback
-        console.info(`Callback ${callback_id} - blocking for Python`);
+        var data = native_callback_args_to_json(cb_def, args);
         
         // Send invocation message to Python
         send({
@@ -507,6 +494,26 @@ function internal_gtype(name)
   
   console.info(`Resolved ${name} to GType: ${gtype}`);
   return gtype;
+}
+
+function native_callback_args_to_json(callback_args_def, args) {
+  /* Convert native callback arguments to JSON based on argument definitions */
+  var data = {};
+  var idx = 0;
+  for (var arg_def of callback_args_def) {
+    if (idx >= args.length) break;
+    
+    var arg_type = arg_def["type"]["name"];
+    if (arg_type == "string" || arg_type == "utf8") {
+      data[arg_def["name"]] = args[idx].readCString();
+    } else if (arg_type == "pointer") {
+      data[arg_def["name"]] = args[idx].toString();
+    } else {
+      data[arg_def["name"]] = args[idx];
+    }
+    idx++;
+  }
+  return data;
 }
 
 rpc.exports = {
