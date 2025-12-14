@@ -606,6 +606,8 @@ class GIRest():
                 self._generate_generic_object_unref(bi)
 
     def _generate_struct(self, bi, generate_class=False, class_of=None):
+        has_constructor = False
+        has_destructor = False
         # Only generate struct for classes when invoked from the object
         # This allows us to identify the object and the class with x-gi-class
         # and x-gi-class-of
@@ -631,7 +633,24 @@ class GIRest():
             else:
                 parent = GIRepository.object_info_get_class_struct(parent_instance)
         else:
+            # Special care for GstMiniObject. GstMessage, GstQuery, etc inherit from
+            # it and are also registered on the GType system. Check if the first field
+            # is a GstMiniObject
             parent = None
+            n_fields = GIRepository.struct_info_get_n_fields(bi)
+            if n_fields > 0:
+                field_info = GIRepository.struct_info_get_field(bi, 0)
+                field_type = GIRepository.field_info_get_type(field_info)
+                tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(field_type))
+                if tag == "interface":
+                    interface = GIRepository.type_info_get_interface(field_type)
+                    if interface.get_type() == GIRepository.InfoType.STRUCT \
+                            and interface.get_name() == "MiniObject" \
+                            and interface.get_namespace() == "Gst":
+                        parent = interface
+                        # We reuse the gst_mini_object_unref
+                        has_destructor = True
+                        logger.info(f"Struct {bi.get_name()} inheriting from GstMiniObject")
 
         schema = {
             "x-gi-type": "struct",
@@ -693,8 +712,6 @@ class GIRest():
             pass
         
         # Check existing methods for constructors/free and generate endpoints for struct methods
-        has_constructor = False
-        has_destructor = False
         for i in range(0, n_methods):
             bim = GIRepository.struct_info_get_method(bi, i)
             flags = GIRepository.function_info_get_flags(bim)
@@ -708,7 +725,7 @@ class GIRest():
             # Check for destructor using API first, then fallback
             if free_func_name and method_name == free_func_name:
                 has_destructor = True
-            elif not free_func_name and method_name == 'free':
+            elif not free_func_name and method_name in ['free', 'unref']:
                 has_destructor = True
             
             # Determine if this is a copy or destructor method
@@ -741,13 +758,20 @@ class GIRest():
         self._generate_get_type_function(bi)
 
         # Custom cases
+        # MiniObject does not export the ref/unref
+        if bi.get_name() == "MiniObject" and bi.get_namespace() == "Gst":
+            self._generate_generic_object_ref(bi)
+            self._generate_generic_object_unref(bi)
+            has_destructor = True
+            has_constructor = True
         # Avoid the Type generic free/new because those are not needed and GI explictly marks them
         # as not exported
         if bi.get_name() in ["TypeInstance", "TypeClass"]:
             return
         # Avoid the generic constructors/destructors for GObject classes
         if GIRepository.struct_info_is_gtype_struct(bi):
-            return
+            has_destructor = True
+            has_constructor = True
         # Generate generic new/free endpoints if struct doesn't have constructor/free
         if not has_constructor:
             self._generate_generic_struct_new(bi)
