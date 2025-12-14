@@ -124,6 +124,7 @@ export interface ICallbackHandler {
    * Register a callback function and return metadata for the server.
    * 
    * @param callbackFunc The callback function to register
+   * @param converterFunc The converter function to convert raw callback args to typed args
    * @param metadata Additional metadata (method name, parameter name, etc.)
    * @returns An object containing:
    *   - callbackUrl: The URL where callbacks should be POSTed
@@ -131,6 +132,7 @@ export interface ICallbackHandler {
    */
   registerCallback(
     callbackFunc: Function,
+    converterFunc: Function,
     metadata: { methodName: string; paramName: string }
   ): { callbackUrl: string; callbackId: string };
 

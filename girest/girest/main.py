@@ -95,6 +95,25 @@ class GIRest():
         
         return None
 
+    def _add_non_sse_parameters(self, operation):
+        # Add header parameters for callback authentication
+        operation['parameters'].extend([
+            {
+                'name': 'session-id',
+                'in': 'header',
+                'required': True,
+                'schema': {'type': 'string'},
+                'description': 'Session identifier for callback routing'
+            },
+            {
+                'name': 'callback-secret',
+                'in': 'header',
+                'required': True,
+                'schema': {'type': 'string'},
+                'description': 'Shared secret for callback HMAC signatures'
+            }
+        ])
+
     def _type_to_schema(self, t):
         """Convert GIRepository type to OpenAPI schema"""
         tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(t))
@@ -195,9 +214,8 @@ class GIRest():
                     return {"$ref": f"#/components/schemas/{full_name}"}
                 elif info_type == GIRepository.InfoType.CALLBACK:
                     # Generate the callback schema if not already generated
-                    self._generate_callback(interface)
+                    full_name = self._generate_callback(interface)
                     # Return reference to the callback schema
-                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
                     return {"$ref": f"#/components/schemas/{full_name}"}
         
         # Map GIRepository type tags to OpenAPI types
@@ -327,8 +345,7 @@ class GIRest():
                 interface = GIRepository.type_info_get_interface(arg_type)
                 if interface and interface.get_type() == GIRepository.InfoType.CALLBACK:
                     # Generate the callback schema (needed in both modes)
-                    self._generate_callback(interface)
-                    full_name = f"{interface.get_namespace()}{interface.get_name()}"
+                    full_name = self._generate_callback(interface)
                     
                     if self.sse_only:
                         # SSE-only mode: check scope and skip sync callbacks
@@ -451,24 +468,7 @@ class GIRest():
             for cb_info in method_callbacks:
                 callbacks_spec.update(cb_info['callbacks_obj'])
             operation['callbacks'] = callbacks_spec
-            
-            # Add header parameters for callback authentication
-            operation['parameters'].extend([
-                {
-                    'name': 'session-id',
-                    'in': 'header',
-                    'required': True if method_callbacks else False,
-                    'schema': {'type': 'string'},
-                    'description': 'Session identifier for callback routing'
-                },
-                {
-                    'name': 'callback-secret',
-                    'in': 'header',
-                    'required': True if method_callbacks else False,
-                    'schema': {'type': 'string'},
-                    'description': 'Shared secret for callback HMAC signatures'
-                }
-            ])
+            self._add_non_sse_parameters(operation)
 
         
         # Only add vendor-specific attributes when they are True
@@ -596,6 +596,9 @@ class GIRest():
             logger.warning(f"Unref function '{unref_func_name}' not found in methods of {bi.get_namespace()}.{bi.get_name()}")
         # The type function
         self._generate_get_type_function(bi)
+
+        # Generate signal connection methods
+        self._generate_signals(bi)
 
         # Custom cases
         # ParamSpec does not export the ref/unref
@@ -779,11 +782,15 @@ class GIRest():
         if not has_destructor:
             self._generate_generic_struct_free(bi)
 
-    def _generate_callback(self, bi):
+    def _generate_callback(self, bi, schema_name=None):
         """Generate OpenAPI schema for a callback"""
-        full_name = f"{bi.get_namespace()}{bi.get_name()}"
+        # The optional schema-name is needed for signals, to generate a proper name
+        if schema_name is None:
+            full_name = f"{bi.get_namespace()}{bi.get_name()}"
+        else:
+            full_name = schema_name
         if full_name in self.schemas:
-            return
+            return full_name
         
         # Mark as generated early to prevent circular dependencies
         self.schemas[full_name] = True
@@ -882,6 +889,7 @@ class GIRest():
             callback_schema["required"] = ["sessionId", "callbackName", "args"]
         
         self.spec.components.schema(full_name, callback_schema)
+        return full_name
     
     def _generate_callback_argument(self, callback_info, arg_info, callback_arg_name):
         """
@@ -1021,25 +1029,6 @@ class GIRest():
                 }
             }
         }
-        
-        # For async callbacks, also register as webhook
-        if not is_sync:
-            webhook_schema = {
-                'post': {
-                    'summary': f'Webhook for {callback_name}',
-                    'description': f'Asynchronous notification when {callback_name} fires',
-                    'requestBody': {
-                        'required': True,
-                        'content': {
-                            'application/json': {
-                                'schema': {'$ref': callback_schema_ref}
-                            }
-                        }
-                    },
-                    'responses': responses
-                }
-            }
-
         return callback_param, callback_schema_obj, is_sync
 
     def _generate_generic_struct_new(self, bi):
@@ -1143,6 +1132,148 @@ class GIRest():
         }
         
         self.spec.path(path=api, operations={"get": operation})
+
+    def _generate_signals(self, bi):
+        """Generate signal connection methods for each signal on an object"""
+        namespace = bi.get_namespace()
+        obj_name = bi.get_name()
+        full_name = f"{namespace}{obj_name}"
+        
+        # Get number of signals for this object
+        n_signals = GIRepository.object_info_get_n_signals(bi)
+        
+        if n_signals == 0:
+            return
+        
+        # Iterate through all signals
+        for i in range(n_signals):
+            signal_info = GIRepository.object_info_get_signal(bi, i)
+            signal_name = signal_info.get_name()
+            
+            # Generate callback schema for this signal with a proper name
+            # Format: {Namespace}{ObjectName}{SignalName}Handler (e.g., GstBusSyncMessageHandler)
+            signal_name_camel = ''.join(word.capitalize() for word in signal_name.split('-'))
+            callback_schema_name = f"{namespace}{obj_name}{signal_name_camel}Handler"
+            callback_schema_name = self._generate_callback(signal_info, callback_schema_name)
+            
+            # Generate the POST endpoint for connecting to this signal
+            # Path: /{namespace}/{ObjectName}/{self}/signals/{signal-name}/connect
+            api = f"/{namespace}/{obj_name}/{{self}}/signals/{signal_name}/connect"
+            
+            # Use underscores in operationId to keep it parseable (3-4 parts)
+            signal_name_underscore = signal_name.replace('-', '_')
+            
+            operation = {
+                "summary": f"Connect to '{signal_name}' signal on {obj_name}",
+                "description": f"Connects a callback handler to the '{signal_name}' signal",
+                "operationId": f"{namespace}-{obj_name}-{signal_name_underscore}-connect",
+                "tags": [full_name],
+                "parameters": [
+                    {
+                        "name": "self",
+                        "in": "path",
+                        "required": True,
+                        "schema": {
+                            "$ref": f"#/components/schemas/{full_name}"
+                        },
+                        "description": f"The {obj_name} instance",
+                        "x-gi-transfer": "none",
+                        "style": "simple"
+                    }
+                ],
+                "requestBody": {
+                    "required": True,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["flags"],
+                                "properties": {
+                                    "flags": {
+                                        "$ref": "#/components/schemas/GObjectConnectFlags",
+                                        "description": "Connection flags (G_CONNECT_AFTER, G_CONNECT_SWAPPED, or 0)"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "return": {
+                                            "type": "number",
+                                            "description": "Signal handler ID"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            # Add callback handling for non-SSE mode
+            if not self.sse_only:
+                self._add_non_sse_parameters(operation)
+                # Add handler callback to request body
+                operation["requestBody"]["content"]["application/json"]["schema"]["properties"]["handler"] = {
+                    "type": "string",
+                    "format": "uri",
+                    "description": f"Callback URL for '{signal_name}' signal handler",
+                    "x-gi-callback": f"#/components/schemas/{callback_schema_name}",
+                    "x-gi-callback-style": "async"
+                }
+                operation["requestBody"]["content"]["application/json"]["schema"]["required"].append("handler")
+                
+                # Add callback definition
+                operation["callbacks"] = {
+                    callback_schema_name: {
+                        "{$request.body#/handler}": {
+                            "post": {
+                                "summary": f"Callback for '{signal_name}' signal",
+                                "description": f"Invoked when the '{signal_name}' signal is emitted",
+                                "requestBody": {
+                                    "required": True,
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": f"#/components/schemas/{callback_schema_name}"
+                                            }
+                                        }
+                                    }
+                                },
+                                "responses": {
+                                    "204": {
+                                        "description": "Callback received"
+                                    },
+                                    "400": {
+                                        "description": "Invalid callback request"
+                                    },
+                                    "401": {
+                                        "description": "Invalid signature"
+                                    },
+                                    "500": {
+                                        "description": "Callback processing error"
+                                    }
+                                },
+                                "security": [
+                                    {
+                                        "callbackSignature": []
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            
+            # Register the endpoint
+            self.spec.path(path=api, operations={"post": operation})
 
     def _generate_generic_object_ref(self, bi):
         """Generate a generic 'ref' endpoint for objects that don't export it through GI"""
@@ -1369,6 +1500,120 @@ class GIRest():
         # Generate get_type function for the enum
         self._generate_get_type_function(bi)
 
+    def _generate_missing(self, ns):
+        # For GLib, we don't have g_signal_connect_data
+        if ns == "GObject":
+            post_api = f"/GObject/signal_connect_data"
+            post_operation = {
+                "summary": f"Connects a callback function to a signal for a particular object",
+                "description": f"",
+                "operationId": f"GObject--signal_connect_data",
+                "tags": [f"GObject"],
+                "parameters": [],  # Empty list that will be populated by _add_non_sse_parameters if needed
+                "requestBody": {
+                    "required": True,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["instance", "detailed_signal", "connect_flags"],
+                                "properties": {
+                                    "instance": {
+                                        "$ref": "#/components/schemas/GObjectObject",
+                                        "description": "The object instance to connect the signal to",
+                                        "x-gi-transfer": "none"
+                                    },
+                                    "detailed_signal": {
+                                        "type": "string",
+                                        "description": "The signal name, optionally with detail"
+                                    },
+                                    "connect_flags": {
+                                        "$ref": "#/components/schemas/GObjectConnectFlags",
+                                        "description": "Connection flags"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "return": {
+                                            "type": "number",
+                                            "description": "Handler ID"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+            }
+            # Depending on SSE or not, add the other parameters
+            if not self.sse_only:
+                self._add_non_sse_parameters(post_operation)
+                # Add c_handler to request body schema
+                post_operation["requestBody"]["content"]["application/json"]["schema"]["properties"]["c_handler"] = {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Callback URL that will be invoked with signal events",
+                    "x-gi-callback": "#/components/schemas/GObjectCallback",
+                    "x-gi-callback-style": "async"
+                }
+                post_operation["requestBody"]["content"]["application/json"]["schema"]["required"].append("c_handler")
+                
+                # Add the callbacks
+                # FIXME reuse the callback generator somehow
+                post_operation["callbacks"] = {
+                  "Callback": {
+                    "{$request.body#/c_handler}": {
+                      "post": {
+                        "summary": "Callback for signal handler",
+                        "description": "Invoked by the server when the signal is emitted",
+                        "requestBody": {
+                          "required": True,
+                          "content": {
+                            "application/json": {
+                              "schema": {
+                                "$ref": "#/components/schemas/GObjectCallback"
+                              }
+                            }
+                          }
+                        },
+                        "responses": {
+                          "204": {
+                            "description": "Callback received (no content)"
+                          },
+                          "400": {
+                            "description": "Invalid callback request"
+                          },
+                          "401": {
+                            "description": "Invalid signature or authentication failed"
+                          },
+                          "500": {
+                            "description": "Callback processing error"
+                          }
+                        },
+                        "security": [
+                          {
+                            "callbackSignature": []
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+            else:
+                # FIXME return the callback id
+                pass
+            self.spec.path(path=post_api, operations={"post": post_operation})
+
     def generate(self):
         # Generate the types for all namespaces (primary + dependencies)
         for namespace, version in self.namespaces:
@@ -1385,5 +1630,7 @@ class GIRest():
                     self._generate_enum(info)
                 elif info_type == GIRepository.InfoType.FUNCTION:
                     self._generate_function(info)
-        
+            # Generate the missing types as they have introspectable=0
+            self._generate_missing(namespace)
+
         return self.spec

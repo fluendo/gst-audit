@@ -1,0 +1,105 @@
+{# Method template for PUT operations (field updates) #}
+{% set required_params = [] %}
+{% set optional_params = [] %}
+{% set body_props = [] %}
+
+{# Process body properties #}
+{% for prop in method.body_properties %}
+  {% set ts_type = prop.type.lang_type %}
+  {% if prop.required %}
+    {% set _ = required_params.append(prop.valid_name + ": " + ts_type) %}
+  {% else %}
+    {% set _ = optional_params.append(prop.valid_name + "?: " + ts_type) %}
+  {% endif %}
+{% endfor %}
+
+{% set all_params = required_params + optional_params %}
+{% set params_string = all_params | join(", ") %}
+
+{# Generate method return signature #}
+{% set method_return_signature = 'void' %}
+{% if method.return_obj.return_params %}
+  {% if method.return_obj.return_params|length == 1 %}
+    {% set return_param = method.return_obj.return_params[0] %}
+    {% set method_return_signature = return_param.type.lang_type %}
+    {% if return_param.can_be_null %}
+      {% set method_return_signature = method_return_signature + " | null" %}
+    {% endif %}
+  {% else %}
+    {% set return_type_parts = [] %}
+    {% for return_param in method.return_obj.return_params %}
+      {% set type_str = return_param.type.lang_type %}
+      {% if return_param.can_be_null %}
+        {% set type_str = type_str + " | null" %}
+      {% endif %}
+      {% set _ = return_type_parts.append(return_param.name + ": " + type_str) %}
+    {% endfor %}
+    {% if return_type_parts|length > 0 %}
+      {% set method_return_signature = "{" + return_type_parts | join(", ") + "}" %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{# Build the path with parameter substitution #}
+{% set ns = namespace(method_path = method.path) %}
+{% for param in method.path_params %}
+  {% set placeholder = "{" + param.valid_name + "}" %}
+  {% if param.type.is_ref and param.type.ref_schema.info_type in ['object','struct'] %}
+    {% set ns.method_path = ns.method_path.replace(placeholder, "ptr,${this.ptr}") %}
+  {% else %}
+    {% set ns.method_path = ns.method_path.replace(placeholder, "${" + param.valid_name + "}") %}
+  {% endif %}
+{% endfor %}
+
+{# Method signature #}
+{% if method.is_namespace_function or (method.parent.info_type in ['enum','flags'] and method.parent.methods|length > 0) %}
+  export async function {{ method.valid_name }}({{ params_string }}): Promise<{{ method_return_signature }}> {
+{% elif method.is_static %}
+  static async {{ method.valid_name }}({{ params_string }}): Promise<{{ method_return_signature }}> {
+{% else %}
+  async {{ method.valid_name }}({{ params_string }}): Promise<{{ method_return_signature }}> {
+{% endif %}
+    // Increment ref for parameters with full transfer ownership
+{% for param in method.path_params %}
+{% include 'param_precondition.ts.j2' %}
+{% endfor %}
+    const url = new URL(`${apiConfig.normalizedBasePath}{{ ns.method_path }}`, apiConfig.baseUrl);
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+
+      // Build request body
+      const body: Record<string, any> = {};
+{% for prop in method.body_properties %}
+      if (typeof {{ prop.valid_name }} !== 'undefined') {
+        body['{{ prop.name }}'] = {{ prop.valid_name }};
+      }
+{% endfor %}
+
+      const response = await fetch(url.toString(), {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(body)
+      });
+      
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+{% for param in method.path_params %}
+{% include 'param_postcondition.ts.j2' %}
+{% endfor %}
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+{% if not method.return_obj.is_void %}
+      const data = await response.json();
+  {{ method.return_obj.generate() }}
+{% endif %}
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+{% for param in method.path_params %}
+{% include 'param_postcondition.ts.j2' %}
+{% endfor %}
+      throw error;
+    }
+  }

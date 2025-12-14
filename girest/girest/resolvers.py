@@ -395,6 +395,23 @@ class FridaResolver(GIResolver):
         logger.debug(f"Registered callback {callback_id}: {arg_name} -> {url}")
         return callback_id
 
+    def _register_signal_callback(self, url, signal_name, signal_info, session_id, callback_secret):
+        """Register a callback for a signal connection"""
+        callback_id = self._callback_id_counter
+        self._callback_id_counter += 1
+        
+        # Signals are always async (fire and forget)
+        self._callback_registry[callback_id] = {
+            "url": url,
+            "session_id": session_id,
+            "secret": callback_secret,
+            "scope": "signal",
+            "name": signal_name,
+            "callback_type": signal_info
+        }
+        logger.debug(f"Registered signal callback {callback_id}: {signal_name} -> {url}")
+        return callback_id
+
     def _value_to_rest(self, value, type_info):
         """
         Convert a single value as received from Frida to how it should be exposed to REST
@@ -1052,6 +1069,172 @@ class FridaResolver(GIResolver):
             )
         return func
 
+    def _create_signal_connect_handler(self, namespace, class_name, signal_name, operation):
+        """Create handler for connecting to a signal via g_signal_connect_data"""
+        
+        # Find the object info using find_by_name
+        object_info = self.repo.find_by_name(namespace, class_name)
+        if not object_info or object_info.get_type() != GIRepository.InfoType.OBJECT:
+            raise ValueError(f"Could not find object {namespace}.{class_name}")
+        
+        # Find the signal info using find_signal
+        signal_info = GIRepository.object_info_find_signal(object_info, signal_name)
+        if not signal_info:
+            raise ValueError(f"Could not find signal '{signal_name}' on {namespace}.{class_name}")
+        
+        # Get GObjectConnectFlags type info for proper conversion
+        connect_flags_info = self.repo.find_by_name('GObject', 'ConnectFlags')
+        
+        # Generate the signal signature for Frida
+        # Signals are like methods with the instance as the first parameter
+        signal_signature = self._callable_to_json(signal_info, is_method=True)
+        
+        # Manually create the signature for g_signal_connect_data
+        # gulong g_signal_connect_data(gpointer instance, const gchar *detailed_signal,
+        #                              GCallback c_handler, gpointer data,
+        #                              GClosureNotify destroy_data, GConnectFlags connect_flags)
+        connect_func_signature = {
+            "arguments": [
+                {
+                    "name": "instance",
+                    "skip_in": False,
+                    "skip_out": False,
+                    "closure": -1,
+                    "is_closure": False,
+                    "destroy": -1,
+                    "is_destroy": False,
+                    "direction": GIRepository.Direction.IN,
+                    "type": {"name": "pointer", "subtype": None}
+                },
+                {
+                    "name": "detailed_signal",
+                    "skip_in": False,
+                    "skip_out": False,
+                    "closure": -1,
+                    "is_closure": False,
+                    "destroy": -1,
+                    "is_destroy": False,
+                    "direction": GIRepository.Direction.IN,
+                    "type": {"name": "string", "subtype": None}
+                },
+                {
+                    "name": "c_handler",
+                    "skip_in": False,
+                    "skip_out": False,
+                    "closure": 3,
+                    "is_closure": False,
+                    "destroy": 4,
+                    "is_destroy": False,
+                    "direction": GIRepository.Direction.IN,
+                    "type": {
+                        "name": "callback",
+                        "subtype": signal_signature,
+                        "scope": "signal"  # Mark as non-blocking signal callback
+                    }
+                },
+                {
+                    "name": "data",
+                    "skip_in": True,
+                    "skip_out": False,
+                    "closure": -1,
+                    "is_closure": True,
+                    "destroy": -1,
+                    "is_destroy": False,
+                    "direction": GIRepository.Direction.IN,
+                    "type": {"name": "pointer", "subtype": None}
+                },
+                {
+                    "name": "destroy_data",
+                    "skip_in": True,
+                    "skip_out": False,
+                    "closure": -1,
+                    "is_closure": False,
+                    "destroy": -1,
+                    "is_destroy": True,
+                    "direction": GIRepository.Direction.IN,
+                    "type": {"name": "pointer", "subtype": None}
+                },
+                {
+                    "name": "connect_flags",
+                    "skip_in": False,
+                    "skip_out": False,
+                    "closure": -1,
+                    "is_closure": False,
+                    "destroy": -1,
+                    "is_destroy": False,
+                    "direction": GIRepository.Direction.IN,
+                    "type": {"name": "int32", "subtype": None}
+                }
+            ],
+            "is_method": False,
+            "returns": {"name": "uint64", "subtype": None}  # gulong return type
+        }
+        
+        async def signal_connect_handler(*args, **kwargs):
+            # Debug: Print what we're receiving
+            logger.debug(f"signal_connect_handler called with args={args}, kwargs={kwargs}")
+            
+            # Extract the self parameter (object instance)
+            obj = kwargs.get('self')
+            if obj is None:
+                raise ValueError("Missing 'self' parameter for signal connection")
+            if "ptr" not in obj:
+                raise ValueError("Missing 'ptr' value")
+            
+            instance_ptr = obj["ptr"]
+            
+            # Get connection parameters - Connexion may pass body as 'body' kwarg or individual fields
+            # Try getting from individual kwargs first (Connexion unpacks requestBody)
+            flags_str = kwargs.get('flags', 'default')
+            handler_url = kwargs.get('handler')
+            
+            # If not in kwargs, try getting from body parameter or connexion.request
+            if handler_url is None:
+                import connexion
+                body = kwargs.get('body') or connexion.request.json or {}
+                if isinstance(body, dict):
+                    flags_str = body.get('flags', flags_str)
+                    handler_url = body.get('handler')
+            
+            if not handler_url:
+                raise ValueError("Missing 'handler' callback URL in request body")
+            
+            # Get headers for callback authentication
+            headers = connexion.request.headers
+            session_id = headers.get('session-id')
+            callback_secret = headers.get('callback-secret')
+            
+            # Convert GObjectConnectFlags from string to integer using enum_mappings
+            full_name = f"{connect_flags_info.get_namespace()}{connect_flags_info.get_name()}"
+            flags_mapping = self.enum_mappings.get(full_name, {})
+            connect_flags = flags_mapping.get(flags_str, 0)
+            
+            # Register the callback with the signal signature for proper marshalling
+            callback_id = self._register_signal_callback(
+                handler_url, 
+                signal_name,
+                signal_info,
+                session_id, 
+                callback_secret
+            )
+            
+            # Call g_signal_connect_data via the regular call mechanism
+            # Parameters: instance, detailed_signal, c_handler, connect_flags
+            # Note: data and destroy_data have skip_in=True, so we don't pass them
+            result = await asyncio.to_thread(
+                self.scripts[0].exports_sync.call,
+                'g_signal_connect_data',
+                connect_func_signature,
+                instance_ptr,  # instance as a pointer string, not an object
+                signal_name,
+                callback_id,  # c_handler - Frida will create GCallback for this
+                connect_flags
+            )
+            
+            return result
+        
+        return signal_connect_handler
+
     # TODO what to access here, the info from GI (_method) or the type info for Frida (_type)
     def create_frida_handler(self):
         """Create handler that calls Frida with the method JSON, converting enum strings to integers,
@@ -1137,6 +1320,13 @@ class FridaResolver(GIResolver):
 
         namespace, class_name, method_name, operator = parsed
         
+        # Check if this is a signal connection operation (operator == 'connect')
+        if operator == 'connect':
+            # This is a signal connection: {Namespace}-{ClassName}-{signal_name}-connect
+            # method_name contains the signal name with underscores (e.g., 'sync_message')
+            signal_name = method_name.replace('_', '-')  # Convert back to signal name format
+            return self._create_signal_connect_handler(namespace, class_name, signal_name, operation)
+        
         # Check if this is a field operation based on the operator
         if operator in ['get', 'put']:
             # This is a field access operation
@@ -1212,7 +1402,12 @@ class FridaResolver(GIResolver):
                     return self._create_generic_ref_handler(type_info)
                 elif method_name == 'unref':
                     return self._create_generic_unref_handler(type_info)
+                else:
+                    logger.error(f"Type info found {type_info.get_name()} but not method {method_name}")
+                    return None
         
+            logger.error(f"Type info not found {class_name} for {operation_id}")
             return None
         else:
+            logger.error(f"Method name not found {method_name} for {operation_id}")
             return None

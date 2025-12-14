@@ -294,6 +294,7 @@ class Param(Info):
     info_type = "param"
     def __init__(self, param_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
         super().__init__(generator, param_def, parent)
+        self._ref_callback = None
         self.type = Type(param_def.get("schema", {}), generator, self)
 
     @property
@@ -325,13 +326,32 @@ class Param(Info):
         return self.schema_section.get("description", "")
     
     @property
-    def is_callback_url(self) -> bool:
-        """Check if this parameter represents a callback URL (non-SSE mode)."""
+    def is_callback(self) -> bool:
+        """Check if this parameter represents a callback (non-SSE mode)."""
         return "x-gi-callback" in self.schema_section
-    
+
+    @property
+    def callback_schema(self) -> Optional["Schema"]:
+        if self.is_callback:
+            if self._ref_callback is None:
+                self._ref_callback = self.generator.get_schema(self.schema_section["x-gi-callback"])
+            return self._ref_callback
+        return None
+
+    @property
+    def callback(self) -> Optional[str]:
+        """Get the callback schema name (e.g., 'GLibDestroyNotify') if this is a callback parameter."""
+        if self.is_callback:
+            callback_ref = self.schema_section["x-gi-callback"]
+            # Extract schema name from reference like "#/components/schemas/GLibDestroyNotify"
+            if callback_ref.startswith("#/components/schemas/"):
+                return callback_ref.replace("#/components/schemas/", "")
+            return callback_ref
+        return None
+
     @property
     def callback_style(self) -> str:
-        """Get the callback style (sync or async) if this is a callback URL parameter."""
+        """Get the callback style (sync or async) if this is a callback parameter."""
         return self.schema_section.get("x-gi-callback-style", "")
 
 
@@ -823,6 +843,33 @@ class Method(Info):
             param = Param(param_def, self.generator, self)
             self.parameters.append(param)
         
+        # Parse request body properties for POST/PUT methods
+        self.body_properties: List[Param] = []
+        request_body = self.operation_dict.get("requestBody", {})
+        if request_body:
+            content = request_body.get("content", {})
+            json_content = content.get("application/json", {})
+            schema = json_content.get("schema", {})
+            properties = schema.get("properties", {})
+            required_fields = schema.get("required", [])
+            
+            for prop_name, prop_schema in properties.items():
+                # Create a parameter-like object for each body property
+                # Copy x-gi-* attributes from prop_schema to the top level for Param to find them
+                param_def = {
+                    "name": prop_name,
+                    "in": "body",
+                    "required": prop_name in required_fields,
+                    "schema": prop_schema
+                }
+                # Copy x-gi-callback and other x-gi-* attributes to param_def level
+                for key in prop_schema:
+                    if key.startswith("x-gi-"):
+                        param_def[key] = prop_schema[key]
+                
+                param = Param(param_def, self.generator, self)
+                self.body_properties.append(param)
+        
     @property
     def params(self) -> List[Param]:
         """Get all parameters for this method."""
@@ -904,7 +951,10 @@ class Method(Info):
     @property
     def callback_url_params(self) -> List['Param']:
         """Get callback URL parameters (non-SSE mode)."""
-        return [p for p in self.query_params if p.is_callback_url]
+        # Check both query params and body properties for callbacks
+        query_callbacks = [p for p in self.query_params if p.is_callback]
+        body_callbacks = [p for p in self.body_properties if p.is_callback]
+        return query_callbacks + body_callbacks
     
     @property
     def header_params(self) -> List['Param']:
@@ -917,6 +967,22 @@ class Method(Info):
         # If there are callback_params (callbacks in return), it's SSE mode
         # If there are callback_url_params (callbacks as URL parameters), it's non-SSE mode
         return len(self.callback_params) > 0 and len(self.callback_url_params) == 0
+
+    def generate(self) -> str:
+        """Generate the code based on the template, selecting HTTP method-specific templates."""
+        # Try specific template first (e.g., method_GstBus_connect_sync_message.ts.j2)
+        template_name = f'{self.info_type}_{self.id}.ts.j2'
+        try:
+            template = self.generator.jinja_env.get_template(template_name)
+        except TemplateNotFound:
+            # Try HTTP method-specific template (e.g., method_get.ts.j2, method_post.ts.j2)
+            http_method_lower = self.http_method.lower()
+            try:
+                template = self.generator.jinja_env.get_template(f'{self.info_type}_{http_method_lower}.ts.j2')
+            except TemplateNotFound:
+                # Fallback to generic method template
+                template = self.generator.jinja_env.get_template(f'{self.info_type}.ts.j2')
+        return template.render(**{self.info_type: self})
 
     def is_equal(self, other: 'Method') -> bool:
         # Check the name

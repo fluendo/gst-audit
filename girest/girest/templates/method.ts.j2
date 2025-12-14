@@ -7,7 +7,7 @@
 
 {# Process query parameters - skip callback URL params in non-SSE mode as they're handled separately #}
 {% for param in method.query_params %}
-  {% if param.is_callback_url %}
+  {% if param.is_callback %}
     {# Non-SSE mode: callback URL parameter - we'll handle this separately #}
     {% set _ = callback_url_params.append(param) %}
   {% else %}
@@ -109,7 +109,7 @@
 {% endfor %}
     const url = new URL(`${apiConfig.normalizedBasePath}{{ ns.method_path }}`, apiConfig.baseUrl);
 {% for param in method.query_params %}
-  {% if not param.is_callback_url %}
+  {% if not param.is_callback %}
 {% include 'param.ts.j2' %}
   {% endif %}
 {% endfor %}
@@ -119,16 +119,20 @@
     // Non-SSE mode: Register callback using the callback handler
     let {{ cb_url_param.name }}_callbackInfo: { callbackUrl: string; callbackId: string } | undefined;
     if (typeof {{ cb_url_param.valid_name }} !== 'undefined') {
-      const handler = getCallbackHandler();
-      if (!handler) {
+      const callbackHandler = getCallbackHandler();
+      if (!callbackHandler) {
         throw new Error('Callback handler not configured. Call setCallbackHandler() first.');
       }
       
-      // Register the callback and get URL + ID
-      {{ cb_url_param.name }}_callbackInfo = handler.registerCallback({{ cb_url_param.valid_name }}, {
-        methodName: '{{ method.name }}',
-        paramName: '{{ cb_url_param.name }}'
-      });
+      // Register the callback with its converter function
+      {{ cb_url_param.name }}_callbackInfo = callbackHandler.registerCallback(
+        {{ cb_url_param.valid_name }}, 
+        convert{{ cb_url_param.callback }}Args,
+        {
+          methodName: '{{ method.name }}',
+          paramName: '{{ cb_url_param.name }}'
+        }
+      );
       
       // Pass the callback URL to the server
       url.searchParams.append('{{ cb_url_param.name }}', {{ cb_url_param.name }}_callbackInfo.callbackUrl);
