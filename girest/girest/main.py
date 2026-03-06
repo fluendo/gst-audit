@@ -782,7 +782,7 @@ class GIRest():
         if not has_destructor:
             self._generate_generic_struct_free(bi)
 
-    def _generate_callback(self, bi, schema_name=None):
+    def _generate_callback(self, bi, schema_name=None, emitter_info=None):
         """Generate OpenAPI schema for a callback"""
         # The optional schema-name is needed for signals, to generate a proper name
         if schema_name is None:
@@ -795,93 +795,112 @@ class GIRest():
         # Mark as generated early to prevent circular dependencies
         self.schemas[full_name] = True
         
-        # Get callback parameters
+        # Get callback parameters - separate INPUT parameters from OUTPUT parameters
         n_args = GIRepository.callable_info_get_n_args(bi)
-        properties = {}
+        request_properties = {}  # Input parameters (request body)
+        response_properties = {}  # Output parameters + return value (response body)
+        
+        # For signal callbacks, prepend the emitter (self) parameter
+        if emitter_info is not None:
+            emitter_namespace = emitter_info.get_namespace()
+            emitter_name = emitter_info.get_name()
+            emitter_full_name = f"{emitter_namespace}{emitter_name}"
+            
+            # Add emitter as first parameter with 'none' transfer
+            request_properties["self"] = {
+                "$ref": f"#/components/schemas/{emitter_full_name}",
+                "x-gi-transfer": "none"
+            }
         
         for i in range(n_args):
             arg = GIRepository.callable_info_get_arg(bi, i)
             arg_type = GIRepository.arg_info_get_type(arg)
             arg_name = arg.get_name()
+            arg_direction = GIRepository.arg_info_get_direction(arg)
             
             # Get transfer ownership information
-            transfer = GIRepository.arg_info_get_ownership_transfer(arg)
-            if transfer == GIRepository.Transfer.NOTHING:
-                transfer_str = "none"
-            elif transfer == GIRepository.Transfer.CONTAINER:
-                transfer_str = "container"
-            elif transfer == GIRepository.Transfer.EVERYTHING:
-                transfer_str = "full"
-            else:
-                transfer_str = "none"
+            transfer_str = self._transfer_to_str(GIRepository.arg_info_get_ownership_transfer(arg))
             
             param_schema = self._type_to_schema(arg_type)
             # Ensure param_schema always has a value
             if not param_schema:
                 param_schema = {"$ref": "#/components/schemas/Pointer"}
             
-            # Add parameter as a property with transfer information
-            properties[arg_name] = {
+            # Add transfer information
+            param_with_transfer = {
                 **param_schema,
-                "x-gi-transfer": transfer_str,
-                "x-gi-is-return": False
+                "x-gi-transfer": transfer_str
             }
+            
+            # Handle output parameters - they go in the response
+            if arg_direction == GIRepository.Direction.OUT:
+                response_properties[arg_name] = param_with_transfer
+                continue
+            
+            # Handle input and inout parameters - they go in the request
+            request_properties[arg_name] = param_with_transfer
+            
+            # INOUT parameters go in both request and response
+            if arg_direction == GIRepository.Direction.INOUT:
+                response_properties[arg_name] = param_with_transfer
         
-        # Get return type
+        # Get return type and add to response properties
         return_type = GIRepository.callable_info_get_return_type(bi)
         return_schema = self._type_to_schema(return_type)
         
-        # Add return type to properties if it exists
-        if return_schema:
-            properties["return"] = {
-                **return_schema,
-                "x-gi-is-return": True
-            }
+        # Create a separate return value schema for HTTP responses (not in SSE-only mode)
+        # This includes the return value AND any output parameters
+        if (return_schema or response_properties) and not self.sse_only:
+            return_schema_name = f"{full_name}Return"
             
-            # Create a separate return value schema for HTTP responses (not in SSE-only mode)
-            # This wraps the return value in an object with a "return" property
-            # for consistency with how function returns work (which include out params)
-            if not self.sse_only:
-                return_schema_name = f"{full_name}Return"
-                return_wrapper_schema = {
-                    "type": "object",
-                    "properties": {
-                        "return": return_schema
-                    }
+            # Add return value to response properties if it exists
+            if return_schema:
+                # Get return value transfer ownership information
+                return_transfer_str = self._transfer_to_str(GIRepository.callable_info_get_caller_owns(bi))
+                response_properties["return"] = {
+                    **return_schema,
+                    "x-gi-transfer": return_transfer_str,
+                    "x-gi-null": GIRepository.callable_info_may_return_null(bi)
                 }
-                self.spec.components.schema(return_schema_name, return_wrapper_schema)
+            
+            # Create the return wrapper schema with all output parameters and return value
+            return_wrapper_schema = {
+                "type": "object",
+                "properties": response_properties
+            }
+            self.spec.components.schema(return_schema_name, return_wrapper_schema)
         
         # Add HTTP callback invocation properties only in standard mode (not SSE-only)
-        # These are used when the callback is invoked via HTTP POST
+        # These are used when the callback is invoked via HTTP POST (request body)
         if not self.sse_only:
-            properties["sessionId"] = {
+            request_properties["sessionId"] = {
                 "type": "string",
                 "description": "Session identifier for routing"
             }
-            properties["callbackName"] = {
+            request_properties["callbackName"] = {
                 "type": "string",
                 "description": "Name of the callback being invoked",
             }
-            properties["args"] = {
+            request_properties["args"] = {
                 "type": "array",
                 "description": "Callback arguments in order",
                 "items": {}
             }
-            properties["invocationNumber"] = {
+            request_properties["invocationNumber"] = {
                 "type": "integer",
                 "description": "Sequential invocation counter"
             }
-            properties["timestamp"] = {
+            request_properties["timestamp"] = {
                 "type": "string",
                 "format": "date-time",
                 "description": "Timestamp of callback invocation"
             }
         
-        # Create callback schema
+        # Create callback schema (request body)
         callback_schema = {
             "type": "object",
             "x-gi-type": "callback",
-            "properties": properties
+            "properties": request_properties
         }
         
         # Add required fields only in standard mode
@@ -1154,7 +1173,7 @@ class GIRest():
             # Format: {Namespace}{ObjectName}{SignalName}Handler (e.g., GstBusSyncMessageHandler)
             signal_name_camel = ''.join(word.capitalize() for word in signal_name.split('-'))
             callback_schema_name = f"{namespace}{obj_name}{signal_name_camel}Handler"
-            callback_schema_name = self._generate_callback(signal_info, callback_schema_name)
+            callback_schema_name = self._generate_callback(signal_info, callback_schema_name, bi)
             
             # Generate the POST endpoint for connecting to this signal
             # Path: /{namespace}/{ObjectName}/{self}/signals/{signal-name}/connect

@@ -7,30 +7,112 @@ import PauseIcon from '@mui/icons-material/Pause';
 import StopIcon from '@mui/icons-material/Stop';
 import FastRewindIcon from '@mui/icons-material/FastRewind';
 import FastForwardIcon from '@mui/icons-material/FastForward';
-import { GstPipeline } from '@/lib/gst';
+import { GstPipeline, GObject, getCallbackHandler } from '@/lib/gst';
+import type { GstMessage, GstBus } from '@/lib/gst';
+import { useSession } from '@/lib/SessionContext';
 
-interface PlaybackControlProps {
-  pipelinePtr: string | null;
+interface PipelineControlProps {
+  pipeline: GstPipeline | null;
 }
 
-export function PlaybackControl({ pipelinePtr }: PlaybackControlProps) {
+export function PipelineControl({ pipeline }: PipelineControlProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
   const pipelineRef = useRef<GstPipeline | null>(null);
+  const signalHandlerIdRef = useRef<number | null>(null);
 
-  // Create pipeline instance when pipelinePtr changes
+  // Get session from context
+  const { sessionId, callbackSecret } = useSession();
+
+  // Update pipeline reference and setup signal handlers when pipeline changes
   useEffect(() => {
-    if (pipelinePtr) {
-      pipelineRef.current = new GstPipeline(pipelinePtr, 'none');
-    } else {
-      pipelineRef.current = null;
-      setIsPlaying(false);
-      setPosition(0);
-      setDuration(0);
-    }
-  }, [pipelinePtr]);
+    const setupPipeline = async () => {
+      // Cleanup previous pipeline
+      if (signalHandlerIdRef.current !== null && pipelineRef.current) {
+        try {
+          const bus = await pipelineRef.current.get_bus();
+          if (bus) {
+            // Disconnect the signal handler
+            await GObject.signal_handler_disconnect(
+              bus,
+              signalHandlerIdRef.current
+            );
+            console.log('Disconnected sync-message signal');
+          }
+        } catch (error) {
+          console.error('Error disconnecting signal:', error);
+        }
+        signalHandlerIdRef.current = null;
+      }
+
+      if (pipeline) {
+        pipelineRef.current = pipeline;
+        
+        try {
+          // Get the pipeline bus
+          const bus = await pipeline.get_bus();
+          if (bus) {
+            // Enable sync message emission
+            await bus.enable_sync_message_emission();
+            console.log('Enabled sync message emission');
+
+            // Get callback handler
+            const handler = getCallbackHandler();
+            if (!handler) {
+              console.error('Callback handler not configured');
+              return;
+            }
+
+            // Connect to sync-message signal
+            console.log('Connecting to sync-message signal with sessionId:', sessionId);
+            const handlerId = await bus.connect_sync_message(
+              sessionId,
+              callbackSecret,
+              'default',
+              (self: GstBus, message: GstMessage) => {
+                console.log('Sync message received!', { message, sessionId });
+                // TODO: Parse message and update state based on message type
+              }
+            );
+            
+            signalHandlerIdRef.current = handlerId;
+            console.log('Connected to sync-message signal, handler ID:', handlerId);
+          }
+        } catch (error) {
+          console.error('Error setting up pipeline signals:', error);
+        }
+      } else {
+        pipelineRef.current = null;
+        setIsPlaying(false);
+        setPosition(0);
+        setDuration(0);
+      }
+    };
+
+    setupPipeline();
+
+    // Cleanup on unmount
+    return () => {
+      if (signalHandlerIdRef.current !== null && pipelineRef.current) {
+        const cleanup = async () => {
+          try {
+            const bus = await pipelineRef.current!.get_bus();
+            if (bus) {
+              await GObject.signal_handler_disconnect(
+                bus,
+                signalHandlerIdRef.current!
+              );
+            }
+          } catch (error) {
+            console.error('Error in cleanup:', error);
+          }
+        };
+        cleanup();
+      }
+    };
+  }, [pipeline, sessionId, callbackSecret]);
 
   const formatTime = (seconds: number): string => {
     if (!isFinite(seconds) || seconds < 0) return '0:00';
@@ -96,7 +178,7 @@ export function PlaybackControl({ pipelinePtr }: PlaybackControlProps) {
     // TODO: Implement skip forward with GStreamer API
   };
 
-  if (!pipelinePtr) {
+  if (!pipeline) {
     return (
       <Box
         sx={{

@@ -24,15 +24,29 @@ export class {{ struct.name }}{% if struct.parent_schema %} extends {{ struct.pa
 
 {% block constructors %}
   {% block default_constructor %}
-  constructor(ptr: string, transferType: transferType) {
   {% if not struct.parent_schema %}
+  protected constructor(ptr: string, transferType: transferType) {
     this.ptr = ptr;
-    if (transferType === 'full')
-      {{ struct.name.lower() }}Registry.register(this, ptr);
-  {% else %}
-    super(ptr, transferType);
-  {% endif %}
+    // Don't register in constructor - use static create() method instead
   }
+
+  static async create(ptr: string, transferType: transferType): Promise<{{ struct.name }}> {
+    const instance = new {{ struct.name }}(ptr, transferType);
+    if (transferType === 'full')
+      {{ struct.name.lower() }}Registry.register(instance, ptr);
+    return instance;
+  }
+  {% else %}
+  protected constructor(ptr: string, transferType: transferType) {
+    super(ptr, transferType);
+  }
+
+  // Override parent's create() to return correct type
+  static async create(ptr: string, transferType: transferType): Promise<{{ struct.name }}> {
+    const instance = new {{ struct.name }}(ptr, transferType);
+    return instance;
+  }
+  {% endif %}
   {% endblock %}
   {% for constructor in struct.constructors %}
     {{ constructor.generate() }}

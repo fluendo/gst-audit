@@ -18,12 +18,28 @@ export class {{ object.name }}{% if object.parent_schema %} extends {{ object.pa
   {% block default_constructor %}
     {% if object.parent_schema.info_type == 'struct' %}
 
-  constructor(ptr: string, transferType: transferType) {
+  protected constructor(ptr: string, transferType: transferType) {
   super(ptr, 'none');
     {{ object.name.lower() }}Registry.register(this, ptr);
+    // Don't ref in constructor - use static create() method instead
+  }
+
+  static async create(ptr: string, transferType: transferType): Promise<{{ object.name }}> {
+    const instance = new {{ object.name }}(ptr, transferType);
     if (transferType === 'none') {
-      this.ref().catch(() => {});
+      await instance.ref();
     }
+    return instance;
+  }
+    {% elif object.parent_schema and object.parent_schema.info_type == 'object' %}
+
+  // Override parent's create() to return correct type
+  static async create(ptr: string, transferType: transferType): Promise<{{ object.name }}> {
+    const instance = new {{ object.name }}(ptr, transferType);
+    if (transferType === 'none') {
+      await instance.ref();
+    }
+    return instance;
   }
     {% endif %}
   {% endblock %}

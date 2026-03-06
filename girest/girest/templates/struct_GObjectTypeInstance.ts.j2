@@ -4,7 +4,7 @@
 {% block signature %}
 // Type interface for GObject constructors with static get_type method
 interface GObjectConstructor<T extends GObjectTypeInstance> {
-  new (ptr: string, transferType: transferType): T;
+  create(ptr: string, transferType: transferType): Promise<T>;
 	get_type(): Promise<string>;
 }
 
@@ -12,8 +12,8 @@ export class GObjectTypeInstance{% if struct.parent_schema %} extends {{ struct.
 {% endblock %}
 
 {% block methods %}
-	castTo<T extends GObjectTypeInstance>(TargetClass: GObjectConstructor<T>): T {
-    return new TargetClass(this.ptr, 'none');
+	async castTo<T extends GObjectTypeInstance>(TargetClass: GObjectConstructor<T>): Promise<T> {
+    return await TargetClass.create(this.ptr, 'none');
   }
 
 	async isOf<T extends GObjectTypeInstance>(TargetClass: GObjectConstructor<T>): Promise<boolean> {

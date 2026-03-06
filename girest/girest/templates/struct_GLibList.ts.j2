@@ -9,11 +9,11 @@ export class {{ struct.name }}<T = any> implements AsyncIterable<T> {
 	ptr!: string;
 	head?: {{ struct.name }}<T>;
   transferType!: transferType;
-  TargetClass!: new (ptr: string, transferType: transferType) => T;
+  TargetClass!: { create(ptr: string, transferType: transferType): Promise<T> };
 {% endblock %}
 
 {% block default_constructor %}
-	constructor(ptr: string, transferType: transferType, TargetClass: new (ptr: string, transferType: transferType) => T, head?: {{ struct.name }}<T>) {
+	protected constructor(ptr: string, transferType: transferType, TargetClass: { create(ptr: string, transferType: transferType): Promise<T> }, head?: {{ struct.name }}<T>) {
     if (ptr) {
       this.ptr = ptr;
       this.transferType = transferType;
@@ -22,6 +22,11 @@ export class {{ struct.name }}<T = any> implements AsyncIterable<T> {
       if (transferType !== 'none' && head === undefined)
 			  {{ struct.name.lower() }}Registry.register(this, ptr);
     }
+  }
+
+  static async create<T>(ptr: string, transferType: transferType, TargetClass: { create(ptr: string, transferType: transferType): Promise<T> }, head?: {{ struct.name }}<T>): Promise<{{ struct.name }}<T>> {
+    const instance = new {{ struct.name }}(ptr, transferType, TargetClass, head);
+    return instance;
   }
 {% endblock %}
 
@@ -53,7 +58,7 @@ export class {{ struct.name }}<T = any> implements AsyncIterable<T> {
           
           // Create an instance of the target class if TargetClass is provided and data is a pointer
           if (this.TargetClass && data && typeof data === 'string') {
-            const instance = new this.TargetClass(data, this.transferType === 'full' ? 'full' : 'none');
+            const instance = await this.TargetClass.create(data, this.transferType === 'full' ? 'full' : 'none');
             return { done: false, value: instance };
           }
           

@@ -1,11 +1,17 @@
 {% extends "struct.ts.j2" %}
 
 {% block default_constructor %}
-constructor(ptr: string, transferType: transferType) {
+protected constructor(ptr: string, transferType: transferType) {
   this.ptr = ptr;
-  {{ struct.name.lower() }}Registry.register(this, ptr);
+  // Don't register or ref in constructor - use static create() method instead
+}
+
+static async create(ptr: string, transferType: transferType): Promise<{{ struct.name }}> {
+  const instance = new {{ struct.name }}(ptr, transferType);
+  {{ struct.name.lower() }}Registry.register(instance, ptr);
   if (transferType === 'none') {
-    this.ref().catch(() => {});
+    await instance.ref();
   }
+  return instance;
 }
 {% endblock %}

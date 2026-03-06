@@ -26,6 +26,8 @@ except ImportError:
     # Fallback for when module is imported directly (e.g., in tests)
     from utils import parse_operation_id
 
+from .callbacks import CallbackHandler
+
 logger = logging.getLogger("girest")
 
 
@@ -316,16 +318,17 @@ class FridaResolver(GIResolver):
                     })
                     return
                 
-                # Import CallbackHandler here to avoid circular imports
-                from .callbacks import CallbackHandler
-                
-                # Create handler and make HTTP request
-                handler = CallbackHandler(
-                    callback_url=metadata["url"],
-                    session_id=metadata["session_id"],
-                    secret=metadata["secret"],
-                    timeout=10
-                )
+                # Get the handler instance from the registry (created during registration)
+                handler = metadata.get("handler")
+                if not handler:
+                    logger.error(f"Callback {callback_id} does not have a handler")
+                    # Still need to unlock Frida with a null result
+                    self.scripts[0].post({
+                        "type": "callback-response",
+                        "callback_id": callback_id,
+                        "result": None
+                    })
+                    return
                 
                 # Get raw args and convert enums to strings
                 raw_args = callback_data["args"]
@@ -334,24 +337,33 @@ class FridaResolver(GIResolver):
                 # Convert callback arguments (especially enum integers to strings)
                 args = self._convert_callback_args(raw_args, metadata["callback_type"])
                 
-                # Determine if sync or async based on scope
-                scope = metadata.get("scope", "async")
+                # Note: GI scope (call/async/notified/forever) only affects WHEN the
+                # callback is invoked, not HOW we handle it. All callbacks:
+                # - Make synchronous HTTP requests
+                # - Wait for response
+                # - May or may not have return values (depends on callback signature)
                 result = None
                 
-                if scope == "call":
-                    # Synchronous callback - wait for return value
-                    result = handler.call_sync(callback_name, args)
-                else:
-                    # Asynchronous callback - fire and forget
-                    handler.call_async(callback_name, args)
+                # IMPORTANT: Handle callback in a separate thread to allow reentrancy
+                # This allows the main thread to continue processing HTTP requests
+                # while we wait for the callback response
+                def handle_callback_in_thread():
+                    nonlocal result
+                    # All callbacks handled uniformly
+                    result = handler.invoke(callback_name, args)
+                    
+                    # Unlock Frida thread with the result
+                    self.scripts[0].post({
+                        "type": "callback-response",
+                        "callback_id": callback_id,
+                        "result": result
+                    })
                 
-                # Always unlock Frida thread (for both sync and async)
-                # Post a message back to JavaScript with the result
-                self.scripts[0].post({
-                    "type": "callback-response",
-                    "callback_id": callback_id,
-                    "result": result
-                })
+                # Run callback handling in a daemon thread
+                # This allows the main thread to keep processing HTTP requests
+                callback_thread = threading.Thread(target=handle_callback_in_thread, daemon=True)
+                callback_thread.start()
+                # Note: We don't wait for the thread - it will post the response when ready
         else:
             # For now, just log other messages
             logger.debug(f"Message from Frida: {message}")
@@ -383,6 +395,15 @@ class FridaResolver(GIResolver):
         }
         scope = scope_map.get(scope, "async")
         arg_name = arg_info.get_name()
+        
+        # Create the handler once during registration so invocation_count persists
+        handler = CallbackHandler(
+            callback_url=url,
+            session_id=session_id,
+            secret=callback_secret,
+            timeout=10
+        )
+        
         # Register each callback argument
         self._callback_registry[callback_id] = {
             "url": url,
@@ -390,7 +411,8 @@ class FridaResolver(GIResolver):
             "secret": callback_secret,
             "scope": scope,
             "name": arg_name,
-            "callback_type": cb_info
+            "callback_type": cb_info,
+            "handler": handler  # Store handler instance for reuse
         }
         logger.debug(f"Registered callback {callback_id}: {arg_name} -> {url}")
         return callback_id
@@ -400,14 +422,22 @@ class FridaResolver(GIResolver):
         callback_id = self._callback_id_counter
         self._callback_id_counter += 1
         
-        # Signals are always async (fire and forget)
+        # Create the handler once during registration so invocation_count persists
+        handler = CallbackHandler(
+            callback_url=url,
+            session_id=session_id,
+            secret=callback_secret,
+            timeout=10
+        )
+        
         self._callback_registry[callback_id] = {
             "url": url,
             "session_id": session_id,
             "secret": callback_secret,
             "scope": "signal",
             "name": signal_name,
-            "callback_type": signal_info
+            "callback_type": signal_info,
+            "handler": handler  # Store handler instance for reuse
         }
         logger.debug(f"Registered signal callback {callback_id}: {signal_name} -> {url}")
         return callback_id
@@ -493,15 +523,25 @@ class FridaResolver(GIResolver):
     def _convert_callback_args(self, args, cb_type):
         """
         Convert callback arguments, especially enum integers to strings.
+        Also translates 'this' to 'self' for REST API compatibility.
         
         Args:
             args: Dictionary of callback argument values from Frida
-            callback_args_definition: List of argument definitions from callback type
+            cb_type: GICallableInfo for the callback type
             
         Returns:
             Dictionary with converted values
         """
         converted_args = {}
+        
+        # Handle 'this' parameter (for signals/methods) if present
+        # This is added manually by is_method=True but not in GIRepository's arg list
+        if "this" in args:
+            # Convert 'this' to 'self' and add as first parameter
+            # The type for 'this' is always a pointer
+            converted_args["self"] = {"ptr": args["this"]}
+        
+        # Process the introspected arguments
         n_args = GIRepository.callable_info_get_n_args(cb_type)
         for i in range(n_args):
             arg_info = GIRepository.callable_info_get_arg(cb_type, i)

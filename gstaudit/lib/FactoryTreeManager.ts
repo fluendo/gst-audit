@@ -93,7 +93,7 @@ export class FactoryTreeManager {
         totalProcessed++;
         try {
           // Cast the feature to GstElementFactory since we know it's an element factory
-          const factory = feature.castTo(GstElementFactory);
+          const factory = await feature.castTo(GstElementFactory);
           
           const name = await factory.get_name();
           const klass = await factory.get_metadata('klass') || 'Unknown';

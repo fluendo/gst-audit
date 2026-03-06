@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SessionProvider } from "@/lib/SessionContext";
 
 export const metadata: Metadata = {
   title: "GstAudit - GStreamer Pipeline Auditing",
@@ -13,8 +14,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        {children}
+      <body className="antialiased" suppressHydrationWarning>
+        <SessionProvider>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

@@ -1,113 +1,144 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { getConfig, updateConfig } from '@/lib/config';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from '@/lib/SessionContext';
+import { Box, TextField, Button, Typography, Paper, Container } from '@mui/material';
+import StorageIcon from '@mui/icons-material/Storage';
 
-export default function Home() {
-  const config = getConfig();
-  const [host, setHost] = useState(config.host);
-  const [port, setPort] = useState(config.port.toString());
+/**
+ * Landing/Connection Page
+ * 
+ * This is the entry point where users select which gstaudit-server to connect to.
+ * Once connected, the session will be linked to that server.
+ */
+export default function ConnectionPage() {
+  const { connection, setConnection } = useSession();
+  const router = useRouter();
+  const [host, setHost] = useState('localhost');
+  const [port, setPort] = useState('5556');
+  const [isConnecting, setIsConnecting] = useState(false);
 
-  const handleSave = () => {
-    updateConfig({ host, port: parseInt(port) });
-    alert('Configuration saved! API will now use: ' + getConfig().gstauditBaseUrl);
+  // If already connected, redirect to pipeline
+  useEffect(() => {
+    if (connection) {
+      router.push('/pipeline');
+    }
+  }, [connection, router]);
+
+  const handleConnect = async () => {
+    const portNum = parseInt(port);
+    
+    if (!host || isNaN(portNum) || portNum < 1 || portNum > 65535) {
+      alert('Please enter a valid host and port');
+      return;
+    }
+
+    setIsConnecting(true);
+
+    try {
+      // Test connection by trying to fetch from the server
+      const response = await fetch(`http://${host}:${portNum}/girest/health`, {
+        method: 'GET',
+      }).catch(() => null);
+
+      if (!response || !response.ok) {
+        // If health check fails, still allow connection (server might not have health endpoint)
+        console.warn('Health check failed, but continuing anyway');
+      }
+
+      // Set the connection in session context
+      setConnection({ host, port: portNum });
+
+      // Navigate to pipeline page
+      router.push('/pipeline');
+    } catch (error) {
+      console.error('Connection error:', error);
+      alert(`Failed to connect to ${host}:${port}. Please check the server is running.`);
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleConnect();
+    }
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">GstAudit</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          A live way to audit your running GStreamer pipeline
-        </p>
-      </header>
+    <Container maxWidth="sm">
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            width: '100%',
+            maxWidth: 500,
+          }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <StorageIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+            <Typography variant="h4" component="h1" gutterBottom>
+              GstAudit
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Connect to a GStreamer Audit Server
+            </Typography>
+          </Box>
 
-      <main className="max-w-2xl">
-        <section className="mb-8 p-6 border border-gray-200 dark:border-gray-800 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">API Configuration</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Host</label>
-              <input
-                type="text"
-                value={host}
-                onChange={(e) => setHost(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-900"
-                placeholder="localhost"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Port</label>
-              <input
-                type="number"
-                value={port}
-                onChange={(e) => setPort(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-900"
-                placeholder="9000"
-              />
-            </div>
-            <button
-              onClick={handleSave}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          <Box component="form" onSubmit={(e) => { e.preventDefault(); handleConnect(); }}>
+            <TextField
+              fullWidth
+              label="Host"
+              value={host}
+              onChange={(e) => setHost(e.target.value)}
+              onKeyPress={handleKeyPress}
+              margin="normal"
+              placeholder="localhost"
+              helperText="Server hostname or IP address"
+            />
+
+            <TextField
+              fullWidth
+              label="Port"
+              type="number"
+              value={port}
+              onChange={(e) => setPort(e.target.value)}
+              onKeyPress={handleKeyPress}
+              margin="normal"
+              placeholder="5556"
+              helperText="GIRest server port"
+              inputProps={{ min: 1, max: 65535 }}
+            />
+
+            <Button
+              fullWidth
+              variant="contained"
+              size="large"
+              onClick={handleConnect}
+              disabled={isConnecting}
+              sx={{ mt: 3 }}
             >
-              Save Configuration
-            </button>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Current GstAudit API: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{getConfig().gstauditBaseUrl}</code>
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Current GIRest API: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{getConfig().girestBaseUrl}</code>
-            </p>
-          </div>
-        </section>
+              {isConnecting ? 'Connecting...' : 'Connect'}
+            </Button>
+          </Box>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Features</h2>
-          <ul className="list-disc list-inside space-y-2">
-            <li>TypeScript bindings automatically generated from GStreamer introspection</li>
-            <li>React Flow visualization for pipeline topology</li>
-            <li>Live auditing of running GStreamer pipelines</li>
-            <li>REST API for interacting with GStreamer elements</li>
-            <li>Browse all available GStreamer element factories by category within the pipeline viewer</li>
-          </ul>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Quick Links</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Link 
-              href="/pipeline" 
-              className="p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              <h3 className="text-lg font-semibold mb-2">Pipeline Viewer</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Visualize and inspect running GStreamer pipelines, and browse element factories
-              </p>
-            </Link>
-            <Link 
-              href="/logs" 
-              className="block p-6 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-blue-500 transition-colors"
-            >
-              <h3 className="text-xl font-semibold mb-2">Debug Logs</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Inspect live debug output and configure log levels dynamically.
-              </p>
-            </Link>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">Getting Started</h2>
-          <ol className="list-decimal list-inside space-y-2">
-            <li>Start a GStreamer application (e.g., <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">gst-launch-1.0 videotestsrc ! fakesink</code>)</li>
-            <li>Get the PID of your GStreamer process</li>
-            <li>Run the girest-frida server: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">python3 girest-frida.py Gst 1.0 --pid &lt;PID&gt;</code></li>
-            <li>Configure the API settings above if needed</li>
-            <li>Visit the pipeline viewer to see your running pipelines and browse element factories</li>
-          </ol>
-        </section>
-      </main>
-    </div>
+          <Box sx={{ mt: 3, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
+            <Typography variant="caption" color="text.secondary">
+              <strong>Note:</strong> Make sure the gstaudit-server is running.
+              Default configuration: localhost:9000
+            </Typography>
+          </Box>
+        </Paper>
+      </Box>
+    </Container>
   );
 }

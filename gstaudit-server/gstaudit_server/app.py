@@ -115,6 +115,18 @@ resolver = FridaResolver("Gst", "1.0", args.pid, scripts=[script_path], on_messa
 
 # Create the girest GIApp
 app = GIApp(__name__, "Gst", "1.0", resolver, default_base_path="/girest")
+
+# Add CORS middleware before exception handling to ensure it handles OPTIONS requests
+from connexion.middleware import MiddlewarePosition
+app.add_middleware(
+    CORSMiddleware,
+    position=MiddlewarePosition.BEFORE_EXCEPTION,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Create our own API for fetching the pipelines
 gstaudit_spec = APISpec(
     title="GstAudit REST API",
@@ -146,16 +158,8 @@ operation = {
 }
 
 gstaudit_spec.path(path="/GstAudit/pipelines", operations={"get": operation})
-app.add_api(gstaudit_spec.to_dict(), resolver=GstAuditResolver(), base_path="/gstaudit")
 
-# Add the CORS middleware to let the React app connect
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.add_api(gstaudit_spec.to_dict(), resolver=GstAuditResolver(), base_path="/gstaudit")
 
 # Run the server
 app.run(port=args.port)
