@@ -16,7 +16,7 @@ export default function ConnectionPage() {
   const { connection, setConnection } = useSession();
   const router = useRouter();
   const [host, setHost] = useState('localhost');
-  const [port, setPort] = useState('5556');
+  const [port, setPort] = useState('9000');
   const [isConnecting, setIsConnecting] = useState(false);
 
   // If already connected, redirect to pipeline
@@ -114,7 +114,7 @@ export default function ConnectionPage() {
               onChange={(e) => setPort(e.target.value)}
               onKeyPress={handleKeyPress}
               margin="normal"
-              placeholder="5556"
+              placeholder="9000"
               helperText="GIRest server port"
               inputProps={{ min: 1, max: 65535 }}
             />

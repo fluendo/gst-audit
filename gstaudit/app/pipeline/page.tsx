@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import '@xyflow/react/dist/style.css';
 import '../pipeline-theme.css';
-import { getConfig, ElementTreeManager, FactoryTreeManager } from '@/lib';
+import { ElementTreeManager, FactoryTreeManager } from '@/lib';
 import { GstPipeline } from '@/lib/gst';
 import { useSession } from '@/lib/SessionContext';
 import { PipelineGraph, PipelineTreeView, StatusBar, PipelineSelector, ObjectDetails, FactoriesTreeView, FactoryDetail, PipelineControl } from '@/components';
@@ -29,25 +29,17 @@ export default function PipelinePage() {
   const elementTreeManagerRef = useRef<ElementTreeManager | null>(null);
   const factoryTreeManagerRef = useRef<FactoryTreeManager | null>(null);
 
-  const config = getConfig();
   const router = useRouter();
 
   // Get session from context (unique per browser tab)
   // Callback infrastructure is automatically set up by SessionProvider
-  const { connection } = useSession();
+  const { connection, clearConnection } = useSession();
 
-  // Redirect to home if not connected to a server
-  useEffect(() => {
-    if (!connection) {
-      console.log('[Pipeline] No connection configured, redirecting to home');
-      router.push('/');
-    }
-  }, [connection, router]);
-
-  // Don't render if not connected
-  if (!connection) {
-    return null;
-  }
+  // Handler for changing connection
+  const handleChangeConnection = () => {
+    clearConnection();
+    router.push('/');
+  };
 
   // Compose status from both pipeline and factory statuses
   const composedStatus = [pipelineStatus, factoryStatus]
@@ -77,46 +69,17 @@ export default function PipelinePage() {
     }
   };
 
-  // Initialize FactoryTreeManager once
-  useEffect(() => {
-    if (!factoryTreeManagerRef.current) {
-      factoryTreeManagerRef.current = new FactoryTreeManager();
-      // Set status callback to update UI during loading
-      factoryTreeManagerRef.current.setStatusCallback((message: string) => {
-        setFactoryStatus(message);
-      });
-    }
-  }, []);
-
-  // Load factories when switching to factories tab for the first time
-  useEffect(() => {
-    if (activeTab === 1 && factoryTreeManagerRef.current) {
-      const manager = factoryTreeManagerRef.current;
-      if (!manager.getRoot() && !manager.isLoading()) {
-        manager.loadFactories().catch(err => {
-          console.error('Failed to load factories:', err);
-        });
-      }
-    }
-  }, [activeTab]);
-
-  // Create a new ElementTreeManager when selectedPipeline changes
-  useEffect(() => {
-    if (selectedPipeline) {
-      // Create new instance
-      elementTreeManagerRef.current = new ElementTreeManager();
-      // Clear selected element when pipeline changes
-      setSelectedElement(null);
-      // Automatically load the pipeline
-      loadPipeline(selectedPipeline);
-    }
-  }, [selectedPipeline]);
-
   const fetchPipelines = async () => {
+    if (!connection) {
+      console.error('No connection configured');
+      return;
+    }
+
     try {
       setIsLoading(true);
       setPipelineStatus('Fetching pipelines...');
-      const response = await fetch(`${config.gstauditBaseUrl}/GstAudit/pipelines`);
+      const gstauditBaseUrl = `http://${connection.host}:${connection.port}/gstaudit`;
+      const response = await fetch(`${gstauditBaseUrl}/GstAudit/pipelines`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -176,6 +139,54 @@ export default function PipelinePage() {
     }
   };
 
+  // Initialize FactoryTreeManager once
+  useEffect(() => {
+    if (!factoryTreeManagerRef.current) {
+      factoryTreeManagerRef.current = new FactoryTreeManager();
+      // Set status callback to update UI during loading
+      factoryTreeManagerRef.current.setStatusCallback((message: string) => {
+        setFactoryStatus(message);
+      });
+    }
+  }, []);
+
+  // Load factories when switching to factories tab for the first time
+  useEffect(() => {
+    if (activeTab === 1 && factoryTreeManagerRef.current) {
+      const manager = factoryTreeManagerRef.current;
+      if (!manager.getRoot() && !manager.isLoading()) {
+        manager.loadFactories().catch(err => {
+          console.error('Failed to load factories:', err);
+        });
+      }
+    }
+  }, [activeTab]);
+
+  // Create a new ElementTreeManager when selectedPipeline changes
+  useEffect(() => {
+    if (selectedPipeline) {
+      // Create new instance
+      elementTreeManagerRef.current = new ElementTreeManager();
+      // Clear selected element when pipeline changes
+      setSelectedElement(null);
+      // Automatically load the pipeline
+      loadPipeline(selectedPipeline);
+    }
+  }, [selectedPipeline]);
+
+  // Redirect to home if not connected to a server
+  useEffect(() => {
+    if (!connection) {
+      console.log('[Pipeline] No connection configured, redirecting to home');
+      router.push('/');
+    }
+  }, [connection, router]);
+
+  // Don't render if not connected
+  if (!connection) {
+    return null;
+  }
+
   return (
     <div className="h-screen flex flex-col">
       {!pipelinesFetched ? (
@@ -195,17 +206,27 @@ export default function PipelinePage() {
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             API: <code style={{ backgroundColor: 'rgba(0,0,0,0.1)', padding: '4px 8px', borderRadius: '4px' }}>
-              {config.gstauditBaseUrl}
+              {connection ? `http://${connection.host}:${connection.port}/gstaudit` : 'Not connected'}
             </code>
           </Typography>
-          <Button
-            variant="contained"
-            size="large"
-            onClick={fetchPipelines}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Fetching Pipelines...' : 'Fetch Pipelines'}
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={fetchPipelines}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Fetching Pipelines...' : 'Fetch Pipelines'}
+            </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={handleChangeConnection}
+              disabled={isLoading}
+            >
+              Change Connection
+            </Button>
+          </Box>
           {composedStatus !== 'Ready to connect' && (
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
               {composedStatus}
