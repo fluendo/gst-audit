@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import '@xyflow/react/dist/style.css';
 import '../pipeline-theme.css';
 import { ElementTreeManager, FactoryTreeManager } from '@/lib';
-import { GstPipeline } from '@/lib/gst';
+import { GstPipeline, Gst } from '@/lib/gst';
 import { useSession } from '@/lib/SessionContext';
 import { PipelineGraph, PipelineTreeView, StatusBar, PipelineSelector, ObjectDetails, FactoriesTreeView, FactoryDetail, PipelineControl } from '@/components';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -96,6 +96,18 @@ export default function PipelinePage() {
       setPipelineStatus(`Found ${allPipelines.length} pipeline(s)`);
       console.log('Pipelines:', allPipelines);
       setPipelinesFetched(true);
+
+      // If no pipelines found, automatically call gst_init()
+      if (allPipelines.length === 0) {
+        setPipelineStatus('No pipelines found. Initializing GStreamer...');
+        try {
+          await Gst.init();
+          setPipelineStatus('GStreamer initialized. No pipelines available yet.');
+        } catch (initError) {
+          console.error('Failed to initialize GStreamer:', initError);
+          setPipelineStatus('No pipelines found. Failed to initialize GStreamer.');
+        }
+      }
     } catch (error) {
       console.error('Error fetching pipelines:', error);
       setPipelineStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -314,6 +326,14 @@ export default function PipelinePage() {
                           selectedElement={selectedElement}
                           onElementSelect={handleElementSelect}
                         />
+                      ) : pipelines.length === 0 ? (
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                          No pipelines available. Use the API to create a pipeline.
+                        </div>
+                      ) : !selectedPipeline ? (
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                          Select a pipeline from the list
+                        </div>
                       ) : (
                         <div className="flex items-center justify-center h-full text-gray-500">
                           Loading pipeline...
