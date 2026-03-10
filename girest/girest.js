@@ -93,8 +93,6 @@ function base_type_read(t, p)
     case "pointer":
       return base_type_to_json(t, p.readPointer());
     case "array":
-      // For arrays as output parameters, read the pointer
-      // The length will be obtained from the associated length parameter
       return p.readPointer();
     case "int64":
       return p.readS64();
@@ -415,7 +413,13 @@ function get_field(struct_ptr, offset, field_type)
   
   // Convert struct_ptr string to pointer
   const base = ptr(struct_ptr);
-  const field_ptr = base.add(offset);
+  let field_ptr = base.add(offset);
+  
+  // For string fields, we need to dereference the pointer first
+  // The field contains a pointer to the string, not the string itself
+  if (field_type["name"] === "string") {
+    field_ptr = field_ptr.readPointer();
+  }
   
   // Read the value based on the field type
   const value = base_type_read(field_type, field_ptr);
