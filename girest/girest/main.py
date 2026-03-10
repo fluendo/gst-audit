@@ -690,10 +690,6 @@ class GIRest():
         # Generate endpoints for struct methods
         n_methods = GIRepository.struct_info_get_n_methods(bi)
         
-        # Only process structs with methods
-        if n_methods == 0:
-            return
-        
         # Get official copy and free function names from GIRepository API
         copy_func_name = None
         free_func_name = None
