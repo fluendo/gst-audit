@@ -709,7 +709,8 @@ class FridaResolver(GIResolver):
                     length_idx = GIRepository.type_info_get_array_length(arg_type)
                     if length_idx >= 0:
                         ret["arguments"][length_idx + offset]["skip_in"] = True
-                        ret["arguments"][i]["length"] = length_idx + offset
+                        ret["arguments"][length_idx + offset]["skip_out"] = True
+                        ret["arguments"][i + offset]["length"] = length_idx + offset
 
         # Check return type for arrays with length parameters
         return_type = GIRepository.callable_info_get_return_type(cb)
