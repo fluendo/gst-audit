@@ -1,5 +1,4 @@
 export { getLayoutedElements } from './layout';
-export { getConfig, updateConfig } from './config';
 export { ElementTreeManager } from './ElementTreeManager';
 export type { ElementTree, ElementPad, StatusCallback } from './ElementTreeManager';
 export { FactoryTreeManager } from './FactoryTreeManager';

@@ -1,0 +1,161 @@
+{# Method template for POST operations #}
+{% set required_params = [] %}
+{% set optional_params = [] %}
+{% set callback_params = [] %}
+{% set callback_url_params = [] %}
+{% set header_params_list = [] %}
+{% set body_props = [] %}
+
+{# Process header parameters (session-id, callback-secret in non-SSE mode) #}
+{% for header_param in method.header_params %}
+  {% set _ = header_params_list.append(header_param) %}
+  {% if header_param.required %}
+    {% set _ = required_params.append(header_param.valid_name.replace('-', '_') + ": string") %}
+  {% else %}
+    {% set _ = optional_params.append(header_param.valid_name.replace('-', '_') + "?: string") %}
+  {% endif %}
+{% endfor %}
+
+{# Process body properties #}
+{% for prop in method.body_properties %}
+  {% if prop.is_callback %}
+    {# Non-SSE mode: callback URL parameter - we'll handle this separately #}
+    {% set _ = callback_url_params.append(prop) %}
+    {# Add the callback function parameter #}
+    {% set cb_schema_name = prop.callback %}
+    {% if prop.required %}
+      {% set _ = required_params.append(prop.valid_name + ": " + cb_schema_name) %}
+    {% else %}
+      {% set _ = optional_params.append(prop.valid_name + "?: " + cb_schema_name) %}
+    {% endif %}
+  {% else %}
+    {# Regular body property #}
+    {% set ts_type = prop.type.lang_type %}
+    {% if prop.required %}
+      {% set _ = required_params.append(prop.valid_name + ": " + ts_type) %}
+    {% else %}
+      {% set _ = optional_params.append(prop.valid_name + "?: " + ts_type) %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% set all_params = required_params + optional_params %}
+{% set params_string = all_params | join(", ") %}
+
+{# Generate method return signature #}
+{% set method_return_signature = 'void' %}
+{% if method.return_obj.return_params %}
+  {% if method.return_obj.return_params|length == 1 %}
+    {% set return_param = method.return_obj.return_params[0] %}
+    {% set method_return_signature = return_param.type.lang_type %}
+    {% if return_param.can_be_null %}
+      {% set method_return_signature = method_return_signature + " | null" %}
+    {% endif %}
+  {% else %}
+    {% set return_type_parts = [] %}
+    {% for return_param in method.return_obj.return_params %}
+      {% set type_str = return_param.type.lang_type %}
+      {% if return_param.can_be_null %}
+        {% set type_str = type_str + " | null" %}
+      {% endif %}
+      {% set _ = return_type_parts.append(return_param.name + ": " + type_str) %}
+    {% endfor %}
+    {% if return_type_parts|length > 0 %}
+      {% set method_return_signature = "{" + return_type_parts | join(", ") + "}" %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{# Build the path with parameter substitution #}
+{% set ns = namespace(method_path = method.path) %}
+{% for param in method.path_params %}
+  {% set placeholder = "{" + param.valid_name + "}" %}
+  {% if param.type.is_ref and param.type.ref_schema.info_type in ['object','struct'] %}
+    {% set ns.method_path = ns.method_path.replace(placeholder, "ptr,${this.ptr}") %}
+  {% else %}
+    {% set ns.method_path = ns.method_path.replace(placeholder, "${" + param.valid_name + "}") %}
+  {% endif %}
+{% endfor %}
+
+{# Method signature #}
+{% if method.is_namespace_function or (method.parent.info_type in ['enum','flags'] and method.parent.methods|length > 0) %}
+  export async function {{ method.valid_name }}({{ params_string }}): Promise<{{ method_return_signature }}> {
+{% elif method.is_static %}
+  static async {{ method.valid_name }}({{ params_string }}): Promise<{{ method_return_signature }}> {
+{% else %}
+  async {{ method.valid_name }}({{ params_string }}): Promise<{{ method_return_signature }}> {
+{% endif %}
+    // Increment ref for parameters with full transfer ownership
+{% for param in method.path_params %}
+{% include 'param_precondition.ts.j2' %}
+{% endfor %}
+    const url = new URL(`${apiConfig.normalizedBasePath}{{ ns.method_path }}`, apiConfig.baseUrl);
+    try {
+      // Non-SSE mode: Add headers for callback authentication
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+{% for header_param in header_params_list %}
+      {% set header_var_name = header_param.valid_name.replace('-', '_') %}
+      if ({{ header_var_name }}) {
+        headers['{{ header_param.name }}'] = {{ header_var_name }};
+      }
+{% endfor %}
+
+      // Build request body
+      const body: Record<string, any> = {};
+{% for prop in method.body_properties %}
+  {% if prop.is_callback %}
+      // Non-SSE mode: Register callback using the callback handler
+      if (typeof {{ prop.valid_name }} !== 'undefined') {
+        const callbackHandler = getCallbackHandler();
+        if (!callbackHandler) {
+          throw new Error('Callback handler not configured. Call setCallbackHandler() first.');
+        }
+        
+        // Register the callback with its converter function
+        const {{ prop.name }}_callbackInfo = callbackHandler.registerCallback(
+          {{ prop.valid_name }}, 
+          convert{{ prop.callback }}Args,
+          {
+            methodName: '{{ method.name }}',
+            paramName: '{{ prop.name }}'
+          }
+        );
+        
+        // Pass the callback URL to the server in the request body
+        body['{{ prop.name }}'] = {{ prop.name }}_callbackInfo.callbackUrl;
+      }
+  {% else %}
+      if (typeof {{ prop.valid_name }} !== 'undefined') {
+        body['{{ prop.name }}'] = {{ prop.valid_name }};
+      }
+  {% endif %}
+{% endfor %}
+
+      const response = await fetch(url.toString(), {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+      });
+      
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+{% for param in method.path_params %}
+{% include 'param_postcondition.ts.j2' %}
+{% endfor %}
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+{% if not method.return_obj.is_void %}
+      const data = await response.json();
+  {{ method.return_obj.generate() }}
+{% endif %}
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+{% for param in method.path_params %}
+{% include 'param_postcondition.ts.j2' %}
+{% endfor %}
+      throw error;
+    }
+  }

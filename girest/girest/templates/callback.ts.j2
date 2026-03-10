@@ -11,7 +11,7 @@
 {% set return_type = callback.return_param.type.lang_type if callback.return_param else 'void' %}
 export type {{ callback.name }} = ({{ params_string }}) => {{ return_type }};
 
-export function convert{{ callback.name }}Args(data: any): Parameters<{{ callback.name }}> {
+export async function convert{{ callback.name }}Args(data: any): Promise<Parameters<{{ callback.name }}>> {
   return [
 {% for param in callback.parameters %}    {% if param.type.lang_type == "Pointer" -%}
 data.{{ param.name }}
@@ -21,15 +21,15 @@ data.{{ param.name }}
 data.{{ param.name }}
 {%- elif param.type.ref_schema and param.type.ref_schema.info_type == "struct" -%}
 {% if param.can_be_null -%}
-data.{{ param.name }} ? new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}') : null
+data.{{ param.name }} ? await {{ param.type.lang_type }}.create(data.{{ param.name }}.ptr, '{{ param.transfer }}') : null
 {%- else -%}
-new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}')
+await {{ param.type.lang_type }}.create(data.{{ param.name }}.ptr, '{{ param.transfer }}')
 {%- endif -%}
 {%- elif param.type.ref_schema and param.type.ref_schema.info_type == "object" -%}
 {% if param.can_be_null -%}
-data.{{ param.name }} ? new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}') : null
+data.{{ param.name }} ? await {{ param.type.lang_type }}.create(data.{{ param.name }}.ptr, '{{ param.transfer }}') : null
 {%- else -%}
-new {{ param.type.lang_type }}(data.{{ param.name }}, '{{ param.transfer }}')
+await {{ param.type.lang_type }}.create(data.{{ param.name }}.ptr, '{{ param.transfer }}')
 {%- endif -%}
 {%- elif param.type.type == "string" -%}
 data.{{ param.name }}

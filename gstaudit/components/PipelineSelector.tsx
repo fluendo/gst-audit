@@ -1,22 +1,27 @@
 import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import { useEffect } from 'react';
+import { GstPipeline } from '@/lib/gst';
 
 interface PipelineSelectorProps {
-  pipelines: { name: string; ptr: string }[];
-  selectedPipeline: string | null;
-  onPipelineChange: (pipelinePtr: string) => void;
+  pipelines: { name: string; pipeline: GstPipeline }[];
+  selectedPipeline: GstPipeline | null;
+  onPipelineChange: (pipeline: GstPipeline) => void;
 }
 
 export function PipelineSelector({ pipelines, selectedPipeline, onPipelineChange }: PipelineSelectorProps) {
   // Automatically select the first pipeline when pipelines list changes
   useEffect(() => {
     if (pipelines.length > 0 && !selectedPipeline) {
-      onPipelineChange(pipelines[0].ptr);
+      onPipelineChange(pipelines[0].pipeline);
     }
   }, [pipelines, selectedPipeline, onPipelineChange]);
 
   const handleChange = (event: SelectChangeEvent) => {
-    onPipelineChange(event.target.value);
+    const pipelinePtr = event.target.value;
+    const found = pipelines.find(item => item.pipeline.ptr === pipelinePtr);
+    if (found) {
+      onPipelineChange(found.pipeline);
+    }
   };
 
   return (
@@ -26,13 +31,13 @@ export function PipelineSelector({ pipelines, selectedPipeline, onPipelineChange
         <Select
           labelId="pipeline-select-label"
           id="pipeline-select"
-          value={selectedPipeline || ''}
+          value={selectedPipeline?.ptr || ''}
           label="Pipeline"
           onChange={handleChange}
         >
-          {pipelines.map((pipeline) => (
-            <MenuItem key={pipeline.ptr} value={pipeline.ptr}>
-              {pipeline.name}
+          {pipelines.map((item) => (
+            <MenuItem key={item.pipeline.ptr} value={item.pipeline.ptr}>
+              {item.name}
             </MenuItem>
           ))}
         </Select>

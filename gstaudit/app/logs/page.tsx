@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getConfig } from '@/lib/config';
+import { useSession } from '@/lib/SessionContext';
 import {
-  setApiConfig,
   Gst,
   GstDebugCategory,
   GstDebugMessage,
@@ -45,15 +45,21 @@ export default function LogsPage() {
   const logsBufferRef = useRef<LogEntry[]>([]);
   const flushIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  const router = useRouter();
+  const { connection } = useSession();
+
+  // Redirect to home if not connected to a server
   useEffect(() => {
-    const conf = getConfig();
-    setApiConfig({
-      host: conf.host,
-      port: conf.port,
-      basePath: conf.basePath
-    });
-    fetchCategories();
-  }, []);
+    if (!connection) {
+      console.log('[Logs] No connection configured, redirecting to home');
+      router.push('/');
+    }
+  }, [connection, router]);
+
+  // Don't render if not connected
+  if (!connection) {
+    return null;
+  }
 
   // Función para vaciar el buffer y actualizar el estado
   const flushLogs = useCallback(() => {
@@ -143,6 +149,11 @@ export default function LogsPage() {
       setLoading(false);
     }
   }, []);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const handleLevelChange = async (ptr: string, newLevel: GstDebugLevelValue) => {
     try {

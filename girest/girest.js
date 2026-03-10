@@ -2,7 +2,6 @@ var gst_pipeline_get_type;
 var gst_pipeline_new;
 var functions = {};
 var g_param_spec_types = null;
-  
 
 const callbacks = new Map();
 
@@ -38,7 +37,7 @@ function base_type_to_size(t)
   }
 }
 
-function base_type_convert(t, p, array_length)
+function base_type_to_json(t, p, array_length)
 {
   switch (t["name"]) {
     case "string":
@@ -89,10 +88,10 @@ function base_type_read(t, p)
     case "double":
       return p.readDouble();
     case "bool":
-      return base_type_convert(t, p.readS8());
+      return base_type_to_json(t, p.readS8());
     case "gtype":
     case "pointer":
-      return base_type_convert(t, p.readPointer());
+      return base_type_to_json(t, p.readPointer());
     case "int64":
       return p.readS64();
     case "uint64":
@@ -149,6 +148,43 @@ function base_type_write(t, p, value)
     default:
       console.error(`Unsupported type ${t["name"]} for write`);
       break;
+  }
+}
+
+function base_type_from_json(t, value)
+{
+  /* Convert JSON value to native value for return from NativeCallback */
+  switch (t["name"]) {
+    case "bool":
+      // Convert JavaScript boolean to gboolean (0 or 1)
+      return value ? 1 : 0;
+    case "int8":
+    case "uint8":
+    case "int16":
+    case "uint16":
+    case "int32":
+    case "uint32":
+      return value;
+    case "int64":
+      return int64(value);
+    case "uint64":
+      return uint64(value);
+    case "float":
+    case "double":
+      return value;
+    case "string":
+      // For string returns, would need to allocate memory
+      // This is complex for callbacks - may need special handling
+      return Memory.allocUtf8String(value);
+    case "pointer":
+    case "gtype":
+    case "struct":
+      return ptr(value);
+    case "void":
+      return undefined;
+    default:
+      console.warn(`Unsupported type ${t["name"]} for JSON to native conversion`);
+      return value;
   }
 }
 
@@ -223,28 +259,51 @@ function call(symbol, type, ...args)
       idx++;
     } else if (a_tn == "callback" && !a["is_destroy"]) {
       /* For callbacks, create a new NativeCallback */
-      var cb_id = callbacks.size;
+      var callback_id = args[idx];
+      idx++;
       var cb_sig = callable_signature(a_t["subtype"]);
       var cb_def = a_t["subtype"]["arguments"];
+      var cb_return_type_sig = type_signature(a_t["subtype"]["returns"]);
+      var cb_return_type_meta = a_t["subtype"]["returns"];
       var cb = new NativeCallback((...args) => {
-        console.debug(`Callback ${cb_id} received with signature ${cb_sig}`);
-        /* Serialize the data */
-        var data = {};
-        var cb_idx = 0;
-        for (var cb_a of cb_def) {
-          if (cb_a["type"]["name"] == "string")
-            data[cb_a["name"]] = args[cb_idx].readCString();
-          else
-            data[cb_a["name"]] = args[cb_idx];
-          cb_idx++;
-        }
-        console.debug(`Callback ${cb_id} received with args ${data}`);
+        /* Serialize the callback arguments */
+        var data = native_callback_args_to_json(cb_def, args);
+        
+        // Send invocation message to Python
         send({
           "kind": "callback",
-          "data": {"id": cb_id, "data": data}
+          "data": {
+            "callback_id": callback_id,
+            "args": data
+          }
         });
-      }, "void", cb_sig);
-      callbacks.set(cb_id.toString(), cb);
+        
+        // Use Frida's blocking recv to wait for Python's response
+        var result = null;
+        var response_received = false;
+        
+        while (!response_received) {
+          var op = recv('callback-response', function(message) {
+            // Message received from Python - check if it's for our callback_id
+            if (message.callback_id === callback_id) {
+              result = message.result;
+              response_received = true;
+              console.debug(`Callback ${callback_id} received result from Python: ${result} (type: ${typeof result})`);
+            }
+            // If not for us, response_received stays false and we'll wait again
+          });
+          op.wait();
+        }
+        
+        // Convert result from JSON to native type
+        var native_result = base_type_from_json(cb_return_type_meta, result);
+        console.debug(`Callback ${callback_id} completed - JSON result: ${result}, native result: ${native_result}`);
+        return native_result;
+      }, cb_return_type_sig, cb_sig);
+      
+      // Store callback for reference
+      console.debug(`Storing callback id ${callback_id}`);
+      callbacks.set(callback_id.toString(), cb);
       tx_args.push(cb);
     } else if (a["is_destroy"]) {
       tx_args.push(NULL);
@@ -279,9 +338,9 @@ function call(symbol, type, ...args)
     /* When returning arrays, the length parameter must be read */
     if (type["returns"]["name"] == "array" && type["return_length"] >= 0) {
       var return_length = base_type_read(type["arguments"][type["return_length"]]["type"], tx_args[type["return_length"]]);
-      ret["return"] = base_type_convert(type["returns"], nfr, return_length);
+      ret["return"] = base_type_to_json(type["returns"], nfr, return_length);
     } else {
-      ret["return"] = base_type_convert(type["returns"], nfr, -1);
+      ret["return"] = base_type_to_json(type["returns"], nfr, -1);
     }
   }
   /* Return the return value plus the output arguments */
@@ -290,12 +349,6 @@ function call(symbol, type, ...args)
     if (a["skip_out"]) {
       idx++;
       continue;
-    } else if (a["type"]["name"] == "callback" && !a["is_destroy"]) {
-      /* Find the key for such callback */
-      for (let [key, value] of callbacks.entries()) {
-        if (value === tx_args[idx])
-          ret[a["name"]] = key;
-      }
     } else if ([1, 2].includes(a["direction"])) {
       ret[a["name"]] = base_type_read(a["type"], tx_args[idx]);
     }
@@ -441,6 +494,26 @@ function internal_gtype(name)
   
   console.info(`Resolved ${name} to GType: ${gtype}`);
   return gtype;
+}
+
+function native_callback_args_to_json(callback_args_def, args) {
+  /* Convert native callback arguments to JSON based on argument definitions */
+  var data = {};
+  var idx = 0;
+  for (var arg_def of callback_args_def) {
+    if (idx >= args.length) break;
+    
+    var arg_type = arg_def["type"]["name"];
+    if (arg_type == "string" || arg_type == "utf8") {
+      data[arg_def["name"]] = args[idx].readCString();
+    } else if (arg_type == "pointer") {
+      data[arg_def["name"]] = args[idx].toString();
+    } else {
+      data[arg_def["name"]] = args[idx];
+    }
+    idx++;
+  }
+  return data;
 }
 
 rpc.exports = {

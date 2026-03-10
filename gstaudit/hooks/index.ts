@@ -1,1 +1,1 @@
-// All hooks have been removed - they are no longer used
+export { useCallbackRegistry } from './useCallbackRegistry';

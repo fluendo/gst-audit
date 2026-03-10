@@ -8,7 +8,7 @@
       const result: any = {};
   {% for return_param in return.return_params %}
       // Handle return parameter: {{ return_param.name }}
-      result.{{ return_param.name }} = (() => {
+      result.{{ return_param.name }} = await (async () => {
         {{ return_param.generate()|indent(8) }}
       })();
   {% endfor %}

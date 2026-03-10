@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { GstElementFactory, GstRegistry, GObjectParamSpec, GObjectObjectClass } from '@/lib/gst';
+import { GstElementFactory, GstRegistry, GObjectParamSpec, GObjectObjectClass, GObjectTypeClass } from '@/lib/gst';
 
 interface FactoryDetailProps {
   selectedFactory: string | null;
@@ -49,7 +49,9 @@ export function FactoryDetail({ selectedFactory }: FactoryDetailProps) {
         }
 
         // Cast to GstElementFactory
-        const factory = feature.castTo(GstElementFactory);
+        const factory = await feature.castTo(GstElementFactory);
+
+        console.log('[FACTORY_DETAIL] Factory:', factory, 'ptr:', factory.ptr);
 
         // Fetch all the details
         const name = await factory.get_name() || '';
@@ -57,6 +59,8 @@ export function FactoryDetail({ selectedFactory }: FactoryDetailProps) {
         const description = await factory.get_metadata('description') || '';
         const author = await factory.get_metadata('author') || '';
         const longname = await factory.get_metadata('long-name') || '';
+
+        console.log('[FACTORY_DETAIL] Factory details:', { name, klass, description });
 
         setFactoryDetails({
           name,
@@ -70,21 +74,35 @@ export function FactoryDetail({ selectedFactory }: FactoryDetailProps) {
         setLoadingProperties(true);
         setPropertiesError(null);
         try {
-          // Get the element type from the factory
-          const elementType = await factory.get_element_type();
+          // Load the factory to ensure the element type is registered
+          const loadedFeature = await factory.load();
           
-          if (!elementType) {
+          if (!loadedFeature) {
+            throw new Error('Failed to load factory');
+          }
+          
+          // Cast the loaded feature back to GstElementFactory
+          const loadedFactory = await loadedFeature.castTo(GstElementFactory);
+          
+          // Get the element type from the loaded factory
+          const elementType = await loadedFactory.get_element_type();
+          
+          console.log('[FACTORY_DETAIL] Element type:', elementType, 'type:', typeof elementType);
+          
+          if (!elementType || elementType === '0') {
             throw new Error('Failed to get element type from factory');
           }
 
-          // Get the GObjectTypeClass directly from the type
-          const typeClass = await GObjectObjectClass.peek(elementType);
+          // Get the GObjectTypeClass using ref() instead of peek() to ensure initialization
+          const typeClass = await GObjectTypeClass.ref(elementType);
           
-          if (!typeClass) {
+          console.log('[FACTORY_DETAIL] Type class:', typeClass);
+          
+          if (!typeClass || !typeClass.ptr) {
             throw new Error('Failed to get type class');
           }
           
-          // Create a GObjectObjectClass instance from the pointer
+          // Create a GObjectObjectClass instance from the pointer  
           const objectClass = new GObjectObjectClass(typeClass.ptr, 'none');
           const props = await objectClass.list_properties();
           

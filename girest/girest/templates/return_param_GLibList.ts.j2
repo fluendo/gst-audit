@@ -18,7 +18,7 @@ if (data.{{ return_param.name }} && typeof data.{{ return_param.name }} === 'obj
     return null;
   }
 {% endif %}
-  const instance = new {{ return_param.type.ref_schema.valid_name }}(data.{{ return_param.name }}.ptr, '{{ transferType }}', {{ subType }}, {{ head }});
+  const instance = await {{ return_param.type.ref_schema.valid_name }}.create(data.{{ return_param.name }}.ptr, '{{ transferType }}', {{ subType }}, {{ head }});
   return instance;
 }
 return Promise.reject("Call failed");

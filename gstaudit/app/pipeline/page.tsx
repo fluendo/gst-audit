@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import '@xyflow/react/dist/style.css';
 import '../pipeline-theme.css';
-import { getConfig, ElementTreeManager, FactoryTreeManager } from '@/lib';
-import {
-  GstPipeline,
-} from '@/lib/gst';
-import { PipelineGraph, PipelineTreeView, StatusBar, PipelineSelector, ObjectDetails, FactoriesTreeView, FactoryDetail, PlaybackControl } from '@/components';
+import { ElementTreeManager, FactoryTreeManager } from '@/lib';
+import { GstPipeline } from '@/lib/gst';
+import { useSession } from '@/lib/SessionContext';
+import { PipelineGraph, PipelineTreeView, StatusBar, PipelineSelector, ObjectDetails, FactoriesTreeView, FactoryDetail, PipelineControl } from '@/components';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { Button, Box, Typography, Tabs, Tab } from '@mui/material';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -17,19 +17,29 @@ import { ElementTree } from '@/lib/ElementTreeManager';
 export default function PipelinePage() {
   const [pipelineStatus, setPipelineStatus] = useState<string>('Ready to connect');
   const [factoryStatus, setFactoryStatus] = useState<string>('');
-  const [pipelines, setPipelines] = useState<{ name: string; ptr: string }[]>([]);
-  const [selectedPipeline, setSelectedPipeline] = useState<string | null>(null);
+  const [pipelines, setPipelines] = useState<{ name: string; pipeline: GstPipeline }[]>([]);
+  const [selectedPipeline, setSelectedPipeline] = useState<GstPipeline | null>(null);
   const [pipelineLoaded, setPipelineLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pipelinesFetched, setPipelinesFetched] = useState(false);
   const [selectedElement, setSelectedElement] = useState<ElementTree | null>(null);
   const [selectedFactory, setSelectedFactory] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
-  
+
   const elementTreeManagerRef = useRef<ElementTreeManager | null>(null);
   const factoryTreeManagerRef = useRef<FactoryTreeManager | null>(null);
-  
-  const config = getConfig();
+
+  const router = useRouter();
+
+  // Get session from context (unique per browser tab)
+  // Callback infrastructure is automatically set up by SessionProvider
+  const { connection, clearConnection } = useSession();
+
+  // Handler for changing connection
+  const handleChangeConnection = () => {
+    clearConnection();
+    router.push('/');
+  };
 
   // Compose status from both pipeline and factory statuses
   const composedStatus = [pipelineStatus, factoryStatus]
@@ -39,7 +49,7 @@ export default function PipelinePage() {
   // Handle element selection and fetch its factory
   const handleElementSelect = async (element: ElementTree | null) => {
     setSelectedElement(element);
-    
+
     if (element) {
       try {
         // Get the factory from the element
@@ -56,6 +66,76 @@ export default function PipelinePage() {
       }
     } else {
       setSelectedFactory(null);
+    }
+  };
+
+  const fetchPipelines = async () => {
+    if (!connection) {
+      console.error('No connection configured');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setPipelineStatus('Fetching pipelines...');
+      const gstauditBaseUrl = `http://${connection.host}:${connection.port}/gstaudit`;
+      const response = await fetch(`${gstauditBaseUrl}/GstAudit/pipelines`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const pipelinesData = await response.json();
+
+      const allPipelines: { name: string; pipeline: GstPipeline }[] = [];
+
+      for (const pipelineData of pipelinesData) {
+        const pipeline = new GstPipeline(pipelineData.ptr, 'none');
+        allPipelines.push({ name: pipelineData.name, pipeline });
+      }
+
+      setPipelines(allPipelines);
+      setPipelineStatus(`Found ${allPipelines.length} pipeline(s)`);
+      console.log('Pipelines:', allPipelines);
+      setPipelinesFetched(true);
+    } catch (error) {
+      console.error('Error fetching pipelines:', error);
+      setPipelineStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadPipeline = async (pipeline: GstPipeline) => {
+    if (!elementTreeManagerRef.current) {
+      return;
+    }
+
+    try {
+      setPipelineLoaded(false);
+
+      const elementTreeManager = elementTreeManagerRef.current;
+      elementTreeManager.clear();
+
+      // Set status callback to update UI during loading
+      elementTreeManager.setStatusCallback((message: string) => {
+        setPipelineStatus(message);
+      });
+
+      await elementTreeManager.generateTree(pipeline);
+
+      const tree = elementTreeManager.getRoot();
+      if (tree) {
+        setPipelineLoaded(true);
+      } else {
+        setPipelineStatus('Error: No tree generated');
+      }
+    } catch (error) {
+      console.error('Error loading pipeline:', error);
+      setPipelineStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      // Clear the callback after loading is complete
+      if (elementTreeManagerRef.current) {
+        elementTreeManagerRef.current.setStatusCallback(null);
+      }
     }
   };
 
@@ -90,73 +170,22 @@ export default function PipelinePage() {
       // Clear selected element when pipeline changes
       setSelectedElement(null);
       // Automatically load the pipeline
-      loadPipeline();
+      loadPipeline(selectedPipeline);
     }
   }, [selectedPipeline]);
 
-  const fetchPipelines = async () => {
-    try {
-      setIsLoading(true);
-      setPipelineStatus('Fetching pipelines...');
-      const response = await fetch(`${config.gstauditBaseUrl}/GstAudit/pipelines`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const pipelinesData = await response.json();
-
-      const allPipelines: { name: string; ptr: string }[] = [];
-
-      for (const pipeline of pipelinesData) {
-        allPipelines.push({ name: pipeline.name, ptr: pipeline.ptr });
-      }
-
-      setPipelines(allPipelines);
-      setPipelineStatus(`Found ${allPipelines.length} pipeline(s)`);
-      console.log('Pipelines:', allPipelines);
-      setPipelinesFetched(true);
-    } catch (error) {
-      console.error('Error fetching pipelines:', error);
-      setPipelineStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsLoading(false);
+  // Redirect to home if not connected to a server
+  useEffect(() => {
+    if (!connection) {
+      console.log('[Pipeline] No connection configured, redirecting to home');
+      router.push('/');
     }
-  };
+  }, [connection, router]);
 
-  const loadPipeline = async () => {
-    if (!selectedPipeline || !elementTreeManagerRef.current) {
-      return;
-    }
-
-    try {
-      setPipelineLoaded(false);
-      
-      const elementTreeManager = elementTreeManagerRef.current;
-      elementTreeManager.clear();
-      
-      // Set status callback to update UI during loading
-      elementTreeManager.setStatusCallback((message: string) => {
-        setPipelineStatus(message);
-      });
-      
-      const pipeline = new GstPipeline(selectedPipeline, 'none');
-      await elementTreeManager.generateTree(pipeline);
-      
-      const tree = elementTreeManager.getRoot();
-      if (tree) {
-        setPipelineLoaded(true);
-      } else {
-        setPipelineStatus('Error: No tree generated');
-      }
-    } catch (error) {
-      console.error('Error loading pipeline:', error);
-      setPipelineStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      // Clear the callback after loading is complete
-      if (elementTreeManagerRef.current) {
-        elementTreeManagerRef.current.setStatusCallback(null);
-      }
-    }
-  };
+  // Don't render if not connected
+  if (!connection) {
+    return null;
+  }
 
   return (
     <div className="h-screen flex flex-col">
@@ -177,17 +206,27 @@ export default function PipelinePage() {
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             API: <code style={{ backgroundColor: 'rgba(0,0,0,0.1)', padding: '4px 8px', borderRadius: '4px' }}>
-              {config.gstauditBaseUrl}
+              {connection ? `http://${connection.host}:${connection.port}/gstaudit` : 'Not connected'}
             </code>
           </Typography>
-          <Button
-            variant="contained"
-            size="large"
-            onClick={fetchPipelines}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Fetching Pipelines...' : 'Fetch Pipelines'}
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={fetchPipelines}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Fetching Pipelines...' : 'Fetch Pipelines'}
+            </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={handleChangeConnection}
+              disabled={isLoading}
+            >
+              Change Connection
+            </Button>
+          </Box>
           {composedStatus !== 'Ready to connect' && (
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
               {composedStatus}
@@ -270,8 +309,8 @@ export default function PipelinePage() {
                   <div className="h-full flex flex-col">
                     <div className="flex-1 min-h-0">
                       {pipelineLoaded && elementTreeManagerRef.current ? (
-                        <PipelineGraph 
-                          treeManager={elementTreeManagerRef.current} 
+                        <PipelineGraph
+                          treeManager={elementTreeManagerRef.current}
                           selectedElement={selectedElement}
                           onElementSelect={handleElementSelect}
                         />
@@ -281,7 +320,7 @@ export default function PipelinePage() {
                         </div>
                       )}
                     </div>
-                    <PlaybackControl pipelinePtr={selectedPipeline} />
+                    <PipelineControl pipeline={selectedPipeline} />
                   </div>
                 </Panel>
                 <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />

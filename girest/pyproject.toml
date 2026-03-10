@@ -13,6 +13,7 @@ frida = "*"
 pygobject = "<3.50.0"
 apispec = "^6.8.4"
 uritemplate = "^4.1.1"
+aiohttp = "^3.13.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
