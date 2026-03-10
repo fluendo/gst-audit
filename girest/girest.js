@@ -92,6 +92,10 @@ function base_type_read(t, p)
     case "gtype":
     case "pointer":
       return base_type_to_json(t, p.readPointer());
+    case "array":
+      // For arrays as output parameters, read the pointer
+      // The length will be obtained from the associated length parameter
+      return p.readPointer();
     case "int64":
       return p.readS64();
     case "uint64":
@@ -350,7 +354,14 @@ function call(symbol, type, ...args)
       idx++;
       continue;
     } else if ([1, 2].includes(a["direction"])) {
-      ret[a["name"]] = base_type_read(a["type"], tx_args[idx]);
+      var out_value = base_type_read(a["type"], tx_args[idx]);
+      // If this is an array output parameter, convert it to JSON with proper length
+      if (a["type"]["name"] == "array" && a["length"] >= 0) {
+        var out_length = base_type_read(type["arguments"][a["length"]]["type"], tx_args[a["length"]]);
+        ret[a["name"]] = base_type_to_json(a["type"], out_value, out_length);
+      } else {
+        ret[a["name"]] = out_value;
+      }
     }
     idx++;
   }
