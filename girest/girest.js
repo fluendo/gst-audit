@@ -224,7 +224,7 @@ function call(symbol, type, ...args)
 {
   var nf;
 
-  console.info(`Calling ${symbol} ${JSON.stringify(type)} and args ${args}`);
+  console.info(`Calling ${symbol} ${JSON.stringify(type)} and args ${args} in thread ${Process.getCurrentThreadId()}`);
   /* Find the symbol if not cached */
   if (symbol in functions) {
     nf = functions["symbol"];
@@ -250,24 +250,21 @@ function call(symbol, type, ...args)
     var a_t = a["type"];
     var a_tn = a_t["name"];
     
-    if (a_tn == "string") {
-      tx_args.push(Memory.allocUtf8String(args[idx]));
-      idx++;
-    } else if (a_tn == "int64") {
-      tx_args.push(int64(args[idx]));
-      idx++;
-    } else if (a_tn == "uint64") {
-      tx_args.push(uint64(args[idx]));
-      idx++;
-    } else if (a_tn == "callback" && !a["is_destroy"]) {
+    console.debug(`Processing arg ${a["name"]}: type=${a_tn}, is_destroy=${a["is_destroy"]}, is_closure=${a["is_closure"]}, skip_in=${a["skip_in"]}`);
+    
+    if (a_tn == "callback" && !a["is_destroy"]) {
       /* For callbacks, create a new NativeCallback */
       var callback_id = args[idx];
       idx++;
+      console.debug(`Creating NativeCallback for callback_id=${callback_id}`);
       var cb_sig = callable_signature(a_t["subtype"]);
       var cb_def = a_t["subtype"]["arguments"];
       var cb_return_type_sig = type_signature(a_t["subtype"]["returns"]);
       var cb_return_type_meta = a_t["subtype"]["returns"];
       var cb = new NativeCallback((...args) => {
+        /* Log the thread ID where this callback is executing */
+        console.log(`Callback ${callback_id} invoked on thread: ${Process.getCurrentThreadId()}`);
+        
         /* Serialize the callback arguments */
         var data = native_callback_args_to_json(cb_def, args);
         
@@ -280,21 +277,72 @@ function call(symbol, type, ...args)
           }
         });
         
-        // Use Frida's blocking recv to wait for Python's response
+        // Wait for messages using callback-specific message type
+        // This ensures only messages for THIS callback are received
         var result = null;
         var response_received = false;
+        var message_type = `callback-${callback_id}`;
         
         while (!response_received) {
-          var op = recv('callback-response', function(message) {
-            // Message received from Python - check if it's for our callback_id
-            if (message.callback_id === callback_id) {
-              result = message.result;
-              response_received = true;
-              console.debug(`Callback ${callback_id} received result from Python: ${result} (type: ${typeof result})`);
-            }
-            // If not for us, response_received stays false and we'll wait again
+          // Store what message we received in this variable
+          var received_message = null;
+          
+          // Use callback-specific message type to filter messages
+          var op = recv(message_type, function(message) {
+            // This function runs on Frida's main thread, just store the message
+            received_message = message;
           });
-          op.wait();
+          op.wait();  // This blocks the NATIVE thread (GThread) until a message arrives
+          
+          // Now we're back on the native thread (GThread) - process the message here!
+          console.log(`Processing message on thread: ${Process.getCurrentThreadId()}`);
+          
+          if (!received_message) continue;
+          
+          // Check message kind to distinguish between response and queued-call
+          var message_kind = received_message.kind;
+          
+          if (message_kind === 'callback-response') {
+            // Callback result from Python
+            result = received_message.result;
+            response_received = true;
+            console.debug(`Callback ${callback_id} received result from Python: ${result}`);
+          } else if (message_kind === 'queued-call') {
+            // Reentrant API call - EXECUTE IT HERE on the native thread!
+            console.log(`Executing queued call on thread: ${Process.getCurrentThreadId()}, correlation_id=${received_message.correlation_id}`);
+            
+            if (received_message.is_async) {
+              // Async execution: execute but don't send response
+              console.debug(`Async queued call - executing synchronously without response`);
+              try {
+                var queued_result = run(received_message.command);
+                console.debug(`Async queued call ${received_message.correlation_id} completed: ${queued_result}`);
+              } catch (error) {
+                console.error(`Async queued call ${received_message.correlation_id} failed: ${error}`);
+              }
+            } else {
+              // Synchronous queued execution
+              try {
+                var queued_result = run(received_message.command);
+                send({
+                  "kind": "queued-call-response",
+                  "correlation_id": received_message.correlation_id,
+                  "result": queued_result,
+                  "success": true
+                });
+                console.debug(`Queued call ${received_message.correlation_id} completed successfully`);
+              } catch (error) {
+                send({
+                  "kind": "queued-call-response",
+                  "correlation_id": received_message.correlation_id,
+                  "error": error.toString(),
+                  "success": false
+                });
+                console.error(`Queued call ${received_message.correlation_id} failed: ${error}`);
+              }
+            }
+            // Continue waiting for callback-response
+          }
         }
         
         // Convert result from JSON to native type
@@ -322,11 +370,11 @@ function call(symbol, type, ...args)
       /* continue otherwise */
     } else if (a["skip_in"]) {
       tx_args.push(NULL);
-    } else if (type_signature(a_t) == "pointer") {
-      tx_args.push(ptr(args[idx]));
-      idx++;
     } else {
-      tx_args.push(args[idx]);
+      // Use base_type_from_json to convert JSON values to native types
+      // This handles: bool -> gboolean (0/1), string -> Memory.allocUtf8String(),
+      // int64/uint64, pointers, etc.
+      tx_args.push(base_type_from_json(a_t, args[idx]));
       idx++;
     }
   }
@@ -531,12 +579,41 @@ function native_callback_args_to_json(callback_args_def, args) {
   return data;
 }
 
+/**
+ * Single entry point for all RPC calls.
+ * Dispatches commands based on their type.
+ * 
+ * @param {string} command_json - JSON serialized command
+ * @returns {*} Result of the command execution
+ */
+function run(command_json) {
+  const command = JSON.parse(command_json);
+  
+  switch (command.type) {
+    case "call":
+      return call(command.symbol, command.method_info, ...command.args);
+    
+    case "get_field":
+      return get_field(command.ptr, command.offset, command.field_type);
+    
+    case "set_field":
+      set_field(command.ptr, command.offset, command.field_type, command.value);
+      return null;
+    
+    case "alloc":
+      return alloc(command.size);
+    
+    case "free":
+      free(command.ptr);
+      return null;
+    
+    default:
+      throw new Error(`Unknown command type: ${command.type}`);
+  }
+}
+
 rpc.exports = {
-  'call': call,
-  'alloc': alloc,
-  'free': free,
-  'getField': get_field,
-  'setField': set_field,
+  'run': run,
   'internalGtype': internal_gtype,
   'init': init,
   'shutdown': shutdown,

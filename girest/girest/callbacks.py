@@ -157,7 +157,7 @@ class CallbackHandler:
         """Check if callback handler is enabled (has a URL)."""
         return self.callback_url is not None and self.security is not None
     
-    def invoke(self, callback_name: str, args: Dict[str, Any]) -> Any:
+    def invoke(self, callback_name: str, callback_id: int, args: Dict[str, Any]) -> Any:
         """
         Invoke a callback with the given arguments.
         
@@ -172,6 +172,7 @@ class CallbackHandler:
         
         Args:
             callback_name: Name of the callback being invoked
+            callback_id: Callback ID for correlation tracking (thread affinity)
             args: Dictionary of arguments (already JSON-serializable from _convert_callback_args)
             
         Returns:
@@ -188,7 +189,8 @@ class CallbackHandler:
             'callbackName': callback_name,
             'args': args,  # Use args dict directly, no serialization needed
             'invocationNumber': self.invocation_count,
-            'timestamp': datetime.now(timezone.utc).isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'correlationId': str(callback_id)  # For thread affinity tracking
         }
         
         response_data = self._post_callback(payload, expect_response=True)

@@ -446,6 +446,31 @@ class GIRest():
             }
         else:
             responses["204"] = {"description": "No Content"}
+            # Add Prefer header parameter for async execution
+            params.append({
+                "name": "Prefer",
+                "in": "header",
+                "required": False,
+                "schema": {
+                    "type": "string",
+                    "enum": ["respond-async"]
+                },
+                "description": "Request asynchronous execution. When set to 'respond-async', the server returns 202 Accepted immediately and processes the request in the background."
+            })
+            
+            # Add 202 response for async execution (no content, only header)
+            responses["202"] = {
+                "description": "Accepted - Request is being processed asynchronously",
+                "headers": {
+                    "Preference-Applied": {
+                        "schema": {
+                            "type": "string",
+                            "enum": ["respond-async"]
+                        },
+                        "description": "Indicates that the async preference was honored"
+                    }
+                }
+            }
         
         # Override constructor detection if explicitly passed
         if not is_constructor:

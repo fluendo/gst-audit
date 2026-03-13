@@ -149,9 +149,22 @@
         headers['{{ header_param.name }}'] = {{ header_var_name }};
       }
 {% endfor %}
+      
+      // Auto-inject correlation ID if we're in a callback context
+      const correlationId = getActiveCorrelationId();
+      if (correlationId) {
+        headers['X-Correlation-Id'] = correlationId;
+      }
+      
       const response = await fetch(url.toString(), { headers });
 {% else %}
-      const response = await fetch(url.toString());
+      // Auto-inject correlation ID if we're in a callback context
+      const correlationId = getActiveCorrelationId();
+      const headers: Record<string, string> = {};
+      if (correlationId) {
+        headers['X-Correlation-Id'] = correlationId;
+      }
+      const response = await fetch(url.toString(), Object.keys(headers).length > 0 ? { headers } : undefined);
 {% endif %}
       if (!response.ok) {
         // If the call fails, unref the objects we ref'd

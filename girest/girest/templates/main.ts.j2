@@ -115,6 +115,30 @@ function initializeCallbackSource(): void {
 // Non-SSE Mode: URL-based callbacks
 // The client must implement ICallbackHandler to receive and process callbacks
 
+// Track active correlation ID for thread affinity
+let activeCorrelationId: string | null = null;
+
+/**
+ * Set the active correlation ID (used internally by callback handler).
+ * When a callback is invoked, the correlation ID is set to track reentrant calls.
+ * 
+ * @internal
+ * @param correlationId The correlation ID to set, or null to clear
+ */
+export function setActiveCorrelationId(correlationId: string | null): void {
+  activeCorrelationId = correlationId;
+}
+
+/**
+ * Get the current active correlation ID.
+ * 
+ * @internal
+ * @returns The active correlation ID, or null if not in a callback context
+ */
+export function getActiveCorrelationId(): string | null {
+  return activeCorrelationId;
+}
+
 /**
  * Interface for callback handling in non-SSE mode.
  * Implementations should handle callback registration and invocation.
