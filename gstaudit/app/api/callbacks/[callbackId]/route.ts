@@ -35,9 +35,13 @@ export async function POST(
 
     console.log(`[API] Callback args:`, JSON.stringify(args, null, 2));
 
-    // Check if this is a client-side callback (has sessionId)
-    if (sessionId) {
-      // CLIENT-SIDE CALLBACK: Broadcast via WebSocket
+    // Determine if this is a server-side or client-side callback
+    // Server sessionIds start with "gstaudit-" (connection IDs)
+    // Browser sessionIds are random UUIDs
+    const isServerCallback = !sessionId || sessionId.startsWith('gstaudit-');
+
+    if (!isServerCallback) {
+      // CLIENT-SIDE CALLBACK: Broadcast via WebSocket to browser
       console.log(`[API] Client callback - broadcasting to session ${sessionId}`);
 
       const wsManager = getWebSocketManager();

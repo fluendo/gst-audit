@@ -64,12 +64,28 @@ class ConnectionManager {
     let handler = this.handlers.get(connectionId);
 
     if (!handler) {
+      // Configure the API to point to this gstaudit-server
+      // Note: This is global config, so it assumes single connection at a time
+      // For multiple connections, we'd need per-connection API instances
+      const { setApiConfig, setCallbackHandler } = require('@/lib/gst');
+      setApiConfig({
+        host: config.host,
+        port: config.port,
+        basePath: 'girest'
+      });
+      console.log(`[ConnectionManager] Configured API for ${config.host}:${config.port}/girest`);
+
       // Create new handler for this gstaudit-server connection
       handler = new ServerCallbackHandler({
         baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
         sessionId: connectionId,  // Use connectionId as the handler's identifier
         callbackSecret: process.env.CALLBACK_SECRET || 'dev-secret'
       });
+
+      // Set the callback handler for gst.ts API calls
+      // This is needed for any API calls that register callbacks (e.g., GLibThread.new())
+      setCallbackHandler(handler);
+      console.log(`[ConnectionManager] Set callback handler for connection: ${connectionId}`);
 
       this.handlers.set(connectionId, handler);
       this.configs.set(connectionId, config);

@@ -14,6 +14,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import { getConnectionManager } from './connection-manager';
 import { handleCallbackResponse } from '@/lib/server/callback-manager';
+import { getBusManager } from './bus-manager';
 
 // Callback response handler is now imported from callback-manager
 // This ensures it's always available regardless of API route reloads
@@ -236,6 +237,54 @@ export function initializeWebSocketServer(wss: WebSocketServer): void {
           });
           
           handleCallbackResponse(invocationId, message.result);
+        }
+        
+        // Handle bus subscription
+        else if (message.type === 'subscribe-bus') {
+          const { elementPtr } = message;
+          if (!elementPtr) {
+            console.error('[WebSocket] Missing elementPtr in subscribe-bus message');
+            return;
+          }
+          
+          console.log(`[WebSocket] Client ${sessionId} subscribing to bus for element ${elementPtr}`);
+          
+          const busManager = getBusManager();
+          busManager.subscribe(sessionId, connectionId, elementPtr)
+            .then(() => {
+              console.log(`[WebSocket] Successfully subscribed ${sessionId} to element ${elementPtr}`);
+              ws.send(JSON.stringify({
+                type: 'bus-subscribed',
+                elementPtr
+              }));
+            })
+            .catch((error: Error) => {
+              console.error(`[WebSocket] Failed to subscribe to bus:`, error);
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: `Failed to subscribe to bus: ${error.message}`
+              }));
+            });
+        }
+        
+        // Handle bus unsubscription
+        else if (message.type === 'unsubscribe-bus') {
+          const { elementPtr } = message;
+          if (!elementPtr) {
+            console.error('[WebSocket] Missing elementPtr in unsubscribe-bus message');
+            return;
+          }
+          
+          console.log(`[WebSocket] Client ${sessionId} unsubscribing from bus for element ${elementPtr}`);
+          
+          const busManager = getBusManager();
+          busManager.unsubscribe(sessionId, connectionId, elementPtr)
+            .then(() => {
+              console.log(`[WebSocket] Successfully unsubscribed ${sessionId} from element ${elementPtr}`);
+            })
+            .catch((error: Error) => {
+              console.error(`[WebSocket] Failed to unsubscribe from bus:`, error);
+            });
         }
         
       } catch (error) {
