@@ -16,6 +16,8 @@ import time
 import signal
 import httpx
 import asyncio
+import threading
+import tempfile
 from aiohttp import web
 
 # Add parent directory to path for imports
@@ -25,6 +27,60 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
 # ============================================================================
 # Helper Functions
 # ============================================================================
+
+def get_active_correlation_id():
+    """
+    Get the active correlation ID for the current thread.
+    This is used to automatically propagate correlation IDs in reentrant API calls.
+    
+    Returns:
+        str or None: The correlation ID if in callback context, None otherwise
+    """
+    if not hasattr(threading, '_girest_correlation_id'):
+        return None
+    thread_id = threading.get_ident()
+    return threading._girest_correlation_id.get(thread_id)
+
+
+def set_active_correlation_id(correlation_id):
+    """
+    Set the active correlation ID for the current thread.
+    
+    Args:
+        correlation_id: The correlation ID to set, or None to clear
+    """
+    if not hasattr(threading, '_girest_correlation_id'):
+        threading._girest_correlation_id = {}
+    
+    thread_id = threading.get_ident()
+    
+    if correlation_id is None:
+        # Clear correlation ID
+        if thread_id in threading._girest_correlation_id:
+            del threading._girest_correlation_id[thread_id]
+    else:
+        # Set correlation ID
+        threading._girest_correlation_id[thread_id] = correlation_id
+
+
+def inject_correlation_id_header(headers=None):
+    """
+    Inject X-Correlation-Id header if we're in a callback context.
+    
+    Args:
+        headers: Existing headers dict (optional)
+        
+    Returns:
+        dict: Headers with correlation ID added if applicable
+    """
+    if headers is None:
+        headers = {}
+    
+    correlation_id = get_active_correlation_id()
+    if correlation_id is not None:
+        headers['X-Correlation-Id'] = str(correlation_id)
+    
+    return headers
 
 def assert_api_success(response, msg="API call failed"):
     """
@@ -233,6 +289,11 @@ def _start_girest_server(gst_pipeline, sse_only=False, port=9000):
     if sse_only:
         cmd.append("--sse-only")
     
+    # Create log file for server output
+    log_file = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.log', prefix='girest-server-')
+    log_path = log_file.name
+    print(f"✓ Server logs will be written to: {log_path}")
+    
     # Start server with unbuffered output
     process = subprocess.Popen(
         cmd,
@@ -257,6 +318,8 @@ def _start_girest_server(gst_pipeline, sse_only=False, port=9000):
             # Process died, collect remaining output
             remaining = process.stdout.read()
             startup_output.append(remaining)
+            log_file.write(remaining)
+            log_file.close()
             raise RuntimeError(
                 f"GIRest server process died during startup.\n"
                 f"output:\n{''.join(startup_output)}"
@@ -266,6 +329,8 @@ def _start_girest_server(gst_pipeline, sse_only=False, port=9000):
         line = process.stdout.readline()
         if line:
             startup_output.append(line)
+            log_file.write(line)
+            log_file.flush()
             # Check for the ready message
             if "Uvicorn running on" in line:
                 ready = True
@@ -286,6 +351,18 @@ def _start_girest_server(gst_pipeline, sse_only=False, port=9000):
     
     base_url = f"http://localhost:{port}"
     
+    # Start a background thread to capture server output during test
+    def capture_output():
+        try:
+            for line in process.stdout:
+                log_file.write(line)
+                log_file.flush()
+        except:
+            pass
+    
+    output_thread = threading.Thread(target=capture_output, daemon=True)
+    output_thread.start()
+    
     yield base_url
     
     # Cleanup: terminate the server
@@ -297,6 +374,13 @@ def _start_girest_server(gst_pipeline, sse_only=False, port=9000):
         print(f"⚠ Server didn't terminate gracefully, killing it")
         process.kill()
         process.wait()
+    
+    # Wait for output thread to finish reading remaining output (with timeout)
+    output_thread.join(timeout=2.0)
+    
+    # Close log file
+    log_file.close()
+    print(f"✓ Server logs saved to: {log_path}")
 
 
 # ============================================================================
@@ -348,6 +432,9 @@ async def callback_server():
             # Parse callback data
             data = await request.json()
             
+            # Extract correlation ID from callback data (sent by server for thread affinity)
+            correlation_id = data.get('correlationId')
+            
             # Store the callback data
             if callback_id not in received_callbacks:
                 received_callbacks[callback_id] = []
@@ -361,8 +448,22 @@ async def callback_server():
             response_value = None
             if callback_id in callback_handlers:
                 handler = callback_handlers[callback_id]
-                # Call the custom handler with the callback data
-                response_value = handler(data)
+                
+                # Call the custom handler in a thread pool to avoid blocking the event loop
+                # This allows the HTTP server to handle reentrant requests from within callbacks
+                # We need to set the correlation ID in the thread pool thread, not here
+                import asyncio
+                
+                def handler_with_correlation_id():
+                    # Set correlation ID for automatic propagation in reentrant calls
+                    try:
+                        set_active_correlation_id(correlation_id)
+                        return handler(data)
+                    finally:
+                        # Clean up correlation ID
+                        set_active_correlation_id(None)
+                
+                response_value = await asyncio.to_thread(handler_with_correlation_id)
             else:
                 # Default response for sync callbacks: return True to continue iteration
                 response_value = True

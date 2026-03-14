@@ -6,7 +6,9 @@ import logging
 import json
 import asyncio
 import threading
+import queue
 from collections import deque
+from typing import Dict, Any, Optional
 
 import connexion
 from connexion.resolver import Resolver, Resolution
@@ -29,6 +31,257 @@ except ImportError:
 from .callbacks import CallbackHandler
 
 logger = logging.getLogger("girest")
+
+
+# ============================================================================
+# Helper Classes for Frida Communication
+# ============================================================================
+
+class FridaCommandSerializer:
+    """Serializes Python API calls into Frida command format."""
+    
+    @staticmethod
+    def serialize_call(symbol: str, method_info: dict, args: list) -> dict:
+        """
+        Serialize a function/method call.
+        
+        Args:
+            symbol: Native function symbol name
+            method_info: GI method metadata (JSON representation)
+            args: List of arguments
+            
+        Returns:
+            Command dictionary for Frida
+        """
+        return {
+            "type": "call",
+            "symbol": symbol,
+            "method_info": method_info,
+            "args": args
+        }
+    
+    @staticmethod
+    def serialize_get_field(struct_ptr: str, offset: int, field_type: dict) -> dict:
+        """
+        Serialize a get_field operation.
+        
+        Args:
+            struct_ptr: Pointer to struct
+            offset: Field offset in bytes
+            field_type: Field type metadata
+            
+        Returns:
+            Command dictionary for Frida
+        """
+        return {
+            "type": "get_field",
+            "ptr": struct_ptr,
+            "offset": offset,
+            "field_type": field_type
+        }
+    
+    @staticmethod
+    def serialize_set_field(struct_ptr: str, offset: int, field_type: dict, value: Any) -> dict:
+        """
+        Serialize a set_field operation.
+        
+        Args:
+            struct_ptr: Pointer to struct
+            offset: Field offset in bytes
+            field_type: Field type metadata
+            value: Value to set
+            
+        Returns:
+            Command dictionary for Frida
+        """
+        return {
+            "type": "set_field",
+            "ptr": struct_ptr,  # Changed from "struct_ptr" to match run() dispatcher
+            "offset": offset,
+            "field_type": field_type,
+            "value": value
+        }
+    
+    @staticmethod
+    def serialize_alloc(size: int) -> dict:
+        """
+        Serialize a memory allocation.
+        
+        Args:
+            size: Number of bytes to allocate
+            
+        Returns:
+            Command dictionary for Frida
+        """
+        return {
+            "type": "alloc",
+            "size": size
+        }
+    
+    @staticmethod
+    def serialize_free(ptr: str) -> dict:
+        """
+        Serialize a memory free.
+        
+        Args:
+            ptr: Pointer to free
+            
+        Returns:
+            Command dictionary for Frida
+        """
+        return {
+            "type": "free",
+            "ptr": ptr
+        }
+
+
+class FridaMessageBus:
+    """
+    Manages bidirectional communication with Frida script.
+    
+    Handles two communication patterns:
+    1. RPC calls: Direct synchronous calls via exports_sync.run()
+    2. Queued calls: Asynchronous message-based calls with correlation IDs
+       (used for reentrant calls from callback context)
+    """
+    
+    def __init__(self, script):
+        """
+        Initialize the message bus.
+        
+        Args:
+            script: Frida script instance
+        """
+        self.script = script
+        self._queued_responses: Dict[str, queue.Queue] = {}
+        self._response_lock = threading.Lock()
+    
+    def execute(self, command: dict, headers: dict, is_async: bool = False, timeout: float = 30.0) -> Any:
+        """
+        Execute command via appropriate channel based on headers.
+        
+        Checks for X-Correlation-Id header to determine execution path:
+        - If present: Uses queued execution (for callback context/thread affinity)
+        - If absent: Uses direct RPC execution
+        
+        Args:
+            command: Serialized command dictionary
+            headers: HTTP request headers (should be connexion.request.headers or dict-like)
+            is_async: If True with correlation_id, fire-and-forget (don't wait for response)
+            timeout: Timeout in seconds
+            
+        Returns:
+            Result from Frida (None if is_async=True)
+            
+        Raises:
+            TimeoutError: If response not received within timeout
+            Exception: If Frida reports an error
+        """
+        correlation_id = headers.get('X-Correlation-Id')
+        
+        if correlation_id:
+            return self._execute_queued(command, correlation_id, is_async, timeout)
+        else:
+            return self._execute_direct(command, timeout)
+    
+    def _execute_direct(self, command: dict, timeout: float = 30.0) -> Any:
+        """
+        Execute command directly via RPC (blocking).
+        Used for normal API calls without correlation ID.
+        
+        Args:
+            command: Serialized command dictionary
+            timeout: Timeout in seconds (currently not enforced for RPC)
+            
+        Returns:
+            Result from Frida
+        """
+        command_json = json.dumps(command)
+        return self.script.exports_sync.run(command_json)
+    
+    def _execute_queued(self, command: dict, correlation_id: str, is_async: bool = False, timeout: float = 30.0) -> Any:
+        """
+        Execute command via message queue (for callback context).
+        Sends command to Frida and waits for response via on_message.
+        
+        This is used for reentrant API calls from within callbacks, ensuring
+        the command executes on the correct Frida thread (the callback thread).
+        
+        Args:
+            command: Serialized command dictionary
+            correlation_id: Correlation ID for routing to callback thread
+            is_async: If True, fire-and-forget (don't wait for response)
+            timeout: Timeout in seconds
+            
+        Returns:
+            Result from Frida (None if is_async=True)
+            
+        Raises:
+            TimeoutError: If response not received within timeout
+            Exception: If Frida reports an error
+        """
+        # Serialize command to JSON string
+        command_json = json.dumps(command)
+        
+        # Send queued-call message to Frida using callback-specific type
+        # The Frida callback's recv() loop will receive this on the correct thread
+        self.script.post({
+            "type": f"callback-{correlation_id}",
+            "kind": "queued-call",
+            "correlation_id": correlation_id,
+            "command": command_json,
+            "is_async": is_async
+        })
+        
+        # If async, don't wait for response
+        if is_async:
+            logger.debug(f"Async queued call sent for correlation_id={correlation_id} (fire-and-forget)")
+            return None
+        
+        # For synchronous calls, create response queue and wait
+        response_queue = queue.Queue(maxsize=1)
+        
+        with self._response_lock:
+            self._queued_responses[correlation_id] = response_queue
+        
+        try:
+            # Wait for response (blocks until message arrives)
+            try:
+                response = response_queue.get(timeout=timeout)
+            except queue.Empty:
+                raise TimeoutError(
+                    f"Queued call timed out after {timeout}s for correlation_id={correlation_id}"
+                )
+            
+            # Check for errors from Frida
+            if not response.get("success", True):
+                error = response.get("error", "Unknown error")
+                raise Exception(f"Frida execution failed: {error}")
+            
+            return response.get("result")
+            
+        finally:
+            # Cleanup: remove queue to prevent memory leaks
+            with self._response_lock:
+                self._queued_responses.pop(correlation_id, None)
+    
+    def handle_response_message(self, correlation_id: str, response: dict):
+        """
+        Called from on_message when a queued-call-response arrives.
+        Wakes up the thread waiting in execute_queued().
+        
+        Args:
+            correlation_id: Correlation ID of the response
+            response: Response payload from Frida
+        """
+        with self._response_lock:
+            if correlation_id in self._queued_responses:
+                response_queue = self._queued_responses[correlation_id]
+                response_queue.put(response)
+            else:
+                logger.warning(
+                    f"Received queued-call-response for unknown correlation_id: {correlation_id}"
+                )
 
 
 class GIResolver(Resolver):
@@ -228,8 +481,17 @@ class FridaResolver(GIResolver):
         self._callback_registry = {}
         # SSE mode flag
         self.sse_only = sse_only
+        
+        # Initialize helper classes for Frida communication
+        self.command_serializer = FridaCommandSerializer()
+        self.message_bus = None  # Will be initialized after Frida connection
+        
         # Connect to the corresponding process
         self._connect_frida(scripts, on_log, on_message)
+        
+        # Initialize message bus with the Frida script
+        self.message_bus = FridaMessageBus(self.scripts[0])
+        
         super().__init__(sse_buffer_size)
  
     def _build_enum_mappings(self):
@@ -292,6 +554,12 @@ class FridaResolver(GIResolver):
         payload = message.get("payload", {})
         kind = payload.get("kind")
         
+        # Handle queued call responses (for reentrant calls from callbacks)
+        if kind == "queued-call-response":
+            correlation_id = payload.get("correlation_id")
+            self.message_bus.handle_response_message(correlation_id, payload)
+            return
+        
         # Handle callbacks
         if kind == "callback":
             callback_data = payload["data"]
@@ -312,7 +580,8 @@ class FridaResolver(GIResolver):
                     logger.error(f"Callback {callback_id} not found in registry")
                     # Still need to unlock Frida with a null result
                     self.scripts[0].post({
-                        "type": "callback-response",
+                        "type": f"callback-{callback_id}",
+                        "kind": "callback-response",
                         "callback_id": callback_id,
                         "result": None
                     })
@@ -324,7 +593,8 @@ class FridaResolver(GIResolver):
                     logger.error(f"Callback {callback_id} does not have a handler")
                     # Still need to unlock Frida with a null result
                     self.scripts[0].post({
-                        "type": "callback-response",
+                        "type": f"callback-{callback_id}",
+                        "kind": "callback-response",
                         "callback_id": callback_id,
                         "result": None
                     })
@@ -350,11 +620,13 @@ class FridaResolver(GIResolver):
                 def handle_callback_in_thread():
                     nonlocal result
                     # All callbacks handled uniformly
-                    result = handler.invoke(callback_name, args)
+                    # Pass callback_id for correlation tracking (thread affinity)
+                    result = handler.invoke(callback_name, callback_id, args)
                     
                     # Unlock Frida thread with the result
                     self.scripts[0].post({
-                        "type": "callback-response",
+                        "type": f"callback-{callback_id}",
+                        "kind": "callback-response",
                         "callback_id": callback_id,
                         "result": result
                     })
@@ -801,10 +1073,14 @@ class FridaResolver(GIResolver):
                 )
                 return { "return": result }
             else:
-                # Call the Frida script's generic alloc function
+                # Serialize the command
+                command = self.command_serializer.serialize_call(symbol, _type, [])
+                
+                # Execute command (handles correlation ID internally)
                 result = await asyncio.to_thread(
-                    self.scripts[0].exports_sync.call, symbol, _type
+                    self.message_bus.execute, command, connexion.request.headers
                 )
+                
                 return result
 
         return get_type_handler
@@ -820,10 +1096,14 @@ class FridaResolver(GIResolver):
             size = 0  # This might need specific handling per type
         
         async def generic_new_handler(*args, **kwargs):
-            # Call the Frida script's generic alloc function
+            # Serialize the command
+            command = self.command_serializer.serialize_alloc(size)
+            
+            # Execute command (handles correlation ID internally)
             result = await asyncio.to_thread(
-                self.scripts[0].exports_sync.alloc, size
+                self.message_bus.execute, command, connexion.request.headers
             )
+            
             return {"return": {"ptr": result}}
         
         return generic_new_handler
@@ -838,10 +1118,14 @@ class FridaResolver(GIResolver):
             if not "ptr" in obj:
                 raise ValueError("Missing 'ptr' value")
 
-            # Call the Frida script's generic free function
+            # Serialize the command
+            command = self.command_serializer.serialize_free(obj["ptr"])
+            
+            # Execute command (handles correlation ID internally)
             await asyncio.to_thread(
-                self.scripts[0].exports_sync.free, obj["ptr"]
+                self.message_bus.execute, command, connexion.request.headers
             )
+            
             return None
         
         return generic_free_handler
@@ -889,9 +1173,14 @@ class FridaResolver(GIResolver):
             if not "ptr" in obj:
                 raise ValueError("Missing 'ptr' value")
 
-            # Call the ref function through Frida
+            # Serialize the command
+            command = self.command_serializer.serialize_call(
+                symbol, _type, [obj["ptr"]]
+            )
+            
+            # Execute command (handles correlation ID internally)
             result = await asyncio.to_thread(
-                self.scripts[0].exports_sync.call, symbol, _type, obj["ptr"]
+                self.message_bus.execute, command, connexion.request.headers
             )
             
             return {"return": {"ptr": result["return"]}}
@@ -941,9 +1230,14 @@ class FridaResolver(GIResolver):
             if not "ptr" in obj:
                 raise ValueError("Missing 'ptr' value")
 
-            # Call the unref function through Frida
+            # Serialize the command
+            command = self.command_serializer.serialize_call(
+                symbol, _type, [obj["ptr"]]
+            )
+            
+            # Execute command (handles correlation ID internally)
             await asyncio.to_thread(
-                self.scripts[0].exports_sync.call, symbol, _type, obj["ptr"]
+                self.message_bus.execute, command, connexion.request.headers
             )
             
             return None
@@ -1034,12 +1328,14 @@ class FridaResolver(GIResolver):
             if not "ptr" in obj:
                 raise ValueError("Missing 'ptr' value")
             
-            # Call the Frida script's get function
+            # Serialize the command
+            command = self.command_serializer.serialize_get_field(
+                obj["ptr"], offset, field_type_json
+            )
+            
+            # Execute command (handles correlation ID internally)
             raw_result = await asyncio.to_thread(
-                self.scripts[0].exports_sync.get_field, 
-                obj["ptr"], 
-                offset, 
-                field_type_json
+                self.message_bus.execute, command, connexion.request.headers
             )
             
             # Wrap in result dictionary
@@ -1069,13 +1365,14 @@ class FridaResolver(GIResolver):
             if isinstance(value, dict) and 'ptr' in value:
                 value = value['ptr']
             
-            # Call the Frida script's set function
+            # Serialize the command
+            command = self.command_serializer.serialize_set_field(
+                obj["ptr"], offset, field_type_json, value
+            )
+            
+            # Execute command (handles correlation ID internally)
             await asyncio.to_thread(
-                self.scripts[0].exports_sync.set_field, 
-                obj["ptr"], 
-                offset, 
-                field_type_json,
-                value
+                self.message_bus.execute, command, connexion.request.headers
             )
             
             return None
@@ -1105,9 +1402,17 @@ class FridaResolver(GIResolver):
                 "type": {"name": "pointer", "subtype": None}
             }
             _type["arguments"].append(ra)
-            await asyncio.to_thread(
-                self.scripts[0].exports_sync.call, "g_list_free", _type, *converted_kwargs.values()
+            
+            # Serialize the command
+            command = self.command_serializer.serialize_call(
+                "g_list_free", _type, list(converted_kwargs.values())
             )
+            
+            # Execute command (handles correlation ID internally)
+            await asyncio.to_thread(
+                self.message_bus.execute, command, connexion.request.headers
+            )
+        
         return func
 
     def _create_signal_connect_handler(self, namespace, class_name, signal_name, operation):
@@ -1259,17 +1564,24 @@ class FridaResolver(GIResolver):
                 callback_secret
             )
             
-            # Call g_signal_connect_data via the regular call mechanism
-            # Parameters: instance, detailed_signal, c_handler, connect_flags
-            # Note: data and destroy_data have skip_in=True, so we don't pass them
-            result = await asyncio.to_thread(
-                self.scripts[0].exports_sync.call,
-                'g_signal_connect_data',
-                connect_func_signature,
+            # Prepare arguments for g_signal_connect_data
+            args = [
                 instance_ptr,  # instance as a pointer string, not an object
                 signal_name,
                 callback_id,  # c_handler - Frida will create GCallback for this
                 connect_flags
+            ]
+            
+            # Serialize the command
+            command = self.command_serializer.serialize_call(
+                'g_signal_connect_data',
+                connect_func_signature,
+                args
+            )
+            
+            # Execute command (handles correlation ID internally)
+            result = await asyncio.to_thread(
+                self.message_bus.execute, command, connexion.request.headers
             )
             
             return result
@@ -1292,6 +1604,31 @@ class FridaResolver(GIResolver):
 
             # Headers
             headers = connexion.request.headers
+            
+            # Check for correlation ID (reentrant call from callback)
+            correlation_id = headers.get('X-Correlation-Id')
+            
+            # Check for async execution preference
+            prefer_header = headers.get('Prefer', '')
+            is_async_requested = 'respond-async' in prefer_header
+            
+            # Determine if this is a void function using _type (JSON representation)
+            # Check return type - returns is a dict like {"name": "void", "subtype": None}
+            returns_void = _type.get("returns", {}).get("name") == "void"
+            
+            # Check for output parameters
+            has_out_params = any(
+                arg.get("direction") in [GIRepository.Direction.OUT, GIRepository.Direction.INOUT]
+                for arg in _type.get("arguments", [])
+            )
+            
+            is_true_void = returns_void and not has_out_params
+            
+            # If async execution is requested but function is not void, reject it
+            if is_async_requested and not is_true_void:
+                return {
+                    "error": "Prefer: respond-async is only supported for void functions (no return value, no output parameters)"
+                }, 400
             
             # Convert enum string values to integers before calling Frida
             converted_kwargs = {}
@@ -1323,11 +1660,45 @@ class FridaResolver(GIResolver):
                     if info_type == GIRepository.InfoType.CALLBACK:
                         callback_id = self._generate_callback(None, arg, info_type, headers)
                         callbacks[arg_name] = converted_kwargs[arg_name] = callback_id
-           
-            # Call the Frida script with the symbol and method JSON
-            # Use asyncio.to_thread to avoid blocking the event loop with the sync Frida call
+            
+            # Serialize the command
+            command = self.command_serializer.serialize_call(
+                symbol=symbol,
+                method_info=_type,
+                args=list(converted_kwargs.values())
+            )
+            
+            # Handle async execution (fire-and-forget)
+            if is_async_requested and is_true_void:
+                # For async execution WITH correlation ID:
+                # - Execute on callback thread (thread affinity)
+                # - But don't wait for completion (fire-and-forget)
+                # - Return 202 immediately
+                if correlation_id:
+                    # Async queued execution (thread affinity + fire-and-forget)
+                    logger.debug(f"Async queued execution for correlation_id={correlation_id}")
+                    # Send immediately (synchronous post, but async execution on Frida side)
+                    self.message_bus.execute_queued(command, correlation_id, is_async=True)
+                    # Return 202 immediately without waiting
+                    return "", 202, {"Preference-Applied": "respond-async"}
+                else:
+                    # Async direct execution (no thread affinity)
+                    async def execute_async():
+                        try:
+                            await asyncio.to_thread(
+                                self.message_bus.execute_direct, command
+                            )
+                        except Exception as e:
+                            logger.error(f"Async execution failed for {symbol}: {e}")
+                    
+                    asyncio.create_task(execute_async())
+                    return "", 202, {"Preference-Applied": "respond-async"}
+            
+            # Execute command via appropriate channel (synchronous execution)
             result = await asyncio.to_thread(
-                self.scripts[0].exports_sync.call, symbol, _type, *converted_kwargs.values()
+                self.message_bus.execute,
+                command,
+                headers
             )
 
             # Use common response parsing logic
