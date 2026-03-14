@@ -18,8 +18,15 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
-      "lib/gst.ts", // Generated file, skip linting
+      "lib/gst.ts", // Generated file, skip linting for now - TODO: fix generator to produce lint-compliant code
     ],
+  },
+  // Allow require() in .js files (CommonJS)
+  {
+    files: ["**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
   },
   {
     rules: {

@@ -9,6 +9,7 @@
  */
 
 interface PendingCallback {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolve: (result: any) => void;
   reject: (error: Error) => void;
   timeout: NodeJS.Timeout;
@@ -23,13 +24,14 @@ class CallbackManager {
   
   static getInstance(): CallbackManager {
     // Use global to ensure singleton across module contexts in Next.js
-    const globalAny = global as any;
-    if (!globalAny.__callbackManager) {
-      globalAny.__callbackManager = new CallbackManager();
+    const globalWithManager = global as typeof global & { __callbackManager?: CallbackManager };
+    if (!globalWithManager.__callbackManager) {
+      globalWithManager.__callbackManager = new CallbackManager();
     }
-    return globalAny.__callbackManager;
+    return globalWithManager.__callbackManager;
   }
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleResponse(invocationId: string, result: any) {
     console.log(`[CallbackManager] Received callback response for ${invocationId}:`, result);
     console.log(`[CallbackManager] Pending callbacks:`, Array.from(this.pendingCallbacks.keys()));
@@ -46,6 +48,7 @@ class CallbackManager {
   
   registerCallback(
     invocationId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: (result: any) => void,
     reject: (error: Error) => void,
     timeoutMs: number = 30000
@@ -59,7 +62,9 @@ class CallbackManager {
     console.log(`[CallbackManager] Registered pending callback ${invocationId} (total pending: ${this.pendingCallbacks.size})`);
   }
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createPromise(invocationId: string, timeoutMs: number = 30000): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new Promise<any>((resolve, reject) => {
       this.registerCallback(invocationId, resolve, reject, timeoutMs);
     });
@@ -67,10 +72,12 @@ class CallbackManager {
 }
 
 // Export functions that use the singleton
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function handleCallbackResponse(invocationId: string, result: any) {
   CallbackManager.getInstance().handleResponse(invocationId, result);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createCallbackPromise(invocationId: string, timeoutMs: number = 30000): Promise<any> {
   return CallbackManager.getInstance().createPromise(invocationId, timeoutMs);
 }

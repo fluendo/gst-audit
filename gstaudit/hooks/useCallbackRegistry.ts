@@ -10,11 +10,13 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { getCallbackHandler } from '@/lib/gst';
+import type { ClientCallbackHandler } from '@/lib/callbacks';
 
 interface CallbackMessage {
   type: string;
   callbackId: string;
   invocationId?: string;  // Unique ID for this specific invocation
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any;
 }
 
@@ -36,15 +38,17 @@ interface CallbackRegistryReturn {
 // Shared WebSocket Manager (Singleton per sessionId)
 // ============================================================================
 
+interface WebSocketListener {
+  onConnect?: () => void;
+  onDisconnect?: () => void;
+  onError?: (error: Error) => void;
+}
+
 interface WebSocketInstance {
-  ws: WebSocket;
+  ws: WebSocket | null;
   refCount: number;
   isConnected: boolean;
-  listeners: Set<{
-    onConnect?: () => void;
-    onDisconnect?: () => void;
-    onError?: (error: Error) => void;
-  }>;
+  listeners: Set<WebSocketListener>;
   reconnectTimeout?: NodeJS.Timeout;
 }
 
@@ -62,7 +66,7 @@ function getOrCreateWebSocket(
     console.log(`[WebSocketManager] Creating new WebSocket instance for session: ${sessionId}`);
 
     instance = {
-      ws: null as any, // Will be set in connect()
+      ws: null,
       refCount: 0,
       isConnected: false,
       listeners: new Set(),
@@ -172,7 +176,7 @@ function handleCallbackMessage(message: CallbackMessage, ws: WebSocket) {
   }
 
   // Look up the callback in ClientCallbackHandler using the registration callbackId
-  const callbackInfo = (handler as any).getCallback?.(message.callbackId);
+  const callbackInfo = (handler as ClientCallbackHandler).getCallback?.(message.callbackId);
   if (!callbackInfo) {
     console.warn(`[WebSocketManager] Callback not found: ${message.callbackId}`);
     return;
@@ -227,7 +231,7 @@ function addListener(
 
 function removeListener(
   sessionId: string,
-  listener: any
+  listener: WebSocketListener
 ) {
   const instance = wsInstances.get(sessionId);
   if (instance) {
@@ -269,7 +273,7 @@ export function useCallbackRegistry(
   } = options;
 
   const [isConnected, setIsConnected] = useState(false);
-  const listenerRef = useRef<any>(null);
+  const listenerRef = useRef<WebSocketListener | null>(null);
   const prevAutoConnectRef = useRef<boolean>(autoConnect);
   const prevWsUrlRef = useRef<string>(wsUrl);
   

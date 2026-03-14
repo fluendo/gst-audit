@@ -7,6 +7,7 @@ with real GIRest endpoints that have object parameters in the URL.
 """
 
 import pytest
+
 from girest.main import GIRest
 from girest.uri_parser import URITemplateParser
 from girest.validators import GIRestParameterValidator
@@ -15,26 +16,26 @@ from girest.validators import GIRestParameterValidator
 def test_object_in_path_parameter():
     """Test that path parameters with object schemas are handled correctly."""
     # Generate a real schema
-    girest = GIRest('Gst', '1.0')
+    girest = GIRest("Gst", "1.0")
     spec = girest.generate()
     spec_dict = spec.to_dict()
-    
+
     # Find an endpoint with an object in the path
-    path = '/Gst/AllocationParams/{self}/copy'
-    operation = spec_dict['paths'][path]['get']
-    
+    path = "/Gst/AllocationParams/{self}/copy"
+    operation = spec_dict["paths"][path]["get"]
+
     # Get the parameters
-    params = operation['parameters']
-    
+    params = operation["parameters"]
+
     # Create a URI parser with these parameters
     parser = URITemplateParser(params, {})
-    
+
     # Test parsing a path parameter with an object value
     # According to OpenAPI spec with style=simple, explode=false (default for path),
     # an object {"ptr": "0x12345"} should be serialized as "ptr,0x12345"
     path_params = {"self": "ptr,0x12345"}
     resolved = parser.resolve_path(path_params)
-    
+
     assert "self" in resolved
     # The value should be parsed correctly as a dict with ptr
     assert resolved["self"] == {"ptr": "0x12345"}, f"Expected {{'ptr': '0x12345'}}, got {resolved['self']}"
@@ -43,31 +44,31 @@ def test_object_in_path_parameter():
 def test_allof_schema_in_path():
     """Test that path parameters with allOf schemas are handled correctly."""
     # Generate a real schema
-    girest = GIRest('Gst', '1.0')
+    girest = GIRest("Gst", "1.0")
     spec = girest.generate()
     spec_dict = spec.to_dict()
-    
+
     # Find an endpoint with an object that has allOf (inheritance)
     # Look for a GObject method since GObject has inheritance
     path = None
-    for p, path_item in spec_dict['paths'].items():
-        if 'GObject/Binding' in p and '{self}' in p:
+    for p, path_item in spec_dict["paths"].items():
+        if "GObject/Binding" in p and "{self}" in p:
             path = p
             break
-    
+
     if path is None:
         pytest.skip("Could not find a suitable endpoint with allOf schema")
-    
-    operation = spec_dict['paths'][path]['get']
-    params = operation['parameters']
-    
+
+    operation = spec_dict["paths"][path]["get"]
+    params = operation["parameters"]
+
     # Create a URI parser with these parameters
     parser = URITemplateParser(params, {})
-    
+
     # Test parsing with a pointer value in object serialization format
     path_params = {"self": "ptr,12345"}  # Serialized object with ptr property
     resolved = parser.resolve_path(path_params)
-    
+
     assert "self" in resolved
     assert resolved["self"] == {"ptr": "12345"}, f"Expected {{'ptr': '12345'}}, got {resolved['self']}"
 
@@ -79,36 +80,23 @@ def test_validator_handles_pointer_schema():
         "name": "self",
         "in": "path",
         "required": True,
-        "schema": {
-            "oneOf": [
-                {"type": "integer"},
-                {"type": "string", "pattern": "^0x[0-9a-fA-F]+$|^[0-9]+$"}
-            ]
-        }
+        "schema": {"oneOf": [{"type": "integer"}, {"type": "string", "pattern": "^0x[0-9a-fA-F]+$|^[0-9]+$"}]},
     }
-    
+
     # Test with integer pointer
-    error = GIRestParameterValidator.validate_parameter(
-        "path", 12345, param
-    )
+    error = GIRestParameterValidator.validate_parameter("path", 12345, param)
     assert error is None, f"Integer pointer should be valid, got error: {error}"
-    
+
     # Test with hex string pointer
-    error = GIRestParameterValidator.validate_parameter(
-        "path", "0x12345", param
-    )
+    error = GIRestParameterValidator.validate_parameter("path", "0x12345", param)
     assert error is None, f"Hex string pointer should be valid, got error: {error}"
-    
+
     # Test with decimal string pointer
-    error = GIRestParameterValidator.validate_parameter(
-        "path", "12345", param
-    )
+    error = GIRestParameterValidator.validate_parameter("path", "12345", param)
     assert error is None, f"Decimal string pointer should be valid, got error: {error}"
-    
+
     # Test with invalid pointer
-    error = GIRestParameterValidator.validate_parameter(
-        "path", "invalid", param
-    )
+    error = GIRestParameterValidator.validate_parameter("path", "invalid", param)
     assert error is not None, "Invalid pointer should fail validation"
 
 
@@ -121,27 +109,18 @@ def test_struct_schema_validation():
         "schema": {
             "type": "object",
             "properties": {
-                "ptr": {
-                    "oneOf": [
-                        {"type": "integer"},
-                        {"type": "string", "pattern": "^0x[0-9a-fA-F]+$|^[0-9]+$"}
-                    ]
-                }
+                "ptr": {"oneOf": [{"type": "integer"}, {"type": "string", "pattern": "^0x[0-9a-fA-F]+$|^[0-9]+$"}]}
             },
-            "required": ["ptr"]
-        }
+            "required": ["ptr"],
+        },
     }
-    
+
     # Test with valid object
-    error = GIRestParameterValidator.validate_parameter(
-        "path", {"ptr": 12345}, param
-    )
+    error = GIRestParameterValidator.validate_parameter("path", {"ptr": 12345}, param)
     assert error is None, f"Valid struct object should pass, got error: {error}"
-    
+
     # Test with hex pointer
-    error = GIRestParameterValidator.validate_parameter(
-        "path", {"ptr": "0x12345"}, param
-    )
+    error = GIRestParameterValidator.validate_parameter("path", {"ptr": "0x12345"}, param)
     assert error is None, f"Struct with hex pointer should pass, got error: {error}"
 
 
@@ -153,28 +132,18 @@ def test_object_with_allof_validation():
         "required": True,
         "schema": {
             "allOf": [
-                {
-                    "type": "object",
-                    "properties": {"ptr": {"type": "integer"}},
-                    "required": ["ptr"]
-                },
-                {
-                    "type": "object"
-                }
+                {"type": "object", "properties": {"ptr": {"type": "integer"}}, "required": ["ptr"]},
+                {"type": "object"},
             ]
-        }
+        },
     }
-    
+
     # Test with valid object
-    error = GIRestParameterValidator.validate_parameter(
-        "query", {"ptr": 12345}, param
-    )
+    error = GIRestParameterValidator.validate_parameter("query", {"ptr": 12345}, param)
     assert error is None, f"Object matching allOf should pass, got error: {error}"
-    
+
     # Test with missing required property
-    error = GIRestParameterValidator.validate_parameter(
-        "query", {}, param
-    )
+    error = GIRestParameterValidator.validate_parameter("query", {}, param)
     assert error is not None, "Object missing required property should fail"
 
 
@@ -184,27 +153,21 @@ def test_form_style_explode_query_params():
         {
             "name": "filter",
             "in": "query",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "value": {"type": "integer"}
-                }
-            },
+            "schema": {"type": "object", "properties": {"name": {"type": "string"}, "value": {"type": "integer"}}},
             "style": "form",
             "explode": True,
-            "required": False
+            "required": False,
         }
     ]
-    
+
     parser = URITemplateParser(params, {})
-    
+
     # Test with an object parameter
     # In form style with explode, this would typically be passed as name=test&value=42
     # But we're testing the parser handles object values
     query_params = {"filter": [{"name": "test", "value": 42}]}
     resolved = parser.resolve_query(query_params)
-    
+
     assert "filter" in resolved
     assert isinstance(resolved["filter"], dict)
 
@@ -212,25 +175,22 @@ def test_form_style_explode_query_params():
 def test_integration_with_real_endpoint():
     """Integration test using a real GIRest endpoint schema."""
     # Generate the schema
-    girest = GIRest('Gst', '1.0')
+    girest = GIRest("Gst", "1.0")
     spec = girest.generate()
     spec_dict = spec.to_dict()
-    
+
     # Get a method endpoint
-    path = '/Gst/AllocationParams/{self}/copy'
-    operation = spec_dict['paths'][path]['get']
-    params = operation['parameters']
-    
+    path = "/Gst/AllocationParams/{self}/copy"
+    operation = spec_dict["paths"][path]["get"]
+    params = operation["parameters"]
+
     # Create parser
     parser = URITemplateParser(params, {})
-    
+
     # Parse path with object in serialized format (style=simple, explode=false)
     path_data = {"self": "ptr,0x7fff12345678"}
     resolved = parser.resolve_path(path_data)
-    
-    # Validate the parameter
-    self_param = [p for p in params if p['name'] == 'self'][0]
-    
+
     # The validator should accept the resolved value
     # The resolved value should be an object with ptr property
     assert "self" in resolved

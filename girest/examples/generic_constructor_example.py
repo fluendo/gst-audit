@@ -11,15 +11,13 @@ Note: This requires a running GIRest server attached to a process.
 For this demo, we just show the generated schema and TypeScript.
 """
 
-import sys
 import os
-import json
+import sys
 
 # Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from girest.main import GIRest
-from girest.generator import TypeScriptGenerator
 
 
 def show_gvalue_example():
@@ -28,52 +26,52 @@ def show_gvalue_example():
     print("EXAMPLE: Using Generic Constructor for GObject.Value")
     print("=" * 80)
     print()
-    
+
     # Generate schema
-    girest = GIRest('GObject', '2.0')
+    girest = GIRest("GObject", "2.0")
     spec = girest.generate()
     schema = spec.to_dict()
-    
+
     # Show the endpoints
     print("1. Generic Constructor Endpoint")
     print("-" * 80)
-    new_path = '/GObject/Value/new'
-    operation = schema['paths'][new_path]['get']
-    
+    new_path = "/GObject/Value/new"
+    operation = schema["paths"][new_path]["get"]
+
     print(f"Endpoint: GET {new_path}")
     print(f"Operation ID: {operation['operationId']}")
-    print(f"Returns: pointer to allocated GValue")
+    print("Returns: pointer to allocated GValue")
     print()
     print("Example curl command:")
     print(f"  curl http://localhost:9000{new_path}")
     print('  # Returns: {"return": "0x7f1234567890"}')
     print()
-    
+
     print("2. Generic Destructor Endpoint")
     print("-" * 80)
-    free_path = '/GObject/Value/{self}/free'
-    operation = schema['paths'][free_path]['get']
-    
+    free_path = "/GObject/Value/{self}/free"
+    operation = schema["paths"][free_path]["get"]
+
     print(f"Endpoint: GET {free_path}")
     print(f"Operation ID: {operation['operationId']}")
-    print(f"Parameter: self (pointer to free)")
-    print(f"Returns: 204 No Content")
+    print("Parameter: self (pointer to free)")
+    print("Returns: 204 No Content")
     print()
     print("Example curl command:")
-    print('  curl http://localhost:9000/GObject/Value/0x7f1234567890/free')
+    print("  curl http://localhost:9000/GObject/Value/0x7f1234567890/free")
     print()
-    
+
     print("3. Using GValue Methods")
     print("-" * 80)
     # Find some GValue methods
-    value_methods = [p for p in schema['paths'] if '/Value/' in p and p != new_path and p != free_path]
+    value_methods = [p for p in schema["paths"] if "/Value/" in p and p != new_path and p != free_path]
     print(f"GValue has {len(value_methods)} methods available")
     print("Examples:")
     for path in value_methods[:5]:
-        method_name = path.split('/')[-1]
+        method_name = path.split("/")[-1]
         print(f"  - {method_name}")
     print()
-    
+
     print("4. Complete Usage Flow")
     print("-" * 80)
     print("""
@@ -94,7 +92,7 @@ $ curl "http://localhost:9000/GObject/Value/0x7f1234567890/get_int"
 # Step 5: Free the memory
 $ curl http://localhost:9000/GObject/Value/0x7f1234567890/free
     """)
-    
+
     print("5. TypeScript Usage")
     print("-" * 80)
     print("""
@@ -127,31 +125,31 @@ def show_gst_meta_example():
     print("EXAMPLE: Using Generic Constructor for Gst.Meta")
     print("=" * 80)
     print()
-    
+
     # Generate schema
-    girest = GIRest('Gst', '1.0')
+    girest = GIRest("Gst", "1.0")
     spec = girest.generate()
     schema = spec.to_dict()
-    
+
     # Show the endpoints
-    new_path = '/Gst/Meta/new'
-    operation = schema['paths'][new_path]['get']
-    
+    new_path = "/Gst/Meta/new"
+    operation = schema["paths"][new_path]["get"]
+
     print("1. GstMeta Allocation")
     print("-" * 80)
     print(f"Endpoint: GET {new_path}")
     print()
-    
+
     # Find GstMeta methods
-    meta_methods = [p for p in schema['paths'] if '/Meta/' in p and '/new' not in p and '/free' not in p]
+    meta_methods = [p for p in schema["paths"] if "/Meta/" in p and "/new" not in p and "/free" not in p]
     print(f"2. Available GstMeta Methods ({len(meta_methods)} total)")
     print("-" * 80)
     for path in meta_methods:
-        method_name = path.split('/')[-1]
-        operation = list(schema['paths'][path].values())[0]
+        method_name = path.split("/")[-1]
+        operation = list(schema["paths"][path].values())[0]
         print(f"  - {method_name:30} {operation.get('summary', '')}")
     print()
-    
+
     print("3. TypeScript Example")
     print("-" * 80)
     print("""
@@ -186,41 +184,41 @@ def show_summary():
     print("SUMMARY: All Structs with Generic Constructors")
     print("=" * 80)
     print()
-    
+
     # Collect from multiple namespaces
     all_structs = []
-    
-    for namespace, version in [('GObject', '2.0'), ('Gst', '1.0')]:
+
+    for namespace, version in [("GObject", "2.0"), ("Gst", "1.0")]:
         girest = GIRest(namespace, version)
         spec = girest.generate()
         schema = spec.to_dict()
-        
-        for path, operations in schema['paths'].items():
+
+        for path, operations in schema["paths"].items():
             for method, operation in operations.items():
-                if operation.get('x-gi-generic') and operation.get('x-gi-constructor'):
-                    op_id = operation['operationId']
-                    struct_name = op_id.replace(f'{namespace}-', '').replace('-new', '')
+                if operation.get("x-gi-generic") and operation.get("x-gi-constructor"):
+                    op_id = operation["operationId"]
+                    struct_name = op_id.replace(f"{namespace}-", "").replace("-new", "")
                     all_structs.append((namespace, struct_name))
-    
+
     # Group by namespace
     by_namespace = {}
     for ns, name in all_structs:
         if ns not in by_namespace:
             by_namespace[ns] = []
         by_namespace[ns].append(name)
-    
+
     for ns, structs in sorted(by_namespace.items()):
         print(f"{ns} Namespace ({len(structs)} structs):")
         print("-" * 80)
         for name in sorted(structs):
             print(f"  - {name}")
         print()
-    
+
     total = sum(len(s) for s in by_namespace.values())
     print(f"Total: {total} structs with generic constructors")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     show_gvalue_example()
     show_gst_meta_example()
     show_summary()

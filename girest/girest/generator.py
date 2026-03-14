@@ -1,7 +1,8 @@
-import os
 import logging
-from typing import List, Dict, Any, Optional, Set
-from jinja2 import Environment, FileSystemLoader, Template
+import os
+from typing import Any, Dict, List, Optional, Set
+
+from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
 
 try:
@@ -15,12 +16,13 @@ logger = logging.getLogger("girest")
 
 class Info:
     """Base class for all OpenAPI schema objects with dependency management."""
+
     info_type = None
 
-    def __init__(self, generator: 'Generator', schema_section: Dict[str, Any], parent: Optional['Info'] = None):
+    def __init__(self, generator: "Generator", schema_section: Dict[str, Any], parent: Optional["Info"] = None):
         """
         Initialize the Info object.
-        
+
         Args:
             generator: The generator instance
             schema_section: The section of the OpenAPI schema that belongs to this object
@@ -30,11 +32,11 @@ class Info:
         self.schema_section = schema_section
         self.parent = parent
         self.dependencies: Set[str] = set()
-    
+
     def add_dependency(self, dependency: str):
         """
         Add a dependency and propagate it to the parent if it exists.
-        
+
         Args:
             dependency: The name of the dependency to add
         """
@@ -59,19 +61,19 @@ class Info:
     def generate(self) -> str:
         """Generate the code based on the template."""
         # Try specific template first, then fallback to general
-        template_name = f'{self.info_type}_{self.id}.ts.j2'
+        template_name = f"{self.info_type}_{self.id}.ts.j2"
         try:
             template = self.generator.jinja_env.get_template(template_name)
         except TemplateNotFound:
-            template = self.generator.jinja_env.get_template(f'{self.info_type}.ts.j2')
+            template = self.generator.jinja_env.get_template(f"{self.info_type}.ts.j2")
         return template.render(**{self.info_type: self})
-        
+
 
 class Generator:
     def __init__(self, openapi_schema: Dict[str, Any], host: str = "localhost", port: int = 9000, base_path: str = ""):
         """
         Initialize the generator with an OpenAPI schema.
-        
+
         Args:
             openapi_schema: The OpenAPI schema dictionary from GIRest
             host: Host for REST API calls (default: 'localhost')
@@ -86,17 +88,13 @@ class Generator:
         self.port = port
         self.base_path = base_path
         self.base_url = f"http://{host}:{port}{base_path}"
-        
+
         # Cache for Schema objects to avoid recreating them
         self.schema_objects_cache: Dict[str, "Schema"] = {}
-        
+
         # Setup Jinja2 environment using template directory from subclass
         template_dir = self.get_template_dir()
-        self.jinja_env = Environment(
-            loader=FileSystemLoader(template_dir),
-            trim_blocks=True,
-            lstrip_blocks=True
-        )
+        self.jinja_env = Environment(loader=FileSystemLoader(template_dir), trim_blocks=True, lstrip_blocks=True)
 
     def add_schema(self, schema: "Schema"):
         self.schema_objects_cache[schema.name] = schema
@@ -105,11 +103,11 @@ class Generator:
         """Get the template directory path. Must be implemented by subclasses."""
         raise NotImplementedError("Subclasses must implement get_template_dir() method")
 
-    def get_valid_name(self, info: 'Info') -> str:
+    def get_valid_name(self, info: "Info") -> str:
         """
         Get a safe name for an Info object. Base implementation just returns the current name.
         Subclasses can override to handle language-specific naming conflicts.
-        
+
         Args:
             info: The Info object requesting a name
 
@@ -118,7 +116,7 @@ class Generator:
         """
         return info.name
 
-    def lang_type(self, t: 'Type') -> str:
+    def lang_type(self, t: "Type") -> str:
         raise NotImplementedError("Subclasses must implement the lang_type() method")
 
     def find_schema(self, name: str) -> Optional[Dict[str, Any]]:
@@ -132,18 +130,18 @@ class Generator:
             if schema_def:
                 schema_obj = Schema.create_schema(name, schema_def, self, None)
                 self.add_schema(schema_obj)
-        
+
         return self.schema_objects_cache[name]
 
-    def get_methods_for_schema(self, schema: 'Schema') -> List['Method']:
+    def get_methods_for_schema(self, schema: "Schema") -> List["Method"]:
         """Get all Method objects for a specific schema based on tag matching.
-        
+
         Takes a Schema object, finds all paths that have operations tagged with the schema name,
         and returns a list of Method objects created from those operations.
-        
+
         Args:
             schema: The Schema object to find operations for
-            
+
         Returns:
             List of Method objects created from matching operations
         """
@@ -155,24 +153,24 @@ class Generator:
             for method, operation in path_operations.items():
                 if method.lower() not in ["get", "post", "put", "delete", "patch"]:
                     continue
-                
+
                 tags = operation.get("tags", [])
                 if tags:
                     if tags[0] == schema.name:
                         path_matches = True
                         break
-            
+
             if path_matches:
-                 # Create Method object with operation dict, path, and http_method directly
-                 method_obj = Method(operation, path, method, schema, self)
-                 methods.append(method_obj)
-        
+                # Create Method object with operation dict, path, and http_method directly
+                method_obj = Method(operation, path, method, schema, self)
+                methods.append(method_obj)
+
         return methods
 
     def _create_namespace_schemas(self):
         """Create Namespace schema objects for tags that don't have corresponding component schemas.
-        
-        Searches all paths to find operations tagged with names that don't correspond to 
+
+        Searches all paths to find operations tagged with names that don't correspond to
         component schemas, and creates Namespace schema objects to hold those operations.
         """
         # Find all unique tags from operations
@@ -181,31 +179,31 @@ class Generator:
             for method, operation in path_operations.items():
                 if method.lower() not in ["get", "post", "put", "delete", "patch"]:
                     continue
-                
+
                 tags = operation.get("tags", [])
                 if tags:
                     operation_tags.add(tags[0])  # Use first tag as primary
-        
+
         # Find tags that don't correspond to component schemas
         for tag in operation_tags:
             if tag not in self.schemas:
                 # Create a Namespace schema with None schema definition
                 schema = Namespace(tag, self)
                 self.add_schema(schema)
-    
+
     def _get_callback_mode(self) -> str:
         """
         Get the callback mode from the OpenAPI schema info.
-        
+
         The callback mode is specified in the schema's info section via the
         x-girest-callback-mode vendor extension. This is set by GIRest when
         generating the schema based on the --sse-only flag.
-        
+
         Returns:
             str: "sse" for SSE mode, "url" for URL-based callbacks, defaults to "sse"
         """
         return self.schema.get("info", {}).get("x-girest-callback-mode", "sse")
-  
+
     def generate(self) -> str:
         """Generate complete TypeScript bindings."""
         title = self.schema.get("info", {}).get("title", "API")
@@ -218,13 +216,13 @@ class Generator:
                 self.add_schema(schema)
         # Now the tags without schemas
         self._create_namespace_schemas()
-        
+
         # Get callback mode from schema
         callback_mode = self._get_callback_mode()
-        sse_mode = (callback_mode == "sse")
+        sse_mode = callback_mode == "sse"
 
         # Generate main file
-        main_template = self.jinja_env.get_template('main.ts.j2')
+        main_template = self.jinja_env.get_template("main.ts.j2")
         return main_template.render(
             title=title,
             version=version,
@@ -236,11 +234,13 @@ class Generator:
             sse_mode=sse_mode,
         )
 
+
 class Type(Info):
     """Represents a type with its string representation and metadata."""
-    
+
     info_type = "type"
-    def __init__(self, schema: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
+
+    def __init__(self, schema: Dict[str, Any], generator: "Generator", parent: Optional["Info"] = None):
         super().__init__(generator, schema, parent)
         self._ref_schema = None
         self._component_name = None
@@ -290,9 +290,10 @@ class Type(Info):
 
 class Param(Info):
     """Represents a method parameter with all its metadata."""
-    
+
     info_type = "param"
-    def __init__(self, param_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
+
+    def __init__(self, param_def: Dict[str, Any], generator: "Generator", parent: Optional["Info"] = None):
         super().__init__(generator, param_def, parent)
         self._ref_callback = None
         self.type = Type(param_def.get("schema", {}), generator, self)
@@ -324,7 +325,7 @@ class Param(Info):
     @property
     def description(self) -> str:
         return self.schema_section.get("description", "")
-    
+
     @property
     def is_callback(self) -> bool:
         """Check if this parameter represents a callback (non-SSE mode)."""
@@ -357,9 +358,10 @@ class Param(Info):
 
 class ReturnParam(Info):
     """Represents a return parameter with its schema information specific to return values."""
-    
+
     info_type = "return_param"
-    def __init__(self, name: str, generator: 'Generator', schema: Dict[str, Any], parent: Optional['Info'] = None):
+
+    def __init__(self, name: str, generator: "Generator", schema: Dict[str, Any], parent: Optional["Info"] = None):
         super().__init__(generator, schema, parent)
         self._name = name
         self._type = Type(schema, generator, self)
@@ -373,7 +375,7 @@ class ReturnParam(Info):
         return self._name
 
     @property
-    def type(self) -> 'Type':
+    def type(self) -> "Type":
         return self._type
 
     @property
@@ -387,25 +389,25 @@ class ReturnParam(Info):
     @property
     def description(self) -> str:
         return self.schema_section.get("description", "")
-    
+
     @property
     def is_callback(self) -> bool:
         return "x-gi-callback" in self.schema_section
 
     @property
-    def callback(self) -> 'Callback':
+    def callback(self) -> "Callback":
         return self._callback
 
     def generate(self) -> str:
         # We should try "return_param_GObjectObject.ts.j2", "return_param_object.ts.j2" or "return_param.ts.j2"
         template_names = [
-            f'{self.info_type}_{self.type.lang_type}.ts.j2',
-            f'{self.info_type}_{self.type.type}.ts.j2',
+            f"{self.info_type}_{self.type.lang_type}.ts.j2",
+            f"{self.info_type}_{self.type.type}.ts.j2",
         ]
         if self.type.is_ref:
-            template_names.append(f'{self.info_type}_{self.type.ref_schema.info_type}.ts.j2')
+            template_names.append(f"{self.info_type}_{self.type.ref_schema.info_type}.ts.j2")
 
-        template_names.append(f'{self.info_type}.ts.j2')
+        template_names.append(f"{self.info_type}.ts.j2")
         for tn in template_names:
             try:
                 template = self.generator.jinja_env.get_template(tn)
@@ -414,17 +416,12 @@ class ReturnParam(Info):
                 pass
 
 
-
 class Schema(Info):
     """Base class for all schema types."""
-    
+
     info_type = "schema"
-    def __init__(
-            self,
-            name: str,
-            schema_def: Dict[str, Any],
-            generator: 'Generator',
-            parent: Optional['Info'] = None):
+
+    def __init__(self, name: str, schema_def: Dict[str, Any], generator: "Generator", parent: Optional["Info"] = None):
         super().__init__(generator, schema_def, parent)
         self._name = name
         self.parse_schema()
@@ -437,11 +434,13 @@ class Schema(Info):
         pass
 
     @classmethod
-    def create_schema(cls, name: str, schema_def: Optional[Dict[str, Any]], generator: 'Generator', parent: Optional['Info'] = None) -> 'Schema':
+    def create_schema(
+        cls, name: str, schema_def: Optional[Dict[str, Any]], generator: "Generator", parent: Optional["Info"] = None
+    ) -> "Schema":
         """Factory method to create appropriate schema type."""
         if schema_def is None:
             return Namespace(name, generator)
-        
+
         gi_type = schema_def.get("x-gi-type", "")
         if not gi_type:
             schema_type = schema_def.get("type")
@@ -462,23 +461,21 @@ class Schema(Info):
             return Object(name, schema_def, generator, parent)
         else:
             return Schema(name, schema_def, generator, parent)
-    
+
 
 class Enum(Schema):
     """Represents an GObject Enumeration schema."""
-    
+
     info_type = "enum"
-    def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
+
+    def __init__(self, name: str, schema_def: Dict[str, Any], generator: "Generator", parent: Optional["Info"] = None):
         super().__init__(name, schema_def, generator, parent)
         self._methods: List[Method] = self.generator.get_methods_for_schema(self)
 
     @property
     def values(self):
         return [
-            {
-                "const_name": value.upper().replace("-", "_").replace(".", "_"),
-                "value": value
-            }
+            {"const_name": value.upper().replace("-", "_").replace(".", "_"), "value": value}
             for value in self.schema_section.get("enum", [])
         ]
 
@@ -497,14 +494,16 @@ class Enum(Schema):
 
 class Flags(Enum):
     """Represents a GObject flags schema (bitfield enum)."""
-    
+
     info_type = "flags"
-    
+
 
 class Field(Schema):
     """Represents a GObject Callback parameter or generic field"""
+
     info_type = "field"
-    def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: 'Info'):
+
+    def __init__(self, name: str, schema_def: Dict[str, Any], generator: "Generator", parent: "Info"):
         super().__init__(name, schema_def, generator, parent)
         self.type = Type(schema_def, generator, self)
 
@@ -519,9 +518,10 @@ class Field(Schema):
 
 class Callback(Schema):
     """Represents a GObject Callback function schema."""
-    
+
     info_type = "callback"
-    def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
+
+    def __init__(self, name: str, schema_def: Dict[str, Any], generator: "Generator", parent: Optional["Info"] = None):
         super().__init__(name, schema_def, generator, parent)
         self._parameters: List[Param] = []
         self._return_param = None
@@ -532,7 +532,7 @@ class Callback(Schema):
             # that don't have this flag
             if pv.get("x-gi-is-return", False):
                 self._return_param = ReturnParam(pname, self.generator, pv, self)
-            elif not pname in ['sessionId', 'callbackName', 'args', 'invocationNumber', 'timestamp']:
+            elif pname not in ["sessionId", "callbackName", "args", "invocationNumber", "timestamp"]:
                 # Skip non-SSE mode metadata properties
                 self._parameters.append(Field(pname, pv, generator, self))
 
@@ -553,9 +553,10 @@ class Callback(Schema):
 
 class Struct(Schema):
     """Represents a GObject Struct schema."""
-    
+
     info_type = "struct"
-    def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
+
+    def __init__(self, name: str, schema_def: Dict[str, Any], generator: "Generator", parent: Optional["Info"] = None):
         super().__init__(name, schema_def, generator, parent)
         self._methods: List[Method] = self.generator.get_methods_for_schema(self)
         self._parent_schema = None
@@ -610,12 +611,12 @@ class Struct(Schema):
         return self._parent_schema
 
 
-
 class Object(Schema):
     """Represents an object schema with inheritance."""
-    
+
     info_type = "object"
-    def __init__(self, name: str, schema_def: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
+
+    def __init__(self, name: str, schema_def: Dict[str, Any], generator: "Generator", parent: Optional["Info"] = None):
         super().__init__(name, schema_def, generator, parent)
         self._methods: List[Method] = self.generator.get_methods_for_schema(self)
         self._parent_schema = None
@@ -629,7 +630,7 @@ class Object(Schema):
         has_destructor_or_copy = any(method.is_destructor or method.is_copy for method in self._methods)
         if not self._parent_schema and not has_destructor_or_copy:
             logger.warning(f"Base class '{self.name}' is missing ref (copy), unref (destructor) method(s)")
-    
+
     def _extract_parent_name(self) -> Optional[str]:
         """Extract parent class name from allOf structure."""
         if "allOf" in self.schema_section:
@@ -706,12 +707,13 @@ class Object(Schema):
 
 class Namespace(Schema):
     """Represents a namespace schema for holding static methods only."""
-    
+
     info_type = "namespace"
-    def __init__(self, name: str, generator: 'Generator'):
+
+    def __init__(self, name: str, generator: "Generator"):
         super().__init__(name, None, generator, None)
-        self._methods: List['Method'] = self.generator.get_methods_for_schema(self)
-    
+        self._methods: List["Method"] = self.generator.get_methods_for_schema(self)
+
     @property
     def methods(self):
         return self._methods
@@ -719,27 +721,26 @@ class Namespace(Schema):
 
 class Alias(Schema):
     """Represents an alias schema. Like Pointer."""
-    
+
     info_type = "alias"
-        
+
     # TODO this is wrong.
     def generate(self) -> str:
         # For basic types (string, number, boolean), use alias template
         schema_type = self.schema_section.get("type")
         if schema_type in ["string", "number", "integer", "boolean"]:
-            template = self.generator.jinja_env.get_template('alias.ts.j2')
-            
+            template = self.generator.jinja_env.get_template("alias.ts.j2")
+
             # Use the Type class to get the TypeScript type
             type_obj = Type(self.schema_section, self.generator, self)
             typescript_type = type_obj.lang_type
-            
-            return template.render(**{self.info_type: self, 'typescript_type': typescript_type})
-        
+
+            return template.render(**{self.info_type: self, "typescript_type": typescript_type})
 
 
 class Interface(Schema):
     """Represents a schema of object type, but not x-gi-type, like Event."""
-    
+
     info_type = "interface"
 
     def parse_schema(self):
@@ -747,32 +748,31 @@ class Interface(Schema):
         # Prepare basic interface data
         properties = self.schema_section.get("properties", {}) if self.schema_section else {}
         required = self.schema_section.get("required", []) if self.schema_section else []
-        
+
         self.has_parent = False  # TODO: Check for inheritance
         self.parent = None  # TODO: Extract parent if exists
         self.properties = []
-        
+
         # Create property objects using the Type class
         for prop_name, prop_schema in properties.items():
             prop_type = Type(prop_schema, self.generator, self)
-            self.properties.append({
-                "name": prop_name,
-                "optional": "" if prop_name in required else "?",
-                "type": prop_type.lang_type
-            })
+            self.properties.append(
+                {"name": prop_name, "optional": "" if prop_name in required else "?", "type": prop_type.lang_type}
+            )
 
     # TODO this is wrong.
     def generate(self) -> str:
         """Generate TypeScript code. Base implementation for unknown types."""
-        template = self.generator.jinja_env.get_template('interface.ts.j2')
+        template = self.generator.jinja_env.get_template("interface.ts.j2")
         return template.render(**{self.info_type: self})
- 
+
+
 class Return(Info):
     """Represents a method return type with its schema information."""
 
     info_type = "return"
 
-    def __init__(self, method_data: Dict[str, Any], generator: 'Generator', parent: Optional['Info'] = None):
+    def __init__(self, method_data: Dict[str, Any], generator: "Generator", parent: Optional["Info"] = None):
         # Extract the return schema from method_data
         responses = method_data.get("responses", {})
         return_schema = {}
@@ -780,13 +780,13 @@ class Return(Info):
             content = responses["200"].get("content", {})
             app_json = content.get("application/json", {})
             return_schema = app_json.get("schema", {})
-        
+
         super().__init__(generator, return_schema, parent)
         self.method_data = method_data
         self.properties = {}
         self._return_params: List[ReturnParam] = []
         self._parse_returns()
-    
+
     def _parse_returns(self):
         """Parse the return types from method responses."""
         if self.schema_section:
@@ -805,24 +805,21 @@ class Return(Info):
         return not self._return_params
 
     def generate(self) -> str:
-        template = self.generator.jinja_env.get_template('return.ts.j2')
+        template = self.generator.jinja_env.get_template("return.ts.j2")
         return template.render(**{self.info_type: self})
 
 
 class Method(Info):
     """Represents a method of a schema."""
-    
+
     info_type = "method"
+
     def __init__(
-            self,
-            operation_dict: Dict[str, Any],
-            path: str,
-            http_method: str,
-            parent_schema: Schema,
-            generator: 'Generator'):
+        self, operation_dict: Dict[str, Any], path: str, http_method: str, parent_schema: Schema, generator: "Generator"
+    ):
         """
         Initialize a Method object.
-        
+
         Args:
             operation_dict: The OpenAPI operation dictionary
             path: The path for this operation
@@ -835,14 +832,14 @@ class Method(Info):
         self.path = path
         self.http_method = http_method
         self.return_obj = Return(operation_dict, generator, self)
-        
+
         # Parse parameters using the Param class
         self.parameters: List[Param] = []
         raw_parameters = self.operation_dict.get("parameters", [])
         for param_def in raw_parameters:
             param = Param(param_def, self.generator, self)
             self.parameters.append(param)
-        
+
         # Parse request body properties for POST/PUT methods
         self.body_properties: List[Param] = []
         request_body = self.operation_dict.get("requestBody", {})
@@ -852,7 +849,7 @@ class Method(Info):
             schema = json_content.get("schema", {})
             properties = schema.get("properties", {})
             required_fields = schema.get("required", [])
-            
+
             for prop_name, prop_schema in properties.items():
                 # Create a parameter-like object for each body property
                 # Copy x-gi-* attributes from prop_schema to the top level for Param to find them
@@ -860,16 +857,16 @@ class Method(Info):
                     "name": prop_name,
                     "in": "body",
                     "required": prop_name in required_fields,
-                    "schema": prop_schema
+                    "schema": prop_schema,
                 }
                 # Copy x-gi-callback and other x-gi-* attributes to param_def level
                 for key in prop_schema:
                     if key.startswith("x-gi-"):
                         param_def[key] = prop_schema[key]
-                
+
                 param = Param(param_def, self.generator, self)
                 self.body_properties.append(param)
-        
+
     @property
     def params(self) -> List[Param]:
         """Get all parameters for this method."""
@@ -884,7 +881,7 @@ class Method(Info):
     def path_params(self) -> List[Param]:
         """Get only path parameters for this method."""
         return [p for p in self.parameters if p.location == "path"]
-    
+
     @property
     def parsed_operation_id(self):
         operation_id = self.schema_section.get("operationId", "")
@@ -906,8 +903,7 @@ class Method(Info):
         if operation:
             name += f"_{operation}"
         name += f"_{method_name}"
-        return name 
-
+        return name
 
     @property
     def name(self) -> str:
@@ -945,22 +941,22 @@ class Method(Info):
         return False
 
     @property
-    def callback_params(self) -> List['ReturnParam']:
+    def callback_params(self) -> List["ReturnParam"]:
         return [rp for rp in self.return_obj.return_params if rp.is_callback]
-    
+
     @property
-    def callback_url_params(self) -> List['Param']:
+    def callback_url_params(self) -> List["Param"]:
         """Get callback URL parameters (non-SSE mode)."""
         # Check both query params and body properties for callbacks
         query_callbacks = [p for p in self.query_params if p.is_callback]
         body_callbacks = [p for p in self.body_properties if p.is_callback]
         return query_callbacks + body_callbacks
-    
+
     @property
-    def header_params(self) -> List['Param']:
+    def header_params(self) -> List["Param"]:
         """Get header parameters (typically for non-SSE mode callbacks)."""
         return [p for p in self.parameters if p.location == "header"]
-    
+
     @property
     def uses_sse_callbacks(self) -> bool:
         """Determine if this method uses SSE-style callbacks (returns callback ID) or URL-based callbacks."""
@@ -971,20 +967,20 @@ class Method(Info):
     def generate(self) -> str:
         """Generate the code based on the template, selecting HTTP method-specific templates."""
         # Try specific template first (e.g., method_GstBus_connect_sync_message.ts.j2)
-        template_name = f'{self.info_type}_{self.id}.ts.j2'
+        template_name = f"{self.info_type}_{self.id}.ts.j2"
         try:
             template = self.generator.jinja_env.get_template(template_name)
         except TemplateNotFound:
             # Try HTTP method-specific template (e.g., method_get.ts.j2, method_post.ts.j2)
             http_method_lower = self.http_method.lower()
             try:
-                template = self.generator.jinja_env.get_template(f'{self.info_type}_{http_method_lower}.ts.j2')
+                template = self.generator.jinja_env.get_template(f"{self.info_type}_{http_method_lower}.ts.j2")
             except TemplateNotFound:
                 # Fallback to generic method template
-                template = self.generator.jinja_env.get_template(f'{self.info_type}.ts.j2')
+                template = self.generator.jinja_env.get_template(f"{self.info_type}.ts.j2")
         return template.render(**{self.info_type: self})
 
-    def is_equal(self, other: 'Method') -> bool:
+    def is_equal(self, other: "Method") -> bool:
         # Check the name
         if self.name != other.name:
             return False
@@ -1011,34 +1007,81 @@ bindings with proper class structure, inheritance, and type definitions.
 Refactored to use a type-oriented approach similar to main.py where each
 x-gi-type (object, struct, enum, callback, etc.) is handled by dedicated methods.
 """
+
+
 class TypeScriptGenerator(Generator):
     """Generates TypeScript bindings from OpenAPI schema using Jinja2 templates."""
-    
+
     # Reserved keywords in TypeScript/JavaScript
     RESERVED_KEYWORDS = {
-        "function", "var", "let", "const", "class", "interface", "enum", "type",
-        "namespace", "module", "import", "export", "default", "async", "await",
-        "break", "case", "catch", "continue", "debugger", "delete", "do", "else",
-        "finally", "for", "if", "in", "instanceof", "new", "return", "switch",
-        "this", "throw", "try", "typeof", "void", "while", "with", "yield",
-        "package", "implements", "private", "public", "protected", "static",
-        "eval", "arguments",
+        "function",
+        "var",
+        "let",
+        "const",
+        "class",
+        "interface",
+        "enum",
+        "type",
+        "namespace",
+        "module",
+        "import",
+        "export",
+        "default",
+        "async",
+        "await",
+        "break",
+        "case",
+        "catch",
+        "continue",
+        "debugger",
+        "delete",
+        "do",
+        "else",
+        "finally",
+        "for",
+        "if",
+        "in",
+        "instanceof",
+        "new",
+        "return",
+        "switch",
+        "this",
+        "throw",
+        "try",
+        "typeof",
+        "void",
+        "while",
+        "with",
+        "yield",
+        "package",
+        "implements",
+        "private",
+        "public",
+        "protected",
+        "static",
+        "eval",
+        "arguments",
         # Common variable names that might conflict
-        "data", "response", "error", "result", "value", "url"
+        "data",
+        "response",
+        "error",
+        "result",
+        "value",
+        "url",
     }
-    
+
     def __init__(self, openapi_schema: Dict[str, Any], host: str = "localhost", port: int = 9000, base_path: str = ""):
         super().__init__(openapi_schema, host, port, base_path)
         # Base class already sets up jinja_env - no need to override unless specific customization needed
 
     def get_template_dir(self) -> str:
         """Get the template directory for TypeScript generation."""
-        return os.path.join(os.path.dirname(__file__), 'templates')
+        return os.path.join(os.path.dirname(__file__), "templates")
 
-    def get_valid_name(self, info: 'Info') -> str:
+    def get_valid_name(self, info: "Info") -> str:
         """
         Get a safe name for TypeScript, handling reserved keywords and method conflicts.
-        
+
         Args:
             info: The Info object requesting a name
 
@@ -1048,18 +1091,18 @@ class TypeScriptGenerator(Generator):
         # The name of an Enum might vary, or either Enum or EnumValue
         if isinstance(info, Enum):
             if info.methods:
-                return f'{info.name}Value'
+                return f"{info.name}Value"
             else:
-                return f'{info.name}'
+                return f"{info.name}"
         elif isinstance(info, Method):
             # For methods, handle inheritance conflicts
             method = info
             schema = method.parent
-    
+
             # Get all method names from parent classes
             if isinstance(schema, Object):
                 parent_methods = self._get_parent_methods(schema.parent_schema)
-        
+
                 # Check for conflicts and add suffix if needed
                 for m in parent_methods:
                     if info.name == m.name and not info.is_equal(m):
@@ -1070,12 +1113,12 @@ class TypeScriptGenerator(Generator):
                             suffix += 1
                         return f"{info.name}_{suffix}"
                 return info.name
-    
+
             # Check for reserved keywords - but skip for constructor methods
             # Constructor methods should keep their original names (like "new")
             if not method.is_constructor and info.name in self.RESERVED_KEYWORDS:
                 return f"{info.name}_"
-    
+
             return info.name
         else:
             # Handle reserved keywords for non-method objects
@@ -1083,7 +1126,7 @@ class TypeScriptGenerator(Generator):
                 return f"{info.name}_"
             return info.name
 
-    def lang_type(self, t: 'Type') -> str:
+    def lang_type(self, t: "Type") -> str:
         """Convert OpenAPI basic types to TypeScript types."""
         if t.is_ref:
             return t.ref_schema.valid_name
@@ -1099,7 +1142,7 @@ class TypeScriptGenerator(Generator):
         }
         return type_mapping.get(t.type, "any")
 
-    def _get_parent_methods(self, obj: 'Schema') -> Set['Method']:
+    def _get_parent_methods(self, obj: "Schema") -> Set["Method"]:
         """Get all method names from parent classes in the inheritance chain."""
         parent_methods = set()
 
@@ -1116,7 +1159,7 @@ class TypeScriptGenerator(Generator):
             parent_methods.update(self._get_parent_methods(obj.parent_schema))
 
         return parent_methods
-    
+
     def _safe_property_name(self, name: str) -> str:
         """Convert a schema property name to a safe TypeScript identifier."""
         if name in self.RESERVED_KEYWORDS:

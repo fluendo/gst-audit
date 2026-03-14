@@ -24,13 +24,25 @@
  */
 
 /**
+ * Type for callback functions that can accept any number of arguments
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CallbackFunction = (...args: any[]) => void | Promise<void>;
+
+/**
+ * Type for converter functions that transform callback data
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ConverterFunction = (data: any) => Promise<any[]> | any[];
+
+/**
  * Interface for callback handling in non-SSE mode
  * This matches the ICallbackHandler interface from generated non-SSE bindings
  */
 export interface ICallbackHandler {
   registerCallback(
-    callbackFunc: Function,
-    converterFunc: (data: any) => Promise<any[]> | any[],
+    callbackFunc: CallbackFunction,
+    converterFunc: ConverterFunction,
     metadata: { methodName: string; paramName: string }
   ): { callbackUrl: string; callbackId: string };
   unregisterCallback(callbackId: string): void;
@@ -74,7 +86,7 @@ export class ClientCallbackHandler implements ICallbackHandler {
   private callbackUrl: string;
   private sessionId: string;
   private callbackSecret: string;
-  private callbacks: Map<string, { func: Function; converter: (data: any) => Promise<any[]> | any[] }>;
+  private callbacks: Map<string, { func: CallbackFunction; converter: ConverterFunction }>;
   private idCounter: number;
 
   constructor(options: {
@@ -90,8 +102,8 @@ export class ClientCallbackHandler implements ICallbackHandler {
   }
 
   registerCallback(
-    callbackFunc: Function,
-    converterFunc: (data: any) => Promise<any[]> | any[],
+    callbackFunc: CallbackFunction,
+    converterFunc: ConverterFunction,
     metadata: { methodName: string; paramName: string }
   ): { callbackUrl: string; callbackId: string } {
     // Generate unique callback ID
@@ -127,11 +139,11 @@ export class ClientCallbackHandler implements ICallbackHandler {
    * Get a callback registration by ID.
    * Used by useCallbackRegistry hook to execute callbacks from WebSocket messages.
    */
-  getCallback(callbackId: string): { func: Function; converter: (data: any) => Promise<any[]> | any[] } | undefined {
+  getCallback(callbackId: string): { func: CallbackFunction; converter: ConverterFunction } | undefined {
     return this.callbacks.get(callbackId);
   }
 
-  getAllCallbacks(): Map<string, { func: Function; converter: (data: any) => Promise<any[]> | any[] }> {
+  getAllCallbacks(): Map<string, { func: CallbackFunction; converter: ConverterFunction }> {
     return new Map(this.callbacks);
   }
 
@@ -149,8 +161,8 @@ export class ClientCallbackHandler implements ICallbackHandler {
 // ============================================================================
 
 interface CallbackRegistration {
-  func: Function;
-  converter: (data: any) => Promise<any[]> | any[];
+  func: CallbackFunction;
+  converter: ConverterFunction;
   metadata: { methodName: string; paramName: string };
 }
 
@@ -214,8 +226,8 @@ export class ServerCallbackHandler implements ICallbackHandler {
   }
 
   registerCallback(
-    callbackFunc: Function,
-    converterFunc: (data: any) => Promise<any[]> | any[],
+    callbackFunc: CallbackFunction,
+    converterFunc: ConverterFunction,
     metadata: { methodName: string; paramName: string }
   ): { callbackUrl: string; callbackId: string } {
     // Generate unique callback ID
@@ -282,6 +294,7 @@ export class ServerCallbackHandler implements ICallbackHandler {
    * @param payload The payload object from gstaudit-server with callback arguments
    * @returns The result of the callback execution
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async executeCallback(callbackId: string, payload: Record<string, any>): Promise<any> {
     const registration = this.callbacks.get(callbackId);
 

@@ -13,11 +13,14 @@ import {
   ReactFlowProvider,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { ElementTreeManager, ElementTree, getTheme, getLayoutedElements } from '@/lib';
+import { ElementTreeManager, ElementTree, ElementPad, getTheme, getLayoutedElements } from '@/lib';
 import { GstPadDirection } from '@/lib/gst';
 import ElementNode from './ElementNode';
 import GroupNode from './GroupNode';
 import LinkEdge from './LinkEdge';
+
+// Node data type wrapping ElementTree to satisfy React Flow's Record constraint
+type NodeData = ElementTree & Record<string, unknown>;
 
 // Define custom node types
 const nodeTypes = {
@@ -57,9 +60,9 @@ const PipelineGraphInner: React.FC<PipelineGraphProps> = ({ treeManager, selecte
     console.log(`[PIPELINE_GRAPH] Generated ${nodes.length} nodes and ${edges.length} edges in ${totalTime.toFixed(2)}ms`);
     
     return { initialNodes: nodes, initialEdges: edges };
-  }, [treeManager, theme]);
+  }, [treeManager]);
   
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   
   // Apply layout when nodes/edges change
@@ -75,7 +78,7 @@ const PipelineGraphInner: React.FC<PipelineGraphProps> = ({ treeManager, selecte
       const layoutEnd = performance.now();
       console.log(`[PIPELINE_GRAPH] Layout applied in ${(layoutEnd - layoutStart).toFixed(2)}ms`);
       
-      setNodes(layoutedNodes);
+      setNodes(layoutedNodes as Node<NodeData>[]);
       setEdges(initialEdges);
     };
     
@@ -141,7 +144,7 @@ const PipelineGraphInner: React.FC<PipelineGraphProps> = ({ treeManager, selecte
 /**
  * Convert ElementTree to a React Flow node (stores ElementTree in data)
  */
-function convertToNode(tree: ElementTree): Node {
+function convertToNode(tree: ElementTree): Node<NodeData> {
   const isGroup = tree.children.length > 0;
   const theme = getTheme();
   
@@ -150,7 +153,7 @@ function convertToNode(tree: ElementTree): Node {
     type: isGroup ? 'group' : 'element',
     parentId: tree.parent?.id,
     position: { x: 0, y: 0 }, // Will be set by layout
-    data: tree as any, // Store the entire ElementTree
+    data: tree as NodeData, // Store the entire ElementTree
     ...(isGroup && {
       extent: 'parent' as const,
       expandParent: true,
@@ -173,7 +176,7 @@ function discoverEdges(elementTrees: ElementTree[]): Edge[] {
   
   // Build a map of pad ptr -> pad info for quick lookup
   // Include both regular pads and internal pads from ghost pads
-  const padMap = new Map<string, { tree: ElementTree; pad: any }>();
+  const padMap = new Map<string, { tree: ElementTree; pad: ElementPad }>();
   elementTrees.forEach(tree => {
     tree.pads.forEach(pad => {
       padMap.set(pad.id, { tree, pad });
@@ -186,7 +189,7 @@ function discoverEdges(elementTrees: ElementTree[]): Edge[] {
   });
   
   // Helper function to check edges for a pad
-  const checkPadConnections = (tree: ElementTree, pad: any) => {
+  const checkPadConnections = (tree: ElementTree, pad: ElementPad) => {
     if (!pad.linkedTo) return;
     
     // Find the peer pad info

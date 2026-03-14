@@ -1,16 +1,13 @@
-name: "Copilot Setup Steps"
-
+---
+name: Copilot Setup Steps
 # Automatically run the setup steps when they are changed to allow for easy validation, and
 # allow manual testing through the repository's "Actions" tab
 on:
   workflow_dispatch:
   push:
-    paths:
-      - .github/workflows/copilot-setup-steps.yml
+    paths: [.github/workflows/copilot-setup-steps.yml]
   pull_request:
-    paths:
-      - .github/workflows/copilot-setup-steps.yml
-
+    paths: [.github/workflows/copilot-setup-steps.yml]
 jobs:
   copilot-setup-steps:
     runs-on: ubuntu-latest
@@ -23,6 +20,5 @@ jobs:
           sudo apt-get install -y \
             libgirepository1.0-dev libgstreamer1.0-dev libcairo2-dev \
             gstreamer1.0-tools python3-poetry
-
       - name: Disable ptrace restrictions
-        run: "echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope"
+        run: echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
