@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-End-to-end tests for non-SSE callback handling in GIRest.
+End-to-end tests for callback handling in GIRest.
 
 These tests verify URL-based callbacks by:
 1. Starting a mock HTTP server to receive callback POSTs
@@ -9,7 +9,7 @@ These tests verify URL-based callbacks by:
 4. Verifying the server receives POST requests with correct callback data
 5. Testing different callback scopes (call/sync, async, notified, forever)
 
-Non-SSE callbacks work by:
+Callbacks work by:
 - Client provides a callback URL in the method call
 - GIRest POSTs callback data to that URL (with HMAC signature)
 - For sync callbacks (scope=call): waits for response

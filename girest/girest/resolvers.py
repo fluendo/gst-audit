@@ -7,7 +7,6 @@ import json
 import logging
 import queue
 import threading
-from collections import deque
 from typing import Any, Dict
 
 import connexion
@@ -17,7 +16,6 @@ from connexion.resolver import Resolution, Resolver
 gi.require_version("GIRepository", "2.0")
 
 from gi.repository import GIRepository  # noqa: E402
-from starlette.responses import StreamingResponse  # noqa: E402
 
 try:
     from .utils import parse_operation_id
@@ -265,116 +263,14 @@ class FridaMessageBus:
 
 
 class GIResolver(Resolver):
-    def __init__(self, sse_buffer_size: int = 100):
-        # SSE event buffer (ring buffer using deque with maxlen)
-        self.sse_buffer_size = sse_buffer_size
-        self.sse_events: deque = deque(maxlen=sse_buffer_size)
-        self.sse_event = None  # Will be created in event loop
-        self._event_loop = None  # Reference to the event loop
-        # Counter for assigning unique IDs to events
-        # Lock protects both the counter and the deque during event push
-        self._event_counter = 0
-        self._buffer_lock = threading.Lock()
+    def __init__(self):
         super().__init__()
-
-    def push_sse_event(self, event_data: dict):
-        """
-        Push an event to the SSE buffer. This is thread-safe and non-blocking.
-
-        If the buffer is full, the oldest event will be discarded to make room.
-        Can be safely called from any thread (e.g., Frida's message handler).
-
-        Args:
-            event_data: Dictionary containing event data to be sent to SSE clients
-        """
-        # Assign a unique sequential ID and append to buffer atomically
-        # Lock protects both operations to ensure consistency
-        with self._buffer_lock:
-            event_id = self._event_counter
-            self._event_counter += 1
-
-            # Wrap the event data with an ID
-            event_wrapper = {"_sse_id": event_id, "data": event_data}
-
-            self.sse_events.append(event_wrapper)
-
-        # Set the event to notify waiting clients (outside lock)
-        # Use call_soon_threadsafe if called from a different thread
-        if self.sse_event is not None and self._event_loop is not None:
-            self._event_loop.call_soon_threadsafe(self.sse_event.set)
-
-    async def sse_event_generator(self):
-        """
-        Async generator that yields SSE events from the buffer.
-
-        Yields events from the current position in the buffer and then waits
-        for new events to be pushed. Each generator instance tracks its own
-        position independently using sequential event IDs.
-
-        Note: If the buffer rotates (oldest events are discarded) while a client
-        is connected, the client may miss events. This is acceptable for the
-        use case as it prevents unbounded memory growth.
-        """
-        # Initialize event loop and event on first call
-        if self.sse_event is None:
-            self._event_loop = asyncio.get_running_loop()
-            self.sse_event = asyncio.Event()
-
-        # Track the last event ID we've sent
-        last_sent_id = -1
-
-        while True:
-            has_new_events = False
-
-            # Take an atomic snapshot to avoid mutation during iteration
-            with self._buffer_lock:
-                snapshot = list(self.sse_events)
-
-            # Iterate over the snapshot
-            for event_wrapper in snapshot:
-                event_id = event_wrapper["_sse_id"]
-                if event_id > last_sent_id:
-                    last_sent_id = event_id
-                    has_new_events = True
-                    # Yield only the data, not the wrapper
-                    yield event_wrapper["data"]
-
-            # If we yielded events, check again for more before waiting
-            if has_new_events:
-                continue
-
-            # Wait for new events
-            await self.sse_event.wait()
-            self.sse_event.clear()
-
-    async def sse_callbacks_endpoint(self):
-        """
-        SSE endpoint that streams callback events.
-
-        This endpoint is registered at /GIRest/callbacks and streams events
-        in Server-Sent Events format.
-
-        Returns:
-            Async generator yielding SSE-formatted messages
-        """
-        async for event_data in self.sse_event_generator():
-            # Format as SSE
-            message = f"data: {json.dumps(event_data)}\n\n"
-            yield message
 
     def resolve(self, operation):
         """We overwrite the resolve method to have access to the path schema"""
         return Resolution(self.get_function_from_operation(operation), operation.operation_id)
 
     def get_function_from_operation(self, operation):
-        async def sse_callback():
-            """SSE endpoint for callback events."""
-            return StreamingResponse(
-                self.sse_callbacks_endpoint(),
-                media_type="text/event-stream",
-                headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
-            )
-
         operation_id = operation.operation_id
 
         if not operation_id:
@@ -384,9 +280,8 @@ class GIResolver(Resolver):
         if not parsed:
             return None
 
-        namespace, class_name, method_name, operator = parsed
-        if namespace == "GIRest" and method_name == "callbacks" and not class_name:
-            return sse_callback
+        # No special handling needed for standard operations
+        return None
 
 
 class FridaResolver(GIResolver):
@@ -433,8 +328,6 @@ class FridaResolver(GIResolver):
         scripts=None,
         on_log=None,
         on_message=None,
-        sse_buffer_size=100,
-        sse_only=False,
     ):
         # Load the corresponding Gir file
         self.repo = GIRepository.Repository()
@@ -452,8 +345,6 @@ class FridaResolver(GIResolver):
         self._callback_id_counter = 0
         # Callback metadata registry: callback_id -> {url, session_id, secret, scope}
         self._callback_registry = {}
-        # SSE mode flag
-        self.sse_only = sse_only
 
         # Initialize helper classes for Frida communication
         self.command_serializer = FridaCommandSerializer()
@@ -465,7 +356,7 @@ class FridaResolver(GIResolver):
         # Initialize message bus with the Frida script
         self.message_bus = FridaMessageBus(self.scripts[0])
 
-        super().__init__(sse_buffer_size)
+        super().__init__()
 
     def _build_enum_mappings(self):
         """Build mappings from enum string names to integer values"""
@@ -539,83 +430,79 @@ class FridaResolver(GIResolver):
             callback_data = payload["data"]
             callback_id = callback_data.get("callback_id")
 
-            if self.sse_only:
-                # SSE mode: push event to buffer for client polling
-                self.push_sse_event(callback_data)
-            else:
-                # URL mode: make HTTP callback and unlock Frida
-                if callback_id is None:
-                    logger.error("Callback invocation missing callback_id")
-                    return
+            # URL mode: make HTTP callback and unlock Frida
+            if callback_id is None:
+                logger.error("Callback invocation missing callback_id")
+                return
 
-                # Look up callback metadata
-                metadata = self._callback_registry.get(callback_id)
-                if not metadata:
-                    logger.error(f"Callback {callback_id} not found in registry")
-                    # Still need to unlock Frida with a null result
-                    self.scripts[0].post(
-                        {
-                            "type": f"callback-{callback_id}",
-                            "kind": "callback-response",
-                            "callback_id": callback_id,
-                            "result": None,
-                        }
-                    )
-                    return
+            # Look up callback metadata
+            metadata = self._callback_registry.get(callback_id)
+            if not metadata:
+                logger.error(f"Callback {callback_id} not found in registry")
+                # Still need to unlock Frida with a null result
+                self.scripts[0].post(
+                    {
+                        "type": f"callback-{callback_id}",
+                        "kind": "callback-response",
+                        "callback_id": callback_id,
+                        "result": None,
+                    }
+                )
+                return
 
-                # Get the handler instance from the registry (created during registration)
-                handler = metadata.get("handler")
-                if not handler:
-                    logger.error(f"Callback {callback_id} does not have a handler")
-                    # Still need to unlock Frida with a null result
-                    self.scripts[0].post(
-                        {
-                            "type": f"callback-{callback_id}",
-                            "kind": "callback-response",
-                            "callback_id": callback_id,
-                            "result": None,
-                        }
-                    )
-                    return
+            # Get the handler instance from the registry (created during registration)
+            handler = metadata.get("handler")
+            if not handler:
+                logger.error(f"Callback {callback_id} does not have a handler")
+                # Still need to unlock Frida with a null result
+                self.scripts[0].post(
+                    {
+                        "type": f"callback-{callback_id}",
+                        "kind": "callback-response",
+                        "callback_id": callback_id,
+                        "result": None,
+                    }
+                )
+                return
 
-                # Get raw args and convert enums to strings
-                raw_args = callback_data["args"]
-                callback_name = metadata["name"]
+            # Get raw args and convert enums to strings
+            raw_args = callback_data["args"]
+            callback_name = metadata["name"]
 
-                # Convert callback arguments (especially enum integers to strings)
-                args = self._convert_callback_args(raw_args, metadata["callback_type"])
+            # Convert callback arguments (especially enum integers to strings)
+            args = self._convert_callback_args(raw_args, metadata["callback_type"])
 
-                # Note: GI scope (call/async/notified/forever) only affects WHEN the
-                # callback is invoked, not HOW we handle it. All callbacks:
-                # - Make synchronous HTTP requests
-                # - Wait for response
-                # - May or may not have return values (depends on callback signature)
-                result = None
+            # Note: GI scope (call/async/notified/forever) only affects WHEN the
+            # callback is invoked, not HOW we handle it. All callbacks:
+            # - Make synchronous HTTP requests
+            # - Wait for response
+            # - May or may not have return values (depends on callback signature)
+            result = None
 
-                # IMPORTANT: Handle callback in a separate thread to allow reentrancy
-                # This allows the main thread to continue processing HTTP requests
-                # while we wait for the callback response
-                def handle_callback_in_thread():
-                    nonlocal result
-                    # All callbacks handled uniformly
-                    # Pass callback_id for correlation tracking (thread affinity)
-                    result = handler.invoke(callback_name, callback_id, args)
+            # IMPORTANT: Handle callback in a separate thread to allow reentrancy
+            # This allows the main thread to continue processing HTTP requests
+            # while we wait for the callback response
+            def handle_callback_in_thread():
+                nonlocal result
+                # All callbacks handled uniformly
+                # Pass callback_id for correlation tracking (thread affinity)
+                result = handler.invoke(callback_name, callback_id, args)
 
-                    # Unlock Frida thread with the result
-                    self.scripts[0].post(
-                        {
-                            "type": f"callback-{callback_id}",
-                            "kind": "callback-response",
-                            "callback_id": callback_id,
-                            "result": result,
-                        }
-                    )
+                # Unlock Frida thread with the result
+                self.scripts[0].post(
+                    {
+                        "type": f"callback-{callback_id}",
+                        "kind": "callback-response",
+                        "callback_id": callback_id,
+                        "result": result,
+                    }
+                )
 
-                # Run callback handling in a daemon thread
-                # This allows the main thread to keep processing HTTP requests
-                callback_thread = threading.Thread(target=handle_callback_in_thread, daemon=True)
-                callback_thread.start()
-                # Note: We don't wait for the thread - it will post the response when ready
+            # Run callback handling in a daemon thread
+            # This allows the main thread to keep processing HTTP requests
+            callback_thread = threading.Thread(target=handle_callback_in_thread, daemon=True)
+            callback_thread.start()
+            # Note: We don't wait for the thread - it will post the response when ready
         else:
             # For now, just log other messages
             logger.debug(f"Message from Frida: {message}")
@@ -1573,9 +1460,6 @@ class FridaResolver(GIResolver):
             converted_kwargs = {}
             n_args = GIRepository.callable_info_get_n_args(_method)
 
-            # Callback ids to return, only relevant in SSE mode
-            callbacks = {}
-
             # Add 'self' as a parameter
             if _type["is_method"]:
                 converted_kwargs["this"] = kwargs["self"]["ptr"]
@@ -1587,18 +1471,6 @@ class FridaResolver(GIResolver):
                 # Some args might not be on the passed in args, like output params
                 if arg_name in kwargs:
                     converted_kwargs[arg_name] = self._arg_from_rest(kwargs[arg_name], arg, headers)
-                # In SSE Mode, the callback is never passed in REST, but we
-                # need to generate the callback information
-                elif self.sse_only and not _type["arguments"][i]["is_destroy"]:
-                    arg_type = GIRepository.arg_info_get_type(arg)
-                    tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
-                    if tag != "interface":
-                        continue
-                    interface = GIRepository.type_info_get_interface(arg_type)
-                    info_type = interface.get_type()
-                    if info_type == GIRepository.InfoType.CALLBACK:
-                        callback_id = self._generate_callback(None, arg, info_type, headers)
-                        callbacks[arg_name] = converted_kwargs[arg_name] = callback_id
 
             # Serialize the command
             command = self.command_serializer.serialize_call(
@@ -1634,12 +1506,6 @@ class FridaResolver(GIResolver):
 
             # Use common response parsing logic
             result = self._parse_response(result, _endpoint, method_info=_method)
-
-            # In SSE mode, return also the callback id
-            if callbacks:
-                if not result:
-                    result = {}
-                result.update(callbacks)
 
             return result
 

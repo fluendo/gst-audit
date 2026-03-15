@@ -191,19 +191,6 @@ class Generator:
                 schema = Namespace(tag, self)
                 self.add_schema(schema)
 
-    def _get_callback_mode(self) -> str:
-        """
-        Get the callback mode from the OpenAPI schema info.
-
-        The callback mode is specified in the schema's info section via the
-        x-girest-callback-mode vendor extension. This is set by GIRest when
-        generating the schema based on the --sse-only flag.
-
-        Returns:
-            str: "sse" for SSE mode, "url" for URL-based callbacks, defaults to "sse"
-        """
-        return self.schema.get("info", {}).get("x-girest-callback-mode", "sse")
-
     def generate(self) -> str:
         """Generate complete TypeScript bindings."""
         title = self.schema.get("info", {}).get("title", "API")
@@ -217,10 +204,6 @@ class Generator:
         # Now the tags without schemas
         self._create_namespace_schemas()
 
-        # Get callback mode from schema
-        callback_mode = self._get_callback_mode()
-        sse_mode = callback_mode == "sse"
-
         # Generate main file
         main_template = self.jinja_env.get_template("main.ts.j2")
         return main_template.render(
@@ -231,7 +214,6 @@ class Generator:
             port=self.port,
             base_path=self.base_path,
             schemas=self.schema_objects_cache,
-            sse_mode=sse_mode,
         )
 
 
@@ -328,7 +310,7 @@ class Param(Info):
 
     @property
     def is_callback(self) -> bool:
-        """Check if this parameter represents a callback (non-SSE mode)."""
+        """Check if this parameter represents a callback."""
         return "x-gi-callback" in self.schema_section
 
     @property
@@ -528,12 +510,12 @@ class Callback(Schema):
         raw_properties = schema_def.get("properties", {})
         for pname, pv in raw_properties.items():
             # Check if this property has x-gi-is-return (callback parameter)
-            # In non-SSE mode, callbacks have additional properties like sessionId, callbackName, etc.
+            # Callbacks have additional properties like sessionId, callbackName, etc.
             # that don't have this flag
             if pv.get("x-gi-is-return", False):
                 self._return_param = ReturnParam(pname, self.generator, pv, self)
             elif pname not in ["sessionId", "callbackName", "args", "invocationNumber", "timestamp"]:
-                # Skip non-SSE mode metadata properties
+                # Skip callback metadata properties
                 self._parameters.append(Field(pname, pv, generator, self))
 
     @property
@@ -946,7 +928,7 @@ class Method(Info):
 
     @property
     def callback_url_params(self) -> List["Param"]:
-        """Get callback URL parameters (non-SSE mode)."""
+        """Get callback URL parameters."""
         # Check both query params and body properties for callbacks
         query_callbacks = [p for p in self.query_params if p.is_callback]
         body_callbacks = [p for p in self.body_properties if p.is_callback]
@@ -954,15 +936,8 @@ class Method(Info):
 
     @property
     def header_params(self) -> List["Param"]:
-        """Get header parameters (typically for non-SSE mode callbacks)."""
+        """Get header parameters (typically for callback authentication)."""
         return [p for p in self.parameters if p.location == "header"]
-
-    @property
-    def uses_sse_callbacks(self) -> bool:
-        """Determine if this method uses SSE-style callbacks (returns callback ID) or URL-based callbacks."""
-        # If there are callback_params (callbacks in return), it's SSE mode
-        # If there are callback_url_params (callbacks as URL parameters), it's non-SSE mode
-        return len(self.callback_params) > 0 and len(self.callback_url_params) == 0
 
     def generate(self) -> str:
         """Generate the code based on the template, selecting HTTP method-specific templates."""

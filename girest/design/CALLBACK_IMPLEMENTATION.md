@@ -1,52 +1,46 @@
 # Callback Implementation
 
-This document describes the implementation of callback support in GIRest, including both Server-Sent Events (SSE) and non-SSE callback modes, reentrancy support, and thread affinity mechanisms.
+This document describes the implementation of callback support in GIRest, including reentrancy support and thread affinity mechanisms.
 
 ## Overview
 
-GIRest provides two ways to handle callbacks from native GStreamer/GObject code:
+GIRest handles callbacks from native GStreamer/GObject code by using callback URLs. The client provides a callback URL when registering the callback, and GIRest makes HTTP POST requests to this URL when callbacks are triggered.
 
-1. **SSE Mode (Server-Sent Events)**: The client opens a long-lived HTTP connection to `/GIRest/callbacks` and receives callback events as they occur. Best for browser-based clients and TypeScript/JavaScript applications.
+This approach supports **reentrancy** (calling REST APIs from within callbacks) and **thread affinity** (ensuring reentrant calls execute on the correct native thread).
 
-2. **Non-SSE Mode**: The client provides a callback URL when registering the callback. GIRest will make HTTP POST requests to this URL when callbacks are triggered. Best for server-to-server communication and testing scenarios.
-
-Both modes support **reentrancy** (calling REST APIs from within callbacks) and **thread affinity** (ensuring reentrant calls execute on the correct native thread).
-
-Both modes support **reentrancy** (calling REST APIs from within callbacks) and **thread affinity** (ensuring reentrant calls execute on the correct native thread).
-
-## Callback Modes
-
-### SSE Mode (Server-Sent Events)
+## Callback Mechanism
 
 **How it works:**
-1. Client opens an EventSource connection to `/GIRest/callbacks`
-2. Server keeps connection alive and sends callback events as JSON
-3. Client dispatcher routes events to registered callback functions by callback ID
+1. Client starts a callback server (e.g., HTTP server listening on a port)
+2. Client registers callback with REST API, providing callback URL in request body
+3. GIRest server makes HTTP POST requests to the callback URL when events occur
+4. Client server handles POST requests and executes callback function
 
 **Advantages:**
-- Simple for browser-based clients
-- Low latency - server pushes events immediately
-- Single connection for all callbacks
+- Server-to-server communication
+- No persistent connection required
+- Flexible routing and authentication
+- Supports all callback scopes (sync and async)
 
 **Requirements:**
-- Client must support EventSource/SSE
-- Client must maintain long-lived connection
+- Client must run an HTTP server to receive callbacks
+- Client provides callback URL when registering callbacks
 
-**Example (TypeScript):**
-```typescript
-const callbackSource = new EventSource('http://localhost:8000/GIRest/callbacks');
-callbackSource.onmessage = (ev) => {
-  const json = JSON.parse(ev.data);
-  const cb = callbackDispatcher.get(json.id.toString());
-  if (cb) {
-    cb(...Object.values(json.data));
-  }
-};
+**Example (Python test):**
+```python
+# Start callback server
+callback_server = await start_callback_server()
 
-await Gst.debug_add_log_function(onLog);
+# Register callback with URL
+payload = {
+    "func": {
+        "url": f"http://localhost:{callback_server.port}/callback/0"
+    }
+}
+response = await client.post("/Gst/debug_add_log_function", json=payload)
+
+# Server will POST to the callback URL when events occur
 ```
-
-### Non-SSE Mode
 
 **How it works:**
 1. Client starts a callback server (e.g., aiohttp server listening on a port)
@@ -56,8 +50,9 @@ await Gst.debug_add_log_function(onLog);
 
 **Advantages:**
 - Server-to-server communication
-- Works without SSE/EventSource support
-- Easier to test with standard HTTP tools
+- No persistent connection required
+- Flexible routing and authentication
+- Supports all callback scopes (sync and async)
 
 **Requirements:**
 - Client must run an HTTP server to receive callbacks
@@ -125,7 +120,7 @@ send({
 The client must include the `X-Correlation-Id` header in reentrant API calls:
 
 ```python
-# Non-SSE callback handler
+# Callback handler
 async def callback_handler(request):
     data = await request.json()
     correlation_id = data.get('correlation_id')
@@ -260,20 +255,24 @@ INFO: Executing queued call on thread: 1638567, correlation_id=2
 
 All reentrant calls execute as "queued calls" on the same thread, regardless of nesting depth.
 
-## TypeScript Client Usage (SSE Mode)
+## TypeScript Client Usage
 
 The TypeScript bindings include automatic callback support. When you call a function that takes a callback parameter (like `Gst.debug_add_log_function`), the generated code will:
 
 1. Make the REST API call to register the callback
-2. Receive a callback ID from the server
-3. Automatically register your callback function with the internal dispatcher
-4. Listen for callback events via EventSource on `/GIRest/callbacks`
-5. Dispatch events to your callback function when they arrive
+2. Register your callback function with the callback handler
+3. Provide the callback URL to the server
+4. Server POSTs to the callback URL when events occur
+5. Callback handler dispatches to your callback function
 
 Example usage:
 
 ```typescript
-import { Gst } from './gst';
+import { Gst, setCallbackHandler } from './gst';
+import { MyCallbackHandler } from './my-handler';
+
+// Set up callback handler
+setCallbackHandler(new MyCallbackHandler());
 
 // Define your callback function with proper types
 function onLog(category, level, file, func, line, obj, message) {
@@ -281,10 +280,8 @@ function onLog(category, level, file, func, line, obj, message) {
 }
 
 // Register the callback - it will be automatically dispatched
-await Gst.debug_add_log_function(onLog);
+await Gst.debug_add_log_function('session-123', 'my-secret', onLog);
 ```
-
-Compare this with the manual approach in `girest/examples/log.js` - the TypeScript bindings handle all the boilerplate automatically!
 
 ## Architecture
 
@@ -503,24 +500,6 @@ This is a server-side concern and doesn't affect the TypeScript bindings impleme
 
 ## Testing
 
-### SSE Mode Testing
-Run the TypeScript generator:
-```bash
-cd girest
-python3 girest-client-generator.py Gst 1.0 --base-url http://localhost:8000 -o gst.ts
-```
-
-Check the generated callback:
-```bash
-grep -A 10 "debug_add_log_function" gst.ts
-```
-
-Expected output shows:
-- Callback function parameter with proper TypeScript signature
-- Automatic callback registration after API call
-- Reserved keywords renamed (`function` -> `function_`)
-
-### Non-SSE Mode Testing
 Run e2e tests with callback servers:
 ```bash
 cd girest
@@ -547,16 +526,16 @@ All reentrant calls for a given callback should show the same thread ID in logs.
 1. **GObject Refcounting**: Implement in girest.js Frida script
 2. **Type Safety**: Improve enum namespace handling to avoid TypeScript warnings
 3. **Error Handling**: Add error handling for callback registration failures
-4. **Callback Cleanup**: Allow unregistering callbacks and closing EventSource connection
+4. **Callback Cleanup**: Allow unregistering callbacks
 5. **Multiple Callbacks**: Support registering multiple callbacks for the same event
 6. **Correlation ID Timeout**: Add timeout for correlation ID cleanup when callbacks don't complete
-7. **Non-SSE TypeScript Support**: Generate TypeScript bindings that support non-SSE callback mode
 
 ## Key Takeaways
 
-### Two Callback Modes
-- **SSE**: Browser-friendly, push-based, single connection
-- **Non-SSE**: Server-to-server, requires callback HTTP server, easier to test
+### Callback Mechanism
+- Server-to-server communication via HTTP POST
+- Requires callback HTTP server on client side
+- Supports all callback scopes and patterns
 
 ### Reentrancy is Fully Supported
 - Callbacks can make REST API calls back to GIRest

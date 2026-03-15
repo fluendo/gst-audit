@@ -1,9 +1,9 @@
 """
 Callback handling and security for GIRest HTTP callbacks.
 
-This module provides classes for secure callback invocations, supporting both
-synchronous callbacks (that wait for a return value) and asynchronous callbacks
-(fire-and-forget), with HMAC signature authentication.
+This module provides classes for secure callback invocations with HMAC
+signature authentication, supporting both synchronous callbacks (that wait
+for a return value) and asynchronous callbacks (fire-and-forget).
 """
 
 import hashlib
