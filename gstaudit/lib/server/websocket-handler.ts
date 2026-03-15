@@ -26,6 +26,7 @@ export interface WebSocketConnection {
   ws: WebSocket;
   sessionId: string;
   connectionId: string; // The gstaudit-server this client is connected to
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sendMessage: (data: any) => void;
 }
 
@@ -38,12 +39,12 @@ class WebSocketManager {
   }
 
   static getInstance(): WebSocketManager {
-    const globalAny = global as any;
-    if (!globalAny.__webSocketManager) {
+    const globalWithManager = global as typeof global & { __webSocketManager?: WebSocketManager };
+    if (!globalWithManager.__webSocketManager) {
       console.log('[WebSocketManager] Creating new singleton instance');
-      globalAny.__webSocketManager = new WebSocketManager();
+      globalWithManager.__webSocketManager = new WebSocketManager();
     }
-    return globalAny.__webSocketManager;
+    return globalWithManager.__webSocketManager;
   }
 
   /**
@@ -54,6 +55,7 @@ class WebSocketManager {
       ws,
       sessionId,
       connectionId,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       sendMessage: (data: any) => {
         if (ws.readyState === WebSocket.OPEN) {
           ws.send(JSON.stringify(data));

@@ -23,9 +23,9 @@ export const LinkEdge: React.FC<EdgeProps> = ({
   const padWidth = theme.pad.width;
   
   let adjustedSourceX = sourceX;
-  let adjustedSourceY = sourceY;
+  const adjustedSourceY = sourceY;
   let adjustedTargetX = targetX;
-  let adjustedTargetY = targetY;
+  const adjustedTargetY = targetY;
   let adjustedSourcePosition = sourcePosition;
   let adjustedTargetPosition = targetPosition;
   

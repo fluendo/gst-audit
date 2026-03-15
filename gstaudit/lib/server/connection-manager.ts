@@ -30,12 +30,12 @@ class ConnectionManager {
 
   static getInstance(): ConnectionManager {
     // Use global to ensure singleton across module contexts in Next.js
-    const globalAny = global as any;
-    if (!globalAny.__connectionManager) {
+    const globalWithManager = global as typeof global & { __connectionManager?: ConnectionManager };
+    if (!globalWithManager.__connectionManager) {
       console.log('[ConnectionManager] Creating new singleton instance');
-      globalAny.__connectionManager = new ConnectionManager();
+      globalWithManager.__connectionManager = new ConnectionManager();
     }
-    return globalAny.__connectionManager;
+    return globalWithManager.__connectionManager;
   }
 
   /**

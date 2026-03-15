@@ -8,9 +8,21 @@ include = ["script.js"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-connexion = { version = "^3.3.0", extras = ["flask", "swagger-ui","uvicorn"] }
-girest = {path = "../girest", develop = true}
+connexion = { version = "^3.3.0", extras = ["flask", "swagger-ui", "uvicorn"] }
+girest = { path = "../girest", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+ruff = "*"
+pre-commit = "*"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+extend-select = ["FA102", "I"]
+ignore = ["E722"]

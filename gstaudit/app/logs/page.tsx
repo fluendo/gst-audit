@@ -56,11 +56,6 @@ export default function LogsPage() {
     }
   }, [connection, router]);
 
-  // Don't render if not connected
-  if (!connection) {
-    return null;
-  }
-
   // Función para vaciar el buffer y actualizar el estado
   const flushLogs = useCallback(() => {
     // 1. Capturamos el contenido actual del buffer (copia síncrona inmediata)
@@ -194,6 +189,7 @@ export default function LogsPage() {
           line: number,
           object: GObjectObject,
           message: GstDebugMessage,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
           user_data: any
         ) => {
           // Process asynchronously but don't block the callback
@@ -243,6 +239,11 @@ export default function LogsPage() {
       });
     }
   }, [logs, isLogging]);
+
+  // Don't render if not connected (will be redirected by useEffect above)
+  if (!connection) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen p-8 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
@@ -361,7 +362,7 @@ export default function LogsPage() {
               <div className="h-full flex flex-col items-center justify-center text-gray-600">
                 <svg className="w-12 h-12 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
                 <p>No logs captured.</p>
-                <p className="text-xs mt-2">Click "Start" to begin logging.</p>
+                <p className="text-xs mt-2">Click &quot;Start&quot; to begin logging.</p>
               </div>
             )}
           </div>

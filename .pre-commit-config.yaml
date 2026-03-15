@@ -1,0 +1,47 @@
+---
+repos:
+  # Python projects: girest and gstaudit-server
+  - repo: https://github.com/floatingpurr/sync_with_poetry
+    rev: 1.0.0
+    hooks:
+      - id: sync_with_poetry
+
+  # TOML formatting and linting
+  - repo: https://github.com/ComPWA/taplo-pre-commit
+    rev: v0.9.3
+    hooks:
+      - id: taplo-format
+        files: \.toml$
+      - id: taplo-lint
+        files: \.toml$
+        # Skip if offline (catalog fetch fails)
+        stages: [manual]
+
+  # YAML linting
+  - repo: https://github.com/lyz-code/yamlfix
+    rev: 1.17.0
+    hooks:
+      - id: yamlfix
+        files: \.ya?ml$
+
+  # ruff - lint and formatting for Python
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.3
+    hooks:
+      - id: ruff
+        args: [--fix, --show-fixes]
+        files: ^(girest|gstaudit-server)/.*\.py$
+      - id: ruff-format
+        files: ^(girest|gstaudit-server)/.*\.py$
+
+  # Node.js/TypeScript project: gstaudit
+  # Uses system hook to run npm-installed eslint
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint (gstaudit)
+        entry: bash -c 'cd gstaudit && ([ -d node_modules ] || npm install) && npm
+          run lint -- --fix'
+        language: system
+        files: ^gstaudit/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false

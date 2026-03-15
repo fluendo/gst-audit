@@ -6,11 +6,10 @@ patterns used in the GIRest API, particularly for handling GObject introspection
 """
 
 import logging
-from typing import Any, Dict, Optional
-
-from jsonschema import Draft4Validator, ValidationError, validators
+from typing import Dict
 
 from connexion.validators.parameter import ParameterValidator
+from jsonschema import Draft4Validator, ValidationError
 
 logger = logging.getLogger("girest.validators")
 
@@ -18,7 +17,7 @@ logger = logging.getLogger("girest.validators")
 class GIRestParameterValidator(ParameterValidator):
     """
     Enhanced parameter validator that properly handles allOf, anyOf, and oneOf schemas.
-    
+
     This validator extends Connexion's ParameterValidator to support JSON Schema
     composition keywords (allOf, anyOf, oneOf) which are commonly used in the
     GIRest schema for representing GObject type hierarchies.
@@ -28,7 +27,7 @@ class GIRestParameterValidator(ParameterValidator):
     def _create_validator_with_defaults(schema: Dict) -> Draft4Validator:
         """
         Create a JSON Schema validator that properly handles composition keywords.
-        
+
         :param schema: The JSON schema to validate against
         :return: A configured Draft4Validator instance
         """
@@ -38,6 +37,7 @@ class GIRestParameterValidator(ParameterValidator):
             format_checker = Draft4Validator.FORMAT_CHECKER  # type: ignore
         except AttributeError:  # jsonschema < 4.5.0
             from jsonschema import draft4_format_checker
+
             format_checker = draft4_format_checker
 
         return Draft4Validator(schema, format_checker=format_checker)
@@ -46,35 +46,33 @@ class GIRestParameterValidator(ParameterValidator):
     def validate_parameter(parameter_type, value, param, param_name=None):
         """
         Validate a parameter value against its schema, with support for allOf/anyOf/oneOf.
-        
+
         :param parameter_type: Type of parameter (query, path, header, cookie)
         :param value: The value to validate
         :param param: The parameter definition from the spec
         :param param_name: Optional parameter name for error messages
         :return: Error message if validation fails, None otherwise
         """
-        from connexion.utils import is_nullable, is_null
-        
+        from connexion.utils import is_null, is_nullable
+
         if is_nullable(param) and is_null(value):
             return
 
         elif value is not None:
             import copy
+
             param = copy.deepcopy(param)
             param_schema = param.get("schema", param)
-            
+
             try:
                 # Use our enhanced validator that handles composition keywords
-                validator = GIRestParameterValidator._create_validator_with_defaults(
-                    param_schema
-                )
+                validator = GIRestParameterValidator._create_validator_with_defaults(param_schema)
                 validator.validate(value)
             except ValidationError as exception:
                 # Provide more detailed error messages for composition keywords
                 if any(keyword in param_schema for keyword in ["allOf", "anyOf", "oneOf"]):
                     logger.debug(
-                        f"Validation failed for {parameter_type} parameter with "
-                        f"composition schema: {exception}"
+                        f"Validation failed for {parameter_type} parameter with " f"composition schema: {exception}"
                     )
                 return str(exception)
 

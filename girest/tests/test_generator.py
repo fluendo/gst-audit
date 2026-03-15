@@ -16,7 +16,7 @@ import re
 def test_gst_inheritance_chain(gst_typescript):
     """
     Test that GStreamer classes have the correct inheritance chain.
-    
+
     Verifies that:
     - GstPipeline extends GstBin
     - GstBin extends GstElement
@@ -26,18 +26,18 @@ def test_gst_inheritance_chain(gst_typescript):
     - GObjectObject is the base class
     """
     output = gst_typescript
-    
+
     # Define expected inheritance relationships
     expected_classes = [
-        ('GObjectTypeInstance', None),  # Base class with no parent
-        ('GObjectObject', 'GObjectTypeInstance'),  # GObjectObject extends GObjectTypeInstance
-        ('GObjectInitiallyUnowned', 'GObjectObject'),
-        ('GstObject', 'GObjectInitiallyUnowned'),
-        ('GstElement', 'GstObject'),
-        ('GstBin', 'GstElement'),
-        ('GstPipeline', 'GstBin'),
+        ("GObjectTypeInstance", None),  # Base class with no parent
+        ("GObjectObject", "GObjectTypeInstance"),  # GObjectObject extends GObjectTypeInstance
+        ("GObjectInitiallyUnowned", "GObjectObject"),
+        ("GstObject", "GObjectInitiallyUnowned"),
+        ("GstElement", "GstObject"),
+        ("GstBin", "GstElement"),
+        ("GstPipeline", "GstBin"),
     ]
-    
+
     # Verify each class has the correct parent
     for class_name, expected_parent in expected_classes:
         if expected_parent:
@@ -59,7 +59,7 @@ def test_gst_inheritance_chain(gst_typescript):
 def test_gobject_base_class_structure(gst_typescript):
     """
     Test that GObjectObject has the correct structure.
-    
+
     Verifies that GObjectObject includes:
     - Extends GObjectTypeInstance
     - constructor with super() call
@@ -67,79 +67,75 @@ def test_gobject_base_class_structure(gst_typescript):
     - Does NOT have unref method (destructors are excluded from API)
     """
     output = gst_typescript
-    
+
     # Find the GObjectObject class definition
-    match = re.search(
-        r'export class GObjectObject extends GObjectTypeInstance \{(.*?)(?=\nexport )',
-        output,
-        re.DOTALL
-    )
+    match = re.search(r"export class GObjectObject extends GObjectTypeInstance \{(.*?)(?=\nexport )", output, re.DOTALL)
     assert match, "GObjectObject class extending GObjectTypeInstance not found in generated TypeScript"
-    
+
     gobject_class = match.group(0)
-    
+
     # Verify it has the required structure
-    assert 'constructor(ptr?: string, transfer: boolean = false)' in gobject_class, "GObjectObject should have constructor with transfer parameter"
-    assert 'super(ptr, transfer)' in gobject_class, "GObjectObject constructor should call super(ptr, transfer)"
-    assert 'castTo<T extends GObjectObject>(TargetClass:' in gobject_class, "GObjectObject should have castTo method with correct signature"
+    assert (
+        "protected constructor(ptr: string, transferType: transferType)" in gobject_class
+    ), "GObjectObject should have constructor with transferType parameter"
+    assert "super(ptr, 'none')" in gobject_class, "GObjectObject constructor should call super(ptr, 'none')"
+    assert (
+        "static async create(ptr: string, transferType: transferType): Promise<GObjectObject>" in gobject_class
+    ), "GObjectObject should have static create method"
     # Verify that unref method is NOT present (destructors should be excluded from API)
-    assert 'unref():' not in gobject_class, "GObjectObject should NOT have unref method (destructors are excluded from API)"
+    assert (
+        "unref():" not in gobject_class
+    ), "GObjectObject should NOT have unref method (destructors are excluded from API)"
 
 
 def test_intermediate_classes_generated(gst_typescript):
     """
     Test that intermediate classes without instance methods are still generated.
-    
-    Verifies that GObjectInitiallyUnowned is generated as a class in the 
+
+    Verifies that GObjectInitiallyUnowned is generated as a class in the
     inheritance chain with only a static get_type method.
     """
     output = gst_typescript
-    
+
     # GObjectInitiallyUnowned should be generated as a class
-    assert 'export class GObjectInitiallyUnowned extends GObjectObject' in output, (
-        "GObjectInitiallyUnowned should be generated as a class extending GObjectObject"
-    )
-    
+    assert (
+        "export class GObjectInitiallyUnowned extends GObjectObject" in output
+    ), "GObjectInitiallyUnowned should be generated as a class extending GObjectObject"
+
     # It should be a class with only static methods (like get_type)
     match = re.search(
-        r'export class GObjectInitiallyUnowned extends GObjectObject \{(.*?)(?=\nexport )',
-        output,
-        re.DOTALL
+        r"export class GObjectInitiallyUnowned extends GObjectObject \{(.*?)(?=\nexport )", output, re.DOTALL
     )
     assert match, "GObjectInitiallyUnowned class structure not found"
-    
+
     class_body = match.group(1).strip()
     # Class body should contain only static methods, no instance methods
-    assert 'static async get_type():' in class_body, (
-        "GObjectInitiallyUnowned should have static get_type method"
-    )
+    assert "static async get_type():" in class_body, "GObjectInitiallyUnowned should have static get_type method"
     # Should not have instance methods (no 'async ' without 'static async')
-    lines = class_body.split('\n')
-    instance_methods = [line for line in lines if 'async ' in line and 'static async' not in line]
-    assert len(instance_methods) == 0, (
-        f"GObjectInitiallyUnowned should not have instance methods, but found: {instance_methods}"
-    )
+    lines = class_body.split("\n")
+    instance_methods = [line for line in lines if "async " in line and "static async" not in line]
+    assert (
+        len(instance_methods) == 0
+    ), f"GObjectInitiallyUnowned should not have instance methods, but found: {instance_methods}"
 
 
 def test_element_factory_inheritance(gst_typescript):
     """
     Test another inheritance chain: GstElementFactory.
-    
+
     Verifies that GstElementFactory extends GstPluginFeature,
     which extends GstObject, demonstrating that the fix works
     for multiple inheritance chains.
     """
     output = gst_typescript
-    
+
     # Verify GstElementFactory inheritance
-    assert 'export class GstElementFactory extends GstPluginFeature' in output, (
-        "GstElementFactory should extend GstPluginFeature"
-    )
-    
+    assert (
+        "export class GstElementFactory extends GstPluginFeature" in output
+    ), "GstElementFactory should extend GstPluginFeature"
+
     # Verify GstPluginFeature inheritance
-    assert 'export class GstPluginFeature extends GstObject' in output, (
-        "GstPluginFeature should extend GstObject"
-    )
+    assert "export class GstPluginFeature extends GstObject" in output, "GstPluginFeature should extend GstObject"
 
 
 def test_typescript_generation_with_generic_constructors(gst_typescript):
@@ -147,49 +143,49 @@ def test_typescript_generation_with_generic_constructors(gst_typescript):
     Test that TypeScript generator properly handles generic constructors.
     """
     typescript = gst_typescript
-    
+
     # GstMeta should have a static new method in the TypeScript class
-    assert 'export class GstMeta {' in typescript, \
-        "GstMeta should be generated as a class"
-    
+    assert "export class GstMeta {" in typescript, "GstMeta should be generated as a class"
+
     # The class should have a static new() method
-    assert 'static async new():' in typescript or 'static async new(' in typescript, \
-        "GstMeta should have a static new() constructor method"
-    
+    assert (
+        "static async new():" in typescript or "static async new(" in typescript
+    ), "GstMeta should have a static new() constructor method"
+
     # The class should have instance methods
-    assert 'async ' in typescript, \
-        "GstMeta should have async methods"
-    
+    assert "async " in typescript, "GstMeta should have async methods"
+
     print("✓ TypeScript generator creates classes with generic constructors")
 
 
 def test_typescript_class_generation_for_structs(gst_typescript):
     """
     Test that TypeScript generator creates classes for structs with methods.
-    
+
     Uses GstBuffer as a test case.
     """
     typescript = gst_typescript
-    
+
     # Verify GstBuffer is generated as a class, not an interface
-    assert 'export class GstBuffer {' in typescript, \
-        "GstBuffer should be generated as a class"
-    
+    # It extends GstMiniObject
+    assert (
+        "export class GstBuffer extends GstMiniObject {" in typescript
+    ), "GstBuffer should be generated as a class extending GstMiniObject"
+
     # Verify it's not also generated as an interface (avoid duplication)
     # Count occurrences - should only be the class definition
-    interface_count = typescript.count('export interface GstBuffer {')
-    assert interface_count == 0, \
-        f"GstBuffer should not be generated as interface, found {interface_count} occurrences"
-    
+    interface_count = typescript.count("export interface GstBuffer {")
+    assert interface_count == 0, f"GstBuffer should not be generated as interface, found {interface_count} occurrences"
+
     # Verify the class has methods
     # Check for at least one constructor
-    assert 'static async new():' in typescript or 'static async new(' in typescript, \
-        "GstBuffer class should have constructor methods"
-    
+    assert (
+        "static async new():" in typescript or "static async new(" in typescript
+    ), "GstBuffer class should have constructor methods"
+
     # Check for at least one instance method
-    assert 'async add_meta(' in typescript, \
-        "GstBuffer class should have instance methods"
-    
+    assert "async add_meta(" in typescript, "GstBuffer class should have instance methods"
+
     print("✓ TypeScript generator creates class for struct with methods")
 
 
@@ -202,16 +198,15 @@ def test_typescript_class_generation_for_structs_without_methods(gst_typescript)
     typescript = gst_typescript
 
     # Verify GstAllocatorPrivate is generated as a class
-    assert 'export class GstAllocatorPrivate {' in typescript, \
-        "GstAllocatorPrivate should be generated as a class"
-    
+    assert "export class GstAllocatorPrivate {" in typescript, "GstAllocatorPrivate should be generated as a class"
+
     print("✓ TypeScript generator creates class for struct without methods")
 
 
 def test_typescript_parameter_serialization(gst_typescript):
     """
     Test that TypeScript generator properly serializes parameters inline.
-    
+
     Verifies that:
     - Object parameters are serialized inline based on style/explode settings
     - Path parameters with objects use the format `ptr,${this.ptr}` (explode=false)
@@ -219,98 +214,114 @@ def test_typescript_parameter_serialization(gst_typescript):
     - Primitive parameters use String() conversion
     """
     typescript = gst_typescript
-    
+
     # Verify no serializeParam function exists (serialization is done inline)
-    assert 'function serializeParam(' not in typescript, \
-        "serializeParam function should NOT be generated - serialization should be inline"
-    
+    assert (
+        "function serializeParam(" not in typescript
+    ), "serializeParam function should NOT be generated - serialization should be inline"
+
     # Find a method with object parameter (days_between has GLibDate object parameter)
     import re
-    match = re.search(r'async days_between\(date2: GLibDate\)', typescript)
+
+    match = re.search(r"async days_between\(date2: GLibDate\)", typescript)
     if match:
         start_pos = match.start()
-        method_section = typescript[start_pos:start_pos + 500]
-        
+        method_section = typescript[start_pos : start_pos + 500]
+
         # Check that path parameter is serialized inline for objects (explode=false)
-        assert "ptr,${this.ptr}" in method_section, \
-            "Path parameter 'self' should be serialized inline as 'ptr,${this.ptr}'"
-        
+        assert (
+            "ptr,${this.ptr}" in method_section
+        ), "Path parameter 'self' should be serialized inline as 'ptr,${this.ptr}'"
+
         # Check that query parameter is serialized inline for objects (explode=false)
-        assert "'ptr,' + date2.ptr" in method_section or '"ptr," + date2.ptr' in method_section, \
-            "Query parameter 'date2' should be serialized inline as 'ptr,' + date2.ptr"
-    
+        assert (
+            "'ptr,' + date2.ptr" in method_section or '"ptr," + date2.ptr' in method_section
+        ), "Query parameter 'date2' should be serialized inline as 'ptr,' + date2.ptr"
+
     # Find a method with primitive parameter (set_day has number parameter)
-    match = re.search(r'async set_day\(day: number\)', typescript)
+    match = re.search(r"async set_day\(day: number\)", typescript)
     if match:
         start_pos = match.start()
-        method_section = typescript[start_pos:start_pos + 500]
-        
+        method_section = typescript[start_pos : start_pos + 500]
+
         # Primitive parameters should use String() conversion
-        assert "String(day)" in method_section, \
-            "Primitive parameter 'day' should use String() conversion"
-        
+        assert "String(day)" in method_section, "Primitive parameter 'day' should use String() conversion"
+
         # Path parameter should still be serialized for object
-        assert "ptr,${this.ptr}" in method_section, \
-            "Path parameter 'self' should be serialized inline even for methods with primitive query params"
-    
+        assert (
+            "ptr,${this.ptr}" in method_section
+        ), "Path parameter 'self' should be serialized inline even for methods with primitive query params"
+
     print("✓ TypeScript generator serializes parameters inline with correct style/explode")
 
 
 def test_typescript_object_return_value_instantiation(gst_typescript):
     """
     Test that TypeScript generator properly instantiates object return values.
-    
+
     Verifies that:
     - Methods returning objects/structs instantiate them from the ptr field
     - The instantiation code checks if data.return is an object with a ptr field
     - Primitive return values are returned directly without instantiation
     """
     typescript = gst_typescript
-    
+
     # Find a method that returns an object (copy method of GstAllocationParams)
     import re
+
     # Look for the copy method in GstAllocationParams class
-    gst_allocation_match = re.search(r'export class GstAllocationParams.*?(?=export class|export namespace|$)', typescript, re.DOTALL)
+    gst_allocation_match = re.search(
+        r"export class GstAllocationParams.*?(?=export class|export namespace|$)", typescript, re.DOTALL
+    )
     if gst_allocation_match:
         allocation_class = gst_allocation_match.group(0)
-        copy_match = re.search(r'async copy\(\): Promise<GstAllocationParams>.*?(?=\n  async |\n  static |\n})', allocation_class, re.DOTALL)
+        copy_match = re.search(
+            r"async copy\(\): Promise<GstAllocationParams>.*?(?=\n  async |\n  static |\n})",
+            allocation_class,
+            re.DOTALL,
+        )
         if copy_match:
             method_section = copy_match.group(0)
-            
+
             # Check that it instantiates the object from ptr
-            assert "new GstAllocationParams(data.return.ptr)" in method_section, \
-                "Method returning object should instantiate it using 'new GstAllocationParams(data.return.ptr)'"
-            
+            assert (
+                "new GstAllocationParams(data.return.ptr)" in method_section
+            ), "Method returning object should instantiate it using 'new GstAllocationParams(data.return.ptr)'"
+
             # Check that it checks for the ptr field
-            assert "typeof data.return === 'object' && 'ptr' in data.return" in method_section, \
-                "Method returning object should check if data.return is an object with ptr field"
-    
+            assert (
+                "typeof data.return === 'object' && 'ptr' in data.return" in method_section
+            ), "Method returning object should check if data.return is an object with ptr field"
+
     # Find a method that returns a primitive (get_name or similar) - look for one without object instantiation
-    match = re.search(r'async get_name\(\): Promise<string> \{[^}]*const data = await response\.json\(\);[^}]*return data\.return;[^}]*\}', typescript, re.DOTALL)
+    match = re.search(
+        r"async get_name\(\): Promise<string> \{[^}]*const data = await response\.json\(\);[^}]*return data\.return;[^}]*\}",
+        typescript,
+        re.DOTALL,
+    )
     if match:
         method_section = match.group(0)
-        
+
         # Check that it doesn't have object instantiation code for primitives
         # It's OK to have "new URL" but not "new GstXXX" or similar object instantiation
         if "new " in method_section:
-            assert method_section.count("new ") == method_section.count("new URL"), \
-                "Method returning primitive should only use 'new' for URL creation, not object instantiation"
-        
+            assert method_section.count("new ") == method_section.count(
+                "new URL"
+            ), "Method returning primitive should only use 'new' for URL creation, not object instantiation"
+
         # It should just return data.return directly (without instantiation logic)
-        assert "return data.return;" in method_section, \
-            "Method returning primitive should return data.return directly"
-        
+        assert "return data.return;" in method_section, "Method returning primitive should return data.return directly"
+
         # It should NOT have object instantiation logic
-        assert "data.return.ptr" not in method_section, \
-            "Method returning primitive should not access data.return.ptr"
-    
+        assert "data.return.ptr" not in method_section, "Method returning primitive should not access data.return.ptr"
+
     print("✓ TypeScript generator instantiates object return values correctly")
 
 
 def test_typescript_duplicate_method_names_in_inheritance_chain(gst_typescript):
     """
     Test that TypeScript generator handles duplicate method names in inheritance chain.
-    
+
     Verifies that:
     - When a child class has a method with the same name as a parent class method,
       the child method gets a suffix (_2, _3, etc.)
@@ -320,136 +331,49 @@ def test_typescript_duplicate_method_names_in_inheritance_chain(gst_typescript):
     """
     typescript = gst_typescript
     import re
-    
+
     # Find GstObject class and verify it has get_g_value_array method
     gst_object_match = re.search(
-        r'export class GstObject extends.*?(?=export class|export namespace|$)',
-        typescript,
-        re.DOTALL
+        r"export class GstObject extends.*?(?=export class|export namespace|$)", typescript, re.DOTALL
     )
     assert gst_object_match, "GstObject class not found in generated TypeScript"
-    
+
     gst_object_class = gst_object_match.group(0)
-    
+
     # Verify GstObject has get_g_value_array method (without suffix)
-    assert re.search(r'async get_g_value_array\(', gst_object_class), \
-        "GstObject should have get_g_value_array method"
-    
+    assert re.search(r"async get_g_value_array\(", gst_object_class), "GstObject should have get_g_value_array method"
+
     # Verify GstObject doesn't have get_g_value_array_2 (it's the parent)
-    assert not re.search(r'async get_g_value_array_2\(', gst_object_class), \
-        "GstObject should not have get_g_value_array_2 method (it's the parent)"
-    
+    assert not re.search(
+        r"async get_g_value_array_2\(", gst_object_class
+    ), "GstObject should not have get_g_value_array_2 method (it's the parent)"
+
     # Find GstControlBinding class and verify it has get_g_value_array_2 method
     control_binding_match = re.search(
-        r'export class GstControlBinding extends.*?(?=export class|export namespace|$)',
-        typescript,
-        re.DOTALL
+        r"export class GstControlBinding extends.*?(?=export class|export namespace|$)", typescript, re.DOTALL
     )
     assert control_binding_match, "GstControlBinding class not found in generated TypeScript"
-    
+
     control_binding_class = control_binding_match.group(0)
-    
+
     # Verify GstControlBinding has get_g_value_array_2 method (with suffix)
-    assert re.search(r'async get_g_value_array_2\(', control_binding_class), \
-        "GstControlBinding should have get_g_value_array_2 method (renamed to avoid conflict with parent)"
-    
+    assert re.search(
+        r"async get_g_value_array_2\(", control_binding_class
+    ), "GstControlBinding should have get_g_value_array_2 method (renamed to avoid conflict with parent)"
+
     # Verify GstControlBinding doesn't have get_g_value_array (without suffix)
     # The method name should be followed directly by ( without any _ suffix
-    assert 'async get_g_value_array(' not in control_binding_class or \
-           'async get_g_value_array_' in control_binding_class, \
-        "GstControlBinding should not have get_g_value_array method (conflicts with parent)"
-    
-    print("✓ TypeScript generator handles duplicate method names in inheritance chain correctly")
+    assert (
+        "async get_g_value_array(" not in control_binding_class or "async get_g_value_array_" in control_binding_class
+    ), "GstControlBinding should not have get_g_value_array method (conflicts with parent)"
 
-
-def test_typescript_duplicate_constructor_names_in_inheritance_chain(gst_typescript):
-    """
-    Test that TypeScript generator handles duplicate constructor names in inheritance chain.
-    
-    Verifies that:
-    - When a child class has a constructor with the same name as a parent class constructor,
-      the child constructor gets a suffix (_2, _3, etc.)
-    - GstBin has new constructor
-    - GstPipeline (which extends GstBin) has new_2 constructor
-    - GstTaskPool has new constructor
-    - GstSharedTaskPool (which extends GstTaskPool) has new_2 constructor
-    """
-    typescript = gst_typescript
-    import re
-    
-    # Find GstBin class and verify it has new constructor
-    bin_match = re.search(
-        r'export class GstBin extends GstElement \{(.*?)(?=export class)',
-        typescript,
-        re.DOTALL
-    )
-    assert bin_match, "GstBin class not found in generated TypeScript"
-    
-    bin_class = bin_match.group(0)
-    
-    # Verify GstBin has new constructor (without suffix)
-    assert re.search(r'static async new\(', bin_class), \
-        "GstBin should have new constructor"
-    
-    # Find GstPipeline class and verify it has new_2 constructor
-    pipeline_match = re.search(
-        r'export class GstPipeline extends GstBin \{(.*?)(?=export class|export namespace|$)',
-        typescript,
-        re.DOTALL
-    )
-    assert pipeline_match, "GstPipeline class not found in generated TypeScript"
-    
-    pipeline_class = pipeline_match.group(0)
-    
-    # Verify GstPipeline has new_2 constructor (with suffix)
-    assert re.search(r'static async new_2\(', pipeline_class), \
-        "GstPipeline should have new_2 constructor (renamed to avoid conflict with parent)"
-    
-    # Verify GstPipeline doesn't have plain new constructor
-    assert 'static async new(' not in pipeline_class or \
-           'static async new_' in pipeline_class, \
-        "GstPipeline should not have plain new constructor (conflicts with parent)"
-    
-    # Find GstTaskPool class and verify it has new constructor
-    task_pool_match = re.search(
-        r'export class GstTaskPool extends GstObject \{(.*?)(?=export class)',
-        typescript,
-        re.DOTALL
-    )
-    assert task_pool_match, "GstTaskPool class not found in generated TypeScript"
-    
-    task_pool_class = task_pool_match.group(0)
-    
-    # Verify GstTaskPool has new constructor (without suffix)
-    assert re.search(r'static async new\(', task_pool_class), \
-        "GstTaskPool should have new constructor"
-    
-    # Find GstSharedTaskPool class and verify it has new_2 constructor
-    shared_task_pool_match = re.search(
-        r'export class GstSharedTaskPool extends GstTaskPool \{(.*?)(?=export class|export namespace|$)',
-        typescript,
-        re.DOTALL
-    )
-    assert shared_task_pool_match, "GstSharedTaskPool class not found in generated TypeScript"
-    
-    shared_task_pool_class = shared_task_pool_match.group(0)
-    
-    # Verify GstSharedTaskPool has new_2 constructor (with suffix)
-    assert re.search(r'static async new_2\(', shared_task_pool_class), \
-        "GstSharedTaskPool should have new_2 constructor (renamed to avoid conflict with parent)"
-    
-    # Verify GstSharedTaskPool doesn't have plain new constructor
-    assert 'static async new(' not in shared_task_pool_class or \
-           'static async new_' in shared_task_pool_class, \
-        "GstSharedTaskPool should not have plain new constructor (conflicts with parent)"
-    
     print("✓ TypeScript generator handles duplicate method names in inheritance chain correctly")
 
 
 def test_typescript_destructors_included_in_api(gst_typescript):
     """
     Test that methods marked as x-gi-destructor are included in the TypeScript API.
-    
+
     Verifies that:
     - Destructors like 'free' and 'unref' are generated as callable methods
     - They are needed for proper memory management when API calls fail
@@ -458,112 +382,112 @@ def test_typescript_destructors_included_in_api(gst_typescript):
     """
     typescript = gst_typescript
     import re
-    
+
     # Test 1: GObjectTypeInterface should have a callable 'free' method
     type_interface_match = re.search(
-        r'export class GObjectTypeInterface.*?(?=export class|export namespace|$)',
-        typescript,
-        re.DOTALL
+        r"export class GObjectTypeInterface.*?(?=export class|export namespace|$)", typescript, re.DOTALL
     )
     assert type_interface_match, "GObjectTypeInterface class not found in generated TypeScript"
-    
+
     class_content = type_interface_match.group(0)
     # Should have a callable free method for manual cleanup
-    assert 'async free(' in class_content, \
-        "GObjectTypeInterface should have a callable free method for manual cleanup"
-    
+    assert "async free(" in class_content, "GObjectTypeInterface should have a callable free method for manual cleanup"
+
     # Test 2: GObjectObject should have a callable 'unref' method
     gobject_match = re.search(
-        r'export class GObjectObject.*?(?=export class|export namespace|$)',
-        typescript,
-        re.DOTALL
+        r"export class GObjectObject.*?(?=export class|export namespace|$)", typescript, re.DOTALL
     )
     assert gobject_match, "GObjectObject class not found in generated TypeScript"
-    
+
     gobject_content = gobject_match.group(0)
     # Should have a callable unref method for manual cleanup
-    assert 'async unref(' in gobject_content, \
-        "GObjectObject should have a callable unref method for manual cleanup"
-    
+    assert "async unref(" in gobject_content, "GObjectObject should have a callable unref method for manual cleanup"
+
     # Test 3: FinalizationRegistry system should still be present
-    assert 'FinalizationRegistry' in typescript, \
-        "FinalizationRegistry should be present for automatic memory management"
-    
+    assert (
+        "FinalizationRegistry" in typescript
+    ), "FinalizationRegistry should be present for automatic memory management"
+
     # Test 4: Struct registries should be generated for cleanup
-    assert 'gobjecttypeinterfaceRegistry' in typescript, \
-        "gobjecttypeinterfaceRegistry should be present for GObjectTypeInterface cleanup"
-    
-    # Test 5: Constructor registration should still work
-    assert 'register(this, ptr)' in class_content, \
-        "Constructor should register objects with FinalizationRegistry"
-    
+    assert (
+        "gobjecttypeinterfaceRegistry" in typescript
+    ), "gobjecttypeinterfaceRegistry should be present for GObjectTypeInterface cleanup"
+
+    # Test 5: Static create() method should conditionally register with FinalizationRegistry
+    assert (
+        "static async create(ptr: string, transferType: transferType)" in class_content
+    ), "GObjectTypeInterface should have static create() method"
+    assert (
+        "gobjecttypeinterfaceRegistry.register(instance, ptr)" in class_content
+    ), "Static create() method should register objects with FinalizationRegistry based on transferType"
+
     print("✓ TypeScript generator includes destructors in API for proper memory management")
 
 
 def test_param_class():
     """Test the new Param class functionality with Type class."""
     from girest.generator import Param, Type, TypeScriptGenerator
-    
+
     # Create a minimal generator for testing
     schema = {"info": {"title": "Test", "version": "1.0"}, "components": {"schemas": {}}, "paths": {}}
     generator = TypeScriptGenerator(schema)
-    
+
     # Test basic parameter parsing
     param_def = {
         "name": "test_param",
         "schema": {"type": "string"},
         "required": True,
         "in": "query",
-        "description": "A test parameter"
+        "description": "A test parameter",
     }
-    
+
     param = Param(param_def, generator)
-    
+
     assert param.name == "test_param"
-    assert param.required == True
+    assert param.required
     assert param.location == "query"
     assert param.description == "A test parameter"
     assert param.type.lang_type == "string"
     assert param.type.type == "string"
-    
+
     # Test parameter with reference type
     ref_param_def = {
         "name": "object_param",
         "schema": {"$ref": "#/components/schemas/GstElement"},
         "required": False,
-        "in": "query"
+        "in": "query",
     }
-    
+
     # Create a mock GstElement schema
     class MockGstElement:
         def __init__(self):
             self.name = "GstElement"
             self.valid_name = "GstElement"
-    
+
     generator.schema_objects_cache["GstElement"] = MockGstElement()
-    
+
     ref_param = Param(ref_param_def, generator)
-    
+
     assert ref_param.name == "object_param"
-    assert ref_param.required == False
+    assert not ref_param.required
     assert ref_param.type.ref_schema.name == "GstElement"
-    assert ref_param.type.is_ref == True
+    assert ref_param.type.is_ref
     assert ref_param.type.lang_type == "GstElement"
-    
+
     # Test Type class directly
     type_obj = Type({"type": "number"}, generator)
     assert type_obj.lang_type == "number"
-    
+
     # Create a proper mock schema for TestType
     class MockTestType:
         def __init__(self):
             self.name = "TestType"
             self.valid_name = "TestType"
-    
+
     generator.schema_objects_cache["TestType"] = MockTestType()
-    
+
     ref_type_obj = Type({"$ref": "#/components/schemas/TestType"}, generator)
     assert ref_type_obj.ref_schema.name == "TestType"
     assert ref_type_obj.lang_type == "TestType"
-    
+
     print("✓ Param class correctly parses parameter definitions and handles types with new Type class")
