@@ -237,7 +237,6 @@ export function initializeWebSocketServer(wss: WebSocketServer): void {
           
           handleCallbackResponse(invocationId, message.result);
         }
-        
       } catch (error) {
         console.error('Error handling WebSocket message:', error);
       }
@@ -245,7 +244,7 @@ export function initializeWebSocketServer(wss: WebSocketServer): void {
     
     ws.on('close', () => {
       console.log(`WebSocket client disconnected: ${sessionId}`);
-      
+
       // Unregister from WebSocketManager
       const wsManager = getWebSocketManager();
       wsManager.unregister(sessionId);

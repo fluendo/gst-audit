@@ -243,7 +243,10 @@ export class ServerCallbackHandler implements ICallbackHandler {
     console.log(`[Server] Registered callback: ${callbackId}`, metadata);
 
     // Build callback URL pointing to Next.js API route
+    // IMPORTANT: Include server sessionId so the callback route can distinguish
+    // between server-side callbacks (connectionId) and browser callbacks (tab sessionId)
     const url = new URL(`/api/callbacks/${callbackId}`, this.baseUrl);
+    url.searchParams.set('sessionId', this.sessionId);
 
     return {
       callbackUrl: url.toString(),
