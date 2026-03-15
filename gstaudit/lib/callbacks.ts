@@ -36,8 +36,8 @@ export type CallbackFunction = (...args: any[]) => void | Promise<void>;
 export type ConverterFunction = (data: any) => Promise<any[]> | any[];
 
 /**
- * Interface for callback handling in non-SSE mode
- * This matches the ICallbackHandler interface from generated non-SSE bindings
+ * Interface for callback handling
+ * This matches the ICallbackHandler interface from generated bindings
  */
 export interface ICallbackHandler {
   registerCallback(

@@ -5,10 +5,10 @@
 {% set callback_url_params = [] %}
 {% set header_params_list = [] %}
 
-{# Process query parameters - skip callback URL params in non-SSE mode as they're handled separately #}
+{# Process query parameters - skip callback URL params as they're handled separately #}
 {% for param in method.query_params %}
   {% if param.is_callback %}
-    {# Non-SSE mode: callback URL parameter - we'll handle this separately #}
+    {# Callback URL parameter - we'll handle this separately #}
     {% set _ = callback_url_params.append(param) %}
   {% else %}
     {% set ts_type = param.type.lang_type %}
@@ -20,34 +20,23 @@
   {% endif %}
 {% endfor %}
 
-{# For SSE mode: Add callback function parameters from return parameters that are callbacks #}
-{% if method.uses_sse_callbacks %}
-  {% for return_param in method.return_obj.return_params %}
-    {% if return_param.is_callback %}
-      {% set _ = callback_params.append(return_param.valid_name + ": " + return_param.callback.name) %}
-    {% endif %}
-  {% endfor %}
-{% endif %}
+{# Add callback function parameters for each callback_url param #}
+{% for cb_url_param in callback_url_params %}
+  {# Find the callback schema reference #}
+  {% set cb_ref = cb_url_param.schema_section.get('x-gi-callback', '') %}
+  {% set cb_schema_name = cb_ref.split('/')[-1] if cb_ref else 'Function' %}
+  {% set _ = callback_params.append(cb_url_param.valid_name + ": " + cb_schema_name) %}
+{% endfor %}
 
-{# For non-SSE mode: Add callback function parameters for each callback_url param #}
-{% if not method.uses_sse_callbacks %}
-  {% for cb_url_param in callback_url_params %}
-    {# Find the callback schema reference #}
-    {% set cb_ref = cb_url_param.schema_section.get('x-gi-callback', '') %}
-    {% set cb_schema_name = cb_ref.split('/')[-1] if cb_ref else 'Function' %}
-    {% set _ = callback_params.append(cb_url_param.valid_name + ": " + cb_schema_name) %}
-  {% endfor %}
-  
-  {# Add header parameters for non-SSE mode (sessionId, callbackSecret) #}
-  {% for header_param in method.header_params %}
-    {% set _ = header_params_list.append(header_param) %}
-    {% if header_param.required %}
-      {% set _ = required_params.append(header_param.valid_name.replace('-', '_') + ": string") %}
-    {% else %}
-      {% set _ = optional_params.append(header_param.valid_name.replace('-', '_') + "?: string") %}
-    {% endif %}
-  {% endfor %}
-{% endif %}
+{# Add header parameters (sessionId, callbackSecret) #}
+{% for header_param in method.header_params %}
+  {% set _ = header_params_list.append(header_param) %}
+  {% if header_param.required %}
+    {% set _ = required_params.append(header_param.valid_name.replace('-', '_') + ": string") %}
+  {% else %}
+    {% set _ = optional_params.append(header_param.valid_name.replace('-', '_') + "?: string") %}
+  {% endif %}
+{% endfor %}
 
 {% set all_params = required_params + callback_params + optional_params %}
 {% set params_string = all_params | join(", ") %}
@@ -57,8 +46,7 @@
 {% if method.return_obj.return_params %}
   {% if method.return_obj.return_params|length == 1 %}
     {% set return_param = method.return_obj.return_params[0] %}
-    {# In SSE mode, callback params are in the return; skip them for the TS return type #}
-    {% if not (method.uses_sse_callbacks and return_param.is_callback) %}
+    {% if not return_param.is_callback %}
       {% set method_return_signature = return_param.type.lang_type %}
       {% if return_param.can_be_null %}
         {% set method_return_signature = method_return_signature + " | null" %}
@@ -67,8 +55,7 @@
   {% else %}
     {% set return_type_parts = [] %}
     {% for return_param in method.return_obj.return_params %}
-      {# In SSE mode, skip callback params from the return type #}
-      {% if not (method.uses_sse_callbacks and return_param.is_callback) %}
+      {% if not return_param.is_callback %}
         {% set type_str = return_param.type.lang_type %}
         {% if return_param.can_be_null %}
           {% set type_str = type_str + " | null" %}
@@ -113,10 +100,9 @@
 {% include 'param.ts.j2' %}
   {% endif %}
 {% endfor %}
-{% if not method.uses_sse_callbacks %}
-{# Non-SSE mode: Use callback handler interface #}
+{# Use callback handler interface #}
 {% for cb_url_param in callback_url_params %}
-    // Non-SSE mode: Register callback using the callback handler
+    // Register callback using the callback handler
     let {{ cb_url_param.name }}_callbackInfo: { callbackUrl: string; callbackId: string } | undefined;
     if (typeof {{ cb_url_param.valid_name }} !== 'undefined') {
       const callbackHandler = getCallbackHandler();
@@ -138,10 +124,9 @@
       url.searchParams.append('{{ cb_url_param.name }}', {{ cb_url_param.name }}_callbackInfo.callbackUrl);
     }
 {% endfor %}
-{% endif %}
     try {
-{% if not method.uses_sse_callbacks and header_params_list|length > 0 %}
-      // Non-SSE mode: Add headers for callback authentication
+{% if header_params_list|length > 0 %}
+      // Add headers for callback authentication
       const headers: Record<string, string> = {};
 {% for header_param in header_params_list %}
       {% set header_var_name = header_param.valid_name.replace('-', '_') %}
@@ -175,17 +160,6 @@
       }
 {% if not method.return_obj.is_void or method.callback_params %}
       const data = await response.json();
-{% if method.uses_sse_callbacks and method.callback_params %}
-      // SSE mode: Register callbacks with dispatcher
-{% for cb in method.callback_params %}
-      if (data.{{ cb.name }} !== undefined) {
-        callbackDispatcher.set(data.{{ cb.name }}.toString(), {
-          converter: convert{{ cb.callback.name }}Args,
-          userFunction: {{ cb.valid_name }}
-        });
-      }
-{% endfor %}
-{% endif %}
 {% if not method.return_obj.is_void %}
   {{ method.return_obj.generate() }}
 {% else %}

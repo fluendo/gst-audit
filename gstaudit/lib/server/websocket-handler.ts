@@ -133,7 +133,7 @@ async function initializeConnection(
   // Get or create handler for this connection
   const handler = manager.getOrCreateHandler(connectionId, { host, port });
   
-  // Configure non-SSE bindings and register callbacks
+  // Configure bindings and register callbacks
   const { setApiConfig, setCallbackHandler } = await import('@/lib/gst');
   
   setApiConfig({ host, port, basePath: '/girest' });

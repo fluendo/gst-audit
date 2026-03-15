@@ -6,7 +6,7 @@
 {% set header_params_list = [] %}
 {% set body_props = [] %}
 
-{# Process header parameters (session-id, callback-secret in non-SSE mode) #}
+{# Process header parameters (session-id, callback-secret) #}
 {% for header_param in method.header_params %}
   {% set _ = header_params_list.append(header_param) %}
   {% if header_param.required %}
@@ -19,7 +19,7 @@
 {# Process body properties #}
 {% for prop in method.body_properties %}
   {% if prop.is_callback %}
-    {# Non-SSE mode: callback URL parameter - we'll handle this separately #}
+    {# Callback URL parameter - we'll handle this separately #}
     {% set _ = callback_url_params.append(prop) %}
     {# Add the callback function parameter #}
     {% set cb_schema_name = prop.callback %}
@@ -91,7 +91,7 @@
 {% endfor %}
     const url = new URL(`${apiConfig.normalizedBasePath}{{ ns.method_path }}`, apiConfig.baseUrl);
     try {
-      // Non-SSE mode: Add headers for callback authentication
+      // Add headers for callback authentication
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
@@ -106,7 +106,7 @@
       const body: Record<string, any> = {};
 {% for prop in method.body_properties %}
   {% if prop.is_callback %}
-      // Non-SSE mode: Register callback using the callback handler
+      // Register callback using the callback handler
       if (typeof {{ prop.valid_name }} !== 'undefined') {
         const callbackHandler = getCallbackHandler();
         if (!callbackHandler) {

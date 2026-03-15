@@ -53,10 +53,6 @@ The schema generator (`girest/girest/main.py`) converts GObject Introspection me
 ```bash
 # Generate OpenAPI schema in JSON format
 python3 girest-dump-schema.py Gst 1.0 -o gst-schema.json
-
-# Options:
-#   --sse-only    SSE-style callbacks (EventSource-based)
-#   (default)     URL-based callbacks (HTTP POST)
 ```
 
 ### GI Features and OpenAPI Mapping
@@ -123,53 +119,9 @@ python3 girest-dump-schema.py Gst 1.0 -o gst-schema.json
 // Returns: { return: true, cur: 1234567890 }
 ```
 
-#### Callbacks - Dual Mode Support
+#### Callbacks
 
 **GI Feature**: Function pointers with scope (call, async, notified, forever)
-
-GIRest supports two callback modes:
-
-##### SSE Mode (Server-Sent Events) - `--sse-only`
-
-**When to use**: Browser clients, simple integration, persistent connections
-
-**OpenAPI Mapping**:
-- Callbacks return integer IDs in response
-- Single `/GIRest/callbacks` endpoint (text/event-stream)
-- Events dispatched with `{ id: callbackId, data: {...} }`
-
-**Features**:
-- ✅ Synchronous callbacks (scope: call) - **Excluded** in SSE-only mode
-- ✅ Asynchronous callbacks (scope: async, notified, forever)
-- ✅ Automatic reconnection
-- ✅ Built-in EventSource support
-
-**Schema Example**:
-```json
-{
-  "responses": {
-    "200": {
-      "content": {
-        "application/json": {
-          "schema": {
-            "properties": {
-              "func": {
-                "type": "integer",
-                "description": "Callback ID",
-                "x-gi-callback": "#/components/schemas/GstLogFunction"
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-##### URL-Based Callbacks Mode (Default)
-
-**When to use**: Server-to-server, custom callback handling, all callback types
 
 **OpenAPI Mapping**:
 - Callback URL parameters: `{name}_url` (e.g., `func_url`)
@@ -178,7 +130,7 @@ GIRest supports two callback modes:
 - HMAC signature verification
 
 **Features**:
-- ✅ All callback scopes supported (sync and async)
+- ✅ All callback scopes supported (synchronous and asynchronous)
 - ✅ No persistent connection required
 - ✅ Flexible routing and authentication
 - ✅ Custom callback infrastructure integration
@@ -217,7 +169,7 @@ GIRest supports two callback modes:
 }
 ```
 
-**Callback Payload** (URL mode):
+**Callback Payload**:
 ```json
 {
   "sessionId": "client-session-123",
@@ -230,12 +182,12 @@ GIRest supports two callback modes:
 
 ##### Callback Scope Handling
 
-| GI Scope | Description | SSE Mode | URL Mode |
-|----------|-------------|----------|----------|
-| `CALL` | Synchronous, called during function execution | ❌ Excluded | ✅ Supported |
-| `ASYNC` | Fire-and-forget, no guarantee of invocation | ✅ Supported | ✅ Supported |
-| `NOTIFIED` | Called multiple times until destroyed | ✅ Supported | ✅ Supported |
-| `FOREVER` | Never destroyed, called indefinitely | ✅ Supported | ✅ Supported |
+| GI Scope | Description | Support |
+|----------|-------------|---------|
+| `CALL` | Synchronous, called during function execution | ✅ Supported |
+| `ASYNC` | Fire-and-forget, no guarantee of invocation | ✅ Supported |
+| `NOTIFIED` | Called multiple times until destroyed | ✅ Supported |
+| `FOREVER` | Never destroyed, called indefinitely | ✅ Supported |
 
 #### Pointer Types
 
@@ -304,7 +256,6 @@ Custom extensions used throughout the schema:
 | `x-gi-null` | Nullable type | `true` |
 | `x-gi-callback` | Callback schema ref | `"#/components/schemas/GstLogFunction"` |
 | `x-gi-callback-style` | Callback type | `"sync"`, `"async"` |
-| `x-girest-callback-mode` | API mode | `"sse"`, `"url"` |
 
 ---
 
@@ -349,7 +300,7 @@ The GIRest server (`girest-frida.py`) uses [Frida](https://frida.re) to inject i
 │  ┌────────────────────────────────────────────────────┐  │
 │  │  GIResolver (girest/resolvers.py)                  │  │
 │  │  • Maps HTTP requests to Frida RPC calls           │  │
-│  │  • Handles callbacks (SSE or URL-based)            │  │
+│  │  • Handles callbacks (URL-based)                   │  │
 │  │  • Manages callback lifecycle                      │  │
 │  └────────────────────────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────┘
@@ -374,31 +325,6 @@ The JavaScript agent (`girest/girest.js`) handles:
 - **Reference Counting**: GObject ref/unref handling
 
 ### Callback Handling in Frida
-
-#### SSE Mode
-
-```javascript
-// Create native callback
-const cb_id = callbacks.size;
-const cb = new NativeCallback((...args) => {
-  // Serialize arguments
-  const data = {};
-  for (var cb_a of cb_def) {
-    data[cb_a.name] = args[idx++];
-  }
-  
-  // Send via SSE
-  send({
-    kind: "callback",
-    data: { id: cb_id, data: data }
-  });
-}, "void", cb_sig);
-
-callbacks.set(cb_id.toString(), cb);
-return cb_id; // Return to client
-```
-
-#### URL Mode
 
 ```javascript
 // Create native callback that POSTs to client URL
@@ -440,9 +366,6 @@ python3 girest-frida.py --name gst-launch-1.0 Gst 1.0
 # Custom port
 python3 girest-frida.py --pid 12345 --port 8080 Gst 1.0
 
-# SSE-only mode
-python3 girest-frida.py --pid 12345 --sse-only Gst 1.0
-
 # Access Swagger UI
 # http://localhost:9000/ui
 ```
@@ -451,7 +374,6 @@ python3 girest-frida.py --pid 12345 --sse-only Gst 1.0
 
 | Endpoint | Purpose |
 |----------|---------|
-| `/GIRest/callbacks` | SSE endpoint for callback events (SSE mode only) |
 | `/ui` | Swagger UI for API exploration |
 
 > **Note**: The `/GIRest/pipelines` endpoint is part of gstaudit-server, not the base GIRest framework.
@@ -475,11 +397,6 @@ python3 girest-client-generator.py Gst 1.0 \
 python3 girest-client-generator.py Gst 1.0 \
   --base-path /api/v1 \
   --output gst.ts
-
-# SSE mode
-python3 girest-client-generator.py Gst 1.0 \
-  --sse-only \
-  --output gst-sse.ts
 ```
 
 ### Generated Code Structure
@@ -489,13 +406,7 @@ python3 girest-client-generator.py Gst 1.0 \
 const apiConfig = { host, port, basePath, ... };
 export function setApiConfig(config) { ... }
 
-// SSE mode: EventSource for callbacks
-const callbackDispatcher = new Map<string, Function>();
-const callbackSource = new EventSource('/GIRest/callbacks');
-
-// OR
-
-// URL mode: Callback handler interface
+// Callback handler interface
 export interface ICallbackHandler {
   registerCallback(func, metadata): { callbackUrl, callbackId };
   unregisterCallback(callbackId): void;
@@ -516,53 +427,53 @@ export namespace Gst {
 
 ### Key Features
 
-#### Callbacks (SSE Mode - EventSource-based)
+#### Callbacks
 
 **Generated Code**:
 
 ```typescript
 export async function debug_add_log_function(
+  session_id: string,
+  callback_secret: string,
   func: GstLogFunction
 ): Promise<void> {
-  const url = new URL('/Gst/debug_add_log_function', apiConfig.baseUrl);
-  const response = await fetch(url.toString());
-  const data = await response.json();
+  const callbackHandler = getCallbackHandler();
+  const { callbackUrl } = callbackHandler.registerCallback(func, convertGstLogFunctionArgs, {
+    methodName: 'debug_add_log_function',
+    paramName: 'func'
+  });
   
-  // Automatically register callback with dispatcher
-  if (data.func !== undefined) {
-    callbackDispatcher.set(data.func.toString(), {
-      converter: convertGstLogFunctionArgs,
-      userFunction: func
-    });
-  }
+  const url = new URL('/Gst/debug_add_log_function', apiConfig.baseUrl);
+  url.searchParams.append('func', callbackUrl);
+  
+  const response = await fetch(url.toString(), {
+    headers: {
+      'session-id': session_id,
+      'callback-secret': callback_secret
+    }
+  });
 }
-
-// EventSource automatically dispatches callbacks
-callbackSource.onmessage = (ev) => {
-  const json = JSON.parse(ev.data);
-  const callbackEntry = callbackDispatcher.get(json.id.toString());
-  if (callbackEntry) {
-    const args = callbackEntry.converter(json.data);
-    callbackEntry.userFunction(...args);
-  }
-};
 ```
 
 **Usage**:
 
 ```typescript
-import { Gst } from './gst';
+import { Gst, setCallbackHandler } from './gst';
+import { MyCallbackHandler } from './my-handler';
+
+// Set up callback handler
+setCallbackHandler(new MyCallbackHandler());
 
 // Define callback
 function onLog(category, level, file, func, line, obj, message) {
   console.log(`${file}:${line} - ${message}`);
 }
 
-// Register - that's it!
-await Gst.debug_add_log_function(onLog);
+// Register callback
+await Gst.debug_add_log_function('session-123', 'my-secret', onLog);
 ```
 
-#### Callbacks (URL Mode - Webhook-based)
+#### Automatic Memory Management
 
 **Generated Code**:
 
@@ -745,13 +656,6 @@ PyGObject is not used to read introspection information because it "hides" imple
 ### Why not FastAPI?
 
 FastAPI lacks proper inheritance support for object types in schemas. Additionally, adding schema metadata (required for automatic TypeScript bindings) is difficult - you can only add it to endpoints, not fields. Workarounds exist but require generating and extending Pydantic models, which is too burdensome. We use `apispec` directly to generate valid OpenAPI schemas.
-
-### Why vendor extensions?
-
-Using `x-girest-callback-mode` vendor extensions instead of pattern detection provides:
-- **Explicit configuration**: Mode is declared in schema, not inferred
-- **Better maintainability**: No fragile pattern matching logic
-- **Clarity**: Consumers know the exact API mode from schema metadata
 
 ### Why ICallbackHandler interface?
 

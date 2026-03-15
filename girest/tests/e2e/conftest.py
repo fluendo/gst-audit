@@ -5,7 +5,7 @@ Pytest configuration and fixtures for GIRest E2E tests.
 These fixtures manage the lifecycle of:
 - GStreamer pipeline process (gst-launch)
 - GIRest server process (girest-frida.py)
-- Mock callback server (for non-SSE tests)
+- Mock callback server (for callback tests)
 """
 
 import asyncio
@@ -125,9 +125,9 @@ def assert_has_ptr(obj, msg="Object should have ptr"):
 
 def assert_callback_invocation(callback_data, expected_args=None):
     """
-    Assert that callback data has the correct structure for non-SSE callback invocations.
+    Assert that callback data has the correct structure for callback invocations.
 
-    All non-SSE callbacks follow the same structure:
+    All callbacks follow the same structure:
     - sessionId: Session identifier
     - callbackName: Name of the callback parameter
     - args: Dictionary containing the actual callback arguments (by parameter name)
@@ -220,10 +220,10 @@ def gst_pipeline():
 @pytest.fixture(scope="session")
 def girest_server(gst_pipeline):
     """
-    Start the GIRest server in non-SSE mode (session-scoped).
+    Start the GIRest server (session-scoped).
 
     Launches girest-frida.py attached to the GStreamer pipeline via Frida.
-    This server is used for all basic tests and non-SSE callback tests.
+    This server is used for all basic tests and callback tests.
 
     Args:
         gst_pipeline: PID of the running GStreamer pipeline
@@ -231,33 +231,15 @@ def girest_server(gst_pipeline):
     Yields:
         str: Base URL of the running server (http://localhost:9000)
     """
-    yield from _start_girest_server(gst_pipeline, sse_only=False, port=9000)
+    yield from _start_girest_server(gst_pipeline, port=9000)
 
 
-@pytest.fixture(scope="session")
-def girest_server_sse(gst_pipeline):
-    """
-    Start the GIRest server in SSE-only mode (session-scoped).
-
-    Launches girest-frida.py with --sse-only flag.
-    This server is only used for SSE callback tests.
-
-    Args:
-        gst_pipeline: PID of the running GStreamer pipeline
-
-    Yields:
-        str: Base URL of the running server (http://localhost:9001)
-    """
-    yield from _start_girest_server(gst_pipeline, sse_only=True, port=9001)
-
-
-def _start_girest_server(gst_pipeline, sse_only=False, port=9000):
+def _start_girest_server(gst_pipeline, port=9000):
     """
     Internal helper to start GIRest server with specified configuration.
 
     Args:
         gst_pipeline: PID of the running GStreamer pipeline
-        sse_only: Whether to enable SSE-only mode
         port: Port number for the server
 
     Yields:
@@ -273,10 +255,8 @@ def _start_girest_server(gst_pipeline, sse_only=False, port=9000):
     # Get path to girest-frida.py
     girest_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "girest-frida.py")
 
-    # Build command with sse_only flag if needed
+    # Build command
     cmd = ["python3", "-u", girest_path, "Gst", "1.0", "--pid", str(gst_pipeline), "--port", str(port)]
-    if sse_only:
-        cmd.append("--sse-only")
 
     # Create log file for server output
     log_file = tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".log", prefix="girest-server-")
@@ -289,8 +269,7 @@ def _start_girest_server(gst_pipeline, sse_only=False, port=9000):
     )
 
     # Wait for server to be ready by monitoring stdout for the "Uvicorn running" message
-    mode = "SSE-only" if sse_only else "non-SSE"
-    print(f"\n✓ Starting GIRest server in {mode} mode (attaching to PID {gst_pipeline})...")
+    print(f"\n✓ Starting GIRest server (attaching to PID {gst_pipeline})...")
 
     ready = False
     startup_output = []
@@ -372,7 +351,7 @@ def _start_girest_server(gst_pipeline, sse_only=False, port=9000):
 @pytest.fixture
 async def callback_server():
     """
-    Create a mock HTTP callback server for non-SSE callback tests.
+    Create a mock HTTP callback server for callback tests.
 
     This server receives callback POSTs from girest and records them
     for test validation. Each test gets a fresh server instance with
