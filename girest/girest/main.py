@@ -42,22 +42,6 @@ class GIRest:
             self.repo.require(dep_ns, dep_version, 0)
             self.namespaces.append((dep_ns, dep_version))
         self.namespaces.append((ns, ns_version))
-        # Generate the generic callback endpoint
-        # TODO define all callbacks as events as defined in
-        # https://spec.openapis.org/oas/v3.2.0.html#server-sent-event-streams
-        operation = {
-            "summary": "Callback emitters",
-            "description": "",
-            "operationId": "GIRest--callbacks",
-            "tags": ["GIRest"],
-            "responses": {
-                "200": {
-                    "description": "Success",
-                    "content": {"text/event-stream": {"schema": {"$ref": "#/components/schemas/Event"}}},
-                }
-            },
-        }
-        self.spec.path(path="/GIRest/callbacks", operations={"get": operation})
 
     def _get_container_element_type_schema(self, container_type_info):
         """
