@@ -10,6 +10,7 @@ include = ["script.js"]
 python = "^3.10"
 connexion = { version = "^3.3.0", extras = ["flask", "swagger-ui", "uvicorn"] }
 girest = { path = "../girest", develop = true }
+aiohttp = "^3.13.3"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "*"

@@ -58,7 +58,57 @@ class GstAuditResolver(Resolver):
             pipelines = _get_pipelines()
             return [p for p in pipelines if p["name"].isascii()]
 
-        return get_pipelines
+        async def register_logs(body, **kwargs):
+            """Endpoint for registering a log callback."""
+            from connexion import request
+
+            callback_url = body.get("url")
+            if not callback_url:
+                return {"error": "Missing 'url' parameter"}, 400
+
+            # Get session-id and callback-secret from headers
+            session_id = request.headers.get("session-id")
+            callback_secret = request.headers.get("callback-secret")
+
+            if not session_id:
+                return {"error": "Missing 'session-id' header"}, 400
+
+            try:
+                callback_id = _add_log_callback(
+                    {"url": callback_url, "session_id": session_id, "secret": callback_secret}
+                )
+
+                return {"success": True, "callbackId": callback_id}, 200
+            except Exception as e:
+                logger.error(f"Error registering log callback: {e}")
+                return {"error": str(e)}, 500
+
+        async def unregister_logs(body, **kwargs):
+            """Endpoint for unregistering a log callback."""
+            callback_id = body.get("callbackId")
+            if not callback_id:
+                return {"error": "Missing 'callbackId' parameter"}, 400
+
+            try:
+                removed = _remove_log_callback(callback_id)
+
+                if removed:
+                    return {"success": True, "message": "Callback unregistered successfully"}, 200
+                else:
+                    return {"error": "Callback ID not found"}, 404
+            except Exception as e:
+                logger.error(f"Error unregistering log callback: {e}")
+                return {"error": str(e)}, 500
+
+        # Route to the appropriate handler
+        if operation_id == "get_pipelines":
+            return get_pipelines
+        elif operation_id == "register_logs":
+            return register_logs
+        elif operation_id == "unregister_logs":
+            return unregister_logs
+
+        return None
 
 
 def _add_pipeline(pipeline_data: dict):
@@ -89,6 +139,147 @@ def _get_pipelines() -> list:
         return list(pipelines)
 
 
+def _add_log_callback(callback_data: dict) -> str:
+    """
+    Add a log callback to the list of registered callbacks.
+    Returns the callback ID.
+
+    Args:
+        callback_data: Dictionary containing url, session_id, secret
+
+    Returns:
+        Unique callback ID
+    """
+    import uuid
+
+    with log_callbacks_lock:
+        callback_id = str(uuid.uuid4())
+        callback_data["id"] = callback_id
+        log_callbacks.append(callback_data)
+
+        # Register with Frida if this is the first callback
+        if len(log_callbacks) == 1:
+            logger.info("First log callback registered, enabling GStreamer logging")
+            try:
+                # Access the custom script (script.js is loaded as scripts[1], after girest.js)
+                result = resolver.scripts[1].exports_sync.register_log_function()
+                logger.info(f"Frida log registration result: {result}")
+            except Exception as e:
+                logger.error(f"Failed to register log function with Frida: {e}")
+                log_callbacks.remove(callback_data)
+                raise
+
+        return callback_id
+
+
+def _remove_log_callback(callback_id: str) -> bool:
+    """
+    Remove a log callback by ID.
+    Returns True if removed, False if not found.
+
+    Args:
+        callback_id: The callback ID to remove
+
+    Returns:
+        True if removed successfully
+    """
+    with log_callbacks_lock:
+        for callback in log_callbacks:
+            if callback.get("id") == callback_id:
+                log_callbacks.remove(callback)
+
+                # Unregister from Frida if this was the last callback
+                if len(log_callbacks) == 0:
+                    logger.info("Last log callback removed, disabling GStreamer logging")
+                    try:
+                        # Access the custom script (script.js is loaded as scripts[1], after girest.js)
+                        result = resolver.scripts[1].exports_sync.unregister_log_function()
+                        logger.info(f"Frida log unregistration result: {result}")
+                    except Exception as e:
+                        logger.error(f"Failed to unregister log function from Frida: {e}")
+
+                return True
+        return False
+
+
+def _broadcast_log(log_data: dict):
+    """
+    Broadcast a log message to all registered callbacks asynchronously.
+
+    Args:
+        log_data: The log data to broadcast
+    """
+    import asyncio
+    import hashlib
+    import hmac
+    import json
+    from datetime import datetime, timezone
+
+    import aiohttp
+
+    def create_signature(payload: dict, secret: str, timestamp: str) -> str:
+        """Create HMAC-SHA256 signature for callback authentication"""
+        if not secret:
+            return ""
+
+        secret_bytes = secret.encode() if isinstance(secret, str) else secret
+        canonical_json = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+        message = f"{timestamp}.{canonical_json}"
+        signature = hmac.new(secret_bytes, message.encode("utf-8"), hashlib.sha256).hexdigest()
+        return signature
+
+    async def post_to_callback(callback):
+        """Post log data to a single callback"""
+        try:
+            payload = {
+                "sessionId": callback["session_id"],
+                "callbackName": "log",
+                "args": log_data,
+                "timestamp": log_data.get("timestamp"),
+            }
+
+            # Create headers with HMAC signature if secret is provided
+            timestamp = datetime.now(timezone.utc).isoformat()
+            headers = {
+                "Content-Type": "application/json",
+                "X-Callback-Timestamp": timestamp,
+            }
+
+            if callback.get("secret"):
+                signature = create_signature(payload, callback["secret"], timestamp)
+                headers["X-Callback-Signature"] = signature
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    callback["url"], json=payload, headers=headers, timeout=aiohttp.ClientTimeout(total=5)
+                ) as response:
+                    if response.status != 200:
+                        logger.warning(f"Log callback returned status {response.status}")
+        except Exception as e:
+            logger.debug(f"Error posting log to callback: {e}")
+
+    async def broadcast():
+        """Post to all callbacks concurrently"""
+        with log_callbacks_lock:
+            callbacks = list(log_callbacks)  # Copy to avoid lock during HTTP calls
+
+        if callbacks:
+            tasks = [post_to_callback(cb) for cb in callbacks]
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Run async broadcast in background thread
+    def run_async():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(broadcast())
+        loop.close()
+
+    import threading
+
+    thread = threading.Thread(target=run_async, daemon=True)
+    thread.start()
+
+
 def _on_log(level, message):
     """Handle the console from js"""
     levels = {
@@ -106,6 +297,17 @@ def _on_message(message, data):
         return
     payload = message.get("payload", {})
     kind = payload.get("kind")
+
+    # Handle log messages
+    if kind == "log":
+        log_data = payload.get("data")
+        if log_data:
+            logger.info(
+                f"Received log from Frida: {log_data.get('category')} - {log_data.get('level')} - {log_data.get('message')[:50]}"
+            )
+            logger.info(f"Broadcasting to {len(log_callbacks)} callbacks")
+            _broadcast_log(log_data)
+        return
 
     # Handle pipeline discovery messages
     if kind == "pipeline":
@@ -153,6 +355,10 @@ logger.setLevel(logging.DEBUG)
 # Pipeline tracking
 pipelines = []  # List of discovered pipelines
 pipelines_lock = threading.Lock()
+
+# Log callback tracking
+log_callbacks = []  # List of registered log callbacks {id, url, session_id, secret}
+log_callbacks_lock = threading.Lock()
 
 # Process the mode and get the PID
 pid = None
@@ -202,21 +408,110 @@ gstaudit_spec = APISpec(
     openapi_version="3.0.2",
 )
 
-operation = {
-    "summary": "",
-    "description": "",
+# Pipelines endpoint
+pipelines_operation = {
+    "summary": "Get GStreamer pipelines",
+    "description": "Get the GstPipelines available in the process",
     "operationId": "get_pipelines",
     "tags": ["GstAudit"],
     "parameters": [],
     "responses": {
         "200": {
-            "description": "Get the GstPipelines available in the process",
-            "content": {"application/json": {"schema": {"type": "array", "items": {"type": "integer"}}}},
+            "description": "List of GStreamer pipelines",
+            "content": {"application/json": {"schema": {"type": "array", "items": {"type": "object"}}}},
         }
     },
 }
 
-gstaudit_spec.path(path="/GstAudit/pipelines", operations={"get": operation})
+# Log registration endpoint
+register_logs_operation = {
+    "summary": "Register log callback",
+    "description": "Register a callback URL to receive GStreamer log messages",
+    "operationId": "register_logs",
+    "tags": ["GstAudit"],
+    "parameters": [
+        {
+            "name": "session-id",
+            "in": "header",
+            "required": True,
+            "schema": {"type": "string"},
+            "description": "Session identifier for routing",
+        },
+        {
+            "name": "callback-secret",
+            "in": "header",
+            "required": False,
+            "schema": {"type": "string"},
+            "description": "Shared secret for HMAC authentication",
+        },
+    ],
+    "requestBody": {
+        "required": True,
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {"url": {"type": "string", "description": "Callback URL to POST log messages to"}},
+                    "required": ["url"],
+                }
+            }
+        },
+    },
+    "responses": {
+        "200": {
+            "description": "Registration successful",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"success": {"type": "boolean"}, "callbackId": {"type": "string"}},
+                    }
+                }
+            },
+        },
+        "400": {"description": "Invalid request"},
+        "500": {"description": "Server error"},
+    },
+}
+
+# Log unregistration endpoint
+unregister_logs_operation = {
+    "summary": "Unregister log callback",
+    "description": "Unregister a previously registered log callback",
+    "operationId": "unregister_logs",
+    "tags": ["GstAudit"],
+    "requestBody": {
+        "required": True,
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {"callbackId": {"type": "string", "description": "The callback ID to unregister"}},
+                    "required": ["callbackId"],
+                }
+            }
+        },
+    },
+    "responses": {
+        "200": {
+            "description": "Unregistration successful",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"success": {"type": "boolean"}, "message": {"type": "string"}},
+                    }
+                }
+            },
+        },
+        "404": {"description": "Callback ID not found"},
+        "500": {"description": "Server error"},
+    },
+}
+
+gstaudit_spec.path(path="/GstAudit/pipelines", operations={"get": pipelines_operation})
+gstaudit_spec.path(path="/GstAudit/logs/register", operations={"post": register_logs_operation})
+gstaudit_spec.path(path="/GstAudit/logs/unregister", operations={"post": unregister_logs_operation})
 
 app.add_api(gstaudit_spec.to_dict(), resolver=GstAuditResolver(), base_path="/gstaudit")
 
