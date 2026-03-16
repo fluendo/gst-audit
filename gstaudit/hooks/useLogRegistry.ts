@@ -14,34 +14,23 @@
 
 import { useCallback, useRef, useEffect } from 'react';
 import { useWebSocket, WebSocketMessage } from './useWebSocket';
-import { GstObject, type GstDebugLevelValue } from '@/lib/gst';
+import type { GstDebugLevelValue } from '@/lib/gst';
 
 export interface LogEntry {
-  timestamp: number;
+  timestamp: string;  // Nanoseconds since start as string
   category: string;
   level: GstDebugLevelValue;
   file: string;
   function: string;
   line: number;
-  object: GstObject | null; // GObject (converted from pointer, properly ref'd)
-  message: string;
-}
-
-interface RawLogEntry {
-  timestamp: number;
-  category: string;
-  level: GstDebugLevelValue;
-  file: string;
-  function: string;
-  line: number;
-  object: string | null; // Raw pointer from server
+  object: string | null;
   message: string;
 }
 
 interface LogMessage extends WebSocketMessage {
   type: 'log';
   sessionId: string;
-  data: RawLogEntry;
+  data: LogEntry;
 }
 
 interface UseLogRegistryOptions {
@@ -58,7 +47,6 @@ interface UseLogRegistryOptions {
 interface LogRegistryReturn {
   isConnected: boolean;
   reconnect: () => void;
-  setCategoryLevel: (categoryPtr: string, level: GstDebugLevelValue) => void;
 }
 
 /**
@@ -89,7 +77,7 @@ export function useLogRegistry(
   const sendMessageRef = useRef<((message: unknown) => void) | null>(null);
 
   // Handle log messages
-  const handleMessage = useCallback(async (message: WebSocketMessage) => {
+  const handleMessage = useCallback((message: WebSocketMessage) => {
     // Only process 'log' messages for our connection
     if (message.type !== 'log') return;
 
@@ -100,26 +88,12 @@ export function useLogRegistry(
 
     console.log(`[LogRegistry] Received log for session ${sessionId}:`, logMsg.data);
     
-    // Convert raw log entry to proper LogEntry with GstObject
+    // Data is already fully formatted from gstaudit-server!
+    // No conversion needed - just pass it through
     try {
-      const rawLog = logMsg.data;
-      let gstObject: GstObject | null = null;
-      
-      // Convert pointer to GstObject if present
-      if (rawLog.object) {
-        gstObject = await GstObject.create(rawLog.object, 'none');
-        // GC will unref automatically with transfer: 'none'
-      }
-      
-      const logEntry: LogEntry = {
-        ...rawLog,
-        object: gstObject
-      };
-      
-      // Invoke the callback with the converted log data
-      onLog(logEntry);
+      onLog(logMsg.data);
     } catch (error) {
-      console.error(`[LogRegistry] Error processing log:`, error);
+      console.error(`[LogRegistry] Error in onLog callback:`, error);
     }
   }, [sessionId, onLog]);
 
@@ -160,24 +134,8 @@ export function useLogRegistry(
     };
   }, [ws.isConnected, sessionId, callbackSecret]);
 
-  // Function to set category level
-  const setCategoryLevel = useCallback((categoryPtr: string, level: GstDebugLevelValue) => {
-    if (!sendMessageRef.current) {
-      console.warn('[LogRegistry] Cannot set category level - not connected');
-      return;
-    }
-
-    console.log(`[LogRegistry] Setting category ${categoryPtr} to level ${level}`);
-    sendMessageRef.current({
-      type: 'set-category-level',
-      categoryPtr,
-      level
-    });
-  }, []);
-
   return {
     isConnected: ws.isConnected,
     reconnect: ws.reconnect,
-    setCategoryLevel,
   };
 }

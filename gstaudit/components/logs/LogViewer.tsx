@@ -20,36 +20,21 @@ export interface LogViewerHandle {
   clearLogs: () => void;
 }
 
-interface LogEntryWithObjectName extends LogEntry {
-  objectName?: string | null;
-}
-
 export const LogViewer = forwardRef<LogViewerHandle, LogViewerProps>(({ 
   onStartLogging,
   onStopLogging 
 }, ref) => {
-  const [logs, setLogs] = useState<LogEntryWithObjectName[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isLogging, setIsLogging] = useState(false);
   const logsEndRef = useRef<HTMLDivElement>(null);
   
   // Get session from context
   const { sessionId, callbackSecret, connection } = useSession();
 
-  // Handle incoming logs
-  const handleLog = async (log: LogEntry) => {
-    // Fetch object name if GstObject exists
-    let objectName: string | null | undefined;
-    if (log.object) {
-      try {
-        objectName = await log.object.get_name();
-      } catch (error) {
-        console.error('Failed to get object name:', error);
-        objectName = undefined;
-      }
-    }
-
+  // Handle incoming logs - data is already fully formatted!
+  const handleLog = (log: LogEntry) => {
     setLogs(prev => {
-      const updated = [...prev, { ...log, objectName }];
+      const updated = [...prev, log];
       // Keep last 500 logs
       return updated.slice(-500);
     });
@@ -111,7 +96,7 @@ export const LogViewer = forwardRef<LogViewerHandle, LogViewerProps>(({
                 </span>
                 <span className="text-cyan-400">{log.category.padEnd(20)} </span>
                 <span className="text-gray-400">{log.file}:{log.line}:{log.function}</span>
-                {log.objectName && <span className="text-purple-400"> &lt;{log.objectName}&gt;</span>}
+                {log.object && <span className="text-purple-400"> &lt;{log.object}&gt;</span>}
                 <span className="text-gray-300"> {log.message}</span>
               </div>
             ))}

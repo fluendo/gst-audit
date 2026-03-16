@@ -14,8 +14,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Gst, GstDebugCategory, type GstDebugLevelValue } from '@/lib/gst';
-import { useSession } from '@/lib/SessionContext';
-import { useLogRegistry } from '@/hooks/useLogRegistry';
 import { Select, MenuItem, Button, SelectChangeEvent } from '@mui/material';
 
 const DEBUG_LEVELS: GstDebugLevelValue[] = [
@@ -40,16 +38,6 @@ export function LogCategorySelector({
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
   
-  // Get session from context
-  const { sessionId, callbackSecret, connection } = useSession();
-
-  // Get setCategoryLevel from log registry
-  const { setCategoryLevel: sendCategoryLevel } = useLogRegistry({
-    sessionId,
-    callbackSecret,
-    onLog: () => {}, // We don't need logs here, just the setCategoryLevel function
-  });
-
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
@@ -113,11 +101,22 @@ export function LogCategorySelector({
       c.ptr === ptr ? { ...c, level: newLevel } : c
     ));
 
-    // Send to server via WebSocket
-    sendCategoryLevel(ptr, newLevel);
-    
-    // Notify parent (for any additional logic)
-    onCategoryLevelChange?.(ptr, newLevel);
+    try {
+      // Call REST API directly to set the category level
+      const category = await GstDebugCategory.create(ptr, 'none');
+      await category.set_threshold(newLevel);
+      
+      console.log(`[LogCategorySelector] Set category ${ptr} to level ${newLevel}`);
+      
+      // Notify parent (for any additional logic)
+      onCategoryLevelChange?.(ptr, newLevel);
+    } catch (error) {
+      console.error(`[LogCategorySelector] Failed to set category level:`, error);
+      // Revert optimistic update on error
+      setCategories(prev => prev.map(c =>
+        c.ptr === ptr ? { ...c, level: categories.find(cat => cat.ptr === ptr)?.level || newLevel } : c
+      ));
+    }
   };
 
   const handleSelectChange = (ptr: string) => (event: SelectChangeEvent) => {

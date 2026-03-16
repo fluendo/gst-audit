@@ -286,35 +286,6 @@ export function initializeWebSocketServer(wss: WebSocketServer): void {
             });
         }
         
-        // Handle set category level
-        else if (message.type === 'set-category-level') {
-          const { categoryPtr, level } = message;
-          if (!categoryPtr || !level) {
-            console.error('[WebSocket] Missing categoryPtr or level in set-category-level message');
-            return;
-          }
-          
-          console.log(`[WebSocket] Client ${sessionId} setting category ${categoryPtr} to ${level}`);
-          
-          const logManager = getLogManager();
-          logManager.setCategoryLevel(categoryPtr, level)
-            .then(() => {
-              console.log(`[WebSocket] Successfully set category level`);
-              ws.send(JSON.stringify({
-                type: 'category-level-set',
-                categoryPtr,
-                level
-              }));
-            })
-            .catch((error: Error) => {
-              console.error(`[WebSocket] Failed to set category level:`, error);
-              ws.send(JSON.stringify({
-                type: 'error',
-                message: `Failed to set category level: ${error.message}`
-              }));
-            });
-        }
-        
       } catch (error) {
         console.error('Error handling WebSocket message:', error);
       }
