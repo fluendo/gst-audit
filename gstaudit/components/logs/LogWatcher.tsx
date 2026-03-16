@@ -10,8 +10,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { LogViewer, type LogViewerHandle } from './LogViewer';
 import { LogCategorySelector } from './LogCategorySelector';
+import { DebugLevelSelector } from './DebugLevelSelector';
 import { Panel, PanelGroup, PanelResizeHandle, ImperativePanelHandle } from 'react-resizable-panels';
-import { IconButton, TextField, ToggleButton, ToggleButtonGroup, Chip, InputAdornment } from '@mui/material';
+import { IconButton, TextField, ToggleButton, Chip, InputAdornment } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloseIcon from '@mui/icons-material/Close';
@@ -134,41 +135,21 @@ export function LogWatcher({ selectedElementName, onElementSelect }: LogWatcherP
 
 
         {/* Level filter toggle buttons */}
-        <ToggleButtonGroup
+        <DebugLevelSelector
           value={Array.from(enabledLevels)}
-          onChange={(_, newLevels) => {
-            // Prevent empty selection - always need at least one level
-            if (newLevels.length > 0) {
+          onChange={(newLevels) => {
+            if (Array.isArray(newLevels) && newLevels.length > 0) {
               setEnabledLevels(new Set(newLevels));
             }
           }}
-          size="small"
-          sx={{
-            height: '28px',
-            '& .MuiToggleButton-root': {
-              fontSize: '10px',
-              padding: '4px 8px',
-              lineHeight: 1,
-              textTransform: 'capitalize',
-              border: '1px solid',
-              borderColor: 'divider',
-              minWidth: '60px',
-              '&.Mui-selected': {
-                fontWeight: 600,
-              },
-            }
-          }}
-        >
-          {DEBUG_LEVELS.filter(l => l !== 'count').map((level) => (
-            <ToggleButton 
-              key={level} 
-              value={level}
-              color="primary"
-            >
-              {level.charAt(0).toUpperCase() + level.slice(1)}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
+          exclusive={false}
+          useColoredButtons={false}
+          height="28px"
+          fontSize="10px"
+          padding="4px 8px"
+          minWidth="60px"
+          preventEmptySelection={true}
+        />
 
         {/* ALL toggle button */}
         <ToggleButton

@@ -16,24 +16,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Gst, GstDebugCategory, type GstDebugLevelValue } from '@/lib/gst';
 import { IconButton, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
-
-const DEBUG_LEVELS: GstDebugLevelValue[] = [
-  "none", "error", "warning", "fixme", "info", "debug", "log", "trace", "memdump"
-];
-
-// Color mapping for debug levels
-const LEVEL_COLORS: Record<GstDebugLevelValue, string> = {
-  none: '#94a3b8',      // slate-400
-  error: '#ef4444',     // red-500
-  warning: '#f97316',   // orange-500
-  fixme: '#eab308',     // yellow-500
-  info: '#3b82f6',      // blue-500
-  debug: '#22c55e',     // green-500
-  log: '#06b6d4',       // cyan-500
-  trace: '#a855f7',     // purple-500
-  memdump: '#ec4899',   // pink-500
-  count: '#94a3b8',     // slate-400 (fallback, shouldn't be used)
-};
+import { DebugLevelSelector, DEBUG_LEVELS } from './DebugLevelSelector';
 
 // Get level index for comparison
 const getLevelIndex = (level: GstDebugLevelValue): number => {
@@ -188,49 +171,21 @@ export function LogCategorySelector({
             </div>
             
             {/* Level toggle buttons */}
-            <ToggleButtonGroup
+            <DebugLevelSelector
               value={cat.level}
-              exclusive
-              onChange={(_, newLevel) => {
-                if (newLevel !== null) {
+              onChange={(newLevel) => {
+                if (newLevel !== null && !Array.isArray(newLevel)) {
                   handleLevelChange(cat.ptr, newLevel as GstDebugLevelValue);
                 }
               }}
+              exclusive={true}
+              useColoredButtons={true}
               size="small"
-              sx={{
-                height: '24px',
-                '& .MuiToggleButton-root': {
-                  fontSize: '9px',
-                  padding: '2px 6px',
-                  lineHeight: 1,
-                  textTransform: 'capitalize',
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  minWidth: '48px',
-                }
-              }}
-            >
-              {DEBUG_LEVELS.map((level) => (
-                <ToggleButton
-                  key={level}
-                  value={level}
-                  sx={{
-                    '&.Mui-selected': {
-                      backgroundColor: LEVEL_COLORS[level],
-                      borderColor: LEVEL_COLORS[level],
-                      color: '#ffffff',
-                      fontWeight: 600,
-                      '&:hover': {
-                        backgroundColor: LEVEL_COLORS[level],
-                        filter: 'brightness(0.9)',
-                      }
-                    }
-                  }}
-                >
-                  {level.charAt(0).toUpperCase() + level.slice(1)}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
+              height="24px"
+              fontSize="9px"
+              padding="2px 6px"
+              minWidth="48px"
+            />
           </div>
         ))}
       </div>
