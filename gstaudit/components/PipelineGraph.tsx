@@ -99,6 +99,16 @@ const PipelineGraphInner: React.FC<PipelineGraphProps> = ({ treeManager, selecte
     }
   }, [selectedElement, nodes, fitView]);
   
+  // Update node selection state when selectedElement changes
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        selected: selectedElement ? node.id === selectedElement.id : false,
+      }))
+    );
+  }, [selectedElement, setNodes]);
+  
   // Handle node click
   const handleNodeClick = (_event: React.MouseEvent, node: Node) => {
     if (onElementSelect) {

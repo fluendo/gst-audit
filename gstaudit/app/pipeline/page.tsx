@@ -70,6 +70,37 @@ export default function PipelinePage() {
     }
   };
 
+  // Handle element selection by name (from logs)
+  const handleElementSelectByName = async (elementName: string | null) => {
+    // Handle deselection
+    if (!elementName) {
+      setSelectedElement(null);
+      setSelectedFactory(null);
+      return;
+    }
+
+    if (!elementTreeManagerRef.current) return;
+
+    // Find element by name in the tree
+    const findElementByName = (node: ElementTree): ElementTree | null => {
+      if (node.name === elementName) return node;
+      for (const child of node.children) {
+        const found = findElementByName(child);
+        if (found) return found;
+      }
+      return null;
+    };
+
+    const root = elementTreeManagerRef.current.getRoot();
+    if (root) {
+      const found = findElementByName(root);
+      if (found) {
+        await handleElementSelect(found);
+        return;
+      }
+    }
+  };
+
   const fetchPipelines = async () => {
     if (!connection) {
       console.error('No connection configured');
@@ -374,7 +405,10 @@ export default function PipelinePage() {
                 
                 {/* Content */}
                 <div className="h-[calc(100%-41px)]">
-                  <LogWatcher />
+                  <LogWatcher 
+                    selectedElementName={selectedElement?.name || null}
+                    onElementSelect={handleElementSelectByName}
+                  />
                 </div>
               </div>
             </Panel>

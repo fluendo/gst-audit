@@ -20,7 +20,9 @@ interface LogViewerProps {
   onStartLogging?: () => void;
   onStopLogging?: () => void;
   filterText?: string;
+  objectFilter?: string | null;
   enabledLevels?: Set<GstDebugLevelValue>;
+  onObjectClick?: (objectName: string) => void;
 }
 
 export interface LogViewerHandle {
@@ -31,7 +33,9 @@ export const LogViewer = forwardRef<LogViewerHandle, LogViewerProps>(({
   onStartLogging,
   onStopLogging,
   filterText = '',
+  objectFilter = null,
   enabledLevels = new Set(DEBUG_LEVELS),
+  onObjectClick,
 }, ref) => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isLogging, setIsLogging] = useState(false);
@@ -40,11 +44,16 @@ export const LogViewer = forwardRef<LogViewerHandle, LogViewerProps>(({
   // Get session from context
   const { sessionId, callbackSecret, connection } = useSession();
 
-  // Filter logs based on text and level
+  // Filter logs based on text, object, and level
   const filteredLogs = useMemo(() => {
     return logs.filter(log => {
       // Filter by level
       if (!enabledLevels.has(log.level)) {
+        return false;
+      }
+
+      // Filter by object
+      if (objectFilter && log.object !== objectFilter) {
         return false;
       }
       
@@ -62,7 +71,7 @@ export const LogViewer = forwardRef<LogViewerHandle, LogViewerProps>(({
       
       return true;
     });
-  }, [logs, filterText, enabledLevels]);
+  }, [logs, filterText, objectFilter, enabledLevels]);
 
   // Handle incoming logs - data is already fully formatted!
   const handleLog = (log: LogEntry) => {
@@ -129,7 +138,15 @@ export const LogViewer = forwardRef<LogViewerHandle, LogViewerProps>(({
                 </span>
                 <span className="text-cyan-400">{log.category.padEnd(20)} </span>
                 <span className="text-gray-400">{log.file}:{log.line}:{log.function}</span>
-                {log.object && <span className="text-purple-400"> &lt;{log.object}&gt;</span>}
+                {log.object && (
+                  <span 
+                    className="text-purple-400 cursor-pointer hover:underline hover:text-purple-300"
+                    onClick={() => onObjectClick?.(log.object!)}
+                    title="Click to select this element"
+                  >
+                    {' '}&lt;{log.object}&gt;
+                  </span>
+                )}
                 <span className="text-gray-300"> {log.message}</span>
               </div>
             ))}

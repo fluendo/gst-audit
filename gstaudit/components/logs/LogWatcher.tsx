@@ -11,23 +11,37 @@ import { useState, useRef, useEffect } from 'react';
 import { LogViewer, type LogViewerHandle } from './LogViewer';
 import { LogCategorySelector } from './LogCategorySelector';
 import { Panel, PanelGroup, PanelResizeHandle, ImperativePanelHandle } from 'react-resizable-panels';
-import { IconButton, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { IconButton, TextField, ToggleButton, ToggleButtonGroup, Chip, InputAdornment } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CloseIcon from '@mui/icons-material/Close';
 import type { GstDebugLevelValue } from '@/lib/gst';
 
 const DEBUG_LEVELS: GstDebugLevelValue[] = [
   "none", "error", "warning", "fixme", "info", "debug", "log", "trace", "memdump"
 ];
 
-export function LogWatcher() {
+interface LogWatcherProps {
+  selectedElementName?: string | null;
+  onElementSelect?: (elementName: string | null) => void;
+}
+
+export function LogWatcher({ selectedElementName, onElementSelect }: LogWatcherProps = {}) {
   const [showCategories, setShowCategories] = useState(false);
   const [filterText, setFilterText] = useState('');
+  const [objectFilter, setObjectFilter] = useState<string | null>(null);
   const [enabledLevels, setEnabledLevels] = useState<Set<GstDebugLevelValue>>(
     new Set(DEBUG_LEVELS)
   );
   const logViewerRef = useRef<LogViewerHandle>(null);
   const categoriesPanelRef = useRef<ImperativePanelHandle>(null);
+
+  // Sync objectFilter with selectedElementName from parent
+  useEffect(() => {
+    if (selectedElementName !== undefined) {
+      setObjectFilter(selectedElementName);
+    }
+  }, [selectedElementName]);
 
   const handleClear = () => {
     logViewerRef.current?.clearLogs();
@@ -35,6 +49,17 @@ export function LogWatcher() {
 
   const toggleCategories = () => {
     setShowCategories(!showCategories);
+  };
+
+  const handleObjectFilterRemove = () => {
+    setObjectFilter(null);
+    // Also notify parent to clear selection
+    onElementSelect?.(null);
+  };
+
+  const handleObjectClick = (objectName: string) => {
+    setObjectFilter(objectName);
+    onElementSelect?.(objectName);
   };
 
   const toggleAllLevels = () => {
@@ -86,7 +111,27 @@ export function LogWatcher() {
               padding: '4px 8px',
             }
           }}
+          InputProps={{
+            startAdornment: objectFilter ? (
+              <InputAdornment position="start">
+                <Chip
+                  label={`Object: ${objectFilter}`}
+                  size="small"
+                  onDelete={handleObjectFilterRemove}
+                  deleteIcon={<CloseIcon />}
+                  sx={{
+                    height: '22px',
+                    fontSize: '10px',
+                    '& .MuiChip-deleteIcon': {
+                      fontSize: '14px',
+                    }
+                  }}
+                />
+              </InputAdornment>
+            ) : undefined,
+          }}
         />
+
 
         {/* Level filter toggle buttons */}
         <ToggleButtonGroup
@@ -168,7 +213,9 @@ export function LogWatcher() {
             <LogViewer 
               ref={logViewerRef} 
               filterText={filterText}
+              objectFilter={objectFilter}
               enabledLevels={enabledLevels}
+              onObjectClick={handleObjectClick}
             />
           </Panel>
           <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
