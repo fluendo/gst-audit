@@ -12,13 +12,33 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Gst, GstDebugCategory, type GstDebugLevelValue } from '@/lib/gst';
-import { Select, MenuItem, Button, SelectChangeEvent } from '@mui/material';
+import { IconButton, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const DEBUG_LEVELS: GstDebugLevelValue[] = [
   "none", "error", "warning", "fixme", "info", "debug", "log", "trace", "memdump"
 ];
+
+// Color mapping for debug levels
+const LEVEL_COLORS: Record<GstDebugLevelValue, string> = {
+  none: '#94a3b8',      // slate-400
+  error: '#ef4444',     // red-500
+  warning: '#f97316',   // orange-500
+  fixme: '#eab308',     // yellow-500
+  info: '#3b82f6',      // blue-500
+  debug: '#22c55e',     // green-500
+  log: '#06b6d4',       // cyan-500
+  trace: '#a855f7',     // purple-500
+  memdump: '#ec4899',   // pink-500
+  count: '#94a3b8',     // slate-400 (fallback, shouldn't be used)
+};
+
+// Get level index for comparison
+const getLevelIndex = (level: GstDebugLevelValue): number => {
+  return DEBUG_LEVELS.indexOf(level);
+};
 
 export interface CategoryData {
   ptr: string;
@@ -36,12 +56,33 @@ export function LogCategorySelector({
 }: LogCategorySelectorProps) {
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState('');
+  const [showActiveOnly, setShowActiveOnly] = useState(false);
+  const [filterText, setFilterText] = useState('');
+  
+  // Computed filtered categories
+  const filteredCategories = useMemo(() => {
+    let result = categories;
+    
+    // Filter by active status (level !== 'none')
+    if (showActiveOnly) {
+      result = result.filter(cat => cat.level !== 'none');
+    }
+    
+    // Filter by text (name or description)
+    if (filterText) {
+      const search = filterText.toLowerCase();
+      result = result.filter(cat => 
+        cat.name.toLowerCase().includes(search) || 
+        cat.description.toLowerCase().includes(search)
+      );
+    }
+    
+    return result;
+  }, [categories, showActiveOnly, filterText]);
   
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
-      setStatus('Fetching debug categories...');
       
       // Fetch the linked list of categories (GLibSList)
       let list = await Gst.debug_get_all_categories();
@@ -79,10 +120,8 @@ export function LogCategorySelector({
       
       fetchedCategories.sort((a, b) => a.name.localeCompare(b.name));
       setCategories(fetchedCategories);
-      setStatus(`Loaded ${fetchedCategories.length} categories`);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      setStatus('Error loading categories');
     } finally {
       setLoading(false);
     }
@@ -119,81 +158,148 @@ export function LogCategorySelector({
     }
   };
 
-  const handleSelectChange = (ptr: string) => (event: SelectChangeEvent) => {
-    handleLevelChange(ptr, event.target.value as GstDebugLevelValue);
-  };
-
   return (
     <section className="flex flex-col overflow-hidden h-full">
-      {/* Header */}
-      <div className="px-2 py-1 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center justify-between gap-2">
-          <div className="min-w-0">
-            <h3 className="text-xs font-medium">Categories ({categories.length})</h3>
-            {status && <p className="text-[10px] text-gray-500">{status}</p>}
-          </div>
-          <Button
-            onClick={fetchCategories}
-            disabled={loading}
-            variant="contained"
-            size="small"
-            sx={{ 
-              textTransform: 'none', 
-              fontSize: '10px',
-              minWidth: 'auto',
-              padding: '2px 8px',
-              lineHeight: 1.2
-            }}
-          >
-            {loading ? 'Loading' : 'Refresh'}
-          </Button>
-        </div>
-      </div>
-
       {/* Categories list */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1">
-        {categories.length === 0 && !loading && (
-          <div className="text-center p-8 text-gray-500">
-            No categories found. Click Refresh.
+      <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
+        {filteredCategories.length === 0 && !loading && (
+          <div className="text-center p-8 text-gray-500 text-xs">
+            {categories.length === 0 
+              ? 'No categories found. Click Refresh.'
+              : 'No categories match the current filter.'
+            }
           </div>
         )}
-        {categories.map((cat) => (
+        {filteredCategories.map((cat) => (
           <div 
             key={cat.ptr} 
-            className="flex items-center justify-between p-2 hover:bg-gray-100 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800"
+            className="p-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 border-b border-gray-100 dark:border-gray-800"
           >
-            <div className="overflow-hidden mr-4 flex-1">
-              <div className="font-mono text-sm truncate" title={cat.name}>
+            {/* Category name and description */}
+            <div className="mb-1">
+              <div className="font-mono text-xs font-medium truncate" title={cat.name}>
                 {cat.name}
               </div>
-              <div className="text-xs text-gray-500 truncate" title={cat.description}>
-                {cat.description}
-              </div>
+              {cat.description && (
+                <div className="text-[10px] text-gray-500 truncate" title={cat.description}>
+                  {cat.description}
+                </div>
+              )}
             </div>
-            <Select
+            
+            {/* Level toggle buttons */}
+            <ToggleButtonGroup
               value={cat.level}
-              onChange={handleSelectChange(cat.ptr)}
+              exclusive
+              onChange={(_, newLevel) => {
+                if (newLevel !== null) {
+                  handleLevelChange(cat.ptr, newLevel as GstDebugLevelValue);
+                }
+              }}
               size="small"
-              sx={{ 
-                minWidth: 100,
-                fontSize: '0.875rem', // 14px - standard small size
-                '& .MuiSelect-select': {
-                  paddingTop: '6px',
-                  paddingBottom: '6px',
+              sx={{
+                height: '24px',
+                '& .MuiToggleButton-root': {
+                  fontSize: '9px',
+                  padding: '2px 6px',
+                  lineHeight: 1,
+                  textTransform: 'capitalize',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  minWidth: '48px',
                 }
               }}
             >
-              {DEBUG_LEVELS.map(lvl => (
-                <MenuItem 
-                  key={lvl} 
-                  value={lvl}
+              {DEBUG_LEVELS.map((level) => (
+                <ToggleButton
+                  key={level}
+                  value={level}
+                  sx={{
+                    '&.Mui-selected': {
+                      backgroundColor: LEVEL_COLORS[level],
+                      borderColor: LEVEL_COLORS[level],
+                      color: '#ffffff',
+                      fontWeight: 600,
+                      '&:hover': {
+                        backgroundColor: LEVEL_COLORS[level],
+                        filter: 'brightness(0.9)',
+                      }
+                    }
+                  }}
                 >
-                  {lvl.toUpperCase()}
-                </MenuItem>
+                  {level.charAt(0).toUpperCase() + level.slice(1)}
+                </ToggleButton>
               ))}
-            </Select>
+            </ToggleButtonGroup>
           </div>
         ))}
+      </div>
+
+      {/* Status bar with filters */}
+      <div className="border-t border-gray-200 dark:border-gray-800 px-2 py-1.5 bg-gray-50 dark:bg-gray-900">
+        <div className="flex items-center gap-2">
+          {/* Toggle: All / Active Only */}
+          <ToggleButtonGroup
+            value={showActiveOnly ? 'active' : 'all'}
+            exclusive
+            onChange={(_, value) => {
+              if (value !== null) {
+                setShowActiveOnly(value === 'active');
+              }
+            }}
+            size="small"
+            sx={{
+              height: '22px',
+              '& .MuiToggleButton-root': {
+                fontSize: '9px',
+                padding: '2px 8px',
+                lineHeight: 1,
+                textTransform: 'none',
+                border: '1px solid',
+                borderColor: 'divider',
+              }
+            }}
+          >
+            <ToggleButton value="all">All</ToggleButton>
+            <ToggleButton value="active">Active</ToggleButton>
+          </ToggleButtonGroup>
+
+          {/* Text filter */}
+          <TextField
+            placeholder="Filter..."
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+            size="small"
+            sx={{
+              flex: 1,
+              '& .MuiInputBase-root': {
+                height: '22px',
+                fontSize: '10px',
+              },
+              '& .MuiInputBase-input': {
+                padding: '2px 6px',
+              }
+            }}
+          />
+
+          {/* Count indicator and refresh button */}
+          <span className="text-[9px] text-gray-500 whitespace-nowrap">
+            {filteredCategories.length} / {categories.length}
+          </span>
+          <IconButton
+            onClick={fetchCategories}
+            disabled={loading}
+            size="small"
+            sx={{ 
+              padding: '2px',
+              '&:disabled': {
+                opacity: 0.5
+              }
+            }}
+          >
+            <RefreshIcon sx={{ fontSize: 14 }} />
+          </IconButton>
+        </div>
       </div>
     </section>
   );

@@ -11,12 +11,21 @@ import { useState, useRef, useEffect } from 'react';
 import { LogViewer, type LogViewerHandle } from './LogViewer';
 import { LogCategorySelector } from './LogCategorySelector';
 import { Panel, PanelGroup, PanelResizeHandle, ImperativePanelHandle } from 'react-resizable-panels';
-import { IconButton } from '@mui/material';
+import { IconButton, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
+import type { GstDebugLevelValue } from '@/lib/gst';
+
+const DEBUG_LEVELS: GstDebugLevelValue[] = [
+  "none", "error", "warning", "fixme", "info", "debug", "log", "trace", "memdump"
+];
 
 export function LogWatcher() {
   const [showCategories, setShowCategories] = useState(false);
+  const [filterText, setFilterText] = useState('');
+  const [enabledLevels, setEnabledLevels] = useState<Set<GstDebugLevelValue>>(
+    new Set(DEBUG_LEVELS)
+  );
   const logViewerRef = useRef<LogViewerHandle>(null);
   const categoriesPanelRef = useRef<ImperativePanelHandle>(null);
 
@@ -26,6 +35,14 @@ export function LogWatcher() {
 
   const toggleCategories = () => {
     setShowCategories(!showCategories);
+  };
+
+  const toggleAllLevels = () => {
+    if (enabledLevels.size === DEBUG_LEVELS.length) {
+      setEnabledLevels(new Set());
+    } else {
+      setEnabledLevels(new Set(DEBUG_LEVELS));
+    }
   };
 
   // Collapse/expand the panel when showCategories changes
@@ -41,8 +58,9 @@ export function LogWatcher() {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header with icons */}
-      <div className="flex justify-end items-center gap-0.5 px-1 py-0.5 border-b border-gray-200 dark:border-gray-800">
+      {/* Header with filter controls */}
+      <div className="flex items-center gap-2 px-2 py-1 border-b border-gray-200 dark:border-gray-800">
+        {/* Clear button */}
         <IconButton
           onClick={handleClear}
           size="small"
@@ -51,6 +69,87 @@ export function LogWatcher() {
         >
           <DeleteIcon sx={{ fontSize: 16 }} />
         </IconButton>
+
+        {/* Text filter */}
+        <TextField
+          placeholder="Filter logs..."
+          value={filterText}
+          onChange={(e) => setFilterText(e.target.value)}
+          size="small"
+          sx={{
+            flex: 1,
+            '& .MuiInputBase-root': {
+              height: '28px',
+              fontSize: '11px',
+            },
+            '& .MuiInputBase-input': {
+              padding: '4px 8px',
+            }
+          }}
+        />
+
+        {/* Level filter toggle buttons */}
+        <ToggleButtonGroup
+          value={Array.from(enabledLevels)}
+          onChange={(_, newLevels) => {
+            // Prevent empty selection - always need at least one level
+            if (newLevels.length > 0) {
+              setEnabledLevels(new Set(newLevels));
+            }
+          }}
+          size="small"
+          sx={{
+            height: '28px',
+            '& .MuiToggleButton-root': {
+              fontSize: '10px',
+              padding: '4px 8px',
+              lineHeight: 1,
+              textTransform: 'capitalize',
+              border: '1px solid',
+              borderColor: 'divider',
+              minWidth: '60px',
+              '&.Mui-selected': {
+                fontWeight: 600,
+              },
+            }
+          }}
+        >
+          {DEBUG_LEVELS.filter(l => l !== 'count').map((level) => (
+            <ToggleButton 
+              key={level} 
+              value={level}
+              color="primary"
+            >
+              {level.charAt(0).toUpperCase() + level.slice(1)}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+
+        {/* ALL toggle button */}
+        <ToggleButton
+          value="all"
+          selected={enabledLevels.size === DEBUG_LEVELS.length}
+          onChange={toggleAllLevels}
+          color="primary"
+          size="small"
+          sx={{
+            fontSize: '10px',
+            padding: '4px 8px',
+            lineHeight: 1,
+            textTransform: 'none',
+            border: '1px solid',
+            borderColor: 'divider',
+            height: '28px',
+            minWidth: '60px',
+            '&.Mui-selected': {
+              fontWeight: 600,
+            },
+          }}
+        >
+          ALL
+        </ToggleButton>
+
+        {/* Categories toggle button */}
         <IconButton
           onClick={toggleCategories}
           size="small"
@@ -65,15 +164,19 @@ export function LogWatcher() {
       {/* Content area with LogViewer and optional LogCategorySelector */}
       <div className="flex-1 overflow-hidden">
         <PanelGroup direction="horizontal">
-          <Panel defaultSize={70} minSize={40}>
-            <LogViewer ref={logViewerRef} />
+          <Panel defaultSize={75} minSize={40}>
+            <LogViewer 
+              ref={logViewerRef} 
+              filterText={filterText}
+              enabledLevels={enabledLevels}
+            />
           </Panel>
           <PanelResizeHandle className="w-1 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
           <Panel 
             ref={categoriesPanelRef}
-            defaultSize={30} 
+            defaultSize={25} 
             minSize={20} 
-            maxSize={60}
+            maxSize={40}
             collapsible={true}
             collapsedSize={0}
           >

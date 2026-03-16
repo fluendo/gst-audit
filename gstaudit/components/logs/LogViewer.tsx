@@ -7,13 +7,20 @@
 
 'use client';
 
-import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle, useMemo } from 'react';
 import { useLogRegistry, type LogEntry } from '@/hooks/useLogRegistry';
 import { useSession } from '@/lib/SessionContext';
+import type { GstDebugLevelValue } from '@/lib/gst';
+
+const DEBUG_LEVELS: GstDebugLevelValue[] = [
+  "none", "error", "warning", "fixme", "info", "debug", "log", "trace", "memdump"
+];
 
 interface LogViewerProps {
   onStartLogging?: () => void;
   onStopLogging?: () => void;
+  filterText?: string;
+  enabledLevels?: Set<GstDebugLevelValue>;
 }
 
 export interface LogViewerHandle {
@@ -22,7 +29,9 @@ export interface LogViewerHandle {
 
 export const LogViewer = forwardRef<LogViewerHandle, LogViewerProps>(({ 
   onStartLogging,
-  onStopLogging 
+  onStopLogging,
+  filterText = '',
+  enabledLevels = new Set(DEBUG_LEVELS),
 }, ref) => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isLogging, setIsLogging] = useState(false);
@@ -30,6 +39,30 @@ export const LogViewer = forwardRef<LogViewerHandle, LogViewerProps>(({
   
   // Get session from context
   const { sessionId, callbackSecret, connection } = useSession();
+
+  // Filter logs based on text and level
+  const filteredLogs = useMemo(() => {
+    return logs.filter(log => {
+      // Filter by level
+      if (!enabledLevels.has(log.level)) {
+        return false;
+      }
+      
+      // Filter by text (search in category, file, function, object, message)
+      if (filterText) {
+        const search = filterText.toLowerCase();
+        return (
+          log.category.toLowerCase().includes(search) ||
+          log.file.toLowerCase().includes(search) ||
+          log.function.toLowerCase().includes(search) ||
+          log.message.toLowerCase().includes(search) ||
+          (log.object && log.object.toLowerCase().includes(search))
+        );
+      }
+      
+      return true;
+    });
+  }, [logs, filterText, enabledLevels]);
 
   // Handle incoming logs - data is already fully formatted!
   const handleLog = (log: LogEntry) => {
@@ -77,9 +110,9 @@ export const LogViewer = forwardRef<LogViewerHandle, LogViewerProps>(({
     <div className="h-full flex flex-col overflow-hidden bg-black text-gray-200">
       {/* Log output */}
       <div className="flex-1 p-2 font-mono text-xs leading-tight overflow-y-auto bg-black scrollbar-thin scrollbar-thumb-gray-700">
-        {logs.length > 0 ? (
+        {filteredLogs.length > 0 ? (
           <div>
-            {logs.map((log, idx) => (
+            {filteredLogs.map((log, idx) => (
               <div key={idx} className="hover:bg-gray-900">
                 <span className={`${
                   log.level === 'error' ? 'text-red-500' :
@@ -107,7 +140,7 @@ export const LogViewer = forwardRef<LogViewerHandle, LogViewerProps>(({
             <svg className="w-12 h-12 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
             </svg>
-            <p>No logs captured.</p>
+            <p>{logs.length === 0 ? 'No logs captured.' : 'No logs match the current filter.'}</p>
           </div>
         )}
       </div>
