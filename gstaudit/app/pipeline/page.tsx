@@ -8,6 +8,7 @@ import { ElementTreeManager, FactoryTreeManager } from '@/lib';
 import { GstPipeline, Gst } from '@/lib/gst';
 import { useSession } from '@/lib/SessionContext';
 import { PipelineGraph, PipelineTreeView, StatusBar, PipelineSelector, ObjectDetails, FactoriesTreeView, FactoryDetail, PipelineControl } from '@/components';
+import { LogWatcher } from '@/components/logs';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { Button, Box, Typography, Tabs, Tab } from '@mui/material';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -248,7 +249,7 @@ export default function PipelinePage() {
       ) : (
         <div className="flex-1">
           <PanelGroup direction="vertical">
-            <Panel defaultSize={95} minSize={95}>
+            <Panel defaultSize={65} minSize={20}>
               <PanelGroup direction="horizontal">
                 <Panel defaultSize={20} minSize={15} maxSize={30}>
                   <div className="h-full flex">
@@ -355,6 +356,29 @@ export default function PipelinePage() {
                 </Panel>
               </PanelGroup>
             </Panel>
+            
+            <PanelResizeHandle className="h-1 bg-gray-300 dark:bg-gray-700 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors" />
+            
+            {/* Watchers Panel - Horizontal, resizable, above status bar */}
+            <Panel defaultSize={30} minSize={15} maxSize={60}>
+              <div className="h-full border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                {/* Tabs */}
+                <div className="flex border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                  <button
+                    className="px-4 py-2 text-sm font-medium border-b-2 border-blue-600 text-blue-600 dark:text-blue-400"
+                  >
+                    Logs
+                  </button>
+                  {/* Future tabs: Bus, etc. */}
+                </div>
+                
+                {/* Content */}
+                <div className="h-[calc(100%-41px)]">
+                  <LogWatcher />
+                </div>
+              </div>
+            </Panel>
+            
             <Panel defaultSize={5} minSize={5} maxSize={5}>
               <StatusBar status={composedStatus} />
             </Panel>
