@@ -31,9 +31,18 @@ export async function POST(
     console.log(`[API] Callback: ${callbackId}, Session: ${sessionId}`);
 
     // Parse the callback arguments from the request body
-    const args = await request.json();
+    const body = await request.json();
 
-    console.log(`[API] Callback args:`, JSON.stringify(args, null, 2));
+    console.log(`[API] Callback body:`, JSON.stringify(body, null, 2));
+
+    // Extract the actual callback arguments
+    // gstaudit-server always sends: { sessionId, callbackName, args: {...}, invocationNumber, timestamp }
+    // where args contains the actual parameter values
+    const callbackArgs = body.args;
+    if (!callbackArgs) {
+      console.error(`[API] Missing 'args' in callback body`);
+      return NextResponse.json({ error: 'Invalid callback payload' }, { status: 400 });
+    }
 
     // Determine if this is a server-side or client-side callback
     // Server sessionIds start with "gstaudit-" (connection IDs)
@@ -63,11 +72,8 @@ export async function POST(
         return NextResponse.json({ result: null });
       }
 
-      // Extract the args (actual callback arguments)
-      // girest/gstaudit-server sends: { sessionId, callbackName, args: {...}, invocationNumber, timestamp }
-      // args is now a dict with parameter names as keys
-      const callbackArgs = args.args || args;
-      const invocationNumber = args.invocationNumber || 0;
+      // Extract invocation number for creating unique invocation ID
+      const invocationNumber = body.invocationNumber || 0;
 
       // Create unique invocation ID by combining callbackId with invocationNumber
       // This allows multiple concurrent invocations of the same callback registration
@@ -123,7 +129,7 @@ export async function POST(
       }
 
       // Execute the callback and return the result (for sync callbacks)
-      const result = await handler.executeCallback(callbackId, args);
+      const result = await handler.executeCallback(callbackId, callbackArgs);
 
       console.log(`[API] Server callback ${callbackId} executed with result:`, result);
 
