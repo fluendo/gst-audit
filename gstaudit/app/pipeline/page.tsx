@@ -88,7 +88,7 @@ export default function PipelinePage() {
       const allPipelines: { name: string; pipeline: GstPipeline }[] = [];
 
       for (const pipelineData of pipelinesData) {
-        const pipeline = new GstPipeline(pipelineData.ptr, 'none');
+        const pipeline = await GstPipeline.create(pipelineData.ptr, 'none');
         allPipelines.push({ name: pipelineData.name, pipeline });
       }
 
