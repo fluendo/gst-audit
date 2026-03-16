@@ -871,6 +871,11 @@ class FridaResolver(GIResolver):
         # operation_id format: {namespace}_{object_name}_{method_name}
         # or {namespace}__{function_name} for standalone functions
 
+        # Check if namespace is loaded
+        if not self.repo.is_registered(namespace, None):
+            logger.warning(f"Namespace '{namespace}' not loaded, cannot resolve method {method_name}")
+            return None
+
         # Search through the repository
         n_infos = self.repo.get_n_infos(namespace)
         for i in range(n_infos):
@@ -1542,6 +1547,10 @@ class FridaResolver(GIResolver):
 
             # Find the struct info
             struct_info = None
+            # Check if namespace is loaded
+            if not self.repo.is_registered(namespace, None):
+                logger.warning(f"Namespace '{namespace}' not loaded, skipping field operation for {method_name}")
+                return None
             n_infos = self.repo.get_n_infos(namespace)
             for i in range(n_infos):
                 info = self.repo.get_info(namespace, i)
@@ -1590,6 +1599,10 @@ class FridaResolver(GIResolver):
         elif method_name in ["new", "free", "get_type", "ref", "unref"]:
             # Try to find the info (struct, object, enum, or flags)
             type_info = None
+            # Check if namespace is loaded
+            if not self.repo.is_registered(namespace, None):
+                logger.warning(f"Namespace '{namespace}' not loaded, skipping artificial method {method_name}")
+                return None
             n_infos = self.repo.get_n_infos(namespace)
             for i in range(n_infos):
                 info = self.repo.get_info(namespace, i)

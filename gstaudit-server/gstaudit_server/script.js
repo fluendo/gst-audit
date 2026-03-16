@@ -158,4 +158,158 @@ function shutdown()
 rpc.exports = {
   'init': init,
   'shutdown': shutdown,
+  'registerLogFunction': register_log_function,
+  'unregisterLogFunction': unregister_log_function,
 };
+
+// ============================================================================
+// Logging Support
+// ============================================================================
+
+let logFunctionId = null;
+let startTime = null;
+
+function register_log_function() {
+  if (logFunctionId !== null) {
+    console.log("Log function already registered");
+    return { success: true, alreadyRegistered: true };
+  }
+
+  console.log("Registering log function");
+  
+  // Find required GStreamer functions
+  let gst_debug_add_log_function = null;
+  let gst_debug_remove_log_function_by_data = null;
+  let gst_util_get_timestamp = null;
+  let gst_debug_category_get_name = null;
+  let gst_debug_level_get_name = null;
+  let gst_object_get_name = null;
+  let gst_debug_message_get = null;
+  
+  Process.enumerateModules().some(m => {
+    gst_debug_add_log_function = m.findExportByName('gst_debug_add_log_function');
+    gst_debug_remove_log_function_by_data = m.findExportByName('gst_debug_remove_log_function_by_data');
+    gst_util_get_timestamp = m.findExportByName('gst_util_get_timestamp');
+    gst_debug_category_get_name = m.findExportByName('gst_debug_category_get_name');
+    gst_debug_level_get_name = m.findExportByName('gst_debug_level_get_name');
+    gst_object_get_name = m.findExportByName('gst_object_get_name');
+    gst_debug_message_get = m.findExportByName('gst_debug_message_get');
+    
+    if (gst_debug_add_log_function && gst_debug_remove_log_function_by_data &&
+        gst_util_get_timestamp && gst_debug_category_get_name &&
+        gst_debug_level_get_name && gst_object_get_name && gst_debug_message_get) {
+      return true;
+    }
+    return false;
+  });
+  
+  if (!gst_debug_add_log_function) {
+    console.error("Could not find required GStreamer functions");
+    return { success: false, error: "GStreamer functions not found" };
+  }
+  
+  // Capture start time (like gst_init does)
+  const get_timestamp = new NativeFunction(gst_util_get_timestamp, 'uint64', []);
+  startTime = get_timestamp();
+  console.log(`Log start time: ${startTime}`);
+  
+  // Create native functions
+  const add_log_function = new NativeFunction(gst_debug_add_log_function, 'void', ['pointer', 'pointer']);
+  const remove_log_function = new NativeFunction(gst_debug_remove_log_function_by_data, 'uint', ['pointer']);
+  const category_get_name = new NativeFunction(gst_debug_category_get_name, 'pointer', ['pointer']);
+  const level_get_name = new NativeFunction(gst_debug_level_get_name, 'pointer', ['int']);
+  const object_get_name = new NativeFunction(gst_object_get_name, 'pointer', ['pointer']);
+  const message_get = new NativeFunction(gst_debug_message_get, 'pointer', ['pointer']);
+  
+  // Create the log callback
+  // GstLogFunction signature: void (*GstLogFunction)(GstDebugCategory *category, GstDebugLevel level,
+  //                                                   const gchar *file, const gchar *function,
+  //                                                   gint line, GObject *object,
+  //                                                   GstDebugMessage *message, gpointer user_data)
+  const logCallback = new NativeCallback(function(category, level, file, func, line, object, message, userData) {
+    try {
+      // Get current timestamp and calculate diff
+      const now = get_timestamp();
+      const timestamp = now - startTime;
+      
+      // Extract category name
+      const categoryNamePtr = category_get_name(category);
+      const categoryName = categoryNamePtr.readCString();
+      
+      // Extract level name and normalize it
+      // GStreamer returns padded uppercase strings like "DEBUG  ", "ERROR  "
+      // Normalize to lowercase trimmed to match GstDebugLevelValue type
+      const levelNamePtr = level_get_name(level);
+      const levelName = levelNamePtr.readCString().trim().toLowerCase();
+      
+      // Extract file, function
+      const fileName = file.readCString();
+      const functionName = func.readCString();
+      
+      // Extract object name (may be NULL)
+      let objectName = null;
+      if (!object.isNull()) {
+        const objectNamePtr = object_get_name(object);
+        if (!objectNamePtr.isNull()) {
+          objectName = objectNamePtr.readCString();
+        }
+      }
+      
+      // Extract message
+      const messagePtr = message_get(message);
+      const messageText = messagePtr.readCString();
+      
+      // Send to Python
+      send({
+        kind: 'log',
+        data: {
+          timestamp: timestamp.toString(),
+          category: categoryName,
+          level: levelName,
+          file: fileName,
+          function: functionName,
+          line: line,
+          object: objectName,
+          message: messageText
+        }
+      });
+    } catch (error) {
+      console.error(`Error in log callback: ${error}`);
+    }
+  }, 'void', ['pointer', 'int', 'pointer', 'pointer', 'int', 'pointer', 'pointer', 'pointer']);
+  
+  // Register with GStreamer
+  add_log_function(logCallback, ptr(0));
+  logFunctionId = logCallback;
+  
+  console.log("Log function registered successfully");
+  return { success: true };
+}
+
+function unregister_log_function() {
+  if (logFunctionId === null) {
+    console.log("No log function to unregister");
+    return { success: true, notRegistered: true };
+  }
+  
+  console.log("Unregistering log function");
+  
+  // Find the remove function
+  let gst_debug_remove_log_function_by_data = null;
+  Process.enumerateModules().some(m => {
+    gst_debug_remove_log_function_by_data = m.findExportByName('gst_debug_remove_log_function_by_data');
+    return gst_debug_remove_log_function_by_data !== null;
+  });
+  
+  if (gst_debug_remove_log_function_by_data) {
+    const remove_log_function = new NativeFunction(gst_debug_remove_log_function_by_data, 'uint', ['pointer']);
+    const removed = remove_log_function(ptr(0));
+    console.log(`Removed ${removed} log function(s)`);
+  }
+  
+  logFunctionId = null;
+  startTime = null;
+  
+  console.log("Log function unregistered successfully");
+  return { success: true };
+}

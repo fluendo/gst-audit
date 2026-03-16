@@ -41,7 +41,7 @@ repos:
       - id: eslint
         name: eslint (gstaudit)
         entry: bash -c 'cd gstaudit && ([ -d node_modules ] || npm install) && npm
-          run lint -- --fix'
+          run lint -- --fix "${@#gstaudit/}"' --
         language: system
         files: ^gstaudit/.*\.(ts|tsx|js|jsx)$
-        pass_filenames: false
+        pass_filenames: true

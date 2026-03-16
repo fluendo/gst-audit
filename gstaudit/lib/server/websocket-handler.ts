@@ -14,6 +14,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import { getConnectionManager } from './connection-manager';
 import { handleCallbackResponse } from '@/lib/server/callback-manager';
+import { getLogManager } from './log-manager';
 
 // Callback response handler is now imported from callback-manager
 // This ensures it's always available regardless of API route reloads
@@ -238,6 +239,53 @@ export function initializeWebSocketServer(wss: WebSocketServer): void {
           handleCallbackResponse(invocationId, message.result);
         }
         
+        // Handle log subscription
+        else if (message.type === 'subscribe-logs') {
+          const { callbackSecret } = message;
+          if (!callbackSecret) {
+            console.error('[WebSocket] Missing callbackSecret in subscribe-logs message');
+            return;
+          }
+          
+          console.log(`[WebSocket] Client ${sessionId} subscribing to logs`);
+          
+          const logManager = getLogManager();
+          const wsConnection = wsManager.getConnection(sessionId);
+          if (!wsConnection) {
+            console.error(`[WebSocket] No connection found for session ${sessionId}`);
+            return;
+          }
+          
+          logManager.startLogging(sessionId, connectionId, callbackSecret, wsConnection)
+            .then(() => {
+              console.log(`[WebSocket] Successfully subscribed ${sessionId} to logs`);
+              ws.send(JSON.stringify({
+                type: 'logs-subscribed'
+              }));
+            })
+            .catch((error: Error) => {
+              console.error(`[WebSocket] Failed to subscribe to logs:`, error);
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: `Failed to subscribe to logs: ${error.message}`
+              }));
+            });
+        }
+        
+        // Handle log unsubscription
+        else if (message.type === 'unsubscribe-logs') {
+          console.log(`[WebSocket] Client ${sessionId} unsubscribing from logs`);
+          
+          const logManager = getLogManager();
+          logManager.stopLogging(sessionId)
+            .then(() => {
+              console.log(`[WebSocket] Successfully unsubscribed ${sessionId} from logs`);
+            })
+            .catch((error: Error) => {
+              console.error(`[WebSocket] Failed to unsubscribe from logs:`, error);
+            });
+        }
+        
       } catch (error) {
         console.error('Error handling WebSocket message:', error);
       }
@@ -245,6 +293,14 @@ export function initializeWebSocketServer(wss: WebSocketServer): void {
     
     ws.on('close', () => {
       console.log(`WebSocket client disconnected: ${sessionId}`);
+
+      // Stop logging if active
+      const logManager = getLogManager();
+      if (logManager.isLogging(sessionId)) {
+        logManager.stopLogging(sessionId).catch((error: Error) => {
+          console.error('[WebSocket] Error stopping logging on disconnect:', error);
+        });
+      }
       
       // Unregister from WebSocketManager
       const wsManager = getWebSocketManager();
