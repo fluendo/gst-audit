@@ -855,6 +855,7 @@ class GIRest:
         callback_schema = {
             "type": "object",
             "x-gi-type": "callback",
+            "x-gi-namespace": bi.get_namespace(),
             "properties": request_properties,
             "required": ["sessionId", "callbackName", "args"],
         }
