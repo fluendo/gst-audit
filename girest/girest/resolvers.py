@@ -360,17 +360,28 @@ class FridaResolver(GIResolver):
 
     def _build_enum_mappings(self):
         """Build mappings from enum string names to integer values"""
-        for i in range(0, self.repo.get_n_infos(self.ns)):
-            info = self.repo.get_info(self.ns, i)
-            info_type = info.get_type()
-            if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
-                full_name = f"{info.get_namespace()}{info.get_name()}"
-                mapping = {}
-                n_values = GIRepository.enum_info_get_n_values(info)
-                for j in range(n_values):
-                    value_info = GIRepository.enum_info_get_value(info, j)
-                    mapping[value_info.get_name()] = GIRepository.value_info_get_value(value_info)
-                self.enum_mappings[full_name] = mapping
+        # Build list of namespaces to process (main namespace + dependencies)
+        namespaces_to_process = [self.ns]
+        dependencies = self.repo.get_dependencies(self.ns)
+        if dependencies:
+            for dep in dependencies:
+                # Parse namespace from dependency string (format: "Namespace-Version")
+                dep_ns = dep.split("-")[0]
+                namespaces_to_process.append(dep_ns)
+
+        # Process enums from all namespaces
+        for ns in namespaces_to_process:
+            for i in range(0, self.repo.get_n_infos(ns)):
+                info = self.repo.get_info(ns, i)
+                info_type = info.get_type()
+                if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                    full_name = f"{info.get_namespace()}{info.get_name()}"
+                    mapping = {}
+                    n_values = GIRepository.enum_info_get_n_values(info)
+                    for j in range(n_values):
+                        value_info = GIRepository.enum_info_get_value(info, j)
+                        mapping[value_info.get_name()] = GIRepository.value_info_get_value(value_info)
+                    self.enum_mappings[full_name] = mapping
 
     def _load_script(self, script_path, on_log, on_message):
         s = None
