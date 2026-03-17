@@ -33,10 +33,10 @@ class GIRest:
         self.repo = GIRepository.Repository()
         self.repo.require(ns, ns_version, 0)
 
-        # Discover and load namespace dependencies
+        # Discover and load all namespace dependencies (including transitive)
         self.namespaces = []
-        # Start with the dependencies
-        dependencies = self.repo.get_immediate_dependencies(ns)
+        # get_dependencies() returns all transitive dependencies
+        dependencies = self.repo.get_dependencies(ns)
         for dep in dependencies:
             dep_ns, dep_version = dep.split("-", 1)
             self.repo.require(dep_ns, dep_version, 0)
