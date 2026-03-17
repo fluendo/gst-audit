@@ -227,7 +227,7 @@ function call(symbol, type, ...args)
   console.info(`Calling ${symbol} ${JSON.stringify(type)} and args ${args} in thread ${Process.getCurrentThreadId()}`);
   /* Find the symbol if not cached */
   if (symbol in functions) {
-    nf = functions["symbol"];
+    nf = functions[symbol];
   } else {
     Process.enumerateModules().some(m => {
       var s = m.findExportByName(symbol);
@@ -239,7 +239,7 @@ function call(symbol, type, ...args)
       var sig = callable_signature(type);
       console.debug(`Signature is [${sig}] => ${rsig}`);
       nf = new NativeFunction(s, rsig, sig);
-      functions["symbol"] = nf;
+      functions[symbol] = nf;
       return true;
     });
   }
