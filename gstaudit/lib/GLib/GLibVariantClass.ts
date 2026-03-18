@@ -1,0 +1,1 @@
+export type GLibVariantClass = "boolean" | "byte" | "int16" | "uint16" | "int32" | "uint32" | "int64" | "uint64" | "handle" | "double" | "string" | "object_path" | "signature" | "variant" | "maybe" | "array" | "tuple" | "dict_entry";

@@ -1,0 +1,1 @@
+export type GLibSpawnFlags = "default" | "leave_descriptors_open" | "do_not_reap_child" | "search_path" | "stdout_to_dev_null" | "stderr_to_dev_null" | "child_inherits_stdin" | "file_and_argv_zero" | "search_path_from_envp" | "cloexec_pipes" | "child_inherits_stdout" | "child_inherits_stderr" | "stdin_from_dev_null";

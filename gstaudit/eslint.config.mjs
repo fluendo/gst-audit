@@ -18,7 +18,16 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
-      "lib/gst.ts", // Generated file, skip linting for now - TODO: fix generator to produce lint-compliant code
+      // Generated GStreamer bindings - skip linting
+      "lib/Gst/**",
+      "lib/GstBase/**",
+      "lib/GstVideo/**",
+      "lib/GObject/**",
+      "lib/GLib/**",
+      "lib/GModule/**",
+      "lib/_shared.ts",
+      "lib/gst.ts",
+      "lib/gstvideo.ts",
     ],
   },
   // Allow require() in .js files (CommonJS)

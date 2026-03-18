@@ -1,0 +1,1 @@
+export type GLibTokenType = "eof" | "left_paren" | "right_paren" | "left_curly" | "right_curly" | "left_brace" | "right_brace" | "equal_sign" | "comma" | "none" | "error" | "char" | "binary" | "octal" | "int" | "hex" | "float" | "string" | "symbol" | "identifier" | "identifier_null" | "comment_single" | "comment_multi";

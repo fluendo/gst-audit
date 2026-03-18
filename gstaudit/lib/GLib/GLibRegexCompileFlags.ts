@@ -1,0 +1,1 @@
+export type GLibRegexCompileFlags = "default" | "caseless" | "multiline" | "dotall" | "extended" | "anchored" | "dollar_endonly" | "ungreedy" | "raw" | "no_auto_capture" | "optimize" | "firstline" | "dupnames" | "newline_cr" | "newline_lf" | "newline_crlf" | "newline_anycrlf" | "bsr_anycrlf" | "javascript_compat";

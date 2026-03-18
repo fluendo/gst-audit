@@ -1,0 +1,1 @@
+export type GLibUserDirectory = "directory_desktop" | "directory_documents" | "directory_download" | "directory_music" | "directory_pictures" | "directory_public_share" | "directory_templates" | "directory_videos" | "n_directories";

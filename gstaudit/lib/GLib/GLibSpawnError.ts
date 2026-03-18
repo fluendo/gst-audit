@@ -1,0 +1,1 @@
+export type GLibSpawnError = "fork" | "read" | "chdir" | "acces" | "perm" | "too_big" | "2big" | "noexec" | "nametoolong" | "noent" | "nomem" | "notdir" | "loop" | "txtbusy" | "io" | "nfile" | "mfile" | "inval" | "isdir" | "libbad" | "failed";

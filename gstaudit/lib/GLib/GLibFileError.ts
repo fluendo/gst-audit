@@ -1,0 +1,1 @@
+export type GLibFileError = "exist" | "isdir" | "acces" | "nametoolong" | "noent" | "notdir" | "nxio" | "nodev" | "rofs" | "txtbsy" | "fault" | "loop" | "nospc" | "nomem" | "mfile" | "nfile" | "badf" | "inval" | "pipe" | "again" | "intr" | "io" | "perm" | "nosys" | "failed";
