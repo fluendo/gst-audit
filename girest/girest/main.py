@@ -204,6 +204,7 @@ class GIRest:
             "gint64": {"type": "integer", "format": "int64"},
             "guint64": {"type": "integer", "format": "int64"},
             "utf8": {"type": "string"},
+            "filename": {"type": "string"},  # Filename strings (filesystem encoding)
             "gfloat": {"type": "number", "format": "float"},
             "gdouble": {"type": "number", "format": "double"},
             "gsize": {"type": "number", "format": "int64"},
