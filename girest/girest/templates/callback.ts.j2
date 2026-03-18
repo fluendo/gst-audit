@@ -1,4 +1,16 @@
 {# Callback template - handles callback function types as TypeScript type aliases #}
+{% extends "base.ts.j2" %}
+
+{# Set the schema variable for the base template #}
+{% set schema = callback %}
+
+{# Override imports block to call parent with our variable set #}
+{% block imports %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+
 {% set params = [] %}
 {% for param in callback.parameters %}
   {% set ts_type = param.type.lang_type %}
@@ -40,3 +52,4 @@ data.{{ param.name }}
 {% endif %}{% endfor %}
   ];
 }
+{% endblock %} {# End content block #}

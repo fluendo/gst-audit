@@ -191,30 +191,99 @@ class Generator:
                 schema = Namespace(tag, self)
                 self.add_schema(schema)
 
-    def generate(self) -> str:
-        """Generate complete TypeScript bindings."""
-        title = self.schema.get("info", {}).get("title", "API")
-        version = self.schema.get("info", {}).get("version", "1.0")
+    def generate(self, output_dir: str) -> Dict[str, str]:
+        """
+        Generate TypeScript bindings as multiple files (one per class/interface).
 
-        # First the known schemas
+        Args:
+            output_dir: Base directory for generated files
+
+        Returns:
+            Dictionary mapping file paths to their content
+        """
+        files = {}
+
+        # First create all schemas
         for schema_name, schema_def in self.schemas.items():
             schema = Schema.create_schema(schema_name, schema_def, self, None)
             if schema:
                 self.add_schema(schema)
-        # Now the tags without schemas
+        # Create namespace schemas for tags without component schemas
         self._create_namespace_schemas()
 
-        # Generate main file
-        main_template = self.jinja_env.get_template("main.ts.j2")
-        return main_template.render(
+        # Group schemas by namespace
+        schemas_by_namespace = {}
+        for schema_name, schema in self.schema_objects_cache.items():
+            namespace = getattr(schema, "namespace", None)
+            if namespace:
+                if namespace not in schemas_by_namespace:
+                    schemas_by_namespace[namespace] = []
+                schemas_by_namespace[namespace].append(schema)
+
+        # Generate files for each schema
+        for schema_name, schema in self.schema_objects_cache.items():
+            namespace = getattr(schema, "namespace", None)
+
+            if not namespace:
+                # Skip schemas without namespace (like Pointer, Event)
+                continue
+
+            # Determine file path: output_dir/{Namespace}/{ClassName}.ts
+            file_path = os.path.join(output_dir, namespace, f"{schema.name}.ts")
+
+            # Generate content for this schema
+            try:
+                content = schema.generate()
+                files[file_path] = content
+            except Exception as e:
+                logger.error(f"Error generating {schema.name}: {e}")
+                import traceback
+
+                traceback.print_exc()
+
+        # Generate index.ts for each namespace
+        namespace_index_template = self.jinja_env.get_template("namespace_index.ts.j2")
+        for namespace, schemas in schemas_by_namespace.items():
+            index_path = os.path.join(output_dir, namespace, "index.ts")
+
+            # Sort schemas and render template
+            sorted_schemas = sorted(schemas, key=lambda s: s.name)
+            index_content = namespace_index_template.render(schemas=sorted_schemas)
+            files[index_path] = index_content
+
+        # Generate main entry point using template
+        title = self.schema.get("info", {}).get("title", "API")
+        version = self.schema.get("info", {}).get("version", "1.0")
+        main_namespace = title.split()[0]  # "Gst REST API" -> "Gst"
+        main_file_path = os.path.join(output_dir, f"{main_namespace.lower()}.ts")
+
+        # Generate shared types file to avoid circular dependencies
+        shared_file_path = os.path.join(output_dir, "_shared.ts")
+        shared_template = self.jinja_env.get_template("shared.ts.j2")
+        shared_content = shared_template.render(
             title=title,
             version=version,
-            base_url=self.base_url,
             host=self.host,
             port=self.port,
             base_path=self.base_path,
-            schemas=self.schema_objects_cache,
         )
+        files[shared_file_path] = shared_content
+
+        # Use main.ts.j2 template but with namespace exports instead of inline schemas
+        main_template = self.jinja_env.get_template("main.ts.j2")
+        main_content = main_template.render(
+            title=title,
+            version=version,
+            host=self.host,
+            port=self.port,
+            base_path=self.base_path,
+            schemas={},  # Empty - we're not inlining schemas anymore
+            namespaces=sorted(schemas_by_namespace.keys()),  # Pass namespace list
+        )
+
+        files[main_file_path] = main_content
+
+        return files
 
 
 class Type(Info):
@@ -415,6 +484,106 @@ class Schema(Info):
     def parse_schema(self):
         pass
 
+    def get_export_names(self) -> List[str]:
+        """
+        Return all names that can be imported from this schema's generated file.
+        Override in subclasses to add type variants (e.g., enum Value types).
+
+        Returns:
+            List of tuples (export_name, source_schema_name, is_type_only) where:
+            - export_name: the name that can be imported
+            - source_schema_name: the name of the schema file that exports this name
+            - is_type_only: True if this should use 'import type', False for regular import
+            For most schemas, export_name == source_schema_name.
+        """
+        return [(self.name, self.name, False)]
+
+    def _is_child_class(self, dep_name: str) -> bool:
+        """
+        Check if a dependency is a child class (creates circular dependency).
+        A dependency is a child if it or any of its descendants extends this class.
+        """
+        if dep_name not in self.generator.schema_objects_cache:
+            return False
+
+        dep_schema = self.generator.schema_objects_cache[dep_name]
+
+        # Only Object and Struct schemas can have inheritance
+        if not isinstance(dep_schema, (Object, Struct)):
+            return False
+
+        # Check if dep extends this class (directly or indirectly)
+        current = dep_schema
+        visited = set()
+        while current:
+            if current.name in visited:
+                break  # Avoid infinite loops
+            visited.add(current.name)
+
+            if current.parent_schema and current.parent_schema.name == self.name:
+                return True
+            current = current.parent_schema
+
+        return False
+
+    def get_dependencies(self) -> List[Dict[str, Any]]:
+        """
+        Get dependencies for this schema in a language-agnostic format.
+
+        Returns:
+            List of dependency dictionaries containing:
+            - name: The symbol name to import
+            - source_file: The file containing the symbol
+            - namespace: The namespace containing the file
+            - is_type_only: Whether this is a type-only import
+            - same_namespace: Whether it's in the same namespace as this schema
+        """
+        deps = []
+        deps_set = set()  # Track what we've already added
+
+        for dep in sorted(self.dependencies):
+            # Skip self-reference
+            if dep == self.name:
+                continue
+
+            # Skip built-in types and special schemas
+            if dep in ("Pointer", "Event"):
+                continue
+
+            # Check if this dependency exists in the schema cache
+            if dep in self.generator.schema_objects_cache:
+                dep_schema = self.generator.schema_objects_cache[dep]
+                # Get all export names from the dependency schema
+                # Returns list of tuples: (export_name, source_file_name, is_type_only)
+                export_tuples = dep_schema.get_export_names()
+
+                dep_namespace = dep_schema.namespace
+                my_namespace = getattr(self, "namespace", None)
+
+                # Check if this is a child class (circular dependency)
+                is_child = self._is_child_class(dep)
+
+                # Add each export as a separate dependency entry
+                for export_name, source_file, is_type_only in export_tuples:
+                    dep_key = (export_name, source_file, dep_namespace)
+                    if dep_key not in deps_set:
+                        deps_set.add(dep_key)
+                        deps.append(
+                            {
+                                "name": export_name,
+                                "source_file": source_file,
+                                "namespace": dep_namespace,
+                                "is_type_only": is_type_only or is_child,
+                                "same_namespace": dep_namespace == my_namespace,
+                            }
+                        )
+            else:
+                # Dependency not in cache - this shouldn't happen if schema is properly generated
+                logger.warning(f"Dependency {dep} not found in schema cache for {self.name}")
+                continue
+
+        return deps
+
     @classmethod
     def create_schema(
         cls, name: str, schema_def: Optional[Dict[str, Any]], generator: "Generator", parent: Optional["Info"] = None
@@ -473,11 +642,47 @@ class Enum(Schema):
     def methods(self) -> List["Method"]:
         return self._methods
 
+    def get_export_names(self) -> List[str]:
+        """Enums export depends on whether they have methods.
+
+        With methods: namespace with constants + EnumValue type
+        Without methods: just the Enum type alias
+        """
+        if self.methods:
+            # Has methods: exports namespace and Value type
+            return [
+                (self.name, self.name, False),  # export { GstDebugLevel } - runtime constant
+                (f"{self.name}Value", self.name, True),  # export type { GstDebugLevelValue } - type only
+            ]
+        else:
+            # No methods: only exports type alias (no Value suffix)
+            return [
+                (self.name, self.name, True)  # export type { GstFormat } - type only
+            ]
+
 
 class Flags(Enum):
     """Represents a GObject flags schema (bitfield enum)."""
 
     info_type = "flags"
+
+    def get_export_names(self) -> List[str]:
+        """Flags export depends on whether they have methods.
+
+        With methods: namespace with constants + FlagsValue type
+        Without methods: just the Flags type alias
+        """
+        if self.methods:
+            # Has methods: exports namespace and Value type
+            return [
+                (self.name, self.name, False),  # export { GstElementFlags } - runtime constant
+                (f"{self.name}Value", self.name, True),  # export type { GstElementFlagsValue } - type only
+            ]
+        else:
+            # No methods: only exports type alias (no Value suffix)
+            return [
+                (self.name, self.name, True)  # export type { GObjectParamFlags } - type only
+            ]
 
 
 class Field(Schema):
@@ -505,6 +710,12 @@ class Callback(Schema):
 
     def __init__(self, name: str, schema_def: Dict[str, Any], generator: "Generator", parent: Optional["Info"] = None):
         super().__init__(name, schema_def, generator, parent)
+
+        # Extract namespace from schema (set by main.py during schema generation)
+        self.namespace = schema_def.get("x-gi-namespace")
+        if not self.namespace:
+            raise ValueError(f"Callback {name} missing x-gi-namespace in schema")
+
         self._parameters: List[Param] = []
         self._return_param = None
         raw_properties = schema_def.get("properties", {})
@@ -531,6 +742,13 @@ class Callback(Schema):
     def is_void(self) -> bool:
         """Check if this method returns void."""
         return self._return_param is None
+
+    def get_export_names(self) -> List[str]:
+        """Callbacks export both the type and the converter function from the same file."""
+        return [
+            (self.name, self.name, True),  # export type GstLogFunction - type only
+            (f"convert{self.name}Args", self.name, False),  # export async function - runtime function
+        ]
 
 
 class Struct(Schema):
@@ -608,6 +826,7 @@ class Object(Schema):
             self.add_dependency(parent_class)
             # Generate the new schema
             self._parent_schema = self.generator.get_schema(parent_class)
+
         # Check for base class warning
         has_destructor_or_copy = any(method.is_destructor or method.is_copy for method in self._methods)
         if not self._parent_schema and not has_destructor_or_copy:
@@ -695,6 +914,9 @@ class Namespace(Schema):
     def __init__(self, name: str, generator: "Generator"):
         super().__init__(name, None, generator, None)
         self._methods: List["Method"] = self.generator.get_methods_for_schema(self)
+        # Namespace schemas are placed in their own directory
+        # e.g., "Gst" namespace creates Gst/Gst.ts
+        self.namespace = name
 
     @property
     def methods(self):
@@ -848,6 +1070,20 @@ class Method(Info):
 
                 param = Param(param_def, self.generator, self)
                 self.body_properties.append(param)
+
+        # Add callback dependencies to parent schema
+        for param in self.parameters + self.body_properties:
+            if param.is_callback and param.callback:
+                self.parent.add_dependency(param.callback)
+
+        # Add callback dependencies from return parameters
+        if self.return_obj and self.return_obj.return_params:
+            for return_param in self.return_obj.return_params:
+                if return_param.is_callback and hasattr(return_param, "callback") and return_param.callback:
+                    callback_name = (
+                        return_param.callback if isinstance(return_param.callback, str) else return_param.callback.name
+                    )
+                    self.parent.add_dependency(callback_name)
 
     @property
     def params(self) -> List[Param]:

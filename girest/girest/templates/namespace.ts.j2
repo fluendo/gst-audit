@@ -1,5 +1,19 @@
+{% extends "base.ts.j2" %}
+
+{# Set the schema variable for the base template #}
+{% set schema = namespace %}
+
+{# Override imports block to call parent with our variable set #}
+{% block imports %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+
 export namespace {{ namespace.name }} {
 {% for method in namespace.methods %}
   {{ method.generate() }}
 {% endfor %}
 }
+
+{% endblock %} {# End content block #}

@@ -5,7 +5,12 @@ if (data.{{ return_param.name }} && typeof data.{{ return_param.name }} === 'obj
     return null;
   }
 {% endif %}
+  {% if return_param.parent.parent.parent._is_child_class(return_param.type.ref_schema.name) -%}
+  // Dynamic import to avoid circular dependency with child class
+  const { {{ return_param.type.ref_schema.valid_name }} } = await import('./{{ return_param.type.ref_schema.name }}');
+  {% endif -%}
   const instance = await {{ return_param.type.ref_schema.valid_name }}.create(data.{{ return_param.name }}.ptr, '{{ return_param.transfer }}');
   return instance;
 }
 return Promise.reject("Call failed");
+

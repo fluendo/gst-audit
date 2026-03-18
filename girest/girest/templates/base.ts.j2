@@ -1,0 +1,25 @@
+{# Base TypeScript template - provides common structure for all schema types #}
+
+{% block imports %}
+// Import shared utilities (avoiding circular dependency with gst.ts)
+import type { Pointer } from '../_shared';
+import { apiConfig, getActiveCorrelationId, getCallbackHandler, transferType } from '../_shared';
+
+// Auto-generated imports
+{% for dep in schema.get_dependencies() %}
+  {% if dep.same_namespace %}
+    {% set import_path = './' + dep.source_file %}
+  {% else %}
+    {% set import_path = '../' + dep.namespace + '/' + dep.source_file %}
+  {% endif %}
+  {% if dep.is_type_only %}
+import type { {{ dep.name }} } from '{{ import_path }}';
+  {% else %}
+import { {{ dep.name }} } from '{{ import_path }}';
+  {% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+{# Child templates override this block with their specific content #}
+{% endblock %}
