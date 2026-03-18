@@ -145,6 +145,15 @@ function findRunningPipelines()
 function init()
 {
   console.log("Init");
+  
+  // Load GstVideo library to make gst_video_* functions available
+  try {
+    Module.load("libgstvideo-1.0.so.0");
+    console.log("Loaded libgstvideo-1.0.so.0");
+  } catch (e) {
+    console.warn("Failed to load libgstvideo-1.0.so.0:", e);
+  }
+  
   findRunningPipelines();
   console.log("Init done");
 }
