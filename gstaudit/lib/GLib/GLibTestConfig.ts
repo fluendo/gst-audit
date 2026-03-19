@@ -1,0 +1,307 @@
+
+// Import shared utilities (avoiding circular dependency with gst.ts)
+import type { Pointer } from '../_shared';
+import { apiConfig, getActiveCorrelationId, getCallbackHandler, transferType } from '../_shared';
+
+// Auto-generated imports
+
+
+
+// Finalization registry for GLibTestConfig
+const glibtestconfigRegistry = new FinalizationRegistry((ptr: string) => {
+  fetch(apiConfig.fullBaseUrl + '/GLib/TestConfig/ptr,' + ptr + '/free')
+    .catch(err => console.error('Failed to free GLibTestConfig:', ptr, err));
+});
+
+export class GLibTestConfig {
+
+  ptr!: string;
+
+  protected constructor(ptr: string, transferType: transferType) {
+    this.ptr = ptr;
+    // Don't register in constructor - use static create() method instead
+  }
+
+  static async create(ptr: string, transferType: transferType): Promise<GLibTestConfig> {
+    const instance = new GLibTestConfig(ptr, transferType);
+    if (transferType === 'full')
+      glibtestconfigRegistry.register(instance, ptr);
+    return instance;
+  }
+    
+
+
+
+
+
+
+
+ 
+  static async new(): Promise<GLibTestConfig> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestConfig/new`, apiConfig.baseUrl);
+    try {
+      // Auto-inject correlation ID if we're in a callback context
+      const correlationId = getActiveCorrelationId();
+      const headers: Record<string, string> = {};
+      if (correlationId) {
+        headers['X-Correlation-Id'] = correlationId;
+      }
+      const response = await fetch(url.toString(), Object.keys(headers).length > 0 ? { headers } : undefined);
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    // Return value is a struct, instantiate it from the ptr
+if (data.return && typeof data.return === 'object' && 'ptr' in data.return) {
+const instance = await GLibTestConfig.create(data.return.ptr, 'none');
+  return instance;
+}
+return Promise.reject("Call failed");
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+
+      
+
+
+
+
+
+
+
+ 
+  async free(): Promise<void> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestConfig/ptr,${this.ptr}/free`, apiConfig.baseUrl);
+    try {
+      // Auto-inject correlation ID if we're in a callback context
+      const correlationId = getActiveCorrelationId();
+      const headers: Record<string, string> = {};
+      if (correlationId) {
+        headers['X-Correlation-Id'] = correlationId;
+      }
+      const response = await fetch(url.toString(), Object.keys(headers).length > 0 ? { headers } : undefined);
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+
+    
+
+
+
+
+
+
+
+ 
+  async get_test_initialized(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestConfig/ptr,${this.ptr}/fields/test_initialized`, apiConfig.baseUrl);
+    try {
+      // Auto-inject correlation ID if we're in a callback context
+      const correlationId = getActiveCorrelationId();
+      const headers: Record<string, string> = {};
+      if (correlationId) {
+        headers['X-Correlation-Id'] = correlationId;
+      }
+      const response = await fetch(url.toString(), Object.keys(headers).length > 0 ? { headers } : undefined);
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+    
+
+
+
+
+
+
+
+ 
+  async get_test_quick(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestConfig/ptr,${this.ptr}/fields/test_quick`, apiConfig.baseUrl);
+    try {
+      // Auto-inject correlation ID if we're in a callback context
+      const correlationId = getActiveCorrelationId();
+      const headers: Record<string, string> = {};
+      if (correlationId) {
+        headers['X-Correlation-Id'] = correlationId;
+      }
+      const response = await fetch(url.toString(), Object.keys(headers).length > 0 ? { headers } : undefined);
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+    
+
+
+
+
+
+
+
+ 
+  async get_test_perf(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestConfig/ptr,${this.ptr}/fields/test_perf`, apiConfig.baseUrl);
+    try {
+      // Auto-inject correlation ID if we're in a callback context
+      const correlationId = getActiveCorrelationId();
+      const headers: Record<string, string> = {};
+      if (correlationId) {
+        headers['X-Correlation-Id'] = correlationId;
+      }
+      const response = await fetch(url.toString(), Object.keys(headers).length > 0 ? { headers } : undefined);
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+    
+
+
+
+
+
+
+
+ 
+  async get_test_verbose(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestConfig/ptr,${this.ptr}/fields/test_verbose`, apiConfig.baseUrl);
+    try {
+      // Auto-inject correlation ID if we're in a callback context
+      const correlationId = getActiveCorrelationId();
+      const headers: Record<string, string> = {};
+      if (correlationId) {
+        headers['X-Correlation-Id'] = correlationId;
+      }
+      const response = await fetch(url.toString(), Object.keys(headers).length > 0 ? { headers } : undefined);
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+    
+
+
+
+
+
+
+
+ 
+  async get_test_quiet(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestConfig/ptr,${this.ptr}/fields/test_quiet`, apiConfig.baseUrl);
+    try {
+      // Auto-inject correlation ID if we're in a callback context
+      const correlationId = getActiveCorrelationId();
+      const headers: Record<string, string> = {};
+      if (correlationId) {
+        headers['X-Correlation-Id'] = correlationId;
+      }
+      const response = await fetch(url.toString(), Object.keys(headers).length > 0 ? { headers } : undefined);
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+    
+
+
+
+
+
+
+
+ 
+  async get_test_undefined(): Promise<boolean> {
+    // Increment ref for parameters with full transfer ownership
+    const url = new URL(`${apiConfig.normalizedBasePath}/GLib/TestConfig/ptr,${this.ptr}/fields/test_undefined`, apiConfig.baseUrl);
+    try {
+      // Auto-inject correlation ID if we're in a callback context
+      const correlationId = getActiveCorrelationId();
+      const headers: Record<string, string> = {};
+      if (correlationId) {
+        headers['X-Correlation-Id'] = correlationId;
+      }
+      const response = await fetch(url.toString(), Object.keys(headers).length > 0 ? { headers } : undefined);
+      if (!response.ok) {
+        // If the call fails, unref the objects we ref'd
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+    return data.return;
+
+
+    } catch (error) {
+      // If there's an error, unref the objects we ref'd
+      throw error;
+    }
+  }
+
+}
+

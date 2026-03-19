@@ -1,4 +1,16 @@
 {# Object template - handles GIR object types (GObject-derived classes) #}
+{% extends "base.ts.j2" %}
+
+{# Set the schema variable for the base template #}
+{% set schema = object %}
+
+{# Override imports block to call parent with our variable set #}
+{% block imports %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+
 {% block finalization%}
 {% if object.parent_schema.info_type == 'struct' %}
 {% set registry_name = object.name.lower() + 'Registry' %}
@@ -61,3 +73,5 @@ export class {{ object.name }}{% if object.parent_schema %} extends {{ object.pa
   {% endfor %}
 {% endblock %}
 }
+
+{% endblock %} {# End content block #}

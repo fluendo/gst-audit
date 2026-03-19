@@ -1,0 +1,11 @@
+{# Namespace index.ts - exports all schemas in a namespace #}
+{% for schema in schemas %}
+{% set export_names = schema.get_export_names() %}
+{% for export_name, file, is_type_only in export_names %}
+{% if is_type_only %}
+export type { {{ export_name }} } from './{{ file }}';
+{% else %}
+export { {{ export_name }} } from './{{ file }}';
+{% endif %}
+{% endfor %}
+{% endfor %}

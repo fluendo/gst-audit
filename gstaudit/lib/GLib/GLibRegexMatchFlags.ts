@@ -1,0 +1,1 @@
+export type GLibRegexMatchFlags = "default" | "anchored" | "notbol" | "noteol" | "notempty" | "partial" | "newline_cr" | "newline_lf" | "newline_crlf" | "newline_any" | "newline_anycrlf" | "bsr_anycrlf" | "bsr_any" | "partial_soft" | "partial_hard" | "notempty_atstart";

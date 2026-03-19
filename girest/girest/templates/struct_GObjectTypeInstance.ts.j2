@@ -1,6 +1,11 @@
 {# GObjectTypeInstance template - specific template for GObject.TypeInstance struct #}
 {% extends "struct.ts.j2" %}
 
+{% block imports %}
+{{ super() }}
+
+{% endblock %}
+
 {% block signature %}
 // Type interface for GObject constructors with static get_type method
 interface GObjectConstructor<T extends GObjectTypeInstance> {
@@ -18,7 +23,9 @@ export class GObjectTypeInstance{% if struct.parent_schema %} extends {{ struct.
 
 	async isOf<T extends GObjectTypeInstance>(TargetClass: GObjectConstructor<T>): Promise<boolean> {
     const type = await TargetClass.get_type();
-    const is_type = await GObject.type_check_instance_is_a(this, type);
+    // Use dynamic import to avoid circular dependency (GObject.ts imports GObjectTypeInstance)
+    const GObjectModule = await import('./GObject');
+    const is_type = await GObjectModule.GObject.type_check_instance_is_a(this, type);
     return is_type;
   }
 

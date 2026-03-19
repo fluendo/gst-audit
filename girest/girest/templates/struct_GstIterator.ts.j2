@@ -1,6 +1,13 @@
 {# GstIterator template - handles GstIterator with AsyncIterable interface #}
 {% extends "struct.ts.j2" %}
 
+{% block imports %}
+{{ super() }}
+
+// Additional imports for AsyncIterable implementation
+import { GObjectObject } from '../GObject/GObjectObject';
+{% endblock %}
+
 {% block signature %}
 export class {{ struct.name }} implements AsyncIterable<GObjectObject | null> {
 {% endblock %}

@@ -250,8 +250,11 @@ def _broadcast_log(log_data: dict):
                 headers["X-Callback-Signature"] = signature
 
             async with aiohttp.ClientSession() as session:
+                # Use 30 second timeout to allow for Next.js compilation on first request.
+                # The API routes import the generated GStreamer bindings which can take 10-15s
+                # to compile on first load. Subsequent requests are fast (cached).
                 async with session.post(
-                    callback["url"], json=payload, headers=headers, timeout=aiohttp.ClientTimeout(total=5)
+                    callback["url"], json=payload, headers=headers, timeout=aiohttp.ClientTimeout(total=30)
                 ) as response:
                     if response.status != 200:
                         logger.warning(f"Log callback returned status {response.status}")
@@ -302,10 +305,6 @@ def _on_message(message, data):
     if kind == "log":
         log_data = payload.get("data")
         if log_data:
-            logger.info(
-                f"Received log from Frida: {log_data.get('category')} - {log_data.get('level')} - {log_data.get('message')[:50]}"
-            )
-            logger.info(f"Broadcasting to {len(log_callbacks)} callbacks")
             _broadcast_log(log_data)
         return
 
@@ -384,10 +383,10 @@ elif args.mode == "launch":
 
 # Create the resolver with Frida
 script_path = os.path.join((os.path.dirname(__file__)), "script.js")
-resolver = FridaResolver("Gst", "1.0", pid, scripts=[script_path], on_message=_on_message, on_log=_on_log)
+resolver = FridaResolver("GstVideo", "1.0", pid, scripts=[script_path], on_message=_on_message, on_log=_on_log)
 
 # Create the girest GIApp
-app = GIApp(__name__, "Gst", "1.0", resolver, default_base_path="/girest")
+app = GIApp(__name__, "GstVideo", "1.0", resolver, default_base_path="/girest")
 
 # Add CORS middleware before exception handling to ensure it handles OPTIONS requests
 from connexion.middleware import MiddlewarePosition  # noqa: E402

@@ -28,7 +28,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate TypeScript bindings from GObject introspection data")
     parser.add_argument("namespace", help="GObject namespace (e.g., 'Gst', 'GLib', 'Gtk')")
     parser.add_argument("version", help="Namespace version (e.g., '1.0', '2.0')")
-    parser.add_argument("-o", "--output", help="Output file path (default: stdout)", default=None)
+    parser.add_argument("-o", "--output", required=True, help="Output directory path")
     parser.add_argument("--host", default="localhost", help="Host for REST API calls (default: localhost)")
     parser.add_argument("--port", type=int, default=9000, help="Port for REST API calls (default: 9000)")
     parser.add_argument("--base-path", default="", help="Base path for REST API calls (default: '')")
@@ -43,15 +43,20 @@ def main():
 
         # Generate TypeScript bindings using Jinja2-based generator
         ts_gen = TypeScriptGenerator(openapi_schema, host=args.host, port=args.port, base_path=args.base_path)
-        output = ts_gen.generate()
 
-        # Write to file or stdout
-        if args.output:
-            with open(args.output, "w") as f:
-                f.write(output)
-            print(f"Successfully generated bindings to {args.output}", file=sys.stderr)
-        else:
-            print(output)
+        # Multi-file generation (always)
+        files = ts_gen.generate(args.output)
+
+        # Write all files
+        for file_path, content in files.items():
+            # Create directory if it doesn't exist
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            with open(file_path, "w") as f:
+                f.write(content)
+            print(f"Generated: {file_path}", file=sys.stderr)
+
+        print(f"\nSuccessfully generated {len(files)} files to {args.output}", file=sys.stderr)
 
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)

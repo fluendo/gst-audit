@@ -1,0 +1,126 @@
+/**
+ * {{ title }}
+ * Version: {{ version }}
+ * Auto-generated shared types and utilities
+ * This file contains shared utilities used by all namespaces to avoid circular dependencies
+ */
+
+// Configuration for API server location
+export const apiConfig = {
+  host: '{{ host }}',
+  port: {{ port }},
+  basePath: '{{ base_path }}',
+  get baseUrl(): string {
+    return `http://${this.host}:${this.port}`;
+  },
+  get normalizedBasePath(): string {
+    return this.basePath && !this.basePath.startsWith('/') ? `/${this.basePath}` : this.basePath;
+  },
+  get fullBaseUrl(): string {
+    return `http://${this.host}:${this.port}${this.normalizedBasePath}`;
+  },
+};
+
+/**
+ * Update the API server configuration
+ * @param config New configuration with host, port, and/or basePath
+ */
+export function setApiConfig(config: { host?: string; port?: number; basePath?: string }): void {
+  if (config.host !== undefined) {
+    apiConfig.host = config.host;
+  }
+  if (config.port !== undefined) {
+    apiConfig.port = config.port;
+  }
+  if (config.basePath !== undefined) {
+    apiConfig.basePath = config.basePath;
+  }
+}
+
+/**
+ * Get the current API server configuration
+ */
+export function getApiConfig(): { host: string; port: number; basePath: string; baseUrl: string } {
+  return {
+    host: apiConfig.host,
+    port: apiConfig.port,
+    basePath: apiConfig.basePath,
+    baseUrl: apiConfig.baseUrl
+  };
+}
+
+// Track active correlation ID for thread affinity
+let activeCorrelationId: string | null = null;
+
+/**
+ * Set the active correlation ID (used internally by callback handler).
+ * When a callback is invoked, the correlation ID is set to track reentrant calls.
+ * 
+ * @internal
+ * @param correlationId The correlation ID to set, or null to clear
+ */
+export function setActiveCorrelationId(correlationId: string | null): void {
+  activeCorrelationId = correlationId;
+}
+
+/**
+ * Get the current active correlation ID.
+ * 
+ * @internal
+ * @returns The active correlation ID, or null if not in a callback context
+ */
+export function getActiveCorrelationId(): string | null {
+  return activeCorrelationId;
+}
+
+/**
+ * Interface for callback handling.
+ * Implementations should handle callback registration and invocation.
+ */
+export interface ICallbackHandler {
+  /**
+   * Register a callback function and return metadata for the server.
+   * 
+   * @param callbackFunc The callback function to register
+   * @param converterFunc The converter function to convert raw callback args to typed args
+   * @param metadata Additional metadata (method name, parameter name, etc.)
+   * @returns An object containing:
+   *   - callbackUrl: The URL where callbacks should be POSTed
+   *   - callbackId: A unique identifier for this callback registration
+   */
+  registerCallback(
+    callbackFunc: Function,
+    converterFunc: Function,
+    metadata: { methodName: string; paramName: string }
+  ): { callbackUrl: string; callbackId: string };
+
+  /**
+   * Unregister a callback.
+   * 
+   * @param callbackId The callback ID to unregister
+   */
+  unregisterCallback(callbackId: string): void;
+}
+
+let callbackHandler: ICallbackHandler | null = null;
+
+/**
+ * Set the callback handler.
+ * This handler is responsible for managing callback registrations and invocations.
+ * 
+ * @param handler An implementation of ICallbackHandler
+ */
+export function setCallbackHandler(handler: ICallbackHandler): void {
+  callbackHandler = handler;
+}
+
+/**
+ * Get the current callback handler.
+ */
+export function getCallbackHandler(): ICallbackHandler | null {
+  return callbackHandler;
+}
+
+// Type definitions
+export type transferType = 'none' | 'container' | 'full';
+export type Pointer = string;

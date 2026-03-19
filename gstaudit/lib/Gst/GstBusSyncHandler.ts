@@ -1,0 +1,19 @@
+
+// Import shared utilities (avoiding circular dependency with gst.ts)
+import type { Pointer } from '../_shared';
+import { apiConfig, getActiveCorrelationId, getCallbackHandler, transferType } from '../_shared';
+
+// Auto-generated imports
+import { GstBus } from './GstBus';
+import { GstMessage } from './GstMessage';
+
+
+
+export type GstBusSyncHandler = (bus: GstBus, message: GstMessage, user_data: Pointer) => void;
+
+export async function convertGstBusSyncHandlerArgs(data: any): Promise<Parameters<GstBusSyncHandler>> {
+  return [
+    await GstBus.create(data.bus.ptr, 'none'),
+    await GstMessage.create(data.message.ptr, 'none'),
+    data.user_data  ];
+}

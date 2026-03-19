@@ -1,0 +1,1 @@
+export type GObjectParamFlags = "readable" | "writable" | "readwrite" | "construct" | "construct_only" | "lax_validation" | "static_name" | "private" | "static_nick" | "static_blurb" | "explicit_notify" | "deprecated";

@@ -15,6 +15,7 @@ import {
   GObjectParamSpecObject,
   GObjectParamSpecChar,
   GObjectParamSpecUChar,
+  GObjectParamSpecBoxed,
 } from '@/lib/gst';
 import { StringPropertyEditor } from './StringPropertyEditor';
 import { BooleanPropertyEditor } from './BooleanPropertyEditor';
@@ -31,6 +32,7 @@ import { UCharPropertyEditor } from './UCharPropertyEditor';
 import { EnumPropertyEditor } from './EnumPropertyEditor';
 import { FlagsPropertyEditor } from './FlagsPropertyEditor';
 import { ObjectPropertyEditor } from './ObjectPropertyEditor';
+import { BoxedPropertyEditor } from './BoxedPropertyEditor';
 import { useState, useEffect, ReactElement } from 'react';
 import { Typography, Box } from '@mui/material';
 
@@ -78,6 +80,8 @@ export function PropertyEditorFactory(props: PropertyEditorProps) {
           setEditorComponent(<EnumPropertyEditor {...props} />);
         } else if (await paramSpec.isOf(GObjectParamSpecFlags)) {
           setEditorComponent(<FlagsPropertyEditor {...props} />);
+        } else if (await paramSpec.isOf(GObjectParamSpecBoxed)) {
+          setEditorComponent(<BoxedPropertyEditor {...props} />);
         } else if (await paramSpec.isOf(GObjectParamSpecObject)) {
           setEditorComponent(<ObjectPropertyEditor {...props} />);
         } else {

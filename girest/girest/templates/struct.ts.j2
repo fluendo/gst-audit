@@ -1,4 +1,15 @@
 {# Struct template - handles struct types #}
+{% extends "base.ts.j2" %}
+
+{# Set the schema variable for the base template #}
+{% set schema = struct %}
+
+{# Override imports block to call parent with our variable set #}
+{% block imports %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
 
 {% block finalization %}
   {% if not struct.parent_schema %}
@@ -65,3 +76,5 @@ export class {{ struct.name }}{% if struct.parent_schema %} extends {{ struct.pa
 {% endfor %}
 {% endblock %}
 }
+
+{% endblock %} {# End content block #}

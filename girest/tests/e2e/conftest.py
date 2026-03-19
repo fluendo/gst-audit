@@ -94,12 +94,17 @@ def assert_api_success(response, msg="API call failed"):
         msg: Optional error message
 
     Returns:
-        dict: Parsed JSON response
+        dict: Parsed JSON response, or None for 204 No Content
 
     Raises:
         AssertionError: If status code is not 2xx
     """
     assert 200 <= response.status_code < 300, f"{msg}: {response.status_code}, response: {response.text}"
+
+    # 204 No Content has no response body
+    if response.status_code == 204:
+        return None
+
     return response.json()
 
 

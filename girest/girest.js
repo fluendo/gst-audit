@@ -5,6 +5,14 @@ var g_param_spec_types = null;
 
 const callbacks = new Map();
 
+/**
+ * Returns true if the IR type is pointer-based (string, pointer, gtype, struct, array, callback, filename).
+ * Used for safe dereferencing and null checks.
+ */
+function base_type_is_pointer(t) {
+  return ["string", "pointer", "gtype", "struct", "array", "callback", "filename"].includes(t["name"]);
+}
+
 function base_type_to_size(t)
 {
   switch (t["name"]) {
@@ -37,11 +45,19 @@ function base_type_to_size(t)
   }
 }
 
+/**
+ * Converts a value of the Frida type (corresponding to the IR type) to JSON.
+ * For pointer types, p is a NativePointer; for integer types, p is already an integer, etc.
+ * @param {object} t - IR type definition
+ * @param {*} p - value to convert (NativePointer for pointer types, integer for int types, etc.)
+ * @param {number} array_length - length for arrays (or -1 if not applicable)
+ * @returns {*} - JSON-serializable value
+ */
 function base_type_to_json(t, p, array_length)
 {
   switch (t["name"]) {
     case "string":
-      return p.readCString();
+      return p.isNull() ? null : p.readCString();
     case "bool":
       return Boolean(p);
     case "gtype":
@@ -52,12 +68,33 @@ function base_type_to_json(t, p, array_length)
         if (p.isNull())
           return [];
         const element_type = t["subtype"];
+        const element_size = base_type_to_size(element_type);
         const ret = [];
-        for (let i = 0; i < array_length; i++) {
-          const element_size = base_type_to_size(element_type);
-          const element_ptr = p.add(i * element_size);
-          const element_value = base_type_read(element_type, element_ptr);
-          ret.push(element_value);
+        
+        // If array_length is -1 and array is zero_terminated, count elements
+        if (array_length < 0 && t["zero_terminated"]) {
+          let i = 0;
+          while (true) {
+            const element_ptr = p.add(i * element_size);
+            // For pointer-based element types, check for null pointer terminator
+            if (base_type_is_pointer(element_type)) {
+              const ptr_value = element_ptr.readPointer();
+              if (ptr_value.isNull()) {
+                break;
+              }
+            }
+            // Read the element value
+            const element_value = base_type_read(element_type, element_ptr, -1);
+            ret.push(element_value);
+            i++;
+          }
+        } else {
+          // Fixed length array
+          for (let i = 0; i < array_length; i++) {
+            const element_ptr = p.add(i * element_size);
+            const element_value = base_type_read(element_type, element_ptr, -1);
+            ret.push(element_value);
+          }
         }
         return ret;
       }
@@ -66,38 +103,44 @@ function base_type_to_json(t, p, array_length)
   }
 }
 
-function base_type_read(t, p)
+/**
+ * Reads a value from a pointer according to the IR type.
+ * IMPORTANT: p is ALWAYS a pointer to a value location in memory of the corresponding type.
+ * @param {object} t - IR type definition
+ * @param {NativePointer} p - pointer to the value (ALWAYS a pointer)
+ * @param {number} array_length - length for arrays (or -1 if not applicable)
+ * @returns {*} - value read from memory
+ */
+function base_type_read(t, p, array_length)
 {
   switch (t["name"]) {
-    case "string":
-      return p.readCString();
     case "int8":
-      return p.readS8();
+      return p.isNull()? null : p.readS8();
     case "uint8":
-      return p.readU8();
+      return p.isNull()? null : p.readU8();
     case "int16":
-      return p.readS16();
+      return p.isNull()? null : p.readS16();
     case "uint16":
-      return p.readU16();
+      return p.isNull()? null : p.readU16();
     case "int32":
-      return p.readS32();
+      return p.isNull()? null : p.readS32();
     case "uint32":
-      return p.readU32();
+      return p.isNull()? null : p.readU32();
+    case "int64":
+      return p.isNull()? null : p.readS64();
+    case "uint64":
+      return p.isNull()? null : p.readU64();
     case "float":
-      return p.readFloat();
+      return p.isNull()? null : p.readFloat();
     case "double":
-      return p.readDouble();
+      return p.isNull()? null : p.readDouble();
     case "bool":
-      return base_type_to_json(t, p.readS8());
+      return p.isNull()? null : base_type_to_json(t, p.readS8(), -1);
     case "gtype":
     case "pointer":
-      return base_type_to_json(t, p.readPointer());
+    case "string":
     case "array":
-      return p.readPointer();
-    case "int64":
-      return p.readS64();
-    case "uint64":
-      return p.readU64();
+      return p.isNull()? null : base_type_to_json(t, p.readPointer(), array_length);
     default:
       console.error(`Unsupported type ${t["name"]} to read`);
       return 0;
@@ -227,7 +270,7 @@ function call(symbol, type, ...args)
   console.info(`Calling ${symbol} ${JSON.stringify(type)} and args ${args} in thread ${Process.getCurrentThreadId()}`);
   /* Find the symbol if not cached */
   if (symbol in functions) {
-    nf = functions["symbol"];
+    nf = functions[symbol];
   } else {
     Process.enumerateModules().some(m => {
       var s = m.findExportByName(symbol);
@@ -239,7 +282,7 @@ function call(symbol, type, ...args)
       var sig = callable_signature(type);
       console.debug(`Signature is [${sig}] => ${rsig}`);
       nf = new NativeFunction(s, rsig, sig);
-      functions["symbol"] = nf;
+      functions[symbol] = nf;
       return true;
     });
   }
@@ -386,8 +429,13 @@ function call(symbol, type, ...args)
   
   if (type["returns"]["name"] != "void") {
     /* When returning arrays, the length parameter must be read */
-    if (type["returns"]["name"] == "array" && type["return_length"] >= 0) {
-      var return_length = base_type_read(type["arguments"][type["return_length"]]["type"], tx_args[type["return_length"]]);
+    if (type["returns"]["name"] == "array") {
+      let return_length = -1;
+      if (type["returns"]["length"] >= 0) {
+        return_length = base_type_read(type["arguments"][type["returns"]["length"]]["type"], tx_args[type["returns"]["length"]], -1);
+      } else if (type["returns"]["fixed-size"] > 0) {
+        return_length = type["returns"]["fixed-size"];
+      }
       ret["return"] = base_type_to_json(type["returns"], nfr, return_length);
     } else {
       ret["return"] = base_type_to_json(type["returns"], nfr, -1);
@@ -400,10 +448,10 @@ function call(symbol, type, ...args)
       idx++;
       continue;
     } else if ([1, 2].includes(a["direction"])) {
-      var out_value = base_type_read(a["type"], tx_args[idx]);
+      var out_value = base_type_read(a["type"], tx_args[idx], -1);
       // If this is an array output parameter, convert it to JSON with proper length
       if (a["type"]["name"] == "array" && a["length"] >= 0) {
-        var out_length = base_type_read(type["arguments"][a["length"]]["type"], tx_args[a["length"]]);
+        var out_length = base_type_read(type["arguments"][a["length"]]["type"], tx_args[a["length"]], -1);
         ret[a["name"]] = base_type_to_json(a["type"], out_value, out_length);
       } else {
         ret[a["name"]] = out_value;
@@ -455,22 +503,37 @@ function free(ptr)
   }
 }
 
-function get_field(struct_ptr, offset, field_type)
+function get_field(struct_ptr, offset, field_type, struct_type_info)
 {
   console.info(`Reading field at offset ${offset} from struct ${struct_ptr} with type ${JSON.stringify(field_type)}`);
   
   // Convert struct_ptr string to pointer
   const base = ptr(struct_ptr);
-  let field_ptr = base.add(offset);
+  const field_ptr = base.add(offset);
   
-  // For string fields, we need to dereference the pointer first
-  // The field contains a pointer to the string, not the string itself
-  if (field_type["name"] === "string") {
-    field_ptr = field_ptr.readPointer();
+  // Determine array length if this is an array field
+  let array_length = -1;
+  if (field_type["name"] === "array") {
+    if (field_type["length"] >= 0 && struct_type_info && struct_type_info["fields"]) {
+      // Length is in another field - read it
+      const length_field_info = struct_type_info["fields"][field_type["length"]];
+      const length_offset = length_field_info["offset"];
+      const length_type = length_field_info["type"];
+      const length_ptr = base.add(length_offset);
+      array_length = base_type_read(length_type, length_ptr, -1);
+      console.info(`Array length from field ${field_type["length"]}: ${array_length}`);
+    } else if (field_type["fixed_size"] >= 0) {
+      // Fixed size array
+      array_length = field_type["fixed_size"];
+      console.info(`Array has fixed size: ${array_length}`);
+    } else if (field_type["zero_terminated"]) {
+      // Zero-terminated array - length will be counted in base_type_read
+      console.info(`Array is zero-terminated`);
+    }
   }
   
   // Read the value based on the field type
-  const value = base_type_read(field_type, field_ptr);
+  const value = base_type_read(field_type, field_ptr, array_length);
   
   console.info(`Read field value: ${value}`);
   return value;
@@ -594,7 +657,7 @@ function run(command_json) {
       return call(command.symbol, command.method_info, ...command.args);
     
     case "get_field":
-      return get_field(command.ptr, command.offset, command.field_type);
+      return get_field(command.ptr, command.offset, command.field_type, command.struct_type_info);
     
     case "set_field":
       set_field(command.ptr, command.offset, command.field_type, command.value);

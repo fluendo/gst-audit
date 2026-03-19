@@ -52,7 +52,7 @@ class FridaCommandSerializer:
         return {"type": "call", "symbol": symbol, "method_info": method_info, "args": args}
 
     @staticmethod
-    def serialize_get_field(struct_ptr: str, offset: int, field_type: dict) -> dict:
+    def serialize_get_field(struct_ptr: str, offset: int, field_type: dict, struct_type_info: dict = None) -> dict:
         """
         Serialize a get_field operation.
 
@@ -60,11 +60,18 @@ class FridaCommandSerializer:
             struct_ptr: Pointer to struct
             offset: Field offset in bytes
             field_type: Field type metadata
+            struct_type_info: Optional struct metadata (for array length lookups)
 
         Returns:
             Command dictionary for Frida
         """
-        return {"type": "get_field", "ptr": struct_ptr, "offset": offset, "field_type": field_type}
+        return {
+            "type": "get_field",
+            "ptr": struct_ptr,
+            "offset": offset,
+            "field_type": field_type,
+            "struct_type_info": struct_type_info,
+        }
 
     @staticmethod
     def serialize_set_field(struct_ptr: str, offset: int, field_type: dict, value: Any) -> dict:
@@ -360,17 +367,28 @@ class FridaResolver(GIResolver):
 
     def _build_enum_mappings(self):
         """Build mappings from enum string names to integer values"""
-        for i in range(0, self.repo.get_n_infos(self.ns)):
-            info = self.repo.get_info(self.ns, i)
-            info_type = info.get_type()
-            if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
-                full_name = f"{info.get_namespace()}{info.get_name()}"
-                mapping = {}
-                n_values = GIRepository.enum_info_get_n_values(info)
-                for j in range(n_values):
-                    value_info = GIRepository.enum_info_get_value(info, j)
-                    mapping[value_info.get_name()] = GIRepository.value_info_get_value(value_info)
-                self.enum_mappings[full_name] = mapping
+        # Build list of namespaces to process (main namespace + dependencies)
+        namespaces_to_process = [self.ns]
+        dependencies = self.repo.get_dependencies(self.ns)
+        if dependencies:
+            for dep in dependencies:
+                # Parse namespace from dependency string (format: "Namespace-Version")
+                dep_ns = dep.split("-")[0]
+                namespaces_to_process.append(dep_ns)
+
+        # Process enums from all namespaces
+        for ns in namespaces_to_process:
+            for i in range(0, self.repo.get_n_infos(ns)):
+                info = self.repo.get_info(ns, i)
+                info_type = info.get_type()
+                if info_type == GIRepository.InfoType.ENUM or info_type == GIRepository.InfoType.FLAGS:
+                    full_name = f"{info.get_namespace()}{info.get_name()}"
+                    mapping = {}
+                    n_values = GIRepository.enum_info_get_n_values(info)
+                    for j in range(n_values):
+                        value_info = GIRepository.enum_info_get_value(info, j)
+                        mapping[value_info.get_name()] = GIRepository.value_info_get_value(value_info)
+                    self.enum_mappings[full_name] = mapping
 
     def _load_script(self, script_path, on_log, on_message):
         s = None
@@ -626,6 +644,10 @@ class FridaResolver(GIResolver):
         Returns:
             Converted value
         """
+        # Handle None values (optional parameters not provided)
+        if rest_value is None:
+            return None
+
         arg_type = GIRepository.arg_info_get_type(arg_info)
         tag = GIRepository.type_tag_to_string(GIRepository.type_info_get_tag(arg_type))
         # Check if this is an interface type
@@ -702,7 +724,19 @@ class FridaResolver(GIResolver):
                 subtype = None
                 if element_type_info:
                     subtype = self._type_to_json(element_type_info)
-                return {"name": "array", "subtype": subtype}
+
+                # Get array metadata
+                array_length = GIRepository.type_info_get_array_length(t)  # -1 if not available
+                array_fixed_size = GIRepository.type_info_get_array_fixed_size(t)  # -1 if not fixed
+                is_zero_terminated = GIRepository.type_info_is_zero_terminated(t)
+
+                return {
+                    "name": "array",
+                    "subtype": subtype,
+                    "length": array_length,  # Index of parameter containing length, or -1
+                    "fixed_size": array_fixed_size,  # Fixed size if known, or -1
+                    "zero_terminated": is_zero_terminated,
+                }
             # For other array types, treat as pointer for now
             return {"name": "pointer", "subtype": None}
 
@@ -740,6 +774,7 @@ class FridaResolver(GIResolver):
             "gint64": "int64",
             "guint64": "uint64",
             "utf8": "string",
+            "filename": "string",  # Filename strings (filesystem encoding)
             "gfloat": "float",
             "gdouble": "double",
             "GType": "int64",  # FIXME beware of this
@@ -795,7 +830,7 @@ class FridaResolver(GIResolver):
         """Convert callable info to JSON representation"""
         return_type_info = self._type_to_json(GIRepository.callable_info_get_return_type(cb))
 
-        ret = {"arguments": [], "is_method": is_method, "returns": return_type_info, "return_length": -1}
+        ret = {"arguments": [], "is_method": is_method, "returns": return_type_info}
 
         if is_method:
             # Prepend self argument
@@ -845,7 +880,8 @@ class FridaResolver(GIResolver):
                 length_idx = GIRepository.type_info_get_array_length(return_type)
                 if length_idx >= 0:
                     ret["arguments"][length_idx + offset]["skip_out"] = True
-                    ret["return_length"] = length_idx + offset
+                    # Store length index inside the returns object for consistency with argument arrays
+                    ret["returns"]["length"] = length_idx + offset
 
         # Mark skipped arguments
         for r in ret["arguments"]:
@@ -1167,8 +1203,22 @@ class FridaResolver(GIResolver):
         logger.debug(f"Returning converted response: {result}")
         return result
 
-    def _create_field_get_handler(self, offset, field_type_json, field_type_info, operation):
+    def _create_field_get_handler(self, offset, field_type_json, field_type_info, operation, struct_info):
         """Create handler for reading a struct field"""
+
+        # Build struct_type_info with all fields for array length lookups
+        struct_type_info = None
+        if struct_info and field_type_json.get("name") == "array" and field_type_json.get("length", -1) >= 0:
+            # Only build struct_type_info if we have an array with a length parameter
+            n_fields = GIRepository.struct_info_get_n_fields(struct_info)
+            fields = []
+            for i in range(n_fields):
+                field_info = GIRepository.struct_info_get_field(struct_info, i)
+                field_offset = GIRepository.field_info_get_offset(field_info)
+                field_type = GIRepository.field_info_get_type(field_info)
+                field_type_json_item = self._type_to_json(field_type)
+                fields.append({"name": field_info.get_name(), "offset": field_offset, "type": field_type_json_item})
+            struct_type_info = {"fields": fields}
 
         async def field_get_handler(*args, **kwargs):
             # Extract the self parameter (struct pointer)
@@ -1179,7 +1229,7 @@ class FridaResolver(GIResolver):
                 raise ValueError("Missing 'ptr' value")
 
             # Serialize the command
-            command = self.command_serializer.serialize_get_field(obj["ptr"], offset, field_type_json)
+            command = self.command_serializer.serialize_get_field(obj["ptr"], offset, field_type_json, struct_type_info)
 
             # Execute command (handles correlation ID internally)
             raw_result = await asyncio.to_thread(self.message_bus.execute, command, connexion.request.headers)
@@ -1573,7 +1623,7 @@ class FridaResolver(GIResolver):
 
                         if operator == "get":
                             return self._create_field_get_handler(
-                                field_offset, field_type_json, field_type_info, operation
+                                field_offset, field_type_json, field_type_info, operation, struct_info
                             )
                         elif operator == "put" and is_writable:
                             return self._create_field_put_handler(
