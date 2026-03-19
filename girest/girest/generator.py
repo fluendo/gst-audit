@@ -625,10 +625,14 @@ class Enum(Schema):
 
     @property
     def values(self):
-        return [
-            {"const_name": value.upper().replace("-", "_").replace(".", "_"), "value": value}
-            for value in self.schema_section.get("enum", [])
-        ]
+        result = []
+        for value in self.schema_section.get("enum", []):
+            const_name = value.upper().replace("-", "_").replace(".", "_")
+            # Prefix with underscore if name starts with a digit (invalid JS identifier)
+            if const_name and const_name[0].isdigit():
+                const_name = "_" + const_name
+            result.append({"const_name": const_name, "value": value})
+        return result
 
     @property
     def namespace(self) -> str:
@@ -1329,6 +1333,11 @@ class TypeScriptGenerator(Generator):
             # Constructor methods should keep their original names (like "new")
             if not method.is_constructor and info.name in self.RESERVED_KEYWORDS:
                 return f"{info.name}_"
+
+            # Check for names starting with digits (invalid JS identifiers)
+            # Example: GstVideo.VideoScaler has a method named "2d"
+            if info.name and info.name[0].isdigit():
+                return f"_{info.name}"
 
             return info.name
         else:
