@@ -691,6 +691,11 @@ class GIRest:
             is_constructor = bool(flags & GIRepository.FunctionInfoFlags.IS_CONSTRUCTOR)
             method_name = bim.get_name()
 
+            # Skip methods with empty names (GIRepository bug)
+            # Example: GstVideo.VideoChromaResample has a method with empty name
+            if not method_name or method_name.strip() == "":
+                continue
+
             # Check for constructor
             if is_constructor or method_name == "new":
                 has_constructor = True
@@ -1363,12 +1368,17 @@ class GIRest:
         # Mark as generated early to prevent circular dependencies
         self.schemas[full_name] = True
 
-        # Get all enum values
+        # Get all enum values and deduplicate (GIRepository can return duplicates)
+        # Example: GstVideo.NavigationModifierType has 'meta_mask' listed twice
         n_values = GIRepository.enum_info_get_n_values(bi)
         enum_values = []
+        seen_values = set()
         for i in range(n_values):
             value_info = GIRepository.enum_info_get_value(bi, i)
-            enum_values.append(value_info.get_name())
+            name = value_info.get_name()
+            if name not in seen_values:
+                seen_values.add(name)
+                enum_values.append(name)
 
         # Create enum schema with string values
         # OpenAPI will accept string values, but we'll need to convert them
