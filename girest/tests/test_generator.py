@@ -12,48 +12,71 @@ generates TypeScript client bindings from OpenAPI schemas, including:
 
 import re
 
+from .conftest import find_class_in_files
 
-def test_gst_inheritance_chain(gst_typescript):
-    """
-    Test that GStreamer classes have the correct inheritance chain.
 
-    Verifies that:
-    - GstPipeline extends GstBin
-    - GstBin extends GstElement
-    - GstElement extends GstObject
-    - GstObject extends GObjectInitiallyUnowned
-    - GObjectInitiallyUnowned extends GObjectObject
-    - GObjectObject is the base class
-    """
-    output = gst_typescript
+def test_gst_pipeline_inheritance(gst_typescript):
+    """Test that GstPipeline extends GstBin."""
+    files_dict = gst_typescript
+    output = find_class_in_files(files_dict, "GstPipeline")
+    assert output, "GstPipeline class not found"
+    assert "export class GstPipeline extends GstBin" in output, "GstPipeline should extend GstBin"
 
-    # Define expected inheritance relationships
-    expected_classes = [
-        ("GObjectTypeInstance", None),  # Base class with no parent
-        ("GObjectObject", "GObjectTypeInstance"),  # GObjectObject extends GObjectTypeInstance
-        ("GObjectInitiallyUnowned", "GObjectObject"),
-        ("GstObject", "GObjectInitiallyUnowned"),
-        ("GstElement", "GstObject"),
-        ("GstBin", "GstElement"),
-        ("GstPipeline", "GstBin"),
-    ]
 
-    # Verify each class has the correct parent
-    for class_name, expected_parent in expected_classes:
-        if expected_parent:
-            # Class should extend its parent
-            pattern = f"export class {class_name} extends {expected_parent}"
-            assert pattern in output, (
-                f"Expected '{class_name}' to extend '{expected_parent}', "
-                f"but pattern not found in generated TypeScript"
-            )
-        else:
-            # Base class should not extend anything
-            pattern = f"export class {class_name} {{"
-            assert pattern in output, (
-                f"Expected '{class_name}' to be a base class (no extends), "
-                f"but pattern not found in generated TypeScript"
-            )
+def test_gst_bin_inheritance(gst_typescript):
+    """Test that GstBin extends GstElement."""
+    files_dict = gst_typescript
+    output = find_class_in_files(files_dict, "GstBin")
+    assert output, "GstBin class not found"
+    assert "export class GstBin extends GstElement" in output, "GstBin should extend GstElement"
+
+
+def test_gst_element_inheritance(gst_typescript):
+    """Test that GstElement extends GstObject."""
+    files_dict = gst_typescript
+    output = find_class_in_files(files_dict, "GstElement")
+    assert output, "GstElement class not found"
+    assert "export class GstElement extends GstObject" in output, "GstElement should extend GstObject"
+
+
+def test_gst_object_inheritance(gst_typescript):
+    """Test that GstObject extends GObjectInitiallyUnowned."""
+    files_dict = gst_typescript
+    output = find_class_in_files(files_dict, "GstObject")
+    assert output, "GstObject class not found"
+    assert (
+        "export class GstObject extends GObjectInitiallyUnowned" in output
+    ), "GstObject should extend GObjectInitiallyUnowned"
+
+
+def test_gobject_initially_unowned_inheritance(gst_typescript):
+    """Test that GObjectInitiallyUnowned extends GObjectObject."""
+    files_dict = gst_typescript
+    output = find_class_in_files(files_dict, "GObjectInitiallyUnowned")
+    assert output, "GObjectInitiallyUnowned class not found"
+    assert (
+        "export class GObjectInitiallyUnowned extends GObjectObject" in output
+    ), "GObjectInitiallyUnowned should extend GObjectObject"
+
+
+def test_gobject_object_inheritance(gst_typescript):
+    """Test that GObjectObject extends GObjectTypeInstance."""
+    files_dict = gst_typescript
+    output = find_class_in_files(files_dict, "GObjectObject")
+    assert output, "GObjectObject class not found"
+    assert (
+        "export class GObjectObject extends GObjectTypeInstance" in output
+    ), "GObjectObject should extend GObjectTypeInstance"
+
+
+def test_gobject_type_instance_is_base_class(gst_typescript):
+    """Test that GObjectTypeInstance is a base class with no parent."""
+    files_dict = gst_typescript
+    output = find_class_in_files(files_dict, "GObjectTypeInstance")
+    assert output, "GObjectTypeInstance class not found"
+    # Should have "export class GObjectTypeInstance {" without "extends"
+    assert "export class GObjectTypeInstance {" in output, "GObjectTypeInstance should be a base class"
+    assert "export class GObjectTypeInstance extends" not in output, "GObjectTypeInstance should not extend anything"
 
 
 def test_gobject_base_class_structure(gst_typescript):
@@ -66,10 +89,12 @@ def test_gobject_base_class_structure(gst_typescript):
     - castTo method
     - Does NOT have unref method (destructors are excluded from API)
     """
-    output = gst_typescript
+    files_dict = gst_typescript
+    output = find_class_in_files(files_dict, "GObjectObject")
+    assert output, "GObjectObject class not found in any generated file"
 
     # Find the GObjectObject class definition
-    match = re.search(r"export class GObjectObject extends GObjectTypeInstance \{(.*?)(?=\nexport )", output, re.DOTALL)
+    match = re.search(r"export class GObjectObject extends GObjectTypeInstance \{(.*?)$", output, re.DOTALL)
     assert match, "GObjectObject class extending GObjectTypeInstance not found in generated TypeScript"
 
     gobject_class = match.group(0)
@@ -95,7 +120,8 @@ def test_intermediate_classes_generated(gst_typescript):
     Verifies that GObjectInitiallyUnowned is generated as a class in the
     inheritance chain with only a static get_type method.
     """
-    output = gst_typescript
+    files_dict = gst_typescript
+    output = find_class_in_files(files_dict, "GObjectInitiallyUnowned")
 
     # GObjectInitiallyUnowned should be generated as a class
     assert (
@@ -103,9 +129,7 @@ def test_intermediate_classes_generated(gst_typescript):
     ), "GObjectInitiallyUnowned should be generated as a class extending GObjectObject"
 
     # It should be a class with only static methods (like get_type)
-    match = re.search(
-        r"export class GObjectInitiallyUnowned extends GObjectObject \{(.*?)(?=\nexport )", output, re.DOTALL
-    )
+    match = re.search(r"export class GObjectInitiallyUnowned extends GObjectObject \{(.*?)$", output, re.DOTALL)
     assert match, "GObjectInitiallyUnowned class structure not found"
 
     class_body = match.group(1).strip()
@@ -127,22 +151,34 @@ def test_element_factory_inheritance(gst_typescript):
     which extends GstObject, demonstrating that the fix works
     for multiple inheritance chains.
     """
-    output = gst_typescript
+    files_dict = gst_typescript
+    factory_content = find_class_in_files(files_dict, "GstElementFactory")
+    assert factory_content, "GstElementFactory class not found"
 
     # Verify GstElementFactory inheritance
     assert (
-        "export class GstElementFactory extends GstPluginFeature" in output
+        "export class GstElementFactory extends GstPluginFeature" in factory_content
     ), "GstElementFactory should extend GstPluginFeature"
 
+
+def test_plugin_feature_inheritance(gst_typescript):
+    """Test that GstPluginFeature extends GstObject."""
+    files_dict = gst_typescript
+    feature_content = find_class_in_files(files_dict, "GstPluginFeature")
+    assert feature_content, "GstPluginFeature class not found"
+
     # Verify GstPluginFeature inheritance
-    assert "export class GstPluginFeature extends GstObject" in output, "GstPluginFeature should extend GstObject"
+    assert (
+        "export class GstPluginFeature extends GstObject" in feature_content
+    ), "GstPluginFeature should extend GstObject"
 
 
 def test_typescript_generation_with_generic_constructors(gst_typescript):
     """
     Test that TypeScript generator properly handles generic constructors.
     """
-    typescript = gst_typescript
+    files_dict = gst_typescript
+    typescript = find_class_in_files(files_dict, "GstMeta")
 
     # GstMeta should have a static new method in the TypeScript class
     assert "export class GstMeta {" in typescript, "GstMeta should be generated as a class"
@@ -164,7 +200,8 @@ def test_typescript_class_generation_for_structs(gst_typescript):
 
     Uses GstBuffer as a test case.
     """
-    typescript = gst_typescript
+    files_dict = gst_typescript
+    typescript = find_class_in_files(files_dict, "GstBuffer")
 
     # Verify GstBuffer is generated as a class, not an interface
     # It extends GstMiniObject
@@ -195,7 +232,8 @@ def test_typescript_class_generation_for_structs_without_methods(gst_typescript)
 
     Uses GstAllocatorPrivate as a test case.
     """
-    typescript = gst_typescript
+    files_dict = gst_typescript
+    typescript = find_class_in_files(files_dict, "GstAllocatorPrivate")
 
     # Verify GstAllocatorPrivate is generated as a class
     assert "export class GstAllocatorPrivate {" in typescript, "GstAllocatorPrivate should be generated as a class"
@@ -213,7 +251,8 @@ def test_typescript_parameter_serialization(gst_typescript):
     - Query parameters with objects use the format `'ptr,' + param.ptr` (explode=false)
     - Primitive parameters use String() conversion
     """
-    typescript = gst_typescript
+    files_dict = gst_typescript
+    typescript = find_class_in_files(files_dict, "GLibDate")
 
     # Verify no serializeParam function exists (serialization is done inline)
     assert (
@@ -264,15 +303,14 @@ def test_typescript_object_return_value_instantiation(gst_typescript):
     - The instantiation code checks if data.return is an object with a ptr field
     - Primitive return values are returned directly without instantiation
     """
-    typescript = gst_typescript
+    files_dict = gst_typescript
+    typescript = find_class_in_files(files_dict, "GstAllocationParams")
 
     # Find a method that returns an object (copy method of GstAllocationParams)
     import re
 
     # Look for the copy method in GstAllocationParams class
-    gst_allocation_match = re.search(
-        r"export class GstAllocationParams.*?(?=export class|export namespace|$)", typescript, re.DOTALL
-    )
+    gst_allocation_match = re.search(r"export class GstAllocationParams.*?$", typescript, re.DOTALL)
     if gst_allocation_match:
         allocation_class = gst_allocation_match.group(0)
         copy_match = re.search(
@@ -293,29 +331,47 @@ def test_typescript_object_return_value_instantiation(gst_typescript):
                 "typeof data.return === 'object' && 'ptr' in data.return" in method_section
             ), "Method returning object should check if data.return is an object with ptr field"
 
-    # Find a method that returns a primitive (get_name or similar) - look for one without object instantiation
-    match = re.search(
-        r"async get_name\(\): Promise<string> \{[^}]*const data = await response\.json\(\);[^}]*return data\.return;[^}]*\}",
-        typescript,
-        re.DOTALL,
-    )
-    if match:
-        method_section = match.group(0)
-
-        # Check that it doesn't have object instantiation code for primitives
-        # It's OK to have "new URL" but not "new GstXXX" or similar object instantiation
-        if "new " in method_section:
-            assert method_section.count("new ") == method_section.count(
-                "new URL"
-            ), "Method returning primitive should only use 'new' for URL creation, not object instantiation"
-
-        # It should just return data.return directly (without instantiation logic)
-        assert "return data.return;" in method_section, "Method returning primitive should return data.return directly"
-
-        # It should NOT have object instantiation logic
-        assert "data.return.ptr" not in method_section, "Method returning primitive should not access data.return.ptr"
-
     print("✓ TypeScript generator instantiates object return values correctly")
+
+
+def test_typescript_primitive_return_values(gst_typescript):
+    """
+    Test that methods returning primitives don't try to instantiate objects.
+
+    Verifies that primitive return values are returned directly without instantiation.
+    """
+    files_dict = gst_typescript
+
+    # Specifically check Gst.version_string for correct primitive return handling
+    gst_file = None
+    for file_path in files_dict:
+        if file_path.endswith("/Gst.ts") or file_path.endswith("/Gst/Gst.ts"):
+            gst_file = file_path
+            break
+    assert gst_file, "Gst.ts file not found in generated files"
+    content = files_dict[gst_file]
+
+    # Find the version_string method
+    match = re.search(
+        r"export async function version_string\([^)]*\): Promise<string> \{(.*?)^\}", content, re.DOTALL | re.MULTILINE
+    )
+    assert match, "version_string() method not found in Gst.ts"
+    method_section = match.group(0)
+
+    # It should return data.return directly
+    assert (
+        "return data.return;" in method_section
+    ), "version_string() should return data.return directly for primitive return value"
+
+    # It should NOT have object instantiation logic
+    assert (
+        "new " not in method_section or "new URL" in method_section
+    ), "version_string() should not instantiate objects for primitive return value (except new URL)"
+    assert (
+        "data.return.ptr" not in method_section
+    ), "version_string() should not access data.return.ptr for primitive return value"
+
+    print("\u2713 TypeScript generator handles primitive return values correctly for Gst.version_string()")
 
 
 def test_typescript_duplicate_method_names_in_inheritance_chain(gst_typescript):
@@ -329,15 +385,15 @@ def test_typescript_duplicate_method_names_in_inheritance_chain(gst_typescript):
     - GstObject has get_g_value_array method
     - GstControlBinding (which extends GstObject) has get_g_value_array_2 method
     """
-    typescript = gst_typescript
+    files_dict = gst_typescript
     import re
 
     # Find GstObject class and verify it has get_g_value_array method
-    gst_object_match = re.search(
-        r"export class GstObject extends.*?(?=export class|export namespace|$)", typescript, re.DOTALL
-    )
-    assert gst_object_match, "GstObject class not found in generated TypeScript"
+    gst_object_content = find_class_in_files(files_dict, "GstObject")
+    assert gst_object_content, "GstObject class not found in generated TypeScript"
 
+    gst_object_match = re.search(r"export class GstObject extends.*?$", gst_object_content, re.DOTALL)
+    assert gst_object_match, "GstObject class pattern not found"
     gst_object_class = gst_object_match.group(0)
 
     # Verify GstObject has get_g_value_array method (without suffix)
@@ -349,11 +405,11 @@ def test_typescript_duplicate_method_names_in_inheritance_chain(gst_typescript):
     ), "GstObject should not have get_g_value_array_2 method (it's the parent)"
 
     # Find GstControlBinding class and verify it has get_g_value_array_2 method
-    control_binding_match = re.search(
-        r"export class GstControlBinding extends.*?(?=export class|export namespace|$)", typescript, re.DOTALL
-    )
-    assert control_binding_match, "GstControlBinding class not found in generated TypeScript"
+    control_binding_content = find_class_in_files(files_dict, "GstControlBinding")
+    assert control_binding_content, "GstControlBinding class not found in generated TypeScript"
 
+    control_binding_match = re.search(r"export class GstControlBinding extends.*?$", control_binding_content, re.DOTALL)
+    assert control_binding_match, "GstControlBinding class pattern not found"
     control_binding_class = control_binding_match.group(0)
 
     # Verify GstControlBinding has get_g_value_array_2 method (with suffix)
@@ -380,40 +436,34 @@ def test_typescript_destructors_included_in_api(gst_typescript):
     - The FinalizationRegistry system is still generated for automatic cleanup
     - Struct registries are properly generated for cleanup
     """
-    typescript = gst_typescript
+    files_dict = gst_typescript
     import re
 
     # Test 1: GObjectTypeInterface should have a callable 'free' method
-    type_interface_match = re.search(
-        r"export class GObjectTypeInterface.*?(?=export class|export namespace|$)", typescript, re.DOTALL
-    )
-    assert type_interface_match, "GObjectTypeInterface class not found in generated TypeScript"
+    type_interface_content = find_class_in_files(files_dict, "GObjectTypeInterface")
+    assert type_interface_content, "GObjectTypeInterface class not found in generated TypeScript"
 
+    type_interface_match = re.search(r"export class GObjectTypeInterface.*?$", type_interface_content, re.DOTALL)
+    assert type_interface_match, "GObjectTypeInterface class pattern not found"
     class_content = type_interface_match.group(0)
+
     # Should have a callable free method for manual cleanup
     assert "async free(" in class_content, "GObjectTypeInterface should have a callable free method for manual cleanup"
 
     # Test 2: GObjectObject should have a callable 'unref' method
-    gobject_match = re.search(
-        r"export class GObjectObject.*?(?=export class|export namespace|$)", typescript, re.DOTALL
-    )
-    assert gobject_match, "GObjectObject class not found in generated TypeScript"
+    gobject_content = find_class_in_files(files_dict, "GObjectObject")
+    assert gobject_content, "GObjectObject class not found in generated TypeScript"
 
-    gobject_content = gobject_match.group(0)
+    gobject_match = re.search(r"export class GObjectObject.*?$", gobject_content, re.DOTALL)
+    assert gobject_match, "GObjectObject class pattern not found"
+    gobject_class_content = gobject_match.group(0)
+
     # Should have a callable unref method for manual cleanup
-    assert "async unref(" in gobject_content, "GObjectObject should have a callable unref method for manual cleanup"
-
-    # Test 3: FinalizationRegistry system should still be present
     assert (
-        "FinalizationRegistry" in typescript
-    ), "FinalizationRegistry should be present for automatic memory management"
+        "async unref(" in gobject_class_content
+    ), "GObjectObject should have a callable unref method for manual cleanup"
 
-    # Test 4: Struct registries should be generated for cleanup
-    assert (
-        "gobjecttypeinterfaceRegistry" in typescript
-    ), "gobjecttypeinterfaceRegistry should be present for GObjectTypeInterface cleanup"
-
-    # Test 5: Static create() method should conditionally register with FinalizationRegistry
+    # Test 3: Static create() method should conditionally register with FinalizationRegistry
     assert (
         "static async create(ptr: string, transferType: transferType)" in class_content
     ), "GObjectTypeInterface should have static create() method"
@@ -422,6 +472,28 @@ def test_typescript_destructors_included_in_api(gst_typescript):
     ), "Static create() method should register objects with FinalizationRegistry based on transferType"
 
     print("✓ TypeScript generator includes destructors in API for proper memory management")
+
+
+def test_finalization_registry_present(gst_typescript):
+    """Test that FinalizationRegistry is present for automatic memory management."""
+    files_dict = gst_typescript
+
+    # Check a few files for FinalizationRegistry
+    found_finalization = False
+    found_registry = False
+
+    for file_path, content in files_dict.items():
+        if "FinalizationRegistry" in content:
+            found_finalization = True
+        if "gobjecttypeinterfaceRegistry" in content:
+            found_registry = True
+        if found_finalization and found_registry:
+            break
+
+    assert found_finalization, "FinalizationRegistry should be present for automatic memory management"
+    assert found_registry, "gobjecttypeinterfaceRegistry should be present for GObjectTypeInterface cleanup"
+
+    print("✓ Finalization registry system is properly generated")
 
 
 def test_param_class():
