@@ -17,7 +17,7 @@ import httpx
 import pytest
 
 # Import helper functions from conftest
-from conftest import assert_api_success
+from conftest import assert_api_success, assert_has_ptr
 
 
 @pytest.mark.asyncio
@@ -371,3 +371,136 @@ async def test_glist_field_iteration(girest_server):
         print(f"  - Iterated through {iteration_count} nodes using 'next' field")
         print("  - Properly detected end of list (null pointer)")
         print("✓ GList field iteration test passed!")
+
+
+@pytest.mark.asyncio
+async def test_return_array(girest_server):
+    """
+    Test that functions returning arrays work correctly.
+
+    Uses GLib.get_environ() which returns an array of strings (environment variables).
+    This tests:
+    - Array return values
+    - Zero-terminated arrays
+    - String array elements
+    """
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{girest_server}/GLib/get_environ")
+        assert_api_success(response, "Failed to call get_environ")
+
+        data = response.json()
+
+        # Check that the response contains the return field
+        assert "return" in data, "Response should contain 'return' field"
+
+        env = data["return"]
+
+        # Verify it's an array
+        assert isinstance(env, list), "Return value should be a list"
+
+        # Verify all elements are strings
+        assert all(isinstance(e, str) for e in env), "All elements should be strings"
+
+        # There should be at least one environment variable
+        assert len(env) > 0, "Should have at least one environment variable"
+
+        # Debug: print the actual values
+        print(f"Array length: {len(env)}")
+        print(f"First few values: {env[:5] if len(env) >= 5 else env}")
+
+        # Environment variables should be in KEY=VALUE format
+        assert any("=" in e for e in env), "Environment variables should contain '='"
+
+        print(f"✓ Successfully retrieved {len(env)} environment variables as array")
+
+
+@pytest.mark.asyncio
+async def test_struct_field_array(girest_server):
+    """
+    Test that struct fields of type array work correctly.
+
+    Uses GstBuffer with gst_buffer_map to get a GstMapInfo struct.
+    GstMapInfo has a 'data' field which is an array of bytes.
+    This tests:
+    - Creating a GstBuffer with gst_buffer_new_allocate
+    - Mapping a buffer with gst_buffer_map
+    - Accessing an array field from a struct (GstMapInfo.data)
+    """
+    async with httpx.AsyncClient() as client:
+        # Step 1: Create a GstBuffer with 10 bytes
+        # gst_buffer_new_allocate(GstAllocator *allocator, gsize size, GstAllocationParams *params)
+        # We'll pass null for allocator and params, and 10 for size
+        response = await client.get(
+            f"{girest_server}/Gst/Buffer/new_allocate", params={"size": 10, "allocator": "ptr,0", "params": "ptr,0"}
+        )
+        assert_api_success(response, "Failed to create GstBuffer")
+        buffer_data = response.json()
+        assert "return" in buffer_data, "Response should contain 'return' field"
+        buffer_ptr = assert_has_ptr(buffer_data["return"], "Buffer should have a ptr field")
+        print(f"✓ Created GstBuffer at {buffer_ptr}")
+
+        # Step 2: Allocate a GstMapInfo structure
+        response = await client.get(f"{girest_server}/Gst/MapInfo/new")
+        assert_api_success(response, "Failed to allocate GstMapInfo")
+        map_info_data = response.json()
+        assert "return" in map_info_data, "Response should contain 'return' field"
+        map_info_ptr = assert_has_ptr(map_info_data["return"], "MapInfo should have a ptr field")
+        print(f"✓ Allocated GstMapInfo at {map_info_ptr}")
+
+        # Step 3: Map the buffer to get a GstMapInfo
+        # gst_buffer_map(GstBuffer *buffer, GstMapInfo *info, GstMapFlags flags)
+        response = await client.get(
+            f"{girest_server}/Gst/Buffer/ptr,{buffer_ptr}/map",
+            params={
+                "info": f"ptr,{map_info_ptr}",
+                "flags": "read",  # GST_MAP_READ enum value
+            },
+        )
+        assert_api_success(response, "Failed to map GstBuffer")
+        map_data = response.json()
+
+        # The function returns a boolean
+        assert "return" in map_data, "Response should contain 'return' field"
+        assert map_data["return"] is True, "Buffer map should succeed"
+        print("✓ Mapped buffer successfully")
+
+        # Step 4: Access the 'data' field from GstMapInfo
+        # The data field is a uint8 array
+        response = await client.get(f"{girest_server}/Gst/MapInfo/ptr,{map_info_ptr}/fields/data")
+        assert_api_success(response, "Failed to access data field")
+        field_data = response.json()
+
+        assert "return" in field_data, "Response should contain 'return' field"
+        data_array = field_data["return"]
+
+        # Verify it's an array
+        assert isinstance(data_array, list), "data field should be a list"
+
+        # Verify the array has 10 elements (the size we allocated)
+        assert len(data_array) == 10, f"data array should have 10 elements, got {len(data_array)}"
+
+        # Verify all elements are integers (uint8 values)
+        assert all(isinstance(b, int) for b in data_array), "All elements should be integers"
+        assert all(0 <= b <= 255 for b in data_array), "All elements should be uint8 values (0-255)"
+
+        print(f"✓ Successfully accessed array field 'data' with {len(data_array)} bytes")
+        print(f"  Data values: {data_array}")
+
+        # Step 5: Unmap the buffer to clean up
+        response = await client.get(
+            f"{girest_server}/Gst/Buffer/ptr,{buffer_ptr}/unmap", params={"info": f"ptr,{map_info_ptr}"}
+        )
+        assert_api_success(response, "Failed to unmap GstBuffer")
+        print("✓ Unmapped buffer")
+
+        # Step 6: Free the GstMapInfo structure
+        response = await client.get(f"{girest_server}/Gst/MapInfo/ptr,{map_info_ptr}/free")
+        assert_api_success(response, "Failed to free GstMapInfo")
+        print("✓ Freed GstMapInfo")
+
+        # Step 7: Unref the buffer to clean up
+        response = await client.get(f"{girest_server}/Gst/MiniObject/ptr,{buffer_ptr}/unref")
+        assert_api_success(response, "Failed to unref GstBuffer")
+        print("✓ Unreffed buffer")
+
+        print("✓ Struct field array test completed successfully!")
