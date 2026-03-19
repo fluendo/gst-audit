@@ -14,6 +14,8 @@ export { UCharPropertyEditor } from './UCharPropertyEditor';
 export { EnumPropertyEditor } from './EnumPropertyEditor';
 export { FlagsPropertyEditor } from './FlagsPropertyEditor';
 export { ObjectPropertyEditor } from './ObjectPropertyEditor';
+export { BoxedPropertyEditor } from './BoxedPropertyEditor';
+export { SamplePropertyEditor } from './SamplePropertyEditor';
 
 export type { PropertyData, PropertyEditorProps, PropertyUpdateResult } from './types';
 export { extractValueFromGValue, setValueInGValue, getPropertyTypeName } from './utils';
