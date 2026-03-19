@@ -1,8 +1,8 @@
 export namespace GstVideoVideoOrientationMethod {
   export const IDENTITY: 'identity' = 'identity';
-  export const 90R: '90r' = '90r';
-  export const 180: '180' = '180';
-  export const 90L: '90l' = '90l';
+  export const _90R: '90r' = '90r';
+  export const _180: '180' = '180';
+  export const _90L: '90l' = '90l';
   export const HORIZ: 'horiz' = 'horiz';
   export const VERT: 'vert' = 'vert';
   export const UL_LR: 'ul_lr' = 'ul_lr';

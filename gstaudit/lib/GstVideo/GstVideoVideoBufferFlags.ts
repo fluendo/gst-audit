@@ -6,7 +6,6 @@ export namespace GstVideoVideoBufferFlags {
   export const MULTIPLE_VIEW: 'multiple_view' = 'multiple_view';
   export const FIRST_IN_BUNDLE: 'first_in_bundle' = 'first_in_bundle';
   export const TOP_FIELD: 'top_field' = 'top_field';
-  export const ONEFIELD: 'onefield' = 'onefield';
   export const BOTTOM_FIELD: 'bottom_field' = 'bottom_field';
   export const MARKER: 'marker' = 'marker';
   export const LAST: 'last' = 'last';
@@ -45,4 +44,4 @@ export namespace GstVideoVideoBufferFlags {
   }
 
   }
-  export type GstVideoVideoBufferFlagsValue = "interlaced" | "tff" | "rff" | "onefield" | "multiple_view" | "first_in_bundle" | "top_field" | "onefield" | "bottom_field" | "marker" | "last";
+  export type GstVideoVideoBufferFlagsValue = "interlaced" | "tff" | "rff" | "onefield" | "multiple_view" | "first_in_bundle" | "top_field" | "bottom_field" | "marker" | "last";

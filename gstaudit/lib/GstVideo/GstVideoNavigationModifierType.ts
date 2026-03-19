@@ -17,7 +17,6 @@ export namespace GstVideoNavigationModifierType {
   export const HYPER_MASK: 'hyper_mask' = 'hyper_mask';
   export const META_MASK: 'meta_mask' = 'meta_mask';
   export const MASK: 'mask' = 'mask';
-  export const META_MASK: 'meta_mask' = 'meta_mask';
     
 
 
@@ -53,4 +52,4 @@ export namespace GstVideoNavigationModifierType {
   }
 
   }
-  export type GstVideoNavigationModifierTypeValue = "none" | "shift_mask" | "lock_mask" | "control_mask" | "mod1_mask" | "mod2_mask" | "mod3_mask" | "mod4_mask" | "mod5_mask" | "button1_mask" | "button2_mask" | "button3_mask" | "button4_mask" | "button5_mask" | "super_mask" | "hyper_mask" | "meta_mask" | "mask" | "meta_mask";
+  export type GstVideoNavigationModifierTypeValue = "none" | "shift_mask" | "lock_mask" | "control_mask" | "mod1_mask" | "mod2_mask" | "mod3_mask" | "mod4_mask" | "mod5_mask" | "button1_mask" | "button2_mask" | "button3_mask" | "button4_mask" | "button5_mask" | "super_mask" | "hyper_mask" | "meta_mask" | "mask";

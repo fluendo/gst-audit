@@ -116,7 +116,7 @@ return Promise.reject("Call failed");
 
 
  
-  async 2d(vscale: GstVideoVideoScaler, format: GstVideoVideoFormatValue, src_stride: number, dest_stride: number, x: number, y: number, width: number, height: number, src?: Pointer, dest?: Pointer, Prefer?: string): Promise<void> {
+  async _2d(vscale: GstVideoVideoScaler, format: GstVideoVideoFormatValue, src_stride: number, dest_stride: number, x: number, y: number, width: number, height: number, src?: Pointer, dest?: Pointer, Prefer?: string): Promise<void> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GstVideo/VideoScaler/ptr,${this.ptr}/2d`, apiConfig.baseUrl);
     // Object with explode=false: serialize as comma-separated

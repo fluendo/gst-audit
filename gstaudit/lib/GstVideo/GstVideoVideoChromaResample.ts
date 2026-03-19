@@ -114,46 +114,6 @@ return Promise.reject("Call failed");
 
 
  
-  async (width: number, lines?: Pointer, Prefer?: string): Promise<void> {
-    // Increment ref for parameters with full transfer ownership
-    const url = new URL(`${apiConfig.normalizedBasePath}/GstVideo/VideoChromaResample/ptr,${this.ptr}/`, apiConfig.baseUrl);
-    // Primitive parameter
-    if (lines !== undefined) url.searchParams.append('lines', String(lines));
-    // Primitive parameter
-    url.searchParams.append('width', String(width));
-    try {
-      // Add headers for callback authentication
-      const headers: Record<string, string> = {};
-      if (Prefer) {
-        headers['Prefer'] = Prefer;
-      }
-      
-      // Auto-inject correlation ID if we're in a callback context
-      const correlationId = getActiveCorrelationId();
-      if (correlationId) {
-        headers['X-Correlation-Id'] = correlationId;
-      }
-      
-      const response = await fetch(url.toString(), { headers });
-      if (!response.ok) {
-        // If the call fails, unref the objects we ref'd
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      // If there's an error, unref the objects we ref'd
-      throw error;
-    }
-  }
-
-    
-
-
-
-
-
-
-
- 
   async get_info(): Promise<{n_lines: number, offset: number}> {
     // Increment ref for parameters with full transfer ownership
     const url = new URL(`${apiConfig.normalizedBasePath}/GstVideo/VideoChromaResample/ptr,${this.ptr}/get_info`, apiConfig.baseUrl);

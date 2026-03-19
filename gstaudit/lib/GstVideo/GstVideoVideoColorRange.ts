@@ -1,7 +1,7 @@
 export namespace GstVideoVideoColorRange {
   export const UNKNOWN: 'unknown' = 'unknown';
-  export const 0_255: '0_255' = '0_255';
-  export const 16_235: '16_235' = '16_235';
+  export const _0_255: '0_255' = '0_255';
+  export const _16_235: '16_235' = '16_235';
     
 
 
