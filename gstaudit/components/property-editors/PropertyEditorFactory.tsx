@@ -33,86 +33,74 @@ import { EnumPropertyEditor } from './EnumPropertyEditor';
 import { FlagsPropertyEditor } from './FlagsPropertyEditor';
 import { ObjectPropertyEditor } from './ObjectPropertyEditor';
 import { BoxedPropertyEditor } from './BoxedPropertyEditor';
-import { useState, useEffect, ReactElement } from 'react';
+import { useState, useEffect, ComponentType } from 'react';
 import { Typography, Box } from '@mui/material';
 
 /**
  * Factory component that determines the property type and renders
- * the appropriate editor component
+ * the appropriate editor component.
+ *
+ * The editor is stored as a component type (rather than a rendered element) so
+ * that it is always rendered with the latest props. Storing a rendered element
+ * would freeze `property.value` at its initial value, causing editors to skip
+ * updates when the value returns to the original one (e.g. an enum value of 0).
  */
 export function PropertyEditorFactory(props: PropertyEditorProps) {
-  const [editorComponent, setEditorComponent] = useState<ReactElement | null>(null);
+  const [Editor, setEditor] = useState<ComponentType<PropertyEditorProps> | null>(null);
+  const [unsupported, setUnsupported] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const determineEditor = async () => {
       setLoading(true);
+      setError(null);
+      setUnsupported(false);
+      setEditor(null);
       try {
         const { property } = props;
         const { paramSpec } = property;
 
         // Check each type in order of specificity
         if (await paramSpec.isOf(GObjectParamSpecString)) {
-          setEditorComponent(<StringPropertyEditor {...props} />);
+          setEditor(() => StringPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecBoolean)) {
-          setEditorComponent(<BooleanPropertyEditor {...props} />);
+          setEditor(() => BooleanPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecInt64)) {
-          setEditorComponent(<Int64PropertyEditor {...props} />);
+          setEditor(() => Int64PropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecUInt64)) {
-          setEditorComponent(<UInt64PropertyEditor {...props} />);
+          setEditor(() => UInt64PropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecLong)) {
-          setEditorComponent(<LongPropertyEditor {...props} />);
+          setEditor(() => LongPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecULong)) {
-          setEditorComponent(<ULongPropertyEditor {...props} />);
+          setEditor(() => ULongPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecInt)) {
-          setEditorComponent(<IntPropertyEditor {...props} />);
+          setEditor(() => IntPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecUInt)) {
-          setEditorComponent(<UIntPropertyEditor {...props} />);
+          setEditor(() => UIntPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecChar)) {
-          setEditorComponent(<CharPropertyEditor {...props} />);
+          setEditor(() => CharPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecUChar)) {
-          setEditorComponent(<UCharPropertyEditor {...props} />);
+          setEditor(() => UCharPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecDouble)) {
-          setEditorComponent(<DoublePropertyEditor {...props} />);
+          setEditor(() => DoublePropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecFloat)) {
-          setEditorComponent(<FloatPropertyEditor {...props} />);
+          setEditor(() => FloatPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecEnum)) {
-          setEditorComponent(<EnumPropertyEditor {...props} />);
+          setEditor(() => EnumPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecFlags)) {
-          setEditorComponent(<FlagsPropertyEditor {...props} />);
+          setEditor(() => FlagsPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecBoxed)) {
-          setEditorComponent(<BoxedPropertyEditor {...props} />);
+          setEditor(() => BoxedPropertyEditor);
         } else if (await paramSpec.isOf(GObjectParamSpecObject)) {
-          setEditorComponent(<ObjectPropertyEditor {...props} />);
+          setEditor(() => ObjectPropertyEditor);
         } else {
           // Unknown type - show read-only display
-          setEditorComponent(
-            <Box sx={{ mt: 1 }}>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  fontFamily: 'monospace', 
-                  color: 'text.secondary',
-                  fontStyle: 'italic' 
-                }}
-              >
-                {property.value}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" display="block">
-                Unsupported property type
-              </Typography>
-            </Box>
-          );
+          setUnsupported(true);
         }
       } catch (error) {
         console.error('Error determining property editor type:', error);
-        setEditorComponent(
-          <Box sx={{ mt: 1 }}>
-            <Typography variant="body2" color="error">
-              Error loading editor: {error instanceof Error ? error.message : 'Unknown error'}
-            </Typography>
-          </Box>
-        );
+        setError(error instanceof Error ? error.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
@@ -131,5 +119,39 @@ export function PropertyEditorFactory(props: PropertyEditorProps) {
     );
   }
 
-  return editorComponent;
+  if (error) {
+    return (
+      <Box sx={{ mt: 1 }}>
+        <Typography variant="body2" color="error">
+          Error loading editor: {error}
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (unsupported) {
+    return (
+      <Box sx={{ mt: 1 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontFamily: 'monospace',
+            color: 'text.secondary',
+            fontStyle: 'italic',
+          }}
+        >
+          {props.property.value}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" display="block">
+          Unsupported property type
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (Editor) {
+    return <Editor {...props} />;
+  }
+
+  return null;
 }
