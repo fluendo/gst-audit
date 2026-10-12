@@ -169,12 +169,12 @@ export class ElementTreeManager {
     // Report status
     this.reportStatus(`Processing ${elementName}...`);
     
-    // Discover all pads
-    const pads = await this.discoverPads(element, elementName);
-    
-    // Check if this is a bin
-    const isGstBin = await element.isOf(GstBin);
-    
+    // Discover all pads and check if this is a bin
+    const [pads, isGstBin] = await Promise.all([
+      this.discoverPads(element, elementName),
+      element.isOf(GstBin),
+    ]);
+
     console.log(`[ELEMENT_TREE] Processing ${isGstBin ? 'bin' : 'element'}: ${elementName} (${pads.filter(p => p.direction === GstPadDirection.SINK).length} sink, ${pads.filter(p => p.direction === GstPadDirection.SRC).length} src pads)`);
     
     // Create tree node
@@ -194,14 +194,15 @@ export class ElementTreeManager {
       const iterator = await bin.iterate_elements();
       
       if (iterator) {
+        // Iterate sequentially, then walk the children in parallel
+        const objs = [];
         for await (const obj of iterator) {
-          if (!obj) continue;
-          const child = await obj.castTo(GstElement);
-          
-          // Recursive call - pass current node as parent
-          const childTree = await this.walkPipelineRecursive(child, treeNode, level + 1);
-          treeNode.children.push(childTree);
+          if (obj) objs.push(obj);
         }
+        treeNode.children = await Promise.all(objs.map(async (obj) => {
+          const child = await obj.castTo(GstElement);
+          return this.walkPipelineRecursive(child, treeNode, level + 1);
+        }));
       }
     }
     
@@ -214,20 +215,23 @@ export class ElementTreeManager {
    * Discover all pads for an element
    */
   private async discoverPads(element: GstElement, elementName: string): Promise<ElementPad[]> {
-    const pads: ElementPad[] = [];
-    
     const iterator = await element.iterate_pads();
     
+    // Iterate sequentially, then query the pads in parallel
+    const objs = [];
     for await (const obj of iterator) {
-      if (!obj) continue;
-      
+      if (obj) objs.push(obj);
+    }
+
+    const pads = await Promise.all(objs.map(async (obj): Promise<ElementPad> => {
       const pad = await obj.castTo(GstPad);
-      const padName = (await pad.get_name()) ?? 'unknown';
-      const direction = await pad.get_direction();
-      const isGhost = await pad.isOf(GstGhostPad);
-      
-      // Check if pad is linked and get peer
-      const isLinked = await pad.is_linked();
+      const [name, direction, isGhost, isLinked] = await Promise.all([
+        pad.get_name(),
+        pad.get_direction(),
+        pad.isOf(GstGhostPad),
+        pad.is_linked(),
+      ]);
+      const padName = name ?? 'unknown';
       const linkedTo = isLinked ? await pad.get_peer() : null;
       
       // Initialize internal pad reference as null
@@ -239,15 +243,17 @@ export class ElementTreeManager {
           const ghostPad = await pad.castTo(GstGhostPad);
           const internal = await ghostPad.get_internal();
           if (internal) {
-            const internalName = (await internal.get_name()) ?? 'unknown';
+            const [internalNameOrNull, internalIsLinked] = await Promise.all([
+              internal.get_name(),
+              internal.is_linked(),
+            ]);
+            const internalName = internalNameOrNull ?? 'unknown';
             // Internal pad representation should match the same format: elementName-padName
             const internalRepresentation = `${elementName}-${padName}-${internalName}`;
             
             // Internal pad direction is opposite of ghost pad direction
             const internalDirection = direction === GstPadDirection.SINK ? GstPadDirection.SRC : GstPadDirection.SINK;
             
-            // Check if internal pad is linked
-            const internalIsLinked = await internal.is_linked();
             const internalLinkedTo = internalIsLinked ? await internal.get_peer() : null;
             
             // Create the internal pad object (will be nested, not added to main array)
@@ -270,7 +276,7 @@ export class ElementTreeManager {
       
       // Add the pad with internal reference
       const representation = `${elementName}-${padName}`;
-      pads.push({
+      return {
         id: pad.ptr,
         representation,
         name: padName,
@@ -280,8 +286,8 @@ export class ElementTreeManager {
         isInternal: false,
         linkedTo,
         internal: internalPad // Set the internal pad reference (null for non-ghost pads)
-      });
-    }
+      };
+    }));
     
     return pads;
   }
