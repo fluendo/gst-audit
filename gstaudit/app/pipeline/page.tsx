@@ -379,7 +379,10 @@ export default function PipelinePage() {
                 <Panel defaultSize={25} minSize={20} maxSize={40}>
                   <div className="h-full border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                     {activeTab === 0 ? (
-                      <ObjectDetails selectedElement={selectedElement} />
+                      <ObjectDetails
+                        selectedElement={selectedElement}
+                        gstauditBaseUrl={connection ? `http://${connection.host}:${connection.port}/gstaudit` : null}
+                      />
                     ) : (
                       <FactoryDetail selectedFactory={selectedFactory} />
                     )}

@@ -164,11 +164,19 @@ function shutdown()
   console.log("Shutdown done");
 }
 
+function dispose()
+{
+  activeSamplers.forEach(stop => stop(new Error('Script unloaded')));
+  activeSamplers.clear();
+}
+
 rpc.exports = {
   'init': init,
   'shutdown': shutdown,
+  'dispose': dispose,
   'registerLogFunction': register_log_function,
   'unregisterLogFunction': unregister_log_function,
+  'sampleQueue': sample_queue,
 };
 
 // ============================================================================
@@ -321,4 +329,152 @@ function unregister_log_function() {
   
   console.log("Log function unregistered successfully");
   return { success: true };
+}
+
+const LEAKY_NAMES = ['no', 'upstream', 'downstream'];
+const COUNT_SIGNAL_SOURCE = `
+#include <glib.h>
+
+void
+count_signal (gpointer instance, gpointer user_data)
+{
+  (*(guint64 *) user_data)++;
+}
+`;
+
+let countSignalModule = null;
+const activeSamplers = new Set();
+// Overrun counters are never freed: the signal can be in flight on a streaming
+// thread while we disconnect, so the handler may still write to its counter.
+const retainedCounters = [];
+
+function find_gst_export(name) {
+  let symb = null;
+  Process.enumerateModules().some(m => {
+    symb = m.findExportByName(name);
+    return symb !== null;
+  });
+  if (symb === null)
+    throw new Error(`${name} not found`);
+  return symb;
+}
+
+function count_signal_module() {
+  if (!countSignalModule)
+    countSignalModule = new CModule(COUNT_SIGNAL_SOURCE);
+  return countSignalModule;
+}
+
+function sample_queue(elementPtr, seconds, intervalMs) {
+  const fn = (name, ret, args) => new NativeFunction(find_gst_export(name), ret, args);
+  const object_ref = fn('gst_object_ref', 'pointer', ['pointer']);
+  const object_unref = fn('gst_object_unref', 'void', ['pointer']);
+  const object_get_name = fn('gst_object_get_name', 'pointer', ['pointer']);
+  const find_property = fn('g_object_class_find_property', 'pointer', ['pointer', 'pointer']);
+  const object_get = fn('g_object_get', 'void', ['pointer', 'pointer', '...', 'pointer', 'pointer']);
+  const signal_lookup = fn('g_signal_lookup', 'uint', ['pointer', 'pointer']);
+  const signal_connect = fn('g_signal_connect_data', 'ulong',
+      ['pointer', 'pointer', 'pointer', 'pointer', 'pointer', 'int']);
+  const signal_disconnect = fn('g_signal_handler_disconnect', 'void', ['pointer', 'ulong']);
+  const free = fn('g_free', 'void', ['pointer']);
+
+  const el = object_ref(ptr(elementPtr));
+  const klass = el.readPointer();
+  const out = Memory.alloc(8);
+
+  const has = name => !find_property(klass, Memory.allocUtf8String(name)).isNull();
+  const read = (name, size) => {
+    out.writeU64(0);
+    object_get(el, Memory.allocUtf8String(name), out, NULL);
+    return size == 8 ? out.readU64().toNumber() : out.readU32();
+  };
+
+  if (!has('current-level-buffers')) {
+    object_unref(el);
+    return Promise.reject(new Error('Not a queue'));
+  }
+
+  const overruns = Memory.alloc(8);
+  overruns.writeU64(0);
+  retainedCounters.push(overruns);
+  const overrun = Memory.allocUtf8String('overrun');
+  const countsOverruns = signal_lookup(overrun, klass.readPointer()) != 0;
+  const handler = countsOverruns
+      ? signal_connect(el, overrun, count_signal_module().count_signal, overruns, NULL, 0)
+      : 0;
+
+  const namePtr = object_get_name(el);
+  const name = namePtr.readCString();
+  free(namePtr);
+
+  const result = {
+    name: name,
+    interval_ms: intervalMs,
+    leaky: has('leaky') ? LEAKY_NAMES[read('leaky', 4)] : 'no',
+    counts_overruns: countsOverruns,
+    max: {
+      buffers: read('max-size-buffers', 4),
+      bytes: read('max-size-bytes', 4),
+      time: read('max-size-time', 8),
+    },
+    samples: [],
+  };
+
+  // Every way of ending the sampling goes through stop(), which settles the
+  // promise exactly once with the samples collected so far. Otherwise
+  // exports_sync.sample_queue would hold its Python thread forever.
+  let settle = null;
+  const done = new Promise((resolve, reject) => {
+    settle = error => {
+      if (error !== undefined) {
+        if (result.samples.length === 0) {
+          reject(error);
+          return;
+        }
+        result.stopped_early = String(error);
+      }
+      resolve(result);
+    };
+  });
+
+  let stopped = false;
+  let timer = null;
+  const stop = error => {
+    activeSamplers.delete(stop);
+    if (stopped)
+      return;
+    stopped = true;
+    if (timer !== null)
+      clearInterval(timer);
+    if (handler != 0)
+      signal_disconnect(el, handler);
+    object_unref(el);
+    settle(error);
+  };
+  activeSamplers.add(stop);
+
+  const start = Date.now();
+  const sample = () => {
+    try {
+      result.samples.push([
+        Date.now() - start,
+        read('current-level-buffers', 4),
+        read('current-level-bytes', 4),
+        read('current-level-time', 8),
+        overruns.readU64().toNumber(),
+      ]);
+    } catch (e) {
+      stop(e);
+    }
+  };
+
+  sample();
+  if (!stopped) {
+    timer = setInterval(() => {
+      sample();
+      if (!stopped && Date.now() - start >= seconds * 1000)
+        stop();
+    }, intervalMs);
+  }
+  return done;
 }

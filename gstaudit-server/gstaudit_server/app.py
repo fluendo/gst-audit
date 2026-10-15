@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import asyncio
 import ctypes
 import logging
 import os
@@ -100,6 +101,18 @@ class GstAuditResolver(Resolver):
                 logger.error(f"Error unregistering log callback: {e}")
                 return {"error": str(e)}, 500
 
+        async def sample_queue(element, seconds=10, interval=50, **kwargs):
+            """Endpoint for sampling the fill level of a queue over time."""
+            if not 1 <= seconds <= 60 or not 10 <= interval <= 1000:
+                return {"error": "seconds must be 1-60 and interval 10-1000"}, 400
+            try:
+                return await asyncio.to_thread(
+                    resolver.scripts[1].exports_sync.sample_queue, element, seconds, interval
+                ), 200
+            except Exception as e:
+                logger.error(f"Error sampling queue levels: {e}")
+                return {"error": str(e)}, 400
+
         # Route to the appropriate handler
         if operation_id == "get_pipelines":
             return get_pipelines
@@ -107,6 +120,8 @@ class GstAuditResolver(Resolver):
             return register_logs
         elif operation_id == "unregister_logs":
             return unregister_logs
+        elif operation_id == "sample_queue":
+            return sample_queue
 
         return None
 
@@ -508,9 +523,47 @@ unregister_logs_operation = {
     },
 }
 
+sample_queue_operation = {
+    "summary": "Sample queue levels",
+    "description": "Sample the fill level, limits and overruns of a queue over time",
+    "operationId": "sample_queue",
+    "tags": ["GstAudit"],
+    "parameters": [
+        {
+            "name": "element",
+            "in": "query",
+            "required": True,
+            "schema": {"type": "string"},
+            "description": "Queue element pointer",
+        },
+        {
+            "name": "seconds",
+            "in": "query",
+            "required": False,
+            "schema": {"type": "integer", "default": 10},
+            "description": "Sampling window",
+        },
+        {
+            "name": "interval",
+            "in": "query",
+            "required": False,
+            "schema": {"type": "integer", "default": 50},
+            "description": "Milliseconds between samples",
+        },
+    ],
+    "responses": {
+        "200": {
+            "description": "Samples as [ms, buffers, bytes, time ns, overruns]",
+            "content": {"application/json": {"schema": {"type": "object"}}},
+        },
+        "400": {"description": "Invalid request or not a queue"},
+    },
+}
+
 gstaudit_spec.path(path="/GstAudit/pipelines", operations={"get": pipelines_operation})
 gstaudit_spec.path(path="/GstAudit/logs/register", operations={"post": register_logs_operation})
 gstaudit_spec.path(path="/GstAudit/logs/unregister", operations={"post": unregister_logs_operation})
+gstaudit_spec.path(path="/GstAudit/queue-levels", operations={"get": sample_queue_operation})
 
 app.add_api(gstaudit_spec.to_dict(), resolver=GstAuditResolver(), base_path="/gstaudit")
 
