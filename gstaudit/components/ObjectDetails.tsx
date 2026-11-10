@@ -1,4 +1,5 @@
-import { Box, Typography, Paper, CircularProgress } from '@mui/material';
+import { Box, Typography, Paper, CircularProgress, Chip, IconButton, Tooltip } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { ElementTree } from '@/lib/ElementTreeManager';
 import { 
   GstPadDirection, 
@@ -8,12 +9,14 @@ import {
 } from '@/lib/gst';
 import { useState, useEffect } from 'react';
 import { PropertyEditorFactory, PropertyData, extractValueFromGValue, setValueInGValue } from './property-editors';
+import { PadCaps } from './PadCaps';
 
 interface ObjectDetailsProps {
   selectedElement: ElementTree | null;
 }
 
 export function ObjectDetails({ selectedElement }: ObjectDetailsProps) {
+  const [capsRefreshKey, setCapsRefreshKey] = useState(0);
   const [properties, setProperties] = useState<PropertyData[] | null>(null);
   const [loadingProperties, setLoadingProperties] = useState(false);
   const [propertiesError, setPropertiesError] = useState<string | null>(null);
@@ -216,26 +219,39 @@ export function ObjectDetails({ selectedElement }: ObjectDetailsProps) {
 
       {selectedElement.pads.length > 0 && (
         <Paper elevation={0} sx={{ p: 2, mb: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Pads
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Pads
+            </Typography>
+            <Tooltip title="Re-read caps">
+              <IconButton size="small" onClick={() => setCapsRefreshKey(k => k + 1)} aria-label="Re-read caps">
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
           <Box sx={{ mt: 2 }}>
             {selectedElement.pads.map((pad) => (
-              <Box key={pad.id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-                <Typography variant="body2" fontWeight="medium">
-                  {pad.name}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
-                  Direction: {pad.direction === GstPadDirection.SINK ? 'Sink' : pad.direction === GstPadDirection.SRC ? 'Src' : 'Unknown'}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" display="block">
-                  Type: {pad.isGhost ? 'Ghost' : 'Regular'} {pad.isInternal ? '(Internal)' : ''}
-                </Typography>
-                {pad.linkedTo && (
-                  <Typography variant="caption" color="text.secondary" display="block">
-                    Linked: Yes
+              <Box key={pad.id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid', borderColor: 'divider', '&:last-child': { mb: 0, pb: 0, borderBottom: 'none' } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+                  <Typography variant="body2" fontWeight="medium" sx={{ mr: 0.5 }}>
+                    {pad.name}
                   </Typography>
-                )}
+                  <Chip
+                    label={pad.direction === GstPadDirection.SINK ? 'sink' : pad.direction === GstPadDirection.SRC ? 'src' : 'unknown'}
+                    size="small"
+                    color={pad.direction === GstPadDirection.SINK ? 'primary' : 'secondary'}
+                    variant="outlined"
+                    sx={{ height: 18, fontSize: '0.6875rem' }}
+                  />
+                  {pad.isGhost && <Chip label="ghost" size="small" sx={{ height: 18, fontSize: '0.6875rem' }} />}
+                  {pad.isInternal && <Chip label="internal" size="small" sx={{ height: 18, fontSize: '0.6875rem' }} />}
+                  {!pad.linkedTo && (
+                    <Typography variant="caption" color="text.disabled" sx={{ ml: 'auto' }}>
+                      unlinked
+                    </Typography>
+                  )}
+                </Box>
+                <PadCaps pad={pad.pad} direction={pad.direction} refreshKey={capsRefreshKey} />
               </Box>
             ))}
           </Box>
