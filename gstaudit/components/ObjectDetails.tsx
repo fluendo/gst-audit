@@ -1,4 +1,4 @@
-import { Box, Typography, Paper, CircularProgress, Chip, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Paper, CircularProgress, Chip, IconButton, Tooltip, Button } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { ElementTree } from '@/lib/ElementTreeManager';
 import { 
@@ -10,13 +10,31 @@ import {
 import { useState, useEffect } from 'react';
 import { PropertyEditorFactory, PropertyData, extractValueFromGValue, setValueInGValue } from './property-editors';
 import { PadCaps } from './PadCaps';
+import { QueueLevelsDialog } from './QueueLevelsDialog';
 
 interface ObjectDetailsProps {
   selectedElement: ElementTree | null;
+  gstauditBaseUrl?: string | null;
 }
 
-export function ObjectDetails({ selectedElement }: ObjectDetailsProps) {
+export function ObjectDetails({ selectedElement, gstauditBaseUrl }: ObjectDetailsProps) {
   const [capsRefreshKey, setCapsRefreshKey] = useState(0);
+  const [levelsOpen, setLevelsOpen] = useState(false);
+  const [factoryName, setFactoryName] = useState<string | null>(null);
+
+  useEffect(() => {
+    setFactoryName(null);
+    setLevelsOpen(false);
+    if (!selectedElement) return;
+    let cancelled = false;
+    (async () => {
+      const factory = await selectedElement.element.get_factory();
+      const name = factory ? await factory.get_name() : null;
+      if (!cancelled) setFactoryName(name);
+    })().catch(() => {});
+    return () => { cancelled = true; };
+  }, [selectedElement]);
+
   const [properties, setProperties] = useState<PropertyData[] | null>(null);
   const [loadingProperties, setLoadingProperties] = useState(false);
   const [propertiesError, setPropertiesError] = useState<string | null>(null);
@@ -215,6 +233,19 @@ export function ObjectDetails({ selectedElement }: ObjectDetailsProps) {
             {selectedElement.pads.length} ({selectedElement.pads.filter(p => p.direction === GstPadDirection.SINK).length} sink, {selectedElement.pads.filter(p => p.direction === GstPadDirection.SRC).length} src)
           </Typography>
         </Box>
+        {gstauditBaseUrl && (factoryName === 'queue' || factoryName === 'queue2') && (
+          <>
+            <Button size="small" variant="outlined" sx={{ mt: 2 }} onClick={() => setLevelsOpen(true)}>
+              Plot queue levels
+            </Button>
+            <QueueLevelsDialog
+              open={levelsOpen}
+              onClose={() => setLevelsOpen(false)}
+              gstauditBaseUrl={gstauditBaseUrl}
+              elementPtr={selectedElement.id}
+            />
+          </>
+        )}
       </Paper>
 
       {selectedElement.pads.length > 0 && (
